@@ -13,25 +13,11 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		00C4DAD52E1B809500754D05 /* Exceptions for "SampleTextFiles" folder in "TextApp" target */ = {
+		00C4DAD52E1B809500754D05 /* Exceptions for "SampleFiles" folder in "TextApp" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Deep/Sub1/Sub1/Sample1.txt,
-				Deep/Sub1/Sub1/Sample2.txt,
-				Deep/Sub1/Sub2/Sample1.txt,
-				Deep/Sub1/Sub2/Sample2.txt,
-				Deep/Sub1/Sub3/Sample1.txt,
-				Deep/Sub2/Sample1.txt,
-				Deep/Sub3/Sample1.txt,
-				Drafts/draft1.md,
-				Drafts/draft2.md,
-				"Logs/2024-01-01.log",
-				"Logs/2024-01-02.log",
-				Notes/ideas.txt,
-				Notes/meeting.txt,
-				Quotes/quotes1.txt,
-				Quotes/quotes2.txt,
-				Readme.txt,
+				Sub1/Sub1/Sub2/File1.txt,
+				Sub1/Sub1/Sub2/File2.txt,
 			);
 			target = 00517B4D2E1A1AAA00AED7F2 /* TextApp */;
 		};
@@ -43,12 +29,12 @@
 			path = TextApp;
 			sourceTree = "<group>";
 		};
-		00C4DAD42E1B809500754D05 /* SampleTextFiles */ = {
+		00C4DAD42E1B809500754D05 /* SampleFiles */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				00C4DAD52E1B809500754D05 /* Exceptions for "SampleTextFiles" folder in "TextApp" target */,
+				00C4DAD52E1B809500754D05 /* Exceptions for "SampleFiles" folder in "TextApp" target */,
 			);
-			path = SampleTextFiles;
+			path = SampleFiles;
 			sourceTree = "<group>";
 		};
 		00C4DAD92E1B824000754D05 /* bin */ = {
@@ -76,7 +62,7 @@
 				00DCDBAE2E1A1B6F001CA975 /* README.md */,
 				00C4DAD92E1B824000754D05 /* bin */,
 				00517B502E1A1AAB00AED7F2 /* TextApp */,
-				00C4DAD42E1B809500754D05 /* SampleTextFiles */,
+				00C4DAD42E1B809500754D05 /* SampleFiles */,
 				00517B4F2E1A1AAB00AED7F2 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -106,7 +92,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				00517B502E1A1AAB00AED7F2 /* TextApp */,
-				00C4DAD42E1B809500754D05 /* SampleTextFiles */,
+				00C4DAD42E1B809500754D05 /* SampleFiles */,
 			);
 			name = TextApp;
 			packageProductDependencies = (

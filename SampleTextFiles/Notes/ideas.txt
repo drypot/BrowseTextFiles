@@ -1,3 +1,0 @@
-- Build a minimal markdown editor.
-- Try implementing file diff viewer.
-- Add search support for text contents.
