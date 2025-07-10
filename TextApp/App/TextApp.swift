@@ -9,21 +9,19 @@ import SwiftUI
 
 @main
 struct TextApp: App {
+    @Environment(\.openWindow) private var openWindow
+
     var body: some Scene {
-        WindowGroup {
-//            ContentView()
-//            DirectoryBrowserView(rootDirectory: rootURL())
-//            FileTextView(fileURL: sampleTextURL())
-            DirectoryBrowserView(initialURL: rootURL())
+        WindowGroup("Directory Browser", id: "DirectoryBrowser") {
+            DirectoryBrowserWindow()
         }
-    }
-
-    func rootURL() -> URL {
-//        return FileManager.default.homeDirectoryForCurrentUser
-        return URL(string: "Documents/SampleTextFiles", relativeTo: .currentDirectory())!
-    }
-
-    func sampleTextURL() -> URL {
-        return URL(string: "Documents/SampleTextFiles/Readme.txt", relativeTo: .currentDirectory())!
+        .commands {
+            CommandMenu("File") {
+                Button("New Browser Window") {
+                    openWindow(id: "DirectoryBrowser")
+                }
+                .keyboardShortcut("N", modifiers: [.command])
+            }
+        }
     }
 }

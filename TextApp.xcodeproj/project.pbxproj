@@ -16,8 +16,20 @@
 		00C4DAD52E1B809500754D05 /* Exceptions for "SampleFiles" folder in "TextApp" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Sub1/Sub1/File1.txt,
+				Sub1/Sub1/File2.txt,
+				Sub1/Sub1/Sub1/File1.txt,
+				Sub1/Sub1/Sub1/File2.txt,
 				Sub1/Sub1/Sub2/File1.txt,
 				Sub1/Sub1/Sub2/File2.txt,
+				Sub1/Sub2/File1.txt,
+				Sub1/Sub2/File2.txt,
+				Sub1/Sub3/File1.txt,
+				Sub1/Sub3/File2.txt,
+				Sub2/File1.txt,
+				Sub2/File2.txt,
+				Sub3/File1.txt,
+				Sub3/File2.txt,
 			);
 			target = 00517B4D2E1A1AAA00AED7F2 /* TextApp */;
 		};
