@@ -13,35 +13,10 @@ struct DirectoryColumnView: View {
     @State private var items: [URL] = []
     @State private var selectedItem: URL? = nil
 
-    private var url: URL { viewModel.columns[columnIndex] }
-    private var pinned: Bool { viewModel.pinned[columnIndex] }
-
-    private var pinBinding: Binding<Bool> {
-        Binding(
-            get: { viewModel.pinned[columnIndex] },
-            set: { viewModel.setPin($0, at: columnIndex) }
-        )
-    }
+    private var directoryURL: URL { viewModel.columns[columnIndex] }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Button(action: { viewModel.goBack(at: columnIndex) }) {
-                    Image(systemName: "chevron.backward")
-                }
-                .disabled(url.pathComponents.count <= 1)
-                .buttonStyle(.plain)
-
-                Spacer()
-
-                Toggle(isOn: pinBinding) {
-                    Image(systemName: pinned ? "pin.fill" : "pin")
-                }
-                .toggleStyle(.button)
-                .buttonStyle(.plain)
-            }
-            .padding(.bottom, 4)
-
             List(items, id: \.self, selection: $selectedItem) { item in
                 HStack {
                     Image(systemName: item.hasDirectoryPath ? "folder" : "doc.text")
@@ -50,21 +25,21 @@ struct DirectoryColumnView: View {
                 }
                 .listRowSeparator(.hidden)
                 .contentShape(Rectangle())
-                .onTapGesture { viewModel.didTap(item, at: columnIndex) }
+//                .onTapGesture { viewModel.didTap(item, at: columnIndex) }
             }
             .listStyle(.plain)
             .onAppear(perform: loadItems)
-            .onChange(of: url) { loadItems() }
-//            .onChange(of: selectedItem) { oldValue, newValue in
-//                viewModel.didTap(newValue, at: columnIndex)
-//            }
+            .onChange(of: directoryURL) { loadItems() }
+            .onChange(of: selectedItem) { oldValue, newValue in
+                viewModel.didTap(newValue!, at: columnIndex)
+            }
         }
     }
 
     private func loadItems() {
         do {
             let raw = try FileManager.default.contentsOfDirectory(
-                at: url,
+                at: directoryURL,
                 includingPropertiesForKeys: [.isDirectoryKey],
                 options: [.skipsHiddenFiles]
             )

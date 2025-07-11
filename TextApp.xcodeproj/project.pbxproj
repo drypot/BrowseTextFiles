@@ -8,50 +8,12 @@
 
 /* Begin PBXFileReference section */
 		00517B4E2E1A1AAB00AED7F2 /* TextApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TextApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		00DCDBAD2E1A1B6F001CA975 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
-		00DCDBAE2E1A1B6F001CA975 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
-
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		00C4DAD52E1B809500754D05 /* Exceptions for "SampleFiles" folder in "TextApp" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Sub1/Sub1/File1.txt,
-				Sub1/Sub1/File2.txt,
-				Sub1/Sub1/Sub1/File1.txt,
-				Sub1/Sub1/Sub1/File2.txt,
-				Sub1/Sub1/Sub2/File1.txt,
-				Sub1/Sub1/Sub2/File2.txt,
-				Sub1/Sub2/File1.txt,
-				Sub1/Sub2/File2.txt,
-				Sub1/Sub3/File1.txt,
-				Sub1/Sub3/File2.txt,
-				Sub2/File1.txt,
-				Sub2/File2.txt,
-				Sub3/File1.txt,
-				Sub3/File2.txt,
-			);
-			target = 00517B4D2E1A1AAA00AED7F2 /* TextApp */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		00517B502E1A1AAB00AED7F2 /* TextApp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = TextApp;
-			sourceTree = "<group>";
-		};
-		00C4DAD42E1B809500754D05 /* SampleFiles */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				00C4DAD52E1B809500754D05 /* Exceptions for "SampleFiles" folder in "TextApp" target */,
-			);
-			path = SampleFiles;
-			sourceTree = "<group>";
-		};
-		00C4DAD92E1B824000754D05 /* bin */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = bin;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -70,11 +32,7 @@
 		00517B452E1A1AAA00AED7F2 = {
 			isa = PBXGroup;
 			children = (
-				00DCDBAD2E1A1B6F001CA975 /* LICENSE */,
-				00DCDBAE2E1A1B6F001CA975 /* README.md */,
-				00C4DAD92E1B824000754D05 /* bin */,
 				00517B502E1A1AAB00AED7F2 /* TextApp */,
-				00C4DAD42E1B809500754D05 /* SampleFiles */,
 				00517B4F2E1A1AAB00AED7F2 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -104,7 +62,6 @@
 			);
 			fileSystemSynchronizedGroups = (
 				00517B502E1A1AAB00AED7F2 /* TextApp */,
-				00C4DAD42E1B809500754D05 /* SampleFiles */,
 			);
 			name = TextApp;
 			packageProductDependencies = (

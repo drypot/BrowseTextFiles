@@ -12,31 +12,18 @@ import Observation
 final class DirectoryBrowserViewModel {
 
     var columns: [URL]
-    var pinned:  [Bool]
     var selectedFile: URL?
 
     init(rootURL: URL) {
         columns = [rootURL]
-        pinned  = [true]
     }
 
     func didTap(_ url: URL, at index: Int) {
+        columns = Array(columns.prefix(through: index))
         if url.hasDirectoryPath {
-            selectDirectory(url, at: index)
+            columns += [url]
         } else {
             selectedFile = url
-        }
-    }
-
-    func selectDirectory(_ url: URL, at index: Int) {
-        guard url.hasDirectoryPath else { return }
-        selectedFile = nil
-        if pinned[index] {
-            columns.insert(url,   at: index + 1)
-            pinned.insert(true,  at: index + 1)
-        } else {
-            columns = Array(columns.prefix(upTo: index)) + [url]
-//            pinned  = Array(pinned.prefix(upTo: index))  + [false]
         }
     }
 
@@ -48,13 +35,8 @@ final class DirectoryBrowserViewModel {
         selectedFile = nil
     }
 
-    func setPin(_ value: Bool, at index: Int) {
-        pinned[index] = value
-        if !value {
-            let keepCount = index + 1
-            columns = Array(columns.prefix(keepCount))
-            pinned  = Array(pinned.prefix(keepCount))
-            selectedFile = nil
-        }
+    func setPin(at index: Int) {
+        columns = Array(columns.prefix(upTo: index))
     }
+    
 }

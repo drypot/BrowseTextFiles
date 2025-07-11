@@ -27,7 +27,7 @@ struct DirectoryBrowserView: View {
             VStack(alignment: .leading) {
                 ScrollView {
                     if let file = viewModel.selectedFile {
-                        var content = (try? String(contentsOf: file, encoding: .utf8)) ?? "File cannot be opened."
+                        let content = (try? String(contentsOf: file, encoding: .utf8)) ?? "File cannot be opened."
                         Text(content)
                             .font(.body)
                             .padding()
