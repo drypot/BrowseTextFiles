@@ -25,11 +25,11 @@ final class DirectoryBrowserViewModel {
         } else {
             selectedFileURL = url
         }
-        dumpURLs()
+//        dumpURLs()
     }
 
     func dumpURLs() {
-        print("***")
+        print("ViewModel, directoryURLs:")
         for url in directoryURLs {
             let path = url.absoluteString
             if let range = path.range(of: "/Documents") {

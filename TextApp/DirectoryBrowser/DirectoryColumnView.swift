@@ -13,11 +13,12 @@ struct DirectoryColumnView: View {
     @State private var items: [URL] = []
     @State private var selectedItem: URL? = nil
 
-    private var directoryURL: URL { viewModel.directoryURLs[columnIndex] }
+    private var directoryURL: URL? {
+        guard columnIndex < viewModel.directoryURLs.count else { return nil }
+        return viewModel.directoryURLs[columnIndex]
+    }
 
     var body: some View {
-        let _ = print("***")
-        let _ = print("body: \(directoryURL)")
         VStack(alignment: .leading, spacing: 0) {
             List(items, id: \.self, selection: $selectedItem) { item in
                 HStack {
@@ -32,13 +33,16 @@ struct DirectoryColumnView: View {
             .onAppear(perform: loadItems)
             .onChange(of: directoryURL, loadItems)
             .onChange(of: selectedItem) { oldValue, newValue in
-                viewModel.didTap(newValue!, at: columnIndex)
+                Task { @MainActor in
+                    viewModel.didTap(newValue!, at: columnIndex)
+                }
             }
         }
     }
 
     private func loadItems() {
         do {
+            guard let directoryURL else { return }
             let raw = try FileManager.default.contentsOfDirectory(
                 at: directoryURL,
                 includingPropertiesForKeys: [.isDirectoryKey],
