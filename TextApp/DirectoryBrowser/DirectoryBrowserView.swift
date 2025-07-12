@@ -14,7 +14,8 @@ struct DirectoryBrowserView: View {
         HSplitView {
             ScrollView(.horizontal) {
                 HStack(alignment: .top, spacing: 16) {
-                    ForEach(viewModel.columns.indices, id: \.self) { idx in
+                    ForEach(viewModel.directoryURLs.indices, id: \.self) { idx in
+                        let _ = print(idx)
                         DirectoryColumnView(columnIndex: idx)
                             .frame(minWidth: 200 /*, maxWidth: 300*/)
                             .border(Color.gray.opacity(0.3))
@@ -26,7 +27,7 @@ struct DirectoryBrowserView: View {
 
             VStack(alignment: .leading) {
                 ScrollView {
-                    if let file = viewModel.selectedFile {
+                    if let file = viewModel.selectedFileURL {
                         let content = (try? String(contentsOf: file, encoding: .utf8)) ?? "File cannot be opened."
                         Text(content)
                             .font(.body)

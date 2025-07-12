@@ -13,10 +13,12 @@ struct DirectoryColumnView: View {
     @State private var items: [URL] = []
     @State private var selectedItem: URL? = nil
 
-    private var directoryURL: URL { viewModel.columns[columnIndex] }
+    private var directoryURL: URL { viewModel.directoryURLs[columnIndex] }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        let _ = print("***")
+        let _ = print("body: \(directoryURL)")
+        VStack(alignment: .leading, spacing: 0) {
             List(items, id: \.self, selection: $selectedItem) { item in
                 HStack {
                     Image(systemName: item.hasDirectoryPath ? "folder" : "doc.text")
@@ -25,11 +27,10 @@ struct DirectoryColumnView: View {
                 }
                 .listRowSeparator(.hidden)
                 .contentShape(Rectangle())
-//                .onTapGesture { viewModel.didTap(item, at: columnIndex) }
             }
             .listStyle(.plain)
             .onAppear(perform: loadItems)
-            .onChange(of: directoryURL) { loadItems() }
+            .onChange(of: directoryURL, loadItems)
             .onChange(of: selectedItem) { oldValue, newValue in
                 viewModel.didTap(newValue!, at: columnIndex)
             }
