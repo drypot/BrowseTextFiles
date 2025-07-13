@@ -40,7 +40,6 @@ struct DirectoryBrowserView: View {
                 }
             }
             .frame(minWidth: 600)
-            .layoutPriority(1)
         }
     }
 }
