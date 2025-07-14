@@ -1,6 +1,6 @@
 //
 //  DirectoryBrowserViewModel.swift
-//  TextApp
+//  BrowseTextFiles
 //
 //  Created by Kyuhyun Park on 7/10/25.
 //
@@ -11,17 +11,18 @@ import Observation
 @Observable
 final class DirectoryBrowserViewModel {
 
+    var title: String
     var directoryURLs: [URL]
     var selectedFileURL: URL?
 
     init(rootURL: URL) {
+        title = rootURL.lastPathComponent
         directoryURLs = [rootURL]
     }
 
     func didTap(_ url: URL, at index: Int) {
-        directoryURLs = Array(directoryURLs.prefix(through: index))
         if url.hasDirectoryPath {
-            directoryURLs += [url]
+            directoryURLs = Array(directoryURLs.prefix(through: index)) + [url]
         } else {
             selectedFileURL = url
         }

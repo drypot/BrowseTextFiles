@@ -1,6 +1,6 @@
 //
 //  WindowAccessor.swift
-//  TextApp
+//  BrowseTextFiles
 //
 //  Created by Kyuhyun Park on 7/7/25.
 //

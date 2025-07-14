@@ -1,6 +1,6 @@
 //
 //  DirectoryBrowserWindow.swift
-//  TextApp
+//  BrowseTextFiles
 //
 //  Created by Kyuhyun Park on 7/10/25.
 //

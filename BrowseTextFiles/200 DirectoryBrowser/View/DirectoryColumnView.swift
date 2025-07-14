@@ -1,6 +1,6 @@
 //
 //  DirectoryColumnView.swift
-//  TextApp
+//  BrowseTextFiles
 //
 //  Created by Kyuhyun Park on 7/10/25.
 //
@@ -8,15 +8,13 @@
 import SwiftUI
 
 struct DirectoryColumnView: View {
-    let columnIndex: Int
     @Environment(DirectoryBrowserViewModel.self) private var viewModel
+
+    let columnIndex: Int
+    let directoryURL: URL
+
     @State private var items: [URL] = []
     @State private var selectedItem: URL? = nil
-
-    private var directoryURL: URL? {
-        guard columnIndex < viewModel.directoryURLs.count else { return nil }
-        return viewModel.directoryURLs[columnIndex]
-    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -32,9 +30,9 @@ struct DirectoryColumnView: View {
             .listStyle(.plain)
             .onAppear(perform: loadItems)
             .onChange(of: directoryURL, loadItems)
-            .onChange(of: selectedItem) { oldValue, newValue in
+            .onChange(of: selectedItem) { x, url in
                 Task { @MainActor in
-                    viewModel.didTap(newValue!, at: columnIndex)
+                    viewModel.didTap(url!, at: columnIndex)
                 }
             }
         }
@@ -42,7 +40,6 @@ struct DirectoryColumnView: View {
 
     private func loadItems() {
         do {
-            guard let directoryURL else { return }
             let raw = try FileManager.default.contentsOfDirectory(
                 at: directoryURL,
                 includingPropertiesForKeys: [.isDirectoryKey],

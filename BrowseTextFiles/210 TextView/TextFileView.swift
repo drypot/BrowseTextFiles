@@ -1,6 +1,6 @@
 //
 //  TextFileView.swift
-//  TextApp
+//  BrowseTextFiles
 //
 //  Created by Kyuhyun Park on 7/7/25.
 //
@@ -18,12 +18,8 @@ struct TextFileView: View {
                 .padding()
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .onAppear {
-            loadFile()
-        }
-        .onChange(of: url) {
-            loadFile()
-        }
+        .onAppear(perform: loadFile)
+        .onChange(of: url, loadFile)
     }
 
     private func loadFile() {

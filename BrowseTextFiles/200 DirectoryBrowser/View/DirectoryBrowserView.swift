@@ -1,6 +1,6 @@
 //
 //  DirectoryBrowserView.swift
-//  TextApp
+//  BrowseTextFiles
 //
 //  Created by Kyuhyun Park on 7/7/25.
 //
@@ -15,16 +15,17 @@ struct DirectoryBrowserView: View {
             ScrollView(.horizontal) {
                 HStack(alignment: .top, spacing: 0) {
                     ForEach(viewModel.directoryURLs.indices, id: \.self) { idx in
-                        DirectoryColumnView(columnIndex: idx)
-                            .frame(minWidth: 200 /*, maxWidth: 300*/)
+                        DirectoryColumnView(columnIndex: idx, directoryURL: viewModel.directoryURLs[idx])
+                            .frame(minWidth: 150 /*, maxWidth: 300*/)
                             .border(Color.gray.opacity(0.3))
                     }
                 }
-                .padding()
             }
             .frame(minWidth: 400)
 
             TextFileView(url: viewModel.selectedFileURL)
+                .layoutPriority(1)
         }
+        .navigationTitle(viewModel.title)
     }
 }

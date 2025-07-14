@@ -1,6 +1,6 @@
 //
 //  ContentView.swift
-//  TextApp
+//  BrowseTextFiles
 //
 //  Created by Kyuhyun Park on 7/6/25.
 //

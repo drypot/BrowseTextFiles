@@ -1,6 +1,6 @@
 //
-//  TextApp.swift
-//  TextApp
+//  BrowseTextFiles.swift
+//  BrowseTextFiles
 //
 //  Created by Kyuhyun Park on 7/6/25.
 //
@@ -8,7 +8,7 @@
 import SwiftUI
 
 @main
-struct TextApp: App {
+struct BrowseTextFiles: App {
     @Environment(\.openWindow) private var openWindow
 
     var body: some Scene {
