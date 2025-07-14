@@ -1,1 +1,1 @@
-open ~/Library/Containers/com.drypot.TextApp/Data/Documents
+open ~/Library/Containers/com.drypot.BrowseTextFiles/Data/Documents

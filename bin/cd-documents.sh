@@ -1,1 +1,1 @@
-cd ~/Library/Containers/com.drypot.TextApp/Data/Documents
+cd ~/Library/Containers/com.drypot.BrowseTextFiles/Data/Documents
