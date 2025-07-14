@@ -24,22 +24,7 @@ struct DirectoryBrowserView: View {
             }
             .frame(minWidth: 400)
 
-            VStack(alignment: .leading) {
-                ScrollView {
-                    if let file = viewModel.selectedFileURL {
-                        let content = (try? String(contentsOf: file, encoding: .utf8)) ?? "File cannot be opened."
-                        Text(content)
-                            .font(.body)
-                            .padding()
-                    } else {
-                        Text("Select a file.")
-                            .italic()
-                            .foregroundStyle(.secondary)
-                            .padding()
-                    }
-                }
-            }
-            .frame(minWidth: 600)
+            TextFileView(url: viewModel.selectedFileURL)
         }
     }
 }

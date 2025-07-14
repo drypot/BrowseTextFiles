@@ -1,5 +1,5 @@
 //
-//  FileTextView.swift
+//  TextFileView.swift
 //  TextApp
 //
 //  Created by Kyuhyun Park on 7/7/25.
@@ -7,9 +7,9 @@
 
 import SwiftUI
 
-struct FileTextView: View {
-    let fileURL: URL
-    @State private var content: String = ""
+struct TextFileView: View {
+    let url: URL?
+    @State private var content: String = "..."
 
     var body: some View {
         ScrollView {
@@ -18,14 +18,22 @@ struct FileTextView: View {
                 .padding()
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .onAppear(perform: loadFile)
+        .onAppear {
+            loadFile()
+        }
+        .onChange(of: url) {
+            loadFile()
+        }
     }
 
     private func loadFile() {
+        guard let url else { return }
+
         do {
-            content = try String(contentsOf: fileURL, encoding: .utf8)
+            content = try String(contentsOf: url, encoding: .utf8)
         } catch {
             content = "An error occurred while reading the file:\n\(error.localizedDescription)"
         }
     }
+
 }
