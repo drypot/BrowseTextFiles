@@ -11,9 +11,12 @@ import SwiftUI
 struct BrowseTextFiles: App {
     @Environment(\.openWindow) private var openWindow
 
+    @State private var settings = SettingsModel.load()
+    
     var body: some Scene {
         WindowGroup("Directory Browser", id: "DirectoryBrowser") {
             DirectoryBrowserWindow()
+                .environment(settings)
         }
         .commands {
             CommandMenu("File") {
@@ -22,6 +25,9 @@ struct BrowseTextFiles: App {
                 }
                 .keyboardShortcut("N", modifiers: [.command])
             }
+        }
+        Settings {
+            SettingsView(settings: settings)
         }
     }
 }

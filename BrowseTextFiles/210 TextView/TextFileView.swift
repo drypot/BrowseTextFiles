@@ -11,10 +11,13 @@ struct TextFileView: View {
     let url: URL?
     @State private var content: String = "..."
 
+    @Environment(SettingsModel.self) var settings
+
     var body: some View {
         ScrollView {
             Text(content)
-                .font(.body)
+                .font(.custom(settings.fontName, size: settings.fontSize))
+                .lineSpacing(settings.lineSpacing)
                 .padding()
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
