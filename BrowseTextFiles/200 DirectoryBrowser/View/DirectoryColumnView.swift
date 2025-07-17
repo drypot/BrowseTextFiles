@@ -10,13 +10,13 @@ import SwiftUI
 struct DirectoryColumnView: View {
     @Environment(DirectoryBrowserViewModel.self) private var viewModel
 
-    let columnIndex: Int
-    let directoryURL: URL
+    let column: DirectoryBrowserViewModel.Column
 
     @State private var items: [URL] = []
     @State private var selectedItem: URL? = nil
 
     var body: some View {
+        //let _ = print("ColumnView: \(column.id) \(column.index) \(column.directoryURL.lastPathComponent)")
         VStack(alignment: .leading, spacing: 0) {
             List(items, id: \.self, selection: $selectedItem) { item in
                 HStack {
@@ -29,10 +29,9 @@ struct DirectoryColumnView: View {
             }
             .listStyle(.plain)
             .onAppear(perform: loadItems)
-            .onChange(of: directoryURL, loadItems)
             .onChange(of: selectedItem) { x, url in
                 Task { @MainActor in
-                    viewModel.didTap(url!, at: columnIndex)
+                    viewModel.didTap(url!, at: column.index)
                 }
             }
         }
@@ -41,7 +40,7 @@ struct DirectoryColumnView: View {
     private func loadItems() {
         do {
             let raw = try FileManager.default.contentsOfDirectory(
-                at: directoryURL,
+                at: column.directoryURL,
                 includingPropertiesForKeys: [.isDirectoryKey],
                 options: [.skipsHiddenFiles]
             )

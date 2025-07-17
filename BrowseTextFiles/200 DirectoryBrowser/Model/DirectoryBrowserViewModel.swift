@@ -11,18 +11,27 @@ import Observation
 @Observable
 final class DirectoryBrowserViewModel {
 
+    struct Column: Identifiable {
+        private static var idSeed = IntSequence().makeIterator()
+
+        let id = idSeed.next()!
+        let index: Int
+        let directoryURL: URL
+    }
+
     var title: String
-    var directoryURLs: [URL]
+    var columns: [Column]
     var selectedFileURL: URL?
 
     init(rootURL: URL) {
         title = rootURL.lastPathComponent
-        directoryURLs = [rootURL]
+        columns = [Column(index:0, directoryURL: rootURL)]
     }
 
     func didTap(_ url: URL, at index: Int) {
+        guard index < columns.count else { return }
         if url.hasDirectoryPath {
-            directoryURLs = Array(directoryURLs.prefix(through: index)) + [url]
+            columns = Array(columns.prefix(index + 1)) + [Column(index: index + 1, directoryURL: url)]
         } else {
             selectedFileURL = url
         }
@@ -31,8 +40,8 @@ final class DirectoryBrowserViewModel {
 
     func dumpURLs() {
         print("ViewModel, directoryURLs:")
-        for url in directoryURLs {
-            let path = url.absoluteString
+        for column in columns {
+            let path = column.directoryURL.absoluteString
             if let range = path.range(of: "/Documents") {
                 let start = path.index(range.upperBound, offsetBy: 1)
                 let relative = String(path[start...])

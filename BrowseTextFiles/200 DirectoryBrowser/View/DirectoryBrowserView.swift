@@ -14,8 +14,8 @@ struct DirectoryBrowserView: View {
         HSplitView {
             ScrollView(.horizontal) {
                 HStack(alignment: .top, spacing: 0) {
-                    ForEach(viewModel.directoryURLs.indices, id: \.self) { idx in
-                        DirectoryColumnView(columnIndex: idx, directoryURL: viewModel.directoryURLs[idx])
+                    ForEach(viewModel.columns) { column in
+                        DirectoryColumnView(column: column)
                             .frame(minWidth: 150 /*, maxWidth: 300*/)
                             .border(Color.gray.opacity(0.3))
                     }
