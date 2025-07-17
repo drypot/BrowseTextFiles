@@ -12,22 +12,42 @@ struct BrowseTextFiles: App {
     @Environment(\.openWindow) private var openWindow
 
     @State private var settings = SettingsModel.load()
-    
+
     var body: some Scene {
         WindowGroup("Directory Browser", id: "DirectoryBrowser") {
             DirectoryBrowserWindow()
                 .environment(settings)
         }
         .commands {
-            CommandMenu("File") {
-                Button("New Browser Window") {
+            CommandGroup(replacing: .newItem) {
+                Button("Open Directory") {
+                    openDirectory()
+                }
+                .keyboardShortcut("O", modifiers: [.command])
+                Button("Open Sample Directory") {
                     openWindow(id: "DirectoryBrowser")
                 }
-                .keyboardShortcut("N", modifiers: [.command])
+                .keyboardShortcut("O", modifiers: [.command, .shift])
             }
         }
         Settings {
             SettingsView(settings: settings)
         }
     }
+
+    func openDirectory() {
+        let panel = NSOpenPanel()
+        panel.canChooseDirectories = true
+        panel.canChooseFiles = false
+        panel.allowsMultipleSelection = false
+
+        if panel.runModal() == .OK {
+            if let url = panel.url {
+                DirectoryBrowserWindow.urlsToOpen.append(url)
+                openWindow(id: "DirectoryBrowser")
+            }
+        }
+    }
+
+
 }

@@ -8,11 +8,16 @@
 import SwiftUI
 
 struct DirectoryBrowserWindow: View {
-    @State private var viewModel = DirectoryBrowserViewModel(
-        rootURL:
-//          FileManager.default.homeDirectoryForCurrentUser
-            URL(string: "Documents/SampleFiles", relativeTo: .currentDirectory())!
-    )
+
+    static var urlsToOpen: [URL] = []
+
+    @State private var viewModel: DirectoryBrowserViewModel
+
+    init() {
+        let rootURL = Self.urlsToOpen.popLast() ?? URL(string: "Documents", relativeTo: .currentDirectory())!
+        let viewModel = DirectoryBrowserViewModel(rootURL: rootURL)
+        _viewModel = State(wrappedValue: viewModel)
+    }
 
     var body: some View {
         DirectoryBrowserView()
