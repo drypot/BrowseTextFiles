@@ -11,12 +11,20 @@ import Observation
 @Observable
 final class DirectoryBrowserViewModel {
 
-    struct Column: Identifiable {
+    struct Column: Identifiable, Equatable, Hashable {
         private static var idSeed = IntSequence().makeIterator()
 
         let id = idSeed.next()!
         let index: Int
         let directoryURL: URL
+
+        static func == (lhs: Self, rhs: Self) -> Bool {
+            return lhs.id == rhs.id
+        }
+
+        func hash(into hasher: inout Hasher) {
+            hasher.combine(id)
+        }
     }
 
     var title: String

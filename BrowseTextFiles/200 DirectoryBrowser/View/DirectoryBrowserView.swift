@@ -13,11 +13,20 @@ struct DirectoryBrowserView: View {
     var body: some View {
         HSplitView {
             ScrollView(.horizontal) {
-                HStack(alignment: .top, spacing: 0) {
-                    ForEach(viewModel.columns) { column in
-                        DirectoryColumnView(column: column)
-                            .frame(minWidth: 150 /*, maxWidth: 300*/)
-                            .border(Color.gray.opacity(0.3))
+                ScrollViewReader { proxy in
+                    HStack(alignment: .top, spacing: 0) {
+                        ForEach(viewModel.columns) { column in
+                            DirectoryColumnView(column: column)
+                                .frame(minWidth: 150 /*, maxWidth: 300*/)
+                                .border(Color.gray.opacity(0.3))
+                        }
+                    }
+                    .onChange(of: viewModel.columns) {
+                        if let last = viewModel.columns.last {
+                            withAnimation {
+                                proxy.scrollTo(last.id, anchor: .trailing)
+                            }
+                        }
                     }
                 }
             }
