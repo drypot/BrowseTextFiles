@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		00517B4E2E1A1AAB00AED7F2 /* BrowseTextFiles.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BrowseTextFiles.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		00517B4E2E1A1AAB00AED7F2 /* Browse Text Files.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Browse Text Files.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -40,7 +40,7 @@
 		00517B4F2E1A1AAB00AED7F2 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				00517B4E2E1A1AAB00AED7F2 /* BrowseTextFiles.app */,
+				00517B4E2E1A1AAB00AED7F2 /* Browse Text Files.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -67,7 +67,7 @@
 			packageProductDependencies = (
 			);
 			productName = TextApp;
-			productReference = 00517B4E2E1A1AAB00AED7F2 /* BrowseTextFiles.app */;
+			productReference = 00517B4E2E1A1AAB00AED7F2 /* Browse Text Files.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -258,6 +258,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Browse Text Files";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -266,7 +267,7 @@
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.drypot.BrowseTextFiles;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "Browse Text Files";
 				REGISTER_APP_GROUPS = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -286,6 +287,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Browse Text Files";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -294,7 +296,7 @@
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.drypot.BrowseTextFiles;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "Browse Text Files";
 				REGISTER_APP_GROUPS = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
