@@ -14,13 +14,19 @@ struct TextFileView: View {
     @Environment(SettingsModel.self) var settings
 
     var body: some View {
-        ScrollView {
-            Text(content)
-                .font(.custom(settings.fontName, size: settings.fontSize))
-                .lineSpacing(settings.lineSpacing)
-                .padding()
-                .frame(maxWidth: .infinity, alignment: .leading)
-        }
+//        ScrollView {
+//            TextEditor(text: $content)
+//            Text(content)
+//                .font(.custom(settings.fontName, size: settings.fontSize))
+//                .lineSpacing(settings.lineSpacing)
+//                .padding()
+//                .frame(maxWidth: .infinity, alignment: .leading)
+//        }
+        CustomTextEditor(text: $content)
+            .padding(32)
+            .background(Color(.textBackgroundColor))
+//            .frame(minWidth: 400, minHeight: 400, maxHeight: .infinity)
+//                        .frame(maxWidth: .infinity, alignment: .leading)
         .onAppear(perform: loadFile)
         .onChange(of: url, loadFile)
     }
