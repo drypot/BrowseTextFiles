@@ -9,14 +9,14 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @Bindable var settings: SettingsModel
+    @Bindable var appSettings: AppSettings
 
     let fontFamilies = NSFontManager.shared.availableFontFamilies.sorted()
 
     var body: some View {
         Form {
             Section {
-                Picker("Font", selection: $settings.fontName) {
+                Picker("Font", selection: $appSettings.fontName) {
                     ForEach(fontFamilies, id: \.self) { family in
                         Text(family).font(.custom(family, size: 13))
                     }
@@ -24,24 +24,24 @@ struct SettingsView: View {
             }
 
             Section {
-                Slider(value: $settings.fontSize, in: 10...30, step: 1) {
+                Slider(value: $appSettings.fontSize, in: 10...30, step: 1) {
                     Text("Font Size ")
                 }
-                Text(String(format: "%.0f pt", settings.fontSize))
+                Text(String(format: "%.0f pt", appSettings.fontSize))
                     .font(.footnote)
             }
 
             Section {
-                Slider(value: $settings.lineHeight, in: 1.0...3.0, step: 0.1) {
+                Slider(value: $appSettings.lineHeight, in: 1.0...3.0, step: 0.1) {
                     Text("Line Height ")
                 }
-                Text(String(format: "%.1fx", settings.lineHeight))
+                Text(String(format: "%.1fx", appSettings.lineHeight))
                     .font(.footnote)
             }
         }
         .navigationTitle("Settings")
         .onDisappear {
-            settings.save()
+            appSettings.save()
         }
         .padding()
         .frame(width: 300)

@@ -10,7 +10,7 @@ import SwiftUI
 
 struct CustomTextEditor: NSViewRepresentable {
     @Binding var text: String
-    @Environment(SettingsModel.self) var settings
+    @Environment(AppSettings.self) var settings
 
     func makeNSView(context: Context) -> NSScrollView {
         let textView = NSTextView(frame: .zero)
@@ -56,7 +56,8 @@ struct CustomTextEditor: NSViewRepresentable {
         let font = NSFont(name: settings.fontName, size: settings.fontSize) ?? defautFont
 
         let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.lineSpacing = settings.lineSpacing
+//        paragraphStyle.lineSpacing = settings.lineSpacing
+        paragraphStyle.lineHeightMultiple = 2.0
 
         let attrs: [NSAttributedString.Key: Any] = [
             .font: font,

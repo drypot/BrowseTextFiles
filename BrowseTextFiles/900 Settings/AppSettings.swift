@@ -10,15 +10,17 @@ import SwiftUI
 import Observation
 
 @Observable
-class SettingsModel {
+class AppSettings {
     private let fontNameKey = "Settings.fontName"
     private let fontSizeKey = "Settings.fontSize"
     private let lineHeightKey = "Settings.lineHeight"
+    private let lineHeightMultipleKey = "Settings.lineHeightMultiple"
 
     var fontName: String = "Helvetica"
     var fontSize: CGFloat = 13
 
     var lineHeight: CGFloat = 1.2
+    var lineHeightMultiple: CGFloat = 0.0
 
     var lineSpacing: CGFloat {
         (lineHeight - 1) * fontSize
@@ -28,6 +30,7 @@ class SettingsModel {
         UserDefaults.standard.set(fontName, forKey: fontNameKey)
         UserDefaults.standard.set(fontSize, forKey: fontSizeKey)
         UserDefaults.standard.set(lineHeight, forKey: lineHeightKey)
+        UserDefaults.standard.set(lineHeightMultiple, forKey: lineHeightMultipleKey)
     }
 
     func load() {
@@ -49,11 +52,11 @@ class SettingsModel {
         if lineHeight > 0 {
             self.lineHeight = CGFloat(lineHeight)
         }
+
+        let lineHeightMultiple = UserDefaults.standard.double(forKey: lineHeightMultipleKey)
+        if lineHeightMultiple > 0 {
+            self.lineHeightMultiple = CGFloat(lineHeightMultiple)
+        }
     }
 
-    static func load() -> SettingsModel {
-        let settings = SettingsModel()
-        settings.load()
-        return settings
-    }
 }

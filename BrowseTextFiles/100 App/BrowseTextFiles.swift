@@ -11,7 +11,11 @@ import SwiftUI
 struct BrowseTextFiles: App {
     @Environment(\.openWindow) private var openWindow
 
-    @State private var settings = SettingsModel.load()
+    @State private var settings = {
+        let appSettings = AppSettings()
+        appSettings.load()
+        return appSettings
+    }()
 
     var body: some Scene {
         WindowGroup("Directory Browser", id: "DirectoryBrowser") {
@@ -31,7 +35,7 @@ struct BrowseTextFiles: App {
             }
         }
         Settings {
-            SettingsView(settings: settings)
+            SettingsView(appSettings: settings)
         }
     }
 
