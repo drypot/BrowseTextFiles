@@ -13,7 +13,6 @@ import Cocoa
 // Meet TextKit 2
 // https://developer.apple.com/videos/play/wwdc2021/10061/
 
-@MainActor
 struct TextViewFactory {
 
     static func makeTextView() -> NSTextView {

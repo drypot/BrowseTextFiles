@@ -30,7 +30,7 @@ struct DirectoryColumnView: View {
             .listStyle(.plain)
             .onAppear(perform: loadItems)
             .onChange(of: selectedItem) { x, url in
-                Task { @MainActor in
+                Task {
                     viewModel.didTap(url!, at: column.index)
                 }
             }
