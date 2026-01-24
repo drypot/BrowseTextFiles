@@ -8,21 +8,21 @@
 import SwiftUI
 
 struct DirectoryBrowserView: View {
-    @Environment(DirectoryBrowserViewModel.self) private var viewModel
+    @Environment(DirectoryBrowser.self) private var browser
 
     var body: some View {
         HSplitView {
             ScrollView(.horizontal) {
                 ScrollViewReader { proxy in
                     HStack(alignment: .top, spacing: 0) {
-                        ForEach(viewModel.columns) { column in
+                        ForEach(browser.columns) { column in
                             DirectoryColumnView(column: column)
                                 .frame(minWidth: 150 /*, maxWidth: 300*/)
                                 .border(Color.gray.opacity(0.3))
                         }
                     }
-                    .onChange(of: viewModel.columns) {
-                        if let last = viewModel.columns.last {
+                    .onChange(of: browser.columns) {
+                        if let last = browser.columns.last {
                             withAnimation {
                                 proxy.scrollTo(last.id, anchor: .trailing)
                             }
@@ -32,9 +32,9 @@ struct DirectoryBrowserView: View {
             }
             .frame(minWidth: 400)
 
-            TextFileView(url: viewModel.selectedFileURL)
+            TextFileView(url: browser.selectedFileURL)
                 .layoutPriority(1)
         }
-        .navigationTitle(viewModel.title)
+        .navigationTitle(browser.title)
     }
 }

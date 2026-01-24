@@ -8,9 +8,9 @@
 import SwiftUI
 
 struct DirectoryColumnView: View {
-    @Environment(DirectoryBrowserViewModel.self) private var viewModel
+    @Environment(DirectoryBrowser.self) private var browser
 
-    let column: DirectoryBrowserViewModel.Column
+    let column: DirectoryBrowser.Column
 
     @State private var items: [URL] = []
     @State private var selectedItem: URL? = nil
@@ -31,7 +31,7 @@ struct DirectoryColumnView: View {
             .onAppear(perform: loadItems)
             .onChange(of: selectedItem) { x, url in
                 Task {
-                    viewModel.didTap(url!, at: column.index)
+                    browser.didTap(url!, at: column.index)
                 }
             }
         }
