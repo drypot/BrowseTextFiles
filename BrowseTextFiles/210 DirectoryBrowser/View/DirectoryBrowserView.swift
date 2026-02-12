@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct DirectoryBrowserView: View {
-    @Environment(DirectoryBrowser.self) private var browser
+    @Environment(DirectoryBrowserModel.self) private var browser
 
     var body: some View {
         HSplitView {

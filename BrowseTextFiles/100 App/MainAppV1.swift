@@ -1,5 +1,5 @@
 //
-//  BrowseTextFiles.swift
+//  MainApp.swift
 //  BrowseTextFiles
 //
 //  Created by Kyuhyun Park on 7/6/25.
@@ -7,8 +7,7 @@
 
 import SwiftUI
 
-@main
-struct BrowseTextFiles: App {
+struct MainAppV1: App {
     @Environment(\.openWindow) private var openWindow
 
     @State private var settings = AppSettings.shared
@@ -49,6 +48,5 @@ struct BrowseTextFiles: App {
             }
         }
     }
-
 
 }

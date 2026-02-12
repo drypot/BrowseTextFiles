@@ -11,11 +11,11 @@ struct DirectoryBrowserWindow: View {
 
     static var urlsToOpen: [URL] = []
 
-    @State private var browser: DirectoryBrowser
+    @State private var browser: DirectoryBrowserModel
 
     init() {
         let rootURL = Self.urlsToOpen.popLast() ?? URL(string: "Documents", relativeTo: .currentDirectory())!
-        let viewModel = DirectoryBrowser(rootURL: rootURL)
+        let viewModel = DirectoryBrowserModel(rootURL: rootURL)
         _browser = State(wrappedValue: viewModel)
     }
 

@@ -1,5 +1,5 @@
 //
-//  DirectoryBrowser.swift
+//  DirectoryBrowserModel.swift
 //  BrowseTextFiles
 //
 //  Created by Kyuhyun Park on 7/10/25.
@@ -9,7 +9,7 @@ import SwiftUI
 import Observation
 
 @Observable
-final class DirectoryBrowser {
+final class DirectoryBrowserModel {
 
     struct Column: Identifiable, Equatable, Hashable {
         private static var idSeed = 0

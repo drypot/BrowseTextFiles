@@ -8,9 +8,9 @@
 import SwiftUI
 
 struct DirectoryColumnView: View {
-    @Environment(DirectoryBrowser.self) private var browser
+    @Environment(DirectoryBrowserModel.self) private var browser
 
-    let column: DirectoryBrowser.Column
+    let column: DirectoryBrowserModel.Column
 
     @State private var items: [URL] = []
     @State private var selectedItem: URL? = nil
