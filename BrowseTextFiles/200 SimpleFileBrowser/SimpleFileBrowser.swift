@@ -8,26 +8,43 @@
 import SwiftUI
 
 struct SimpleFileBrowser: View {
-    @State private var rootFolder: URL?
-    @State private var folders: [URL] = []
-    @State private var selectedFolder: URL?
+    struct Folder: Identifiable, Hashable {
+        private static var seed = IntSequence().makeIterator()
+
+        let id: Int
+        let name: String
+        let url: URL
+        var children: [Folder]?
+
+        init(url: URL) {
+            self.id = Self.seed.next()!
+            self.url = url
+            self.name = url.lastPathComponent
+        }
+    }
+
+    @State private var rootURL: URL?
+    @State private var rootName: String?
+    @State private var folders: [Folder] = []
+    @State private var selectedFolder: Folder?
     @State private var files: [URL] = []
     @State private var selectedFile: URL?
     @State private var fileContents: String = ""
 
     var body: some View {
-        if rootFolder != nil {
+        if rootURL != nil {
             NavigationSplitView {
-                List(folders, id: \.absoluteString, selection: $selectedFolder) { folder in
-                    let folderName = folder.lastPathComponent
-                    NavigationLink(folderName, value: folder)
+                List(folders, children: \.children, selection: $selectedFolder) { folder in
+                    NavigationLink(folder.name, value: folder)
                 }
                 .onChange(of: selectedFolder) { oldState, newState in
-                    if let url = newState {
-                        let (folders, files) = loadFolderContents(from: url)
-                        self.folders = folders
-                        self.selectedFolder = nil
-                        self.files = files
+                    if let folder = newState {
+                        do {
+                            self.files = try loadFileURLs(from: folder.url)
+                        } catch {
+                            print("\(error.localizedDescription)")
+                            self.files = []
+                        }
                         self.selectedFile = nil
                     }
                 }
@@ -47,7 +64,7 @@ struct SimpleFileBrowser: View {
                     .font(.body)
             }
             .toolbarBackground(.hidden) // macOS 26, 툴바 구분선이 나왔다 사라졌다 한다, 강제로 감추는 옵션.
-            .navigationTitle("NavigationSplit by Value Demo")
+            .navigationTitle(rootName!)
         } else {
             Button("Select Folder") {
                 openFolder()
@@ -107,47 +124,80 @@ struct SimpleFileBrowser: View {
     }
 
     func prepareFolders(from url: URL) {
-        self.rootFolder = url
-        let (folders, files) = loadFolderContents(from: url)
-
-        self.folders = folders
+        self.rootURL = url
+        self.rootName = url.lastPathComponent
+        do {
+            let folder = try buildFolderTree(from: url)
+            self.folders = [folder]
+        } catch {
+            self.folders = []
+        }
         self.selectedFolder = nil
         self.files = files
         self.selectedFile = nil
         fileContents = ""
     }
 
-    func loadFolderContents(from url: URL) -> (folders: [URL], files: [URL]) {
-        let fileManager = FileManager.default
-        var folders: [URL] = []
-        var files: [URL] = []
-
-        let keys: [URLResourceKey] = [.isDirectoryKey, .contentTypeKey]
+    func buildFolderTree(from rootURL: URL) throws -> Folder {
+        let keys: [URLResourceKey] = [.isDirectoryKey]
         let keySet = Set(keys)
+        let options: FileManager.DirectoryEnumerationOptions = [.skipsHiddenFiles]
 
-        do {
-            let items = try fileManager.contentsOfDirectory(at: url, includingPropertiesForKeys: keys, options: .skipsHiddenFiles)
+        func buildFolderNode(from url: URL) throws -> Folder {
+            let fileManager = FileManager.default
+            var folder = Folder(url: url)
 
-            for item in items {
-                let resourceValues = try item.resourceValues(forKeys: keySet)
+            let urls = try fileManager.contentsOfDirectory(
+                at: url,
+                includingPropertiesForKeys: keys,
+                options: options
+            )
 
-                if let isDirectory = resourceValues.isDirectory, isDirectory {
-                    folders.append(item)
-                    continue
-                }
-
-                if let contentType = resourceValues.contentType {
-                    if contentType.conforms(to: .text) {
-                        files.append(item)
+            for url in urls {
+                try autoreleasepool {
+                    let values = try url.resourceValues(forKeys: keySet)
+                    if values.isDirectory == true {
+                        let childFolder = try buildFolderNode(from: url)
+                        if folder.children == nil {
+                            folder.children = []
+                        }
+                        folder.children!.append(childFolder)
                     }
-                    continue
                 }
             }
-        } catch {
-            print("\(error.localizedDescription)")
+
+            return folder
         }
 
-        return (folders, files)
+        return try buildFolderNode(from: rootURL)
+    }
+
+    func loadFileURLs(from rootURL: URL) throws -> [URL] {
+        let fileManager = FileManager.default
+        var fileURLs: [URL] = []
+
+        let keys: [URLResourceKey] = [.isRegularFileKey, .contentTypeKey]
+        let keySet = Set(keys)
+        let options: FileManager.DirectoryEnumerationOptions = [.skipsHiddenFiles]
+
+        let urls = try fileManager.contentsOfDirectory(
+            at: rootURL,
+            includingPropertiesForKeys: keys,
+            options: options
+        )
+
+        for case let url in urls {
+            try autoreleasepool {
+                let values = try url.resourceValues(forKeys: keySet)
+                if values.isRegularFile == true,
+                   let contentType = values.contentType,
+                   contentType.conforms(to: .text) {
+                    fileURLs.append(url)
+                }
+            }
+        }
+
+        return fileURLs
     }
 
     func loadFile(from url: URL) -> String {
