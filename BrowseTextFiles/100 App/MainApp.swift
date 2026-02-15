@@ -21,32 +21,14 @@ struct MainApp: App {
         .commands {
             CommandGroup(replacing: .newItem) {
                 Button("Open Directory") {
-                    openDirectory()
-                }
-                .keyboardShortcut("O", modifiers: [.command])
-                Button("Open Sample Directory") {
                     openWindow(id: "MainWindow")
                 }
-                .keyboardShortcut("O", modifiers: [.command, .shift])
+                .keyboardShortcut("O", modifiers: [.command])
             }
         }
         Settings {
             SettingsView()
                 .environment(settings)
-        }
-    }
-
-    func openDirectory() {
-        let panel = NSOpenPanel()
-        panel.canChooseDirectories = true
-        panel.canChooseFiles = false
-        panel.allowsMultipleSelection = false
-
-        if panel.runModal() == .OK {
-            if let url = panel.url {
-                DirectoryBrowserWindow.urlsToOpen.append(url)
-                openWindow(id: "MainWindow")
-            }
         }
     }
 

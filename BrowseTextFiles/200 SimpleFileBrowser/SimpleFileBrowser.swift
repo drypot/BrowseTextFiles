@@ -12,8 +12,8 @@ struct SimpleFileBrowser: View {
         private static var seed = IntSequence().makeIterator()
 
         let id: Int
-        let name: String
         let url: URL
+        let name: String
         var children: [Folder]?
 
         init(url: URL) {
@@ -23,12 +23,26 @@ struct SimpleFileBrowser: View {
         }
     }
 
+    struct File: Identifiable, Hashable {
+        private static var seed = IntSequence().makeIterator()
+
+        let id: Int
+        let url: URL
+        let name: String
+
+        init(url: URL) {
+            self.id = Self.seed.next()!
+            self.url = url
+            self.name = url.lastPathComponent
+        }
+    }
+
     @State private var rootURL: URL?
-    @State private var rootName: String?
+    @State private var rootName: String = ""
     @State private var folders: [Folder] = []
     @State private var selectedFolder: Folder?
-    @State private var files: [URL] = []
-    @State private var selectedFile: URL?
+    @State private var files: [File] = []
+    @State private var selectedFile: File?
     @State private var fileContents: String = ""
 
     var body: some View {
@@ -37,34 +51,22 @@ struct SimpleFileBrowser: View {
                 List(folders, children: \.children, selection: $selectedFolder) { folder in
                     NavigationLink(folder.name, value: folder)
                 }
-                .onChange(of: selectedFolder) { oldState, newState in
-                    if let folder = newState {
-                        do {
-                            self.files = try loadFileURLs(from: folder.url)
-                        } catch {
-                            print("\(error.localizedDescription)")
-                            self.files = []
-                        }
-                        self.selectedFile = nil
-                    }
-                }
             } content: {
-                List(files, id:\.absoluteString, selection: $selectedFile) { file in
-                    let fileName = file.lastPathComponent
-                    NavigationLink(fileName, value: file)
-                }
-                // .frame(width: 200)
-                .onChange(of: selectedFile) { oldState, newState in
-                    if let url = newState {
-                        fileContents = loadFile(from: url)
-                    }
+                List(files, selection: $selectedFile) { file in
+                    NavigationLink(file.name, value: file)
                 }
             } detail: {
                 TextEditor(text: $fileContents)
                     .font(.body)
             }
             .toolbarBackground(.hidden) // macOS 26, 툴바 구분선이 나왔다 사라졌다 한다, 강제로 감추는 옵션.
-            .navigationTitle(rootName!)
+            .navigationTitle(rootName)
+            .onChange(of: selectedFolder) {
+                updateFiles()
+            }
+            .onChange(of: selectedFile) {
+                updateText()
+            }
         } else {
             Button("Select Folder") {
                 openFolder()
@@ -83,7 +85,7 @@ struct SimpleFileBrowser: View {
 
         if panel.runModal() == .OK, let url = panel.url {
             saveBookmark(from: url)
-            prepareFolders(from: url)
+            changeRootURL(to: url)
         }
     }
 
@@ -109,33 +111,33 @@ struct SimpleFileBrowser: View {
                               options: .withSecurityScope,
                               relativeTo: nil,
                               bookmarkDataIsStale: &isStale)
-
             if isStale {
                 saveBookmark(from: url)
             }
-
-            if url.startAccessingSecurityScopedResource() {
-                prepareFolders(from: url)
-                url.stopAccessingSecurityScopedResource()
-            }
+            changeRootURL(to: url)
         } catch {
             print("loadBookmark failed: \(error)")
         }
     }
 
-    func prepareFolders(from url: URL) {
+    func changeRootURL(to url: URL) {
         self.rootURL = url
         self.rootName = url.lastPathComponent
-        do {
-            let folder = try buildFolderTree(from: url)
-            self.folders = [folder]
-        } catch {
-            self.folders = []
-        }
+        self.folders = []
         self.selectedFolder = nil
-        self.files = files
+        self.files = []
         self.selectedFile = nil
         fileContents = ""
+
+        guard self.rootURL!.startAccessingSecurityScopedResource() else { return }
+        defer { self.rootURL!.stopAccessingSecurityScopedResource() }
+
+        if let folder = try? buildFolderTree(from: url) {
+            self.folders.append(folder)
+        }
+
+        self.selectedFolder = self.folders.first
+        updateFiles()
     }
 
     func buildFolderTree(from rootURL: URL) throws -> Folder {
@@ -147,11 +149,12 @@ struct SimpleFileBrowser: View {
             let fileManager = FileManager.default
             var folder = Folder(url: url)
 
-            let urls = try fileManager.contentsOfDirectory(
+            var urls = try fileManager.contentsOfDirectory(
                 at: url,
                 includingPropertiesForKeys: keys,
                 options: options
             )
+            urls.sort { $0.lastPathComponent < $1.lastPathComponent }
 
             for url in urls {
                 try autoreleasepool {
@@ -173,19 +176,30 @@ struct SimpleFileBrowser: View {
         return try buildFolderNode(from: rootURL)
     }
 
-    func loadFileURLs(from rootURL: URL) throws -> [URL] {
+    func updateFiles() {
+        if let folder = self.selectedFolder {
+            self.files = (try? loadFiles(from: folder.url)) ?? []
+            self.selectedFile = nil
+        }
+    }
+
+    func loadFiles(from folderURL: URL) throws -> [File] {
         let fileManager = FileManager.default
-        var fileURLs: [URL] = []
+        var files: [File] = []
 
         let keys: [URLResourceKey] = [.isRegularFileKey, .contentTypeKey]
         let keySet = Set(keys)
         let options: FileManager.DirectoryEnumerationOptions = [.skipsHiddenFiles]
 
-        let urls = try fileManager.contentsOfDirectory(
-            at: rootURL,
+        guard self.rootURL!.startAccessingSecurityScopedResource() else { return [] }
+        defer { self.rootURL!.stopAccessingSecurityScopedResource() }
+
+        var urls = try fileManager.contentsOfDirectory(
+            at: folderURL,
             includingPropertiesForKeys: keys,
             options: options
         )
+        urls.sort { $0.lastPathComponent < $1.lastPathComponent }
 
         for url in urls {
             try autoreleasepool {
@@ -193,15 +207,23 @@ struct SimpleFileBrowser: View {
                 if values.isRegularFile == true,
                    let contentType = values.contentType,
                    contentType.conforms(to: .text) {
-                    fileURLs.append(url)
+                    files.append(File(url: url))
                 }
             }
         }
 
-        return fileURLs
+        return files
+    }
+
+    func updateText() {
+        if let file = selectedFile {
+            fileContents = loadFile(from: file.url)
+        }
     }
 
     func loadFile(from url: URL) -> String {
+        guard self.rootURL!.startAccessingSecurityScopedResource() else { return "Can't read file contents" }
+        defer { self.rootURL!.stopAccessingSecurityScopedResource() }
         return (try? String(contentsOf: url, encoding: .utf8)) ?? "Can't read file contents"
     }
 }
