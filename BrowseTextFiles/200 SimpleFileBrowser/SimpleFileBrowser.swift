@@ -159,9 +159,10 @@ struct SimpleFileBrowser: View {
                     if values.isDirectory == true {
                         let childFolder = try buildFolderNode(from: url)
                         if folder.children == nil {
-                            folder.children = []
+                            folder.children = [childFolder]
+                        } else {
+                            folder.children!.append(childFolder)
                         }
-                        folder.children!.append(childFolder)
                     }
                 }
             }
@@ -186,7 +187,7 @@ struct SimpleFileBrowser: View {
             options: options
         )
 
-        for case let url in urls {
+        for url in urls {
             try autoreleasepool {
                 let values = try url.resourceValues(forKeys: keySet)
                 if values.isRegularFile == true,
