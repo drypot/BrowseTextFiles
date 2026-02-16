@@ -68,10 +68,10 @@ struct SimpleFileBrowser: View {
                 updateText()
             }
         } else {
-            Button("Select Folder") {
+            Button("Open Folder") {
                 openFolder()
             }
-            Button("Select Test Folder") {
+            Button("Open Last Folder") {
                 openLastFolder()
             }
         }
