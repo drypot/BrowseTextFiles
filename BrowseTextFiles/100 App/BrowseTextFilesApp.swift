@@ -1,5 +1,5 @@
 //
-//  MainApp.swift
+//  BrowseTextFilesApp.swift
 //  BrowseTextFiles
 //
 //  Created by Kyuhyun Park on 7/6/25.
@@ -11,7 +11,7 @@ import SwiftUI
 struct MainApp: App {
     @Environment(\.openWindow) private var openWindow
 
-    @State private var settings = AppSettings.shared
+    @State private var settings = SettingsModel()
 
     var body: some Scene {
         WindowGroup("Browse Text Files", id: "MainWindow") {

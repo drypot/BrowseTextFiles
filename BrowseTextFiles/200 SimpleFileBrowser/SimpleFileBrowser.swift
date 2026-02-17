@@ -45,6 +45,8 @@ struct SimpleFileBrowser: View {
     @State private var selectedFile: File?
     @State private var fileContents: String = ""
 
+    @Environment(SettingsModel.self) var settings
+
     var body: some View {
         if rootURL != nil {
             NavigationSplitView {
@@ -57,7 +59,9 @@ struct SimpleFileBrowser: View {
                 }
             } detail: {
                 TextEditor(text: $fileContents)
-                    .font(.body)
+                    .font(.custom(settings.fontName, size: settings.fontSize))
+                    .lineSpacing(settings.lineSpacing)
+                    .padding()
             }
             .toolbarBackground(.hidden) // macOS 26, 툴바 구분선이 나왔다 사라졌다 한다, 강제로 감추는 옵션.
             .navigationTitle(rootName)
