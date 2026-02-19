@@ -43,8 +43,10 @@ struct SimpleFileBrowser: View {
     @State private var selectedFolder: Folder?
     @State private var files: [File] = []
     @State private var selectedFile: File?
-    @State private var fileContents: String = ""
+    @State private var buffers: [FileBuffer] = []
+    @State private var selectedBuffer: FileBuffer?
 
+    @Environment(FileBufferManager.self) var bufferManager
     @Environment(SettingsModel.self) var settings
 
     var body: some View {
@@ -58,18 +60,27 @@ struct SimpleFileBrowser: View {
                     NavigationLink(file.name, value: file)
                 }
             } detail: {
-                TextEditor(text: $fileContents)
-                    .font(.custom(settings.fontName, size: settings.fontSize))
-                    .lineSpacing(settings.lineSpacing)
-                    .padding()
+                TabView(selection: $selectedBuffer) {
+                    ForEach(buffers) { buffer in
+                        @Bindable var buffer = buffer
+                        TextEditor(text: $buffer.text)
+                            .font(.custom(settings.fontName, size: settings.fontSize))
+                            .lineSpacing(settings.lineSpacing)
+                            .tabItem {
+                                Text(buffer.name)
+                            }
+                            .tag(buffer)
+                    }
+                }
+                .padding()
             }
-            .toolbarBackground(.hidden) // macOS 26, 툴바 구분선이 나왔다 사라졌다 한다, 강제로 감추는 옵션.
+//            .toolbarBackground(.hidden) // macOS 26, 툴바 구분선이 나왔다 사라졌다 한다, 강제로 감추는 옵션.
             .navigationTitle(rootName)
             .onChange(of: selectedFolder) {
                 updateFiles()
             }
             .onChange(of: selectedFile) {
-                updateText()
+                openFile()
             }
         } else {
             Button("Open Folder") {
@@ -89,7 +100,7 @@ struct SimpleFileBrowser: View {
 
         if panel.runModal() == .OK, let url = panel.url {
             saveBookmark(from: url)
-            changeRootURL(to: url)
+            setRootURL(to: url)
         }
     }
 
@@ -118,20 +129,21 @@ struct SimpleFileBrowser: View {
             if isStale {
                 saveBookmark(from: url)
             }
-            changeRootURL(to: url)
+            setRootURL(to: url)
         } catch {
             print("loadBookmark failed: \(error)")
         }
     }
 
-    func changeRootURL(to url: URL) {
+    func setRootURL(to url: URL) {
         self.rootURL = url
         self.rootName = url.lastPathComponent
         self.folders = []
         self.selectedFolder = nil
         self.files = []
         self.selectedFile = nil
-        fileContents = ""
+        self.buffers = []
+        self.selectedBuffer = nil
 
         guard self.rootURL!.startAccessingSecurityScopedResource() else { return }
         defer { self.rootURL!.stopAccessingSecurityScopedResource() }
@@ -219,16 +231,26 @@ struct SimpleFileBrowser: View {
         return files
     }
 
-    func updateText() {
+    func openFile() {
         if let file = selectedFile {
-            fileContents = loadFile(from: file.url)
+            if let buffer = (buffers.first { $0.url == file.url }) {
+                selectedBuffer = buffer
+            } else if let buffer = bufferManager.buffer(for: file.url) {
+                buffer.refCount += 1
+                buffers.append(buffer)
+                selectedBuffer = buffer
+            } else {
+                do {
+                    guard self.rootURL!.startAccessingSecurityScopedResource() else { throw AppError.fileOpenError }
+                    defer { self.rootURL!.stopAccessingSecurityScopedResource() }
+                    let buffer = try bufferManager.addBuffer(for: file.url)
+                    buffers.append(buffer)
+                    selectedBuffer = buffer
+                } catch {
+                    print("Can't read file contents")
+                }
+            }
         }
-    }
-
-    func loadFile(from url: URL) -> String {
-        guard self.rootURL!.startAccessingSecurityScopedResource() else { return "Can't read file contents" }
-        defer { self.rootURL!.stopAccessingSecurityScopedResource() }
-        return (try? String(contentsOf: url, encoding: .utf8)) ?? "Can't read file contents"
     }
 }
 
