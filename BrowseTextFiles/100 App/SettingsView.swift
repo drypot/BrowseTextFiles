@@ -104,3 +104,9 @@ struct SettingsView: View {
         .frame(width: 400)
     }
 }
+
+#Preview {
+    let settings = SettingsModel()
+    SettingsView()
+        .environment(settings)
+}
