@@ -255,5 +255,10 @@ struct SimpleFileBrowser: View {
 }
 
 #Preview {
+    var bufferManager = FileBufferManager()
+    var settings = SettingsModel()
     SimpleFileBrowser()
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .environment(bufferManager)
+        .environment(settings)
 }
