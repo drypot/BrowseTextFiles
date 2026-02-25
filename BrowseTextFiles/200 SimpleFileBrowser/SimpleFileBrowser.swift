@@ -47,7 +47,7 @@ struct SimpleFileBrowser: View {
     @State private var selectedBuffer: FileBuffer?
 
     @Environment(FileBufferManager.self) var bufferManager
-    @Environment(SettingsModel.self) var settings
+    @Environment(SettingsData.self) var settings
 
     var body: some View {
         if rootURL != nil {
@@ -255,8 +255,8 @@ struct SimpleFileBrowser: View {
 }
 
 #Preview {
-    var bufferManager = FileBufferManager()
-    var settings = SettingsModel()
+    let bufferManager = FileBufferManager()
+    let settings = SettingsData()
     SimpleFileBrowser()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .environment(bufferManager)

@@ -16,10 +16,10 @@ final class FileBuffer: Identifiable, Hashable {
 
     var id: URL { url }
 
-    init(url: URL) throws {
+    init(url: URL, text: String) throws {
         self.url = url
         self.name = url.lastPathComponent
-        self.text = try String(contentsOf: url, encoding: .utf8)
+        self.text = text
         self.refCount = 0
     }
 
@@ -41,7 +41,8 @@ class FileBufferManager {
     }
 
     func addBuffer(for url: URL) throws -> FileBuffer {
-        let buffer = try FileBuffer(url: url)
+        let text = try String(contentsOf: url, encoding: .utf8)
+        let buffer = try FileBuffer(url: url, text: text)
         buffers[url] = buffer
         buffer.refCount += 1
 

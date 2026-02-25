@@ -12,7 +12,7 @@ struct MainApp: App {
     @Environment(\.openWindow) private var openWindow
 
     @State private var bufferManager = FileBufferManager()
-    @State private var settings = SettingsModel()
+    @State private var settings = SettingsData()
 
     var body: some Scene {
         WindowGroup("Browse Text Files", id: "MainWindow") {

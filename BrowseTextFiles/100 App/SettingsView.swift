@@ -9,7 +9,7 @@ import SwiftUI
 import Observation
 
 @Observable
-class SettingsModel {
+class SettingsData {
 
     var fontName: String = "Helvetica" {
         didSet {
@@ -68,7 +68,7 @@ class SettingsModel {
 }
 
 struct SettingsView: View {
-    @Environment(SettingsModel.self) private var settings
+    @Environment(SettingsData.self) private var settings
 
     let fontFamilies = NSFontManager.shared.availableFontFamilies.sorted()
 
@@ -106,7 +106,7 @@ struct SettingsView: View {
 }
 
 #Preview {
-    let settings = SettingsModel()
+    let settings = SettingsData()
     SettingsView()
         .environment(settings)
 }
