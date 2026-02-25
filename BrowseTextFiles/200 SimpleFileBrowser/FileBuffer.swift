@@ -8,7 +8,7 @@
 import Foundation
 
 @Observable
-final class FileBuffer: IDHashable {
+final class FileBuffer: Identifiable, Hashable {
     var url: URL
     var name: String
     var text: String
@@ -21,6 +21,14 @@ final class FileBuffer: IDHashable {
         self.name = url.lastPathComponent
         self.text = try String(contentsOf: url, encoding: .utf8)
         self.refCount = 0
+    }
+
+    static func == (lhs: FileBuffer, rhs: FileBuffer) -> Bool {
+        return lhs.id == rhs.id
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
     }
 }
 
@@ -40,3 +48,4 @@ class FileBufferManager {
         return buffer
     }
 }
+
