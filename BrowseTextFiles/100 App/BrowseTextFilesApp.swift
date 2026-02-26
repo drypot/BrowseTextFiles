@@ -11,7 +11,7 @@ import SwiftUI
 struct MainApp: App {
     @Environment(\.openWindow) private var openWindow
 
-    @State private var bufferManager = FileBufferManager()
+    @State private var bufferManager = GlobalBufferManager()
     @State private var settings = SettingsData()
 
     var body: some Scene {

@@ -33,7 +33,7 @@ final class FileBuffer: Identifiable, Hashable {
 }
 
 @Observable
-class FileBufferManager {
+class GlobalBufferManager {
     private var buffers: [URL: FileBuffer] = [:]
 
     func buffer(for url: URL) -> FileBuffer? {
