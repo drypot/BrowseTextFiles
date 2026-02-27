@@ -14,10 +14,9 @@ struct SimpleFileBrowser: View {
     @State private var fileListManager = FileListManager()
     @State private var selectedFile: File?
 
-    @State private var buffers: [FileBuffer] = []
+    @State private var fileBufferManager = FileBufferManager()
     @State private var selectedBuffer: FileBuffer?
 
-    @Environment(GlobalBufferManager.self) var globalBufferManager
     @Environment(SettingsData.self) var settings
 
     var body: some View {
@@ -32,7 +31,7 @@ struct SimpleFileBrowser: View {
                 }
             } detail: {
                 TabView(selection: $selectedBuffer) {
-                    ForEach(buffers) { buffer in
+                    ForEach(fileBufferManager.buffers) { buffer in
                         @Bindable var buffer = buffer
                         TextEditor(text: $buffer.text)
                             .font(.custom(settings.fontName, size: settings.fontSize))
@@ -100,34 +99,19 @@ struct SimpleFileBrowser: View {
     }
 
     func openFile() {
-        if let selectedFile {
-            if let buffer = (buffers.first { $0.url == selectedFile.url }) {
-                selectedBuffer = buffer
-            } else if let buffer = globalBufferManager.buffer(for: selectedFile.url) {
-                buffer.refCount += 1
-                buffers.append(buffer)
-                selectedBuffer = buffer
-            } else {
-                do {
-                    guard let root = folderListManager.root else { fatalError("root is null") }
-                    guard root.url.startAccessingSecurityScopedResource() else { throw AppError.fileOpenError }
-                    defer { root.url.stopAccessingSecurityScopedResource() }
-                    let buffer = try globalBufferManager.addBuffer(for: selectedFile.url)
-                    buffers.append(buffer)
-                    selectedBuffer = buffer
-                } catch {
-                    print("Can't read file contents")
-                }
-            }
+        if let selectedFileURL = selectedFile?.url,
+           let rootURL = folderListManager.root?.url,
+           let buffer = try? fileBufferManager.addBuffer(for: selectedFileURL, root: rootURL) {
+            selectedBuffer = buffer
+        } else {
+            print("Can't read file contents")
         }
     }
 }
 
 #Preview {
-    let bufferManager = GlobalBufferManager()
     let settings = SettingsData()
     SimpleFileBrowser()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .environment(bufferManager)
         .environment(settings)
 }

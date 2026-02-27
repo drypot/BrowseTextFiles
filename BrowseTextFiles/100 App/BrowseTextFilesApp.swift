@@ -11,13 +11,11 @@ import SwiftUI
 struct MainApp: App {
     @Environment(\.openWindow) private var openWindow
 
-    @State private var bufferManager = GlobalBufferManager()
     @State private var settings = SettingsData()
 
     var body: some Scene {
         WindowGroup("Browse Text Files", id: "MainWindow") {
             SimpleFileBrowser()
-                .environment(bufferManager)
                 .environment(settings)
         }
         .commands {
