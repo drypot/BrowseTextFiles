@@ -49,12 +49,9 @@ public struct FileURLCollector {
             if values.isRegularFile == true {
                 results.append(url)
             } else if values.isDirectory == true {
-                guard let enumerator = fileManager.enumerator(
-                    at: url,
-                    includingPropertiesForKeys: keys,
-                    options: options
-                ) else { continue }
-
+                guard let enumerator = fileManager.enumerator(at: url,
+                                                              includingPropertiesForKeys: keys,
+                                                              options: options) else { continue }
                 for case let item as URL in enumerator {
                     try autoreleasepool {
                         let values = try item.resourceValues(forKeys: keySet)
