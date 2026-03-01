@@ -6,16 +6,17 @@
 //
 
 import SwiftUI
+import MyLibrary
 
 struct SimpleFileBrowser: View {
     @State private var folderListManager = FolderListManager()
     @State private var selectedFolder: Folder?
 
     @State private var fileListManager = FileListManager()
-    @State private var selectedFile: File?
+    @State private var selectedFile: URL?
 
-    @State private var fileBufferManager = FileBufferManager()
-    @State private var selectedBuffer: FileBuffer?
+    @State private var textBufferManager = TextBufferManager()
+    @State private var selectedTextBuffer: TextBuffer?
 
     @Environment(SettingsData.self) var settings
 
@@ -26,12 +27,12 @@ struct SimpleFileBrowser: View {
                     NavigationLink(folder.name, value: folder)
                 }
             } content: {
-                List(fileListManager.files, selection: $selectedFile) { file in
-                    NavigationLink(file.name, value: file)
+                List(fileListManager.files, id: \.self, selection: $selectedFile) { file in
+                    NavigationLink(file.lastPathComponent, value: file)
                 }
             } detail: {
-                TabView(selection: $selectedBuffer) {
-                    ForEach(fileBufferManager.buffers) { buffer in
+                TabView(selection: $selectedTextBuffer) {
+                    ForEach(textBufferManager.files) { buffer in
                         @Bindable var buffer = buffer
                         TextEditor(text: $buffer.text)
                             .font(.custom(settings.fontName, size: settings.fontSize))
@@ -87,24 +88,30 @@ struct SimpleFileBrowser: View {
     }
 
     func updateFiles() {
-        if let selectedFolderURL = selectedFolder?.url,
-           let rootURL = folderListManager.root?.url {
-            do {
-                try fileListManager.update(from: selectedFolderURL, root: rootURL)
-                selectedFile = nil
-            } catch {
-                print("\(error.localizedDescription)")
-            }
+        guard let selectedFolderURL = selectedFolder?.url else { return }
+        guard let rootURL = folderListManager.root?.url else { return }
+
+        do {
+            try fileListManager.update(from: selectedFolderURL, root: rootURL)
+            selectedFile = nil
+        } catch {
+            print("file list update failed: \(error.localizedDescription)")
         }
     }
 
     func openFile() {
-        if let selectedFileURL = selectedFile?.url,
-           let rootURL = folderListManager.root?.url,
-           let buffer = try? fileBufferManager.addBuffer(for: selectedFileURL, root: rootURL) {
-            selectedBuffer = buffer
-        } else {
-            print("Can't read file contents")
+        do {
+            guard let selectedFileURL = selectedFile else { return }
+            guard let rootURL = folderListManager.root?.url else { return }
+            if let file = textBufferManager.file(for: selectedFileURL) {
+                selectedTextBuffer = file
+            } else {
+                guard rootURL.startAccessingSecurityScopedResource() else { return }
+                defer { rootURL.stopAccessingSecurityScopedResource() }
+                selectedTextBuffer = try textBufferManager.addFile(from: selectedFileURL)
+            }
+        } catch {
+            print("file open failed: \(error.localizedDescription)")
         }
     }
 }

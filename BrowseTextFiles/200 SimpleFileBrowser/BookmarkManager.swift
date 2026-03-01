@@ -18,7 +18,7 @@ class BookmarkManager {
                                                     relativeTo: nil)
             UserDefaults.standard.set(bookmarkData, forKey: key)
         } catch {
-            print("saveBookmark failed: \(error)")
+            print("saving bookmark failed: \(error)")
         }
     }
 
@@ -36,7 +36,7 @@ class BookmarkManager {
                 save(url!, forKey: key)
             }
         } catch {
-            print("loadBookmark failed: \(error)")
+            print("loading bookmark failed: \(error)")
         }
         return url
     }

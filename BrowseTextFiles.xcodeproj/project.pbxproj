@@ -6,7 +6,12 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		001A02B62F532CC6004009B6 /* MyLibrary in Frameworks */ = {isa = PBXBuildFile; productRef = 001A02B52F532CC6004009B6 /* MyLibrary */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
+		001A02B32F532BBE004009B6 /* MyLibrary */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = MyLibrary; sourceTree = "<group>"; };
 		00517B4E2E1A1AAB00AED7F2 /* Browse Text Files.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Browse Text Files.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -23,16 +28,26 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				001A02B62F532CC6004009B6 /* MyLibrary in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		001A02B42F532CC6004009B6 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		00517B452E1A1AAA00AED7F2 = {
 			isa = PBXGroup;
 			children = (
 				00517B502E1A1AAB00AED7F2 /* BrowseTextFiles */,
+				001A02B32F532BBE004009B6 /* MyLibrary */,
+				001A02B42F532CC6004009B6 /* Frameworks */,
 				00517B4F2E1A1AAB00AED7F2 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -65,6 +80,7 @@
 			);
 			name = BrowseTextFiles;
 			packageProductDependencies = (
+				001A02B52F532CC6004009B6 /* MyLibrary */,
 			);
 			productName = TextApp;
 			productReference = 00517B4E2E1A1AAB00AED7F2 /* Browse Text Files.app */;
@@ -339,6 +355,13 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		001A02B52F532CC6004009B6 /* MyLibrary */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = MyLibrary;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 00517B462E1A1AAA00AED7F2 /* Project object */;
 }
