@@ -15,7 +15,7 @@ struct MainApp: App {
 
     var body: some Scene {
         WindowGroup("Browse Text Files", id: "MainWindow") {
-            SimpleFileBrowser()
+            TextBufferBrowser()
                 .environment(settings)
         }
         .commands {
@@ -31,5 +31,4 @@ struct MainApp: App {
                 .environment(settings)
         }
     }
-
 }

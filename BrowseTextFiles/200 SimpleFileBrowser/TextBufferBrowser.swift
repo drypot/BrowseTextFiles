@@ -1,5 +1,5 @@
 //
-//  SimpleFileBrowser.swift
+//  TextBufferBrowser.swift
 //  BrowseTextFiles
 //
 //  Created by Kyuhyun Park on 7/6/25.
@@ -8,7 +8,7 @@
 import SwiftUI
 import MyLibrary
 
-struct SimpleFileBrowser: View {
+struct TextBufferBrowser: View {
     @State private var folderListManager = FolderListManager()
     @State private var selectedFolder: Folder?
 
@@ -118,7 +118,7 @@ struct SimpleFileBrowser: View {
 
 #Preview {
     let settings = SettingsData()
-    SimpleFileBrowser()
+    TextBufferBrowser()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .environment(settings)
 }
