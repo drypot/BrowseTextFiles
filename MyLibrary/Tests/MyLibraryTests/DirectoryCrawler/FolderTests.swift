@@ -12,7 +12,7 @@ import MyLibrary
 struct FolderTests {
     func resourceURL(_ path: String = "") -> URL {
         return Bundle.module.resourceURL!
-            .appending(path: "DirectoryCrawlerResources")
+            .appending(path: "DirectoryCrawlerTest")
             .appending(path: path)
     }
 
@@ -20,7 +20,7 @@ struct FolderTests {
         let root = resourceURL()
         let result = try! FolderTreeBuilder().build(from: root)
 
-        #expect(result.name == "DirectoryCrawlerResources")
+        #expect(result.name == "DirectoryCrawlerTest")
         #expect(result.folders!.count == 1)
         #expect(result.folders![0].name == "Sub1")
         #expect(result.folders![0].folders!.count == 2)

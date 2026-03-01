@@ -12,7 +12,7 @@ import MyLibrary
 struct FileURLCollectorTests {
     func resourceURL(_ path: String = "") -> URL {
         return Bundle.module.resourceURL!
-            .appending(path: "DirectoryCrawlerResources")
+            .appending(path: "DirectoryCrawlerTest")
             .appending(path: path)
     }
 
