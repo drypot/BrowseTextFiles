@@ -9,6 +9,8 @@ import SwiftUI
 import MyLibrary
 
 struct TextBufferBrowser: View {
+    @Environment(SettingsData.self) var settings
+
     @State private var folderListManager = FolderListManager()
     @State private var selectedFolder: Folder?
 
@@ -18,14 +20,13 @@ struct TextBufferBrowser: View {
     @State private var textBufferManager = TextBufferManager()
     @State private var selectedTextBuffer: TextBuffer?
 
-    @Environment(SettingsData.self) var settings
-
     var body: some View {
         if let root = folderListManager.root {
             NavigationSplitView {
                 List(folderListManager.folders, children: \.folders, selection: $selectedFolder) { folder in
                     NavigationLink(folder.name, value: folder)
                 }
+                .navigationTitle(root.name)
             } content: {
                 List(fileListManager.files, id: \.self, selection: $selectedFile) { file in
                     NavigationLink(file.lastPathComponent, value: file)
@@ -46,7 +47,6 @@ struct TextBufferBrowser: View {
                 .padding()
             }
 //            .toolbarBackground(.hidden) // macOS 26, 툴바 구분선이 나왔다 사라졌다 한다, 강제로 감추는 옵션.
-            .navigationTitle(root.name)
             .onChange(of: selectedFolder) {
                 updateFiles()
             }
@@ -92,7 +92,9 @@ struct TextBufferBrowser: View {
         guard let rootURL = folderListManager.root?.url else { return }
 
         do {
-            try fileListManager.update(from: selectedFolderURL, root: rootURL)
+            guard rootURL.startAccessingSecurityScopedResource() else { return }
+            defer { rootURL.stopAccessingSecurityScopedResource() }
+            try fileListManager.update(from: selectedFolderURL)
             selectedFile = nil
         } catch {
             print("file list update failed: \(error.localizedDescription)")

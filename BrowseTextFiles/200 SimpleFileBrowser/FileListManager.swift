@@ -14,9 +14,7 @@ class FileListManager {
 
     init() {}
 
-    func update(from url: URL, root: URL) throws {
-        guard root.startAccessingSecurityScopedResource() else { return }
-        defer { root.stopAccessingSecurityScopedResource() }
+    func update(from url: URL) throws {
         files = try TextFileURLCollector().collectShallowly(from: url)
         files.sort { $0.lastPathComponent < $1.lastPathComponent }
     }
