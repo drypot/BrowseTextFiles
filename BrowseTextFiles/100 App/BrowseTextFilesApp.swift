@@ -14,14 +14,14 @@ struct MainApp: App {
     @State private var settings = SettingsData()
 
     var body: some Scene {
-        WindowGroup("Browse Text Files", id: "MainWindow") {
+        WindowGroup("BrowseTextFiles", id: "main") {
             TextBufferBrowser()
                 .environment(settings)
         }
         .commands {
             CommandGroup(replacing: .newItem) {
                 Button("Open Directory") {
-                    openWindow(id: "MainWindow")
+                    openWindow(id: "main")
                 }
                 .keyboardShortcut("O", modifiers: [.command])
             }
