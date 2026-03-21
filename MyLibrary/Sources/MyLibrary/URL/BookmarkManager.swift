@@ -1,17 +1,19 @@
 //
 //  BookmarkManager.swift
-//  BrowseTextFiles
+//  MyLibrary
 //
 //  Created by Kyuhyun Park on 2/26/26.
 //
 
 import Foundation
 
-class BookmarkManager {
-    static var shared = BookmarkManager()
+public class BookmarkManager {
+
+    @MainActor public private(set) static var shared = BookmarkManager()
+
     private init() {}
-    
-    func save(_ url: URL, forKey key: String) {
+
+    public func save(_ url: URL, forKey key: String) {
         do {
             let bookmarkData = try url.bookmarkData(options: .withSecurityScope,
                                                     includingResourceValuesForKeys: nil,
@@ -22,16 +24,16 @@ class BookmarkManager {
         }
     }
 
-    func load(forKey key: String) -> URL? {
+    public func load(forKey key: String) -> URL? {
         var url: URL? = nil
         do {
             guard let bookmarkData = UserDefaults.standard.data(forKey: key) else { return nil }
 
             var isStale = false
             url = try URL(resolvingBookmarkData: bookmarkData,
-                              options: .withSecurityScope,
-                              relativeTo: nil,
-                              bookmarkDataIsStale: &isStale)
+                          options: .withSecurityScope,
+                          relativeTo: nil,
+                          bookmarkDataIsStale: &isStale)
             if isStale {
                 save(url!, forKey: key)
             }
