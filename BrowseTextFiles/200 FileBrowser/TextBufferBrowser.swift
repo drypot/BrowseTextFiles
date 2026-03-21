@@ -20,6 +20,12 @@ struct TextBufferBrowser: View {
     @State private var textBufferManager = TextBufferManager()
     @State private var selectedTextBuffer: TextBuffer?
 
+    var initialAction: Action?
+
+    init(action: Action? = nil) {
+        self.initialAction = action
+    }
+
     var body: some View {
         if let root = folderListManager.root {
             NavigationSplitView {
