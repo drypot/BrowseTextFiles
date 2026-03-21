@@ -39,7 +39,7 @@ struct TextBufferBrowser: View {
                 }
             } detail: {
                 TabView(selection: $selectedTextBuffer) {
-                    ForEach(textBufferManager.files) { buffer in
+                    ForEach(textBufferManager.buffers) { buffer in
                         @Bindable var buffer = buffer
                         TextEditor(text: $buffer.text)
                             .font(.custom(settings.fontName, size: settings.fontSize))
@@ -111,12 +111,12 @@ struct TextBufferBrowser: View {
         do {
             guard let selectedFileURL = selectedFile else { return }
             guard let rootURL = folderListManager.root?.url else { return }
-            if let file = textBufferManager.file(for: selectedFileURL) {
+            if let file = textBufferManager.buffer(for: selectedFileURL) {
                 selectedTextBuffer = file
             } else {
                 guard rootURL.startAccessingSecurityScopedResource() else { return }
                 defer { rootURL.stopAccessingSecurityScopedResource() }
-                selectedTextBuffer = try textBufferManager.addFile(from: selectedFileURL)
+                selectedTextBuffer = try textBufferManager.addBuffer(contentOf: selectedFileURL)
             }
         } catch {
             print("file open failed: \(error.localizedDescription)")

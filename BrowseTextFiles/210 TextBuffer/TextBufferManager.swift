@@ -10,37 +10,37 @@ import UniformTypeIdentifiers
 
 @MainActor @Observable
 public class TextBufferManager {
-    public private(set) var files: [TextBuffer] = []
-    private var fileDic: [URL: TextBuffer] = [:]
+    public private(set) var buffers: [TextBuffer] = []
+    private var bufferDic: [URL: TextBuffer] = [:]
 
     @MainActor private static var sharedDic: [URL: TextBuffer] = [:]
 
     public init() {}
     
-    public func file(for url: URL) -> TextBuffer? {
-        if let file = fileDic[url] {
-            return file
-        } else if let file = Self.sharedDic[url] {
-            file.refCount += 1
-            files.append(file)
-            fileDic[url] = file
-            return file
+    public func buffer(for url: URL) -> TextBuffer? {
+        if let buffer = bufferDic[url] {
+            return buffer
+        } else if let buffer = Self.sharedDic[url] {
+            buffer.refCount += 1
+            buffers.append(buffer)
+            bufferDic[url] = buffer
+            return buffer
         } else {
             return nil
         }
     }
 
-    public func addFile(from url: URL) throws -> TextBuffer {
+    public func addBuffer(contentOf url: URL) throws -> TextBuffer {
         let text = try String(contentsOf: url, encoding: .utf8)
-        let file = TextBuffer(url: url, text: text)
+        let buffer = TextBuffer(url: url, text: text)
 
-        Self.sharedDic[url] = file
+        Self.sharedDic[url] = buffer
 
-        file.refCount += 1
-        files.append(file)
-        fileDic[url] = file
+        buffer.refCount += 1
+        buffers.append(buffer)
+        bufferDic[url] = buffer
 
-        return file
+        return buffer
     }
 }
 
