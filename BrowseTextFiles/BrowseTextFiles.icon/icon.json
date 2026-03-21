@@ -9,13 +9,15 @@
       "hidden" : false,
       "layers" : [
         {
-          "image-name" : "Layer 2.png",
-          "name" : "Layer 2",
+          "glass" : true,
+          "hidden" : false,
+          "image-name" : "Copy Merged 2.png",
+          "name" : "Copy Merged 2",
           "position" : {
             "scale" : 1,
             "translation-in-points" : [
-              39.5234375,
-              25
+              49.1640625,
+              -0.5
             ]
           }
         }
