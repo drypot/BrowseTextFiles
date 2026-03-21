@@ -13,6 +13,9 @@
 /* Begin PBXFileReference section */
 		001A02B32F532BBE004009B6 /* MyLibrary */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = MyLibrary; sourceTree = "<group>"; };
 		00517B4E2E1A1AAB00AED7F2 /* Browse Text Files.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Browse Text Files.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		00A47E662F6EB05B000A7673 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		00A47E672F6EB05B000A7673 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		00A47E702F6EB198000A7673 /* PRIVACY.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = PRIVACY.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -45,6 +48,9 @@
 		00517B452E1A1AAA00AED7F2 = {
 			isa = PBXGroup;
 			children = (
+				00A47E662F6EB05B000A7673 /* LICENSE */,
+				00A47E702F6EB198000A7673 /* PRIVACY.md */,
+				00A47E672F6EB05B000A7673 /* README.md */,
 				00517B502E1A1AAB00AED7F2 /* BrowseTextFiles */,
 				001A02B32F532BBE004009B6 /* MyLibrary */,
 				001A02B42F532CC6004009B6 /* Frameworks */,
@@ -288,7 +294,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.drypot.BrowseTextFiles;
 				PRODUCT_NAME = "Browse Text Files";
 				REGISTER_APP_GROUPS = YES;
@@ -322,7 +328,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.drypot.BrowseTextFiles;
 				PRODUCT_NAME = "Browse Text Files";
 				REGISTER_APP_GROUPS = YES;
