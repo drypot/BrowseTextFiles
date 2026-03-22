@@ -32,14 +32,14 @@ class TextBufferManager {
 
     func setRoot(to url: URL) {
         do {
-            if url.startAccessingSecurityScopedResource() {
-                defer { url.stopAccessingSecurityScopedResource() }
-                let folder = try FolderTreeBuilder().build(from: url)
-                root = folder
-                folders = [folder]  // SwiftUI List 에 root folder 를 표시하기 위해 root 용 어레이를 만들어 둔다.
-                selectedFolder = folder
-                updateFiles()
-            }
+            let securityScoped = url.startAccessingSecurityScopedResource()
+            defer { if securityScoped { url.stopAccessingSecurityScopedResource() } }
+            
+            let folder = try FolderTreeBuilder().build(from: url)
+            root = folder
+            folders = [folder]  // SwiftUI List 에 root folder 를 표시하기 위해 root 용 어레이를 만들어 둔다.
+            selectedFolder = folder
+            updateFiles()
         } catch {
             print("folder list update failed: \(error.localizedDescription)")
         }
@@ -52,12 +52,12 @@ class TextBufferManager {
             guard let selectedFolderURL = selectedFolder?.url else { return }
             guard let rootURL = root?.url else { return }
 
-            if rootURL.startAccessingSecurityScopedResource() {
-                defer { rootURL.stopAccessingSecurityScopedResource() }
-                files = try TextFileURLCollector().collectShallowly(from: selectedFolderURL)
-                files.sort { $0.lastPathComponent < $1.lastPathComponent }
-                selectedFile = nil
-            }
+            let securityScoped = rootURL.startAccessingSecurityScopedResource()
+            defer { if securityScoped { rootURL.stopAccessingSecurityScopedResource() } }
+
+            files = try TextFileURLCollector().collectShallowly(from: selectedFolderURL)
+            files.sort { $0.lastPathComponent < $1.lastPathComponent }
+            selectedFile = nil
         } catch {
             print("file list update failed: \(error.localizedDescription)")
         }
@@ -70,10 +70,9 @@ class TextBufferManager {
             if let file = buffer(for: selectedFileURL) {
                 selectedBuffer = file
             } else {
-                if rootURL.startAccessingSecurityScopedResource() {
-                    defer { rootURL.stopAccessingSecurityScopedResource() }
-                    selectedBuffer = try addBuffer(contentOf: selectedFileURL)
-                }
+                let securityScoped = rootURL.startAccessingSecurityScopedResource()
+                defer { if securityScoped { rootURL.stopAccessingSecurityScopedResource() } }
+                selectedBuffer = try addBuffer(contentOf: selectedFileURL)
             }
         } catch {
             print("file open failed: \(error.localizedDescription)")

@@ -15,13 +15,12 @@ public class BookmarkManager {
 
     public func save(_ url: URL, forKey key: String) {
         do {
-            if url.startAccessingSecurityScopedResource() {
-                defer { url.stopAccessingSecurityScopedResource() }
-                let bookmarkData = try url.bookmarkData(options: .withSecurityScope,
-                                                        includingResourceValuesForKeys: nil,
-                                                        relativeTo: nil)
-                UserDefaults.standard.set(bookmarkData, forKey: key)
-            }
+            let securityScoped = url.startAccessingSecurityScopedResource()
+            defer { if securityScoped { url.stopAccessingSecurityScopedResource() } }
+            let bookmarkData = try url.bookmarkData(options: .withSecurityScope,
+                                                    includingResourceValuesForKeys: nil,
+                                                    relativeTo: nil)
+            UserDefaults.standard.set(bookmarkData, forKey: key)
         } catch {
             print("saving bookmark failed: \(error)")
         }
