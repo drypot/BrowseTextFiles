@@ -21,8 +21,22 @@ struct MainApp: App {
                 .toolbarBackgroundVisibility(.hidden, for: .windowToolbar)
                 .environment(settings)
         }
+        .defaultWindowPlacement { proxy, context in
+            let displayBounds = context.defaultDisplay.visibleRect
+            let size = CGSize(width: displayBounds.width * 2 / 3, height: displayBounds.height * 2 / 3)
+
+            let position = CGPoint(
+                x: displayBounds.midX - (size.width / 2),
+                y: displayBounds.maxY - size.height - 140)
+            return WindowPlacement(position, size: size)
+        }
         .commands {
-            CommandGroup(after: .newItem) {
+            CommandGroup(replacing: .newItem) {
+                Button("New Browser Window", systemImage: "macwindow") {
+                    openWindow(id: "browser")
+                }
+                .keyboardShortcut("n", modifiers: [.command, .shift])
+
                 Button("Open...", systemImage: "arrow.up.right") {
                     if let performAction {
                         performAction(.openFiles)
