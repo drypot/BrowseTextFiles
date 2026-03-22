@@ -11,14 +11,7 @@ import MyLibrary
 struct TextBufferBrowser: View {
     @Environment(SettingsData.self) var settings
 
-    @State private var folderListManager = FolderListManager()
-    @State private var selectedFolder: Folder?
-
-    @State private var fileListManager = FileListManager()
-    @State private var selectedFile: URL?
-
-    @State private var textBufferManager = TextBufferManager()
-    @State private var selectedTextBuffer: TextBuffer?
+    @State private var bufferManager = TextBufferManager()
 
     var initialAction: Action?
 
@@ -27,19 +20,19 @@ struct TextBufferBrowser: View {
     }
 
     var body: some View {
-        if let root = folderListManager.root {
+        if let root = bufferManager.root {
             NavigationSplitView {
-                List(folderListManager.folders, children: \.folders, selection: $selectedFolder) { folder in
+                List(bufferManager.folders, children: \.folders, selection: $bufferManager.selectedFolder) { folder in
                     NavigationLink(folder.name, value: folder)
                 }
                 .navigationTitle(root.name)
             } content: {
-                List(fileListManager.files, id: \.self, selection: $selectedFile) { file in
+                List(bufferManager.files, id: \.self, selection: $bufferManager.selectedFile) { file in
                     NavigationLink(file.lastPathComponent, value: file)
                 }
             } detail: {
-                TabView(selection: $selectedTextBuffer) {
-                    ForEach(textBufferManager.buffers) { buffer in
+                TabView(selection: $bufferManager.selectedBuffer) {
+                    ForEach(bufferManager.buffers) { buffer in
                         @Bindable var buffer = buffer
                         TextEditor(text: $buffer.text)
                             .font(.custom(settings.fontName, size: settings.fontSize))
@@ -53,11 +46,11 @@ struct TextBufferBrowser: View {
                 .padding()
             }
 //            .toolbarBackground(.hidden) // macOS 26, 툴바 구분선이 나왔다 사라졌다 한다, 강제로 감추는 옵션.
-            .onChange(of: selectedFolder) {
-                updateFiles()
+            .onChange(of: bufferManager.selectedFolder) {
+                bufferManager.updateFiles()
             }
-            .onChange(of: selectedFile) {
-                openFile()
+            .onChange(of: bufferManager.selectedFile) {
+                bufferManager.openSelectedFile()
             }
         } else {
             Button("Open Folder") {
@@ -82,44 +75,12 @@ struct TextBufferBrowser: View {
     }
 
     func openFolder(from url: URL) {
-        folderListManager.setRoot(to: url)
-        selectedFolder = folderListManager.root
-        updateFiles()
+        bufferManager.setRoot(to: url)
     }
 
     func openLastFolder() {
         if let url = BookmarkManager.shared.load(forKey: "lastOpenFolder") {
             openFolder(from: url)
-        }
-    }
-
-    func updateFiles() {
-        guard let selectedFolderURL = selectedFolder?.url else { return }
-        guard let rootURL = folderListManager.root?.url else { return }
-
-        do {
-            guard rootURL.startAccessingSecurityScopedResource() else { return }
-            defer { rootURL.stopAccessingSecurityScopedResource() }
-            try fileListManager.update(from: selectedFolderURL)
-            selectedFile = nil
-        } catch {
-            print("file list update failed: \(error.localizedDescription)")
-        }
-    }
-
-    func openFile() {
-        do {
-            guard let selectedFileURL = selectedFile else { return }
-            guard let rootURL = folderListManager.root?.url else { return }
-            if let file = textBufferManager.buffer(for: selectedFileURL) {
-                selectedTextBuffer = file
-            } else {
-                guard rootURL.startAccessingSecurityScopedResource() else { return }
-                defer { rootURL.stopAccessingSecurityScopedResource() }
-                selectedTextBuffer = try textBufferManager.addBuffer(contentOf: selectedFileURL)
-            }
-        } catch {
-            print("file open failed: \(error.localizedDescription)")
         }
     }
 }

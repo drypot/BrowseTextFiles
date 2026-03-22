@@ -32,17 +32,13 @@ struct MainApp: App {
         }
         .commands {
             CommandGroup(replacing: .newItem) {
-                Button("New Browser Window", systemImage: "macwindow") {
-                    openWindow(id: "browser")
-                }
-                .keyboardShortcut("n", modifiers: [.command, .shift])
+//                Button("New Browser Window", systemImage: "macwindow") {
+//                    openWindow(id: "browser")
+//                }
+//                .keyboardShortcut("n", modifiers: [.command, .shift])
 
                 Button("Open...", systemImage: "arrow.up.right") {
-                    if let performAction {
-                        performAction(.openFiles)
-                    } else {
-                        openWindow(id: "browser", value: Action.openFiles)
-                    }
+                    openWindow(id: "browser", value: Action.openFiles)
                 }
                 .keyboardShortcut("o", modifiers: .command)
 
