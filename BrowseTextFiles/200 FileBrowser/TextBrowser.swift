@@ -1,5 +1,5 @@
 //
-//  TextBufferBrowser.swift
+//  TextBrowser.swift
 //  BrowseTextFiles
 //
 //  Created by Kyuhyun Park on 7/6/25.
@@ -8,7 +8,7 @@
 import SwiftUI
 import MyLibrary
 
-struct TextBufferBrowser: View {
+struct TextBrowser: View {
     @Environment(SettingsData.self) var settings
 
     @State private var bufferManager = TextBufferManager()
@@ -84,7 +84,7 @@ struct TextBufferBrowser: View {
 
 #Preview {
     let settings = SettingsData()
-    TextBufferBrowser()
+    TextBrowser()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .environment(settings)
 }

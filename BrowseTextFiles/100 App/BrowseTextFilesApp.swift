@@ -15,7 +15,7 @@ struct MainApp: App {
 
     var body: some Scene {
         WindowGroup("BrowseTextFiles", id: "browser", for: Action.self) { $action in
-            TextBufferBrowser(action: action)
+            TextBrowser(action: action)
                 .toolbar(removing: .title)
                 .toolbarBackground(.hidden, for: .windowToolbar)
                 .toolbarBackgroundVisibility(.hidden, for: .windowToolbar)
