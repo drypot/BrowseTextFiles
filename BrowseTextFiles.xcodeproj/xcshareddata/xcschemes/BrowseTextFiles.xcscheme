@@ -17,7 +17,7 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "00517B4D2E1A1AAA00AED7F2"
                BuildableName = "Browse Text Files.app"
-               BlueprintName = "BrowseTextFiles"
+               BlueprintName = "Browse Text Files"
                ReferencedContainer = "container:BrowseTextFiles.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -46,7 +46,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "00517B4D2E1A1AAA00AED7F2"
             BuildableName = "Browse Text Files.app"
-            BlueprintName = "BrowseTextFiles"
+            BlueprintName = "Browse Text Files"
             ReferencedContainer = "container:BrowseTextFiles.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -63,7 +63,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "00517B4D2E1A1AAA00AED7F2"
             BuildableName = "Browse Text Files.app"
-            BlueprintName = "BrowseTextFiles"
+            BlueprintName = "Browse Text Files"
             ReferencedContainer = "container:BrowseTextFiles.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

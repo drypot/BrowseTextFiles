@@ -69,9 +69,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		00517B4D2E1A1AAA00AED7F2 /* BrowseTextFiles */ = {
+		00517B4D2E1A1AAA00AED7F2 /* Browse Text Files */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 00517B5A2E1A1AAB00AED7F2 /* Build configuration list for PBXNativeTarget "BrowseTextFiles" */;
+			buildConfigurationList = 00517B5A2E1A1AAB00AED7F2 /* Build configuration list for PBXNativeTarget "Browse Text Files" */;
 			buildPhases = (
 				00517B4A2E1A1AAA00AED7F2 /* Sources */,
 				00517B4B2E1A1AAA00AED7F2 /* Frameworks */,
@@ -84,7 +84,7 @@
 			fileSystemSynchronizedGroups = (
 				00517B502E1A1AAB00AED7F2 /* BrowseTextFiles */,
 			);
-			name = BrowseTextFiles;
+			name = "Browse Text Files";
 			packageProductDependencies = (
 				001A02B52F532CC6004009B6 /* MyLibrary */,
 			);
@@ -121,7 +121,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				00517B4D2E1A1AAA00AED7F2 /* BrowseTextFiles */,
+				00517B4D2E1A1AAA00AED7F2 /* Browse Text Files */,
 			);
 		};
 /* End PBXProject section */
@@ -287,7 +287,6 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = BrowseTextFiles;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -322,7 +321,6 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = BrowseTextFiles;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -353,7 +351,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		00517B5A2E1A1AAB00AED7F2 /* Build configuration list for PBXNativeTarget "BrowseTextFiles" */ = {
+		00517B5A2E1A1AAB00AED7F2 /* Build configuration list for PBXNativeTarget "Browse Text Files" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				00517B5B2E1A1AAB00AED7F2 /* Debug */,

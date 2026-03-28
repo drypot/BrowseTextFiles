@@ -1,6 +1,6 @@
 # Privacy Policy
 
-**BrowseTextFiles** (hereinafter referred to as "the App") values your privacy and complies with relevant laws and regulations regarding personal data protection.
+**Browse Text Files** (hereinafter referred to as "the App") values your privacy and complies with relevant laws and regulations regarding personal data protection.
 
 ### 1. Collection and Use of Personal Information
 The App does not collect, store, or transmit any personally identifiable information (such as name, email address, or contact details) to any external servers.
