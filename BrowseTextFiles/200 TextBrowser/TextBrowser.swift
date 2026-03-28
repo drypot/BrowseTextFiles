@@ -62,12 +62,16 @@ struct TextBrowser: View {
         .onChange(of: bufferManager.selectedFile) {
             bufferManager.openSelectedFile()
         }
+        .onOpenURL { url in
+            print("onOpenURL: \(url.path)")
+            // 여기서 파일을 로드하는 로직을 구현한다.
+        }
         .task {
             if let root = initRoot {
-                saveRootURLAndOpenFolder(root)
+                openFolderAndSaveURL(root)
             } else {
                 if let root = loadRootURL() {
-                    saveRootURLAndOpenFolder(root)
+                    openFolder(root)
                 }
             }
         }
@@ -80,26 +84,22 @@ struct TextBrowser: View {
         panel.canChooseFiles = false
         if panel.runModal() == .OK {
             if let url = panel.url {
-                saveRootURLAndOpenFolder(url)
+                openFolderAndSaveURL(url)
             }
         }
-    }
-
-    func saveRootURLAndOpenFolder(_ root: URL) {
-        saveRootURL(root)
-        openFolder(root)
     }
 
     func openFolder(_ root: URL) {
         bufferManager.setRoot(to: root)
     }
 
-//    func openLastOpenFolder() {
-//        let bookmark = BookmarkManager.shared
-//        if let root = bookmark.loadLastOpenFolder() {
-//            bufferManager.setRoot(to: root)
-//        }
-//    }
+    func openFolderAndSaveURL(_ root: URL) {
+        openFolder(root)
+        if bufferManager.root != nil {
+            saveRootURL(root)
+            settings.addRecentDocumentURL(root)
+        }
+    }
 
     func saveRootURL(_ url: URL) {
         do {

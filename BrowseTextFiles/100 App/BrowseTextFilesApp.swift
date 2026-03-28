@@ -11,6 +11,7 @@ import SwiftUI
 struct MainApp: App {
     @Environment(\.openWindow) private var openWindow
 //    @FocusedValue(\.performAction) private var performAction
+
     @State private var settings = SettingsData()
 
     var body: some Scene {
@@ -23,20 +24,27 @@ struct MainApp: App {
         }
         .commands {
             CommandGroup(replacing: .newItem) {
-//                Button("New Browser Window", systemImage: "macwindow") {
-//                    openWindow(id: "browser")
-//                }
-//                .keyboardShortcut("n", modifiers: [.command, .shift])
-
                 Button("Open...", systemImage: "arrow.up.right") {
                     openFolder()
                 }
                 .keyboardShortcut("o", modifiers: .command)
 
-                Button("Open Recent", systemImage: "clock") {
-                    openLastOpenFolder()
+                Menu("Open Recent", systemImage: "clock") {
+                    let urls = settings.recentDocumentURLs
+                    if urls.isEmpty {
+                        Text("No Recent Documents")
+                    } else {
+                        ForEach(urls, id: \.self) { url in
+                            Button(url.lastPathComponent) {
+                                openWindow(id: "browser", value: url)
+                            }
+                        }
+                        Divider()
+                        Button("Clear Menu") {
+                            settings.clearRecentDocuments()
+                        }
+                    }
                 }
-                .keyboardShortcut("o", modifiers: [.command, .shift])
             }
         }
         .defaultWindowPlacement { proxy, context in
@@ -57,7 +65,7 @@ struct MainApp: App {
                     .resizable()
                     .frame(width: 128, height: 128)
                 VStack(spacing: 4) {
-                    Text("BrowseTextFiles")
+                    Text("Browse Text Files")
                         .font(.headline)
                     Text("Version " + version)
                 }
@@ -81,7 +89,7 @@ struct MainApp: App {
         .restorationBehavior(.disabled)
         .commands {
             CommandGroup(replacing: .appInfo) {
-                Button("About BrowseGPXFiles", systemImage: "info.circle") {
+                Button("About Browse Text Files", systemImage: "info.circle") {
                     openWindow(id: "about")
                 }
             }
@@ -102,13 +110,6 @@ struct MainApp: App {
             if let url = panel.url {
                 openWindow(id: "browser", value: url)
             }
-        }
-    }
-
-    func openLastOpenFolder() {
-        let bookmark = BookmarkManager.shared
-        if let url = bookmark.loadLastOpenFolder() {
-            openWindow(id: "browser", value: url)
         }
     }
 }

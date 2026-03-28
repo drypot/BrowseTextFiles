@@ -39,6 +39,8 @@ class SettingsData {
         (lineHeight - 1) * fontSize
     }
 
+    var recentDocumentURLs: [URL]
+
     init() {
         //        let systemFont = NSFont.systemFont(ofSize: NSFont.systemFontSize)
         //
@@ -63,8 +65,19 @@ class SettingsData {
         if lineHeightMultiple > 0 {
             self.lineHeightMultiple = CGFloat(lineHeightMultiple)
         }
+
+        recentDocumentURLs = NSDocumentController.shared.recentDocumentURLs
     }
 
+    func addRecentDocumentURL(_ url: URL) {
+        NSDocumentController.shared.noteNewRecentDocumentURL(url)
+        recentDocumentURLs = NSDocumentController.shared.recentDocumentURLs
+    }
+
+    func clearRecentDocuments() {
+        NSDocumentController.shared.clearRecentDocuments(nil)
+        recentDocumentURLs = NSDocumentController.shared.recentDocumentURLs
+    }
 }
 
 struct SettingsView: View {
