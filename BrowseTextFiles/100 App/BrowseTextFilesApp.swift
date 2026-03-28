@@ -10,25 +10,16 @@ import SwiftUI
 @main
 struct MainApp: App {
     @Environment(\.openWindow) private var openWindow
-    @FocusedValue(\.performAction) private var performAction
+//    @FocusedValue(\.performAction) private var performAction
     @State private var settings = SettingsData()
 
     var body: some Scene {
-        WindowGroup("BrowseTextFiles", id: "browser", for: Action.self) { $action in
-            TextBrowser(action: action)
+        WindowGroup("Browser", id: "browser", for: URL.self) { $root in
+            TextBrowser(root)
                 .toolbar(removing: .title)
                 .toolbarBackground(.hidden, for: .windowToolbar)
                 .toolbarBackgroundVisibility(.hidden, for: .windowToolbar)
                 .environment(settings)
-        }
-        .defaultWindowPlacement { proxy, context in
-            let displayBounds = context.defaultDisplay.visibleRect
-            let size = CGSize(width: displayBounds.width * 2 / 3, height: displayBounds.height * 2 / 3)
-
-            let position = CGPoint(
-                x: displayBounds.midX - (size.width / 2),
-                y: displayBounds.maxY - size.height - 140)
-            return WindowPlacement(position, size: size)
         }
         .commands {
             CommandGroup(replacing: .newItem) {
@@ -38,17 +29,24 @@ struct MainApp: App {
 //                .keyboardShortcut("n", modifiers: [.command, .shift])
 
                 Button("Open...", systemImage: "arrow.up.right") {
-                    openWindow(id: "browser", value: Action.openFiles)
+                    openFolder()
                 }
                 .keyboardShortcut("o", modifiers: .command)
 
                 Button("Open Recent", systemImage: "clock") {
-                    performAction?(.openRecent)
+                    openLastOpenFolder()
                 }
                 .keyboardShortcut("o", modifiers: [.command, .shift])
             }
+        }
+        .defaultWindowPlacement { proxy, context in
+            let displayBounds = context.defaultDisplay.visibleRect
+            let size = CGSize(width: displayBounds.width * 2 / 3, height: displayBounds.height * 2 / 3)
 
-            
+            let position = CGPoint(
+                x: displayBounds.midX - (size.width / 2),
+                y: displayBounds.maxY - size.height - 140)
+            return WindowPlacement(position, size: size)
         }
 
         Window("About", id: "about") {
@@ -92,6 +90,25 @@ struct MainApp: App {
         Settings {
             SettingsView()
                 .environment(settings)
+        }
+    }
+
+    func openFolder() {
+        let panel = NSOpenPanel()
+        panel.allowsMultipleSelection = false
+        panel.canChooseDirectories = true
+        panel.canChooseFiles = false
+        if panel.runModal() == .OK {
+            if let url = panel.url {
+                openWindow(id: "browser", value: url)
+            }
+        }
+    }
+
+    func openLastOpenFolder() {
+        let bookmark = BookmarkManager.shared
+        if let url = bookmark.loadLastOpenFolder() {
+            openWindow(id: "browser", value: url)
         }
     }
 }
