@@ -44,4 +44,12 @@ public class BookmarkManager {
         }
         return url
     }
+
+    func saveLastOpenFolder(_ url: URL) {
+        save(url, forKey: "lastOpenFolder")
+    }
+
+    func loadLastOpenFolder() -> URL? {
+        return load(forKey: "lastOpenFolder")
+    }
 }

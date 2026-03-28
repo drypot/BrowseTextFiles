@@ -14,10 +14,10 @@ struct TextBrowser: View {
     @State private var bufferManager = TextBufferManager()
     @State private var showImporter = false
 
-    var initialAction: Action?
-
-    init(action: Action? = nil) {
-        self.initialAction = action
+    init(_ root: URL? = nil) {
+        if let root {
+            bufferManager.setRoot(to: root)
+        }
     }
 
     var body: some View {
@@ -25,6 +25,7 @@ struct TextBrowser: View {
             List(bufferManager.folders, children: \.folders, selection: $bufferManager.selectedFolder) { folder in
                 NavigationLink(folder.name, value: folder)
             }
+            .navigationSplitViewColumnWidth(min: 180, ideal: 260, max: 520)
         } content: {
             List(bufferManager.files, id: \.self, selection: $bufferManager.selectedFile) { file in
                 NavigationLink(file.lastPathComponent, value: file)
@@ -35,21 +36,21 @@ struct TextBrowser: View {
                     showImporter = true
                 }
                 Button("Open Last Folder") {
-                    if let url = BookmarkManager.shared.load(forKey: "lastOpenFolder") {
-                        bufferManager.setRoot(to: url)
-                    }
+                    openLastOpenFolder()
                 }
             } else {
-                TabView(selection: $bufferManager.selectedBuffer) {
-                    ForEach(bufferManager.buffers) { buffer in
-                        @Bindable var buffer = buffer
-                        TextEditor(text: $buffer.text)
-                            .font(.custom(settings.fontName, size: settings.fontSize))
-                            .lineSpacing(settings.lineSpacing)
-                            .tabItem {
-                                Text(buffer.name)
-                            }
-                            .tag(buffer)
+                VStack {
+                    TabView(selection: $bufferManager.selectedBuffer) {
+                        ForEach(bufferManager.buffers) { buffer in
+                            @Bindable var buffer = buffer
+                            TextEditor(text: $buffer.text)
+                                .font(.custom(settings.fontName, size: settings.fontSize))
+                                .lineSpacing(settings.lineSpacing)
+                                .tabItem {
+                                    Text(buffer.name)
+                                }
+                                .tag(buffer)
+                        }
                     }
                 }
                 .padding()
@@ -57,11 +58,8 @@ struct TextBrowser: View {
         }
         .fileImporter(isPresented: $showImporter, allowedContentTypes: [.folder], allowsMultipleSelection: false) { result in
             if case .success(let urls) = result {
-                saveBookmark(urls)
-                Task {
-                    guard let url = urls.first else { return }
-                    bufferManager.setRoot(to: url)
-                }
+                guard let root = urls.first else { return }
+                openFolder(root)
             }
         }
         .onChange(of: bufferManager.selectedFolder) {
@@ -72,13 +70,17 @@ struct TextBrowser: View {
         }
     }
 
-    func saveBookmark(_ urls: [URL]) {
-        guard let url = urls.first else { return }
-        BookmarkManager.shared.save(url, forKey: "lastOpenFolder")
+    func openFolder(_ root: URL) {
+        let bookmark = BookmarkManager.shared
+        bookmark.saveLastOpenFolder(root)
+        bufferManager.setRoot(to: root)
     }
 
-    func loadBookmark() -> URL? {
-        return BookmarkManager.shared.load(forKey: "lastOpenFolder")
+    func openLastOpenFolder() {
+        let bookmark = BookmarkManager.shared
+        if let root = bookmark.loadLastOpenFolder() {
+            bufferManager.setRoot(to: root)
+        }
     }
 }
 

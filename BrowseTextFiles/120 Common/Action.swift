@@ -8,17 +8,17 @@
 import Foundation
 import SwiftUI
 
-enum Action: Codable {
-    case openFiles, openRecent
-}
-
-struct performActionKey: FocusedValueKey {
-    typealias Value = (Action) -> Void
-}
-
-extension FocusedValues {
-    var performAction: performActionKey.Value? {
-        get { self[performActionKey.self] }
-        set { self[performActionKey.self] = newValue }
-    }
-}
+//enum Action: Codable {
+//    case openFiles, openRecent
+//}
+//
+//struct performActionKey: FocusedValueKey {
+//    typealias Value = (Action) -> Void
+//}
+//
+//extension FocusedValues {
+//    var performAction: performActionKey.Value? {
+//        get { self[performActionKey.self] }
+//        set { self[performActionKey.self] = newValue }
+//    }
+//}
