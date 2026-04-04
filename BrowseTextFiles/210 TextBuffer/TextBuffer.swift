@@ -24,6 +24,11 @@ public final class TextBuffer: Identifiable, Hashable {
         self.refCount = 0
     }
 
+    public convenience init?(contentsOf url: URL) throws {
+        let text = try String(contentsOf: url, encoding: .utf8)
+        self.init(url: url, text: text)
+    }
+
     public static func == (lhs: TextBuffer, rhs: TextBuffer) -> Bool {
         return lhs.id == rhs.id
     }

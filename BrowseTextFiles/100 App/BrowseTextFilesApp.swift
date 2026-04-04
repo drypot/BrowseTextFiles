@@ -10,16 +10,12 @@ import SwiftUI
 @main
 struct MainApp: App {
     @Environment(\.openWindow) private var openWindow
-//    @FocusedValue(\.performAction) private var performAction
 
     @State private var settings = SettingsData()
 
     var body: some Scene {
         WindowGroup("Browser", id: "browser", for: URL.self) { $root in
             TextBrowser(root)
-                .toolbar(removing: .title)
-                .toolbarBackground(.hidden, for: .windowToolbar)
-                .toolbarBackgroundVisibility(.hidden, for: .windowToolbar)
                 .environment(settings)
         }
         .commands {

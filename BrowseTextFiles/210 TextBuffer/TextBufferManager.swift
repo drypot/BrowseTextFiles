@@ -11,7 +11,7 @@ import MyLibrary
 
 @MainActor @Observable
 class TextBufferManager {
-    @MainActor private static var sharedDic: [URL: TextBuffer] = [:]
+    @MainActor private static var bufferDic: [URL: TextBuffer] = [:]
 
     private(set) var root: Folder?
 
@@ -21,10 +21,7 @@ class TextBufferManager {
     private(set) var files: [URL] = []
     var selectedFile: URL?
 
-    public private(set) var buffers: [TextBuffer] = []
-    var selectedBuffer: TextBuffer?
-
-    private var bufferDic: [URL: TextBuffer] = [:]
+    public private(set) var buffer: TextBuffer?
 
     public init() {}
 
@@ -64,47 +61,34 @@ class TextBufferManager {
     }
 
     func openSelectedFile() {
-        do {
-            guard let selectedFileURL = selectedFile else { return }
-            guard let rootURL = root?.url else { return }
-            if let file = buffer(for: selectedFileURL) {
-                selectedBuffer = file
-            } else {
-                let securityScoped = rootURL.startAccessingSecurityScopedResource()
-                defer { if securityScoped { rootURL.stopAccessingSecurityScopedResource() } }
-                selectedBuffer = try addBuffer(contentOf: selectedFileURL)
-            }
-        } catch {
-            print("file open failed: \(error.localizedDescription)")
+        guard let url = selectedFile else { return }
+
+        // prepare to change buffer
+        // 파일 저장이라든지 ...
+
+        if let buffer = Self.bufferDic[url] {
+            self.buffer = buffer
+        } else if let buffer = addBuffer(contentOf: url) {
+            self.buffer = buffer
         }
     }
 
     // MARK: - Buffers
 
-    public func buffer(for url: URL) -> TextBuffer? {
-        if let buffer = bufferDic[url] {
+    private func addBuffer(contentOf url: URL) -> TextBuffer? {
+        do {
+            guard let rootURL = root?.url else { return nil }
+            let securityScoped = rootURL.startAccessingSecurityScopedResource()
+            defer { if securityScoped { rootURL.stopAccessingSecurityScopedResource() } }
+
+            let buffer = try TextBuffer(contentsOf: url)
+            Self.bufferDic[url] = buffer
+
             return buffer
-        } else if let buffer = Self.sharedDic[url] {
-            buffer.refCount += 1
-            buffers.append(buffer)
-            bufferDic[url] = buffer
-            return buffer
-        } else {
-            return nil
+        } catch {
+            print("file open failed: \(error.localizedDescription)")
         }
-    }
-
-    public func addBuffer(contentOf url: URL) throws -> TextBuffer {
-        let text = try String(contentsOf: url, encoding: .utf8)
-        let buffer = TextBuffer(url: url, text: text)
-
-        Self.sharedDic[url] = buffer
-
-        buffer.refCount += 1
-        buffers.append(buffer)
-        bufferDic[url] = buffer
-
-        return buffer
+        return nil
     }
 }
 

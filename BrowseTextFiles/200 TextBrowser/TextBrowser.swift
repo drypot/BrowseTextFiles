@@ -23,37 +23,62 @@ struct TextBrowser: View {
     }
 
     var body: some View {
-        NavigationSplitView {
-            List(bufferManager.folders, children: \.folders, selection: $bufferManager.selectedFolder) { folder in
-                NavigationLink(folder.name, value: folder)
-            }
-            .navigationSplitViewColumnWidth(min: 180, ideal: 260, max: 520)
-        } content: {
-            List(bufferManager.files, id: \.self, selection: $bufferManager.selectedFile) { file in
-                NavigationLink(file.lastPathComponent, value: file)
-            }
-        } detail: {
+        VStack {
             if bufferManager.root == nil {
                 Button("Open Folder") {
                     openFolder()
                 }
             } else {
-                VStack {
-                    TabView(selection: $bufferManager.selectedBuffer) {
-                        ForEach(bufferManager.buffers) { buffer in
-                            @Bindable var buffer = buffer
-                            TextEditor(text: $buffer.text)
-                                .font(.custom(settings.fontName, size: settings.fontSize))
-                                .lineSpacing(settings.lineSpacing)
-                                .tabItem {
-                                    Text(buffer.name)
-                                }
-                                .tag(buffer)
+                HSplitView {
+                    List(bufferManager.folders, children: \.folders, selection: $bufferManager.selectedFolder) { folder in
+                        NavigationLink(folder.name, value: folder)
+                    }
+                    .frame(minWidth: 180, idealWidth: 260)
+
+                    List(bufferManager.files, id: \.self, selection: $bufferManager.selectedFile) { file in
+                        NavigationLink(file.lastPathComponent, value: file)
+                    }
+                    .frame(minWidth: 180, idealWidth: 260)
+
+                    VStack {
+                        if bufferManager.root == nil {
+                            Button("Open Folder") {
+                                openFolder()
+                            }
+                        } else {
+                            if let buffer = bufferManager.buffer {
+                                @Bindable var buffer = buffer
+                                TextEditor(text: $buffer.text)
+                                    .font(.custom(settings.fontName, size: settings.fontSize))
+                                    .lineSpacing(settings.lineSpacing)
+                                    .padding(EdgeInsets(top: 0, leading: 18, bottom: 0, trailing: 18))
+                            } else {
+                                Spacer()
+                            }
                         }
                     }
-                    //.tabViewCustomization(<#T##customization: Binding<TabViewCustomization>?##Binding<TabViewCustomization>?#>)
+                    .frame(minWidth: 300, maxWidth: .infinity)
+                    .layoutPriority(1)
                 }
-                .padding()
+            }
+        }
+        .toolbarBackground(.background, for: .windowToolbar)
+        .toolbarBackgroundVisibility(.automatic, for: .windowToolbar)
+        .toolbar(removing: .title)
+        .toolbar {
+            ToolbarItem(placement: .navigation) {
+                ControlGroup {
+                    Button(action: {}) {
+                        Image(systemName: "chevron.left")
+                    }
+                    .help("이전 항목으로 이동")
+
+                    Button(action: {}) {
+                        Image(systemName: "chevron.right")
+                    }
+                    .help("다음 항목으로 이동")
+                }
+                .controlGroupStyle(.navigation) // macOS 스타일의 화살표 묶음으로 표시된다
             }
         }
         .onChange(of: bufferManager.selectedFolder) {
@@ -75,6 +100,8 @@ struct TextBrowser: View {
                 }
             }
         }
+        
+
     }
 
     func openFolder() {
