@@ -10,6 +10,7 @@ import SwiftUI
 @main
 struct MainApp: App {
     @Environment(\.openWindow) private var openWindow
+    @FocusedValue(\.selectedBufferManager) var selectedBufferManager: TextBufferManager?
 
     @State private var settings = SettingsData()
 
@@ -42,6 +43,17 @@ struct MainApp: App {
                     }
                 }
             }
+            CommandGroup(after: .toolbar) {
+                Button("Reload", systemImage: "arrow.clockwise") {
+                    if selectedBufferManager == nil {
+                        print ("nil")
+                    }
+                    selectedBufferManager?.reload()
+                }
+                .keyboardShortcut("r", modifiers: .command)
+                Divider()
+            }
+
         }
         .defaultWindowPlacement { proxy, context in
             let displayBounds = context.defaultDisplay.visibleRect
@@ -108,4 +120,8 @@ struct MainApp: App {
             }
         }
     }
+}
+
+extension FocusedValues {
+    @Entry var selectedBufferManager: TextBufferManager? = nil
 }

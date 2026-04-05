@@ -42,6 +42,11 @@ class TextBufferManager {
         }
     }
 
+    func reload() {
+        let name = root?.name ?? "unknown"
+        print("buffer manager: refresh, \(name)")
+    }
+
     // MARK: - Files
 
     func updateFiles() {

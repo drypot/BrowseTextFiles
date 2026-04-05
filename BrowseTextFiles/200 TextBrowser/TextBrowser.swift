@@ -53,6 +53,7 @@ struct TextBrowser: View {
                 }
             }
         }
+        .focusedSceneValue(\.selectedBufferManager, bufferManager)
         .toolbarBackground(.background, for: .windowToolbar)
         .toolbarBackgroundVisibility(.automatic, for: .windowToolbar)
         .toolbar(removing: .title)
