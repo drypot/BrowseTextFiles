@@ -40,21 +40,12 @@ struct TextBrowser: View {
                     }
                     .frame(minWidth: 180, idealWidth: 260)
 
-                    VStack {
-                        if bufferManager.root == nil {
-                            Button("Open Folder") {
-                                openFolder()
-                            }
+                    Group {
+                        if let buffer = bufferManager.buffer,
+                           buffer.isValid {
+                            TextEditor2(buffer: buffer)
                         } else {
-                            if let buffer = bufferManager.buffer {
-                                @Bindable var buffer = buffer
-                                TextEditor(text: $buffer.text)
-                                    .font(.custom(settings.fontName, size: settings.fontSize))
-                                    .lineSpacing(settings.lineSpacing)
-                                    .padding(EdgeInsets(top: 0, leading: 18, bottom: 0, trailing: 18))
-                            } else {
-                                Spacer()
-                            }
+                            Spacer()
                         }
                     }
                     .frame(minWidth: 300, maxWidth: .infinity)
@@ -100,8 +91,6 @@ struct TextBrowser: View {
                 }
             }
         }
-        
-
     }
 
     func openFolder() {

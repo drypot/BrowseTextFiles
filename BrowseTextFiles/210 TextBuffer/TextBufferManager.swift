@@ -84,6 +84,16 @@ class TextBufferManager {
             let buffer = try TextBuffer(contentsOf: url)
             Self.bufferDic[url] = buffer
 
+            withObservationTracking {
+                _ = buffer.isValid
+            } onChange: {
+                Task { @MainActor in
+                    let buffer = Self.bufferDic.removeValue(forKey: url)
+                    buffer?.stopMonitoring()
+                }
+            }
+            buffer.startMonitoring()
+
             return buffer
         } catch {
             print("file open failed: \(error.localizedDescription)")
