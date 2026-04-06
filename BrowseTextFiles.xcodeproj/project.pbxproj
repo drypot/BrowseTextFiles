@@ -8,15 +8,16 @@
 
 /* Begin PBXBuildFile section */
 		001A02B62F532CC6004009B6 /* MyLibrary in Frameworks */ = {isa = PBXBuildFile; productRef = 001A02B52F532CC6004009B6 /* MyLibrary */; };
+		007B06BA2F840FAC0074DE95 /* Browse-Text-Files-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 007B06B92F840FAC0074DE95 /* Browse-Text-Files-Info.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		001A02B32F532BBE004009B6 /* MyLibrary */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = MyLibrary; sourceTree = "<group>"; };
 		00517B4E2E1A1AAB00AED7F2 /* Browse Text Files.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Browse Text Files.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		007B06B92F840FAC0074DE95 /* Browse-Text-Files-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Browse-Text-Files-Info.plist"; sourceTree = "<group>"; };
 		00A47E662F6EB05B000A7673 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		00A47E672F6EB05B000A7673 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		00A47E702F6EB198000A7673 /* PRIVACY.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = PRIVACY.md; sourceTree = "<group>"; };
-		00C9D84F2F82891B0015C52F /* Browse-Text-Files-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Browse-Text-Files-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -49,10 +50,10 @@
 		00517B452E1A1AAA00AED7F2 = {
 			isa = PBXGroup;
 			children = (
-				00C9D84F2F82891B0015C52F /* Browse-Text-Files-Info.plist */,
 				00A47E662F6EB05B000A7673 /* LICENSE */,
 				00A47E702F6EB198000A7673 /* PRIVACY.md */,
 				00A47E672F6EB05B000A7673 /* README.md */,
+				007B06B92F840FAC0074DE95 /* Browse-Text-Files-Info.plist */,
 				00517B502E1A1AAB00AED7F2 /* BrowseTextFiles */,
 				001A02B32F532BBE004009B6 /* MyLibrary */,
 				001A02B42F532CC6004009B6 /* Frameworks */,
@@ -133,6 +134,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				007B06BA2F840FAC0074DE95 /* Browse-Text-Files-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
