@@ -43,9 +43,9 @@ public func withSecurityScope<T>(_ url: URL, block: () throws -> T) throws -> T 
 
     defer {
         if isAccessing { url.stopAccessingSecurityScopedResource() }
-        print("SecurityScope: stopped")
+//        print("SecurityScope: stopped")
     }
-    
-    print("SecurityScope: isAccessing == \(isAccessing)")
+
+//    print("SecurityScope: isAccessing == \(isAccessing)")
     return try block()
 }

@@ -17,6 +17,7 @@ public class BookmarkManager {
         do {
             let securityScoped = url.startAccessingSecurityScopedResource()
             defer { if securityScoped { url.stopAccessingSecurityScopedResource() } }
+
             let bookmarkData = try url.bookmarkData(options: .withSecurityScope,
                                                     includingResourceValuesForKeys: nil,
                                                     relativeTo: nil)

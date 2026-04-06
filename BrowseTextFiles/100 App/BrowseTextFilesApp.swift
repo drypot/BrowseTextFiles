@@ -8,21 +8,39 @@
 import SwiftUI
 
 @main
-struct MainApp: App {
+struct BrowseTextFilesApp: App {
     @Environment(\.openWindow) private var openWindow
     @FocusedValue(\.selectedBufferManager) var selectedBufferManager: TextBufferManager?
 
     @State private var settings = SettingsData()
 
     var body: some Scene {
-        WindowGroup("Browser", id: "browser", for: URL.self) { $root in
-            TextBrowser(root)
+        WindowGroup("Browser", id: "browser", for: URL.self) { $url in
+            TextBrowser(url)
+                .frame(maxWidth: .infinity, maxHeight: .infinity) // 빈 화면에서 drag & drop 받기 위해
                 .environment(settings)
+
+                // 외부에서 file url 을 받았을 경우 folder 에 대한 권한이 없어서 원만히 작동하기가 힘들다.
+                // finder, drag & drop 연동은 일단 하지 않기로 한다.
+                // 오로지 folder 만 open 할 수 있는 것으로.
+
+                //.contentShape(Rectangle())
+                // .onOpenURL { url in
+                //     openURLFromFinder(url)
+                // }
+                // .dropDestination(for: URL.self) { urls, _ in
+                //     openURLsFromDragDrop(urls)
+                // }
         }
         .commands {
             CommandGroup(replacing: .newItem) {
-                Button("Open...", systemImage: "arrow.up.right") {
-                    openFolder()
+                Button("New Tab", systemImage: "plus.square") {
+                    newTabFromMenu()
+                }
+                .keyboardShortcut("t", modifiers: .command)
+
+                Button("Open Folder...", systemImage: "arrow.up.right") {
+                    openFolderFromMenu()
                 }
                 .keyboardShortcut("o", modifiers: .command)
 
@@ -33,7 +51,7 @@ struct MainApp: App {
                     } else {
                         ForEach(urls, id: \.self) { url in
                             Button(url.lastPathComponent) {
-                                openWindow(id: "browser", value: url)
+                                openRecentFromMenu(url)
                             }
                         }
                         Divider()
@@ -51,13 +69,29 @@ struct MainApp: App {
                     selectedBufferManager?.reload()
                 }
                 .keyboardShortcut("r", modifiers: .command)
+
                 Divider()
+
+//                Button("Test SecurityScoped") {
+//                    TestSecurityScopedBookmark().testASS()
+//                }
+//                .keyboardShortcut("t", modifiers: .command)
+//
+//                Button("Test SecurityScoped Bookmark") {
+//                    TestSecurityScopedBookmark().testBookmark()
+//                }
+//                .keyboardShortcut("t", modifiers: [.command, .shift])
+//
+//                Button("Test SecurityScoped Bookmark 2") {
+//                    TestSecurityScopedBookmark().testBookmark2()
+//                }
+//                .keyboardShortcut("t", modifiers: [.command, .shift, .control])
             }
 
         }
         .defaultWindowPlacement { proxy, context in
             let displayBounds = context.defaultDisplay.visibleRect
-            let size = CGSize(width: displayBounds.width * 2 / 3, height: displayBounds.height * 2 / 3)
+            let size = CGSize(width: displayBounds.width * 2 / 4, height: displayBounds.height * 2 / 3)
 
             let position = CGPoint(
                 x: displayBounds.midX - (size.width / 2),
@@ -109,7 +143,11 @@ struct MainApp: App {
         }
     }
 
-    func openFolder() {
+    func newTabFromMenu() {
+        openWindow(id: "browser")
+    }
+
+    func openFolderFromMenu() {
         let panel = NSOpenPanel()
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = true
@@ -120,6 +158,21 @@ struct MainApp: App {
             }
         }
     }
+
+    func openRecentFromMenu(_ url: URL) {
+        openWindow(id: "browser", value: url)
+    }
+
+//    func openURLFromFinder(_ url: URL) {
+//        openWindow(id: "browser", value: url)
+//    }
+//
+//    func openURLsFromDragDrop(_ urls: [URL]) {
+//        for url in urls {
+//            openWindow(id: "browser", value: url)
+//        }
+//    }
+
 }
 
 extension FocusedValues {

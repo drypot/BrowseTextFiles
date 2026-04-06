@@ -8,24 +8,18 @@
 import Foundation
 
 class FileMonitor {
-    private var fileDescriptor: Int32 = -1
     private var source: DispatchSourceFileSystemObject?
-    private let url: URL
 
-    init(url: URL) {
-        self.url = url
-    }
-
-    func startMonitoring(onChange: @escaping (DispatchSource.FileSystemEvent) -> Void) {
-        fileDescriptor = open(url.path, O_EVTONLY)
+    func startMonitoring(_ url: URL, onChange: @escaping (DispatchSource.FileSystemEvent) -> Void) {
+        let fileDescriptor = open(url.path, O_EVTONLY)
         guard fileDescriptor != -1 else { return }
 
-        let source = DispatchSource.makeFileSystemObjectSource(
+        source = DispatchSource.makeFileSystemObjectSource(
             fileDescriptor: fileDescriptor,
             eventMask: [.write, .delete, .rename],
             queue: DispatchQueue.global()
         )
-        self.source = source
+        guard let source else { return }
 
         source.setEventHandler { [weak self] in
             guard let self else { return }
@@ -33,9 +27,8 @@ class FileMonitor {
             onChange(data)
         }
 
-        source.setCancelHandler { [weak self] in
-            guard let self else { return }
-            close(self.fileDescriptor)
+        source.setCancelHandler {
+            close(fileDescriptor)
         }
 
         source.resume()

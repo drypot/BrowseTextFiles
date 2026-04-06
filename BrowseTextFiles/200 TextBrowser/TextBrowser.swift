@@ -9,47 +9,24 @@ import SwiftUI
 import MyLibrary
 
 struct TextBrowser: View {
-    @Environment(\.openWindow) private var openWindow
     @Environment(SettingsData.self) var settings
-
     @SceneStorage("rootURLData") private var rootURLData: Data?
 
     @State private var bufferManager = TextBufferManager()
 
-    private var initRoot: URL?
+    private var initURL: URL?
 
-    init(_ root: URL? = nil) {
-        initRoot = root
+    init(_ url: URL? = nil) {
+        initURL = url
     }
 
     var body: some View {
         VStack {
-            if bufferManager.root == nil {
-                Button("Open Folder") {
-                    openFolder()
-                }
+            if bufferManager.isReady {
+                TextBrowserReady(bufferManager: bufferManager)
             } else {
-                HSplitView {
-                    List(bufferManager.folders, children: \.folders, selection: $bufferManager.selectedFolder) { folder in
-                        NavigationLink(folder.name, value: folder)
-                    }
-                    .frame(minWidth: 180, idealWidth: 260)
-
-                    List(bufferManager.files, id: \.self, selection: $bufferManager.selectedFile) { file in
-                        NavigationLink(file.lastPathComponent, value: file)
-                    }
-                    .frame(minWidth: 180, idealWidth: 260)
-
-                    Group {
-                        if let buffer = bufferManager.buffer,
-                           buffer.isValid {
-                            TextEditor2(buffer: buffer)
-                        } else {
-                            Spacer()
-                        }
-                    }
-                    .frame(minWidth: 300, maxWidth: .infinity)
-                    .layoutPriority(1)
+                Button("Open Folder") {
+                    openFolderFromBlank()
                 }
             }
         }
@@ -73,64 +50,55 @@ struct TextBrowser: View {
                 .controlGroupStyle(.navigation) // macOS 스타일의 화살표 묶음으로 표시된다
             }
         }
-        .onChange(of: bufferManager.selectedFolder) {
-            bufferManager.updateFiles()
-        }
-        .onChange(of: bufferManager.selectedFile) {
-            bufferManager.openSelectedFile()
-        }
-        .onOpenURL { url in
-            print("onOpenURL: \(url.path)")
-            // 여기서 파일을 로드하는 로직을 구현한다.
-        }
         .task {
-            if let root = initRoot {
-                openFolderAndSaveURL(root)
+            if let initURL {
+                openFolderFromInitURL(initURL)
             } else {
-                if let root = loadRootURL() {
-                    openFolder(root)
-                }
+                openFolderFromRestoredURL()
             }
         }
     }
 
-    func openFolder() {
+    func openFolderFromInitURL(_ url: URL) {
+        print("openFolderFromInitURL: \(url.absoluteString)")
+        bufferManager.openURL(url)
+        if let url = bufferManager.rootURL {
+            saveBookmark(url)
+            settings.addRecentDocumentURL(url)
+        }
+    }
+
+    func openFolderFromRestoredURL() {
+        print("openFolderFromRestoredURL: ...")
+        if let url = loadBookmark() {
+            print("openFolderFromRestoredURL: \(url.absoluteString)")
+            bufferManager.openURL(url)
+        }
+    }
+
+    func openFolderFromBlank() {
+        print("openFolderFromBlank: ...")
         let panel = NSOpenPanel()
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = true
         panel.canChooseFiles = false
-        if panel.runModal() == .OK {
-            if let url = panel.url {
-                openFolderAndSaveURL(url)
-            }
+        if panel.runModal() == .OK, let url = panel.url {
+            print("openFolderFromBlank: \(url.absoluteString)")
+            openFolderFromInitURL(url)
         }
     }
 
-    func openFolder(_ root: URL) {
-        bufferManager.setRoot(to: root)
-    }
-
-    func openFolderAndSaveURL(_ root: URL) {
-        openFolder(root)
-        if bufferManager.root != nil {
-            saveRootURL(root)
-            settings.addRecentDocumentURL(root)
-        }
-    }
-
-    func saveRootURL(_ url: URL) {
+    func saveBookmark(_ url: URL) {
         do {
-            let securityScoped = url.startAccessingSecurityScopedResource()
-            defer { if securityScoped { url.stopAccessingSecurityScopedResource() } }
-            rootURLData = try url.bookmarkData(options: .withSecurityScope,
-                                               includingResourceValuesForKeys: nil,
-                                               relativeTo: nil)
+            try withSecurityScope(url) {
+                rootURLData = try url.bookmarkData(options: .withSecurityScope)
+            }
         } catch {
             print("saving bookmark failed: \(error)")
         }
     }
 
-    func loadRootURL() -> URL? {
+    func loadBookmark() -> URL? {
         do {
             guard let data = rootURLData else { return nil }
             var isStale = false
@@ -139,7 +107,7 @@ struct TextBrowser: View {
                               relativeTo: nil,
                               bookmarkDataIsStale: &isStale)
             if isStale {
-                saveRootURL(url)
+                saveBookmark(url)
             }
             return url
         } catch {
