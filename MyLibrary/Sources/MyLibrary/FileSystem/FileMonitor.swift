@@ -1,25 +1,25 @@
 //
 //  FileMonitor.swift
-//  Browse Text Files
+//  MyLibrary
 //
 //  Created by Kyuhyun Park on 4/5/26.
 //
 
 import Foundation
 
-class FileMonitor {
+public class FileMonitor {
     private var source: DispatchSourceFileSystemObject?
 
-    func startMonitoring(_ url: URL, onChange: @escaping (DispatchSource.FileSystemEvent) -> Void) {
+    public func startMonitoring(_ url: URL, onChange: @escaping (DispatchSource.FileSystemEvent) -> Void) {
         let fileDescriptor = open(url.path, O_EVTONLY)
         guard fileDescriptor != -1 else { return }
 
-        source = DispatchSource.makeFileSystemObjectSource(
+        let source = DispatchSource.makeFileSystemObjectSource(
             fileDescriptor: fileDescriptor,
             eventMask: [.write, .delete, .rename],
             queue: DispatchQueue.global()
         )
-        guard let source else { return }
+        self.source = source
 
         source.setEventHandler { [weak self] in
             guard let self else { return }
@@ -34,7 +34,7 @@ class FileMonitor {
         source.resume()
     }
 
-    func stopMonitoring() {
+    public func stopMonitoring() {
         source?.cancel()
     }
 }
