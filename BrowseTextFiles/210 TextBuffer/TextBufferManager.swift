@@ -22,8 +22,6 @@ final class TextBufferManager {
 
     public private(set) var buffer: TextBuffer?
 
-//    private var  securityScopedList: [Bool] = []
-
     public init() {}
 
     // MARK: - Root & Folders
@@ -32,44 +30,7 @@ final class TextBufferManager {
         return rootFolder != nil
     }
 
-//    func startAcessingRoot() {
-//        if let url = rootURL {
-//            let securityScoped = url.startAccessingSecurityScopedResource()
-//            securityScopedList.append(securityScoped)
-//            print("startAcessingRoot: \(securityScoped), \(securityScopedList.count)")
-//        }
-//    }
-//
-//    func stopAcessingRoot() {
-//        if let url = rootURL {
-//            if securityScopedList.removeLast() {
-//                url.stopAccessingSecurityScopedResource()
-//                print("stopAcessingRoot: \(true), \(securityScopedList.count)")
-//            } else {
-//                print("stopAcessingRoot: \(false), \(securityScopedList.count)")
-//            }
-//        }
-//    }
-
-    func openURL(_ url: URL) {
-        openFolderURL(url)
-
-//        do {
-//            let values = try url.resourceValues(forKeys: [.isDirectoryKey])
-//            if let isDirectory = values.isDirectory {
-//                if isDirectory {
-//                    openFolderURL(url)
-//                } else {
-//                     openFileURL(url)
-//                }
-//            }
-//        } catch {
-//            print("openURL: \(error.localizedDescription)")
-//        }
-
-    }
-
-    private func openFolderURL(_ rootURL: URL) {
+    func openFolder(at rootURL: URL) {
         do {
             try withSecurityScope(rootURL) {
                 let folder = try FolderTreeBuilder().build(from: rootURL)

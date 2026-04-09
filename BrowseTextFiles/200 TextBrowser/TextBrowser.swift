@@ -71,7 +71,7 @@ struct TextBrowser: View {
 
     func openFolderFromInitURL(_ url: URL) {
         print("openFolderFromInitURL: \(url.absoluteString)")
-        bufferManager.openURL(url)
+        bufferManager.openFolder(at: url)
         if let url = bufferManager.rootURL {
             saveBookmark(url)
             settings.addRecentDocumentURL(url)
@@ -82,7 +82,7 @@ struct TextBrowser: View {
         print("openFolderFromRestoredURL: ...")
         if let url = loadBookmark() {
             print("openFolderFromRestoredURL: \(url.absoluteString)")
-            bufferManager.openURL(url)
+            bufferManager.openFolder(at: url)
         }
     }
 
