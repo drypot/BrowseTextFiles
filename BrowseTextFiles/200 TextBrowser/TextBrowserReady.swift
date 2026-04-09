@@ -17,7 +17,7 @@ struct TextBrowserReady: View {
             }
             .frame(minWidth: 180, idealWidth: 260)
 
-            List(bufferManager.files, id: \.self, selection: $bufferManager.selectedFile) { file in
+            List(bufferManager.fileURLs, id: \.self, selection: $bufferManager.selectedFileURL) { file in
                 NavigationLink(file.lastPathComponent, value: file)
             }
             .frame(minWidth: 180, idealWidth: 260)
@@ -36,7 +36,7 @@ struct TextBrowserReady: View {
         .onChange(of: bufferManager.selectedFolder) {
             bufferManager.refreshFiles()
         }
-        .onChange(of: bufferManager.selectedFile) {
+        .onChange(of: bufferManager.selectedFileURL) {
             bufferManager.openSelectedFile()
         }
 

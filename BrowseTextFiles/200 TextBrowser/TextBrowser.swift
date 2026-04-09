@@ -35,19 +35,29 @@ struct TextBrowser: View {
         .toolbarBackgroundVisibility(.automatic, for: .windowToolbar)
         .toolbar(removing: .title)
         .toolbar {
-            ToolbarItem(placement: .navigation) {
-                ControlGroup {
-                    Button(action: {}) {
-                        Image(systemName: "chevron.left")
-                    }
-                    .help("이전 항목으로 이동")
 
-                    Button(action: {}) {
-                        Image(systemName: "chevron.right")
-                    }
-                    .help("다음 항목으로 이동")
+//            ToolbarItem(placement: .navigation) {
+//                ControlGroup {
+//                    Button(action: {}) {
+//                        Image(systemName: "chevron.left")
+//                    }
+//                    .help("이전 항목으로 이동")
+//
+//                    Button(action: {}) {
+//                        Image(systemName: "chevron.right")
+//                    }
+//                    .help("다음 항목으로 이동")
+//                }
+//                .controlGroupStyle(.navigation) // macOS 스타일의 화살표 묶음으로 표시된다
+//            }
+
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    bufferManager.reload()
+                } label: {
+                    Label("Reload", systemImage: "arrow.clockwise")
                 }
-                .controlGroupStyle(.navigation) // macOS 스타일의 화살표 묶음으로 표시된다
+                .help("Reload")
             }
         }
         .task {

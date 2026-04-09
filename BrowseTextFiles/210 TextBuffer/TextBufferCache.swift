@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import MyLibrary
 
 final class TextBufferCache {
     public static let shared = TextBufferCache()
@@ -68,4 +69,5 @@ final class TextBufferCache {
 //        }
 //
 //    }
+
 }

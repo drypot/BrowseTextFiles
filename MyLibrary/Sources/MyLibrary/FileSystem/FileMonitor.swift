@@ -11,24 +11,23 @@ public class FileMonitor {
     private var source: DispatchSourceFileSystemObject?
 
     public func startMonitoring(_ url: URL, onChange: @escaping (DispatchSource.FileSystemEvent) -> Void) {
-        let fileDescriptor = open(url.path, O_EVTONLY)
-        guard fileDescriptor != -1 else { return }
+        let fd = open(url.path, O_EVTONLY)
+        guard fd != -1 else { return }
 
         let source = DispatchSource.makeFileSystemObjectSource(
-            fileDescriptor: fileDescriptor,
+            fileDescriptor: fd,
             eventMask: [.write, .delete, .rename],
             queue: DispatchQueue.global()
         )
         self.source = source
 
         source.setEventHandler { [weak self] in
-            guard let self else { return }
-            let data = self.source!.data // DispatchSource.FileSystemEvent
+            guard let data = self?.source?.data else { return } // DispatchSource.FileSystemEvent
             onChange(data)
         }
 
         source.setCancelHandler {
-            close(fileDescriptor)
+            close(fd)
         }
 
         source.resume()

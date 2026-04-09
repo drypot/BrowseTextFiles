@@ -30,5 +30,17 @@ public final class Folder: Identifiable, Comparable, Hashable {
     public func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
+
+    public func findChild(with url: URL) -> Folder? {
+        if self.url == url { return self }
+        if let folders {
+            for folder in folders {
+                if let found = folder.findChild(with: url) {
+                    return found
+                }
+            }
+        }
+        return nil
+    }
 }
 

@@ -63,9 +63,6 @@ struct BrowseTextFilesApp: App {
             }
             CommandGroup(after: .toolbar) {
                 Button("Reload", systemImage: "arrow.clockwise") {
-                    if selectedBufferManager == nil {
-                        print ("nil")
-                    }
                     selectedBufferManager?.reload()
                 }
                 .keyboardShortcut("r", modifiers: .command)

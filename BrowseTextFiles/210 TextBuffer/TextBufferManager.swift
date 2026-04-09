@@ -11,13 +11,14 @@ import MyLibrary
 
 @Observable
 final class TextBufferManager {
+    private(set) var rootURL: URL?
     private(set) var rootFolder: Folder?
 
     private(set) var folders: [Folder] = []
     var selectedFolder: Folder?
 
-    private(set) var files: [URL] = []
-    var selectedFile: URL?
+    private(set) var fileURLs: [URL] = []
+    var selectedFileURL: URL?
 
     public private(set) var buffer: TextBuffer?
 
@@ -29,10 +30,6 @@ final class TextBufferManager {
 
     var isReady: Bool {
         return rootFolder != nil
-    }
-
-    var rootURL: URL? {
-        return rootFolder?.url
     }
 
 //    func startAcessingRoot() {
@@ -72,10 +69,11 @@ final class TextBufferManager {
 
     }
 
-    private func openFolderURL(_ url: URL) {
+    private func openFolderURL(_ rootURL: URL) {
         do {
-            try withSecurityScope(url) {
-                let folder = try FolderTreeBuilder().build(from: url)
+            try withSecurityScope(rootURL) {
+                let folder = try FolderTreeBuilder().build(from: rootURL)
+                self.rootURL = rootURL
                 rootFolder = folder
                 folders = [folder]  // SwiftUI List 에 root folder 를 표시하기 위해 root 용 어레이를 만들어 둔다.
                 selectedFolder = folder
@@ -87,40 +85,47 @@ final class TextBufferManager {
         }
     }
 
-//    private func openFileURL(_ url: URL) {
-//        do {
-//            let rootURL = url.deletingLastPathComponent()
-//            let _ = SecurityScope(for: url)
-//
-//            print("aa")
-//            let folder = try FolderTreeBuilder().build(from: rootURL)
-//            print("bb")
-//            rootFolder = folder
-//            folders = [folder]  // SwiftUI List 에 root folder 를 표시하기 위해 root 용 어레이를 만들어 둔다.
-//            selectedFolder = folder
-//            refreshFiles()
-//            selectedFile = url
-//            openSelectedFile()
-//        } catch {
-//            print("openFileURL: failed, \(error.localizedDescription)")
-//        }
-//    }
-
     func reload() {
-        let name = rootFolder?.name ?? "unknown"
-        print("buffer manager: refresh, \(name)")
+        do {
+            guard let rootURL else { return }
+            let savedFolderURL = selectedFolder?.url
+            let savedFileURL = selectedFileURL
+            try withSecurityScope(rootURL) {
+                let folder = try FolderTreeBuilder().build(from: rootURL)
+                rootFolder = folder
+                folders = [folder]  // SwiftUI List 에 root folder 를 표시하기 위해 root 용 어레이를 만들어 둔다.
+                if let savedFolderURL {
+                    if let found = folder.findChild(with: savedFolderURL) {
+                        selectedFolder = found
+                    } else {
+                        selectedFolder = folder
+                    }
+                } else {
+                    selectedFolder = folder
+                }
+            }
+            refreshFiles()
+            releaseBuffer()
+            if fileURLs.contains(where: { $0 == savedFileURL }) {
+                selectedFileURL = savedFileURL
+            }
+            openSelectedFile()
+        } catch {
+            print("reload: \(error.localizedDescription)")
+        }
     }
 
     // MARK: - Files
 
     func refreshFiles() {
         do {
+            guard let rootURL else { return }
             guard let selectedFolderURL = selectedFolder?.url else { return }
-            guard let rootURL = rootFolder?.url else { return }
+            print("refreshFiles: \(selectedFolderURL)")
             try withSecurityScope(rootURL) {
-                files = try TextFileURLCollector().collectShallowly(from: selectedFolderURL)
-                files.sort { $0.lastPathComponent < $1.lastPathComponent }
-                selectedFile = nil
+                fileURLs = try TextFileURLCollector().collectShallowly(from: selectedFolderURL)
+                fileURLs.sort { $0.lastPathComponent < $1.lastPathComponent }
+                selectedFileURL = nil
             }
         } catch {
             print("refreshFiles: \(error.localizedDescription)")
@@ -128,7 +133,7 @@ final class TextBufferManager {
     }
 
     func openSelectedFile() {
-        guard let url = selectedFile else { return }
+        guard let url = selectedFileURL else { return }
 
         // prepare to change buffer
         // 파일 저장이라든지 ...
