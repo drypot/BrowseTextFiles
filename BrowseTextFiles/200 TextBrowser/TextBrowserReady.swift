@@ -8,22 +8,22 @@
 import SwiftUI
 
 struct TextBrowserReady: View {
-    @Bindable var bufferManager: TextBufferManager
+    @Bindable var status: TextBrowserStatus
 
     var body: some View {
         HSplitView {
-            List(bufferManager.folders, children: \.folders, selection: $bufferManager.selectedFolder) { folder in
+            List(status.folders, children: \.folders, selection: $status.selectedFolder) { folder in
                 NavigationLink(folder.name, value: folder)
             }
             .frame(minWidth: 180, idealWidth: 260)
 
-            List(bufferManager.fileURLs, id: \.self, selection: $bufferManager.selectedFileURL) { file in
+            List(status.fileURLs, id: \.self, selection: $status.selectedFileURL) { file in
                 NavigationLink(file.lastPathComponent, value: file)
             }
             .frame(minWidth: 180, idealWidth: 260)
 
             Group {
-                if let buffer = bufferManager.buffer,
+                if let buffer = status.buffer,
                    buffer.isValid {
                     TextEditor2(buffer: buffer)
                 } else {
@@ -33,11 +33,11 @@ struct TextBrowserReady: View {
             .frame(minWidth: 300, maxWidth: .infinity)
             .layoutPriority(1)
         }
-        .onChange(of: bufferManager.selectedFolder) {
-            bufferManager.refreshFiles()
+        .onChange(of: status.selectedFolder) {
+            status.refreshFiles()
         }
-        .onChange(of: bufferManager.selectedFileURL) {
-            bufferManager.openSelectedFile()
+        .onChange(of: status.selectedFileURL) {
+            status.openSelectedFile()
         }
 
     }

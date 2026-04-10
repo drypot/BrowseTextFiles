@@ -10,7 +10,7 @@ import SwiftUI
 @main
 struct BrowseTextFilesApp: App {
     @Environment(\.openWindow) private var openWindow
-    @FocusedValue(\.selectedBufferManager) var selectedBufferManager: TextBufferManager?
+    @FocusedValue(\.selectedBrowserStatus) var selectedBrowserStatus: TextBrowserStatus?
 
     @State private var settings = SettingsData()
 
@@ -63,7 +63,7 @@ struct BrowseTextFilesApp: App {
             }
             CommandGroup(after: .toolbar) {
                 Button("Reload", systemImage: "arrow.clockwise") {
-                    selectedBufferManager?.reload()
+                    selectedBrowserStatus?.reload()
                 }
                 .keyboardShortcut("r", modifiers: .command)
 
@@ -173,5 +173,5 @@ struct BrowseTextFilesApp: App {
 }
 
 extension FocusedValues {
-    @Entry var selectedBufferManager: TextBufferManager? = nil
+    @Entry var selectedBrowserStatus: TextBrowserStatus? = nil
 }

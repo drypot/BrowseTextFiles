@@ -1,5 +1,5 @@
 //
-//  TextBufferManager.swift
+//  TextBrowserStatus.swift
 //  BrowseTextFiles
 //
 //  Created by Kyuhyun Park on 3/1/26.
@@ -10,7 +10,7 @@ import UniformTypeIdentifiers
 import MyLibrary
 
 @Observable
-final class TextBufferManager {
+final class TextBrowserStatus {
     private(set) var rootURL: URL?
     private(set) var rootFolder: Folder?
 
@@ -138,34 +138,5 @@ final class TextBufferManager {
         buffer.refCount += 1
         self.buffer = buffer
     }
-
-    // MARK: - Buffers
-
-//    private func addBuffer(contentOf url: URL) -> TextBuffer? {
-//        do {
-//            guard let rootURL = root?.url else { return nil }
-//            let securityScoped = rootURL.startAccessingSecurityScopedResource()
-//            defer { if securityScoped { rootURL.stopAccessingSecurityScopedResource() } }
-//
-//            let buffer = try TextBuffer(contentsOf: url)
-//            Self.bufferDic[url] = buffer
-//
-//            withObservationTracking {
-//                _ = buffer.isValid
-//            } onChange: {
-//                Task { @MainActor in
-//                    let buffer = Self.bufferDic.removeValue(forKey: url)
-//                    buffer?.stopMonitoring()
-//                }
-//            }
-//            buffer.startMonitoring()
-//
-//            return buffer
-//        } catch {
-//            print("file open failed: \(error.localizedDescription)")
-//        }
-//        return nil
-//    }
-    
 }
 

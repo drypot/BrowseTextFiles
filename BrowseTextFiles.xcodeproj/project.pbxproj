@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		001A02B62F532CC6004009B6 /* MyLibrary in Frameworks */ = {isa = PBXBuildFile; productRef = 001A02B52F532CC6004009B6 /* MyLibrary */; };
-		007B06BA2F840FAC0074DE95 /* Browse-Text-Files-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 007B06B92F840FAC0074DE95 /* Browse-Text-Files-Info.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -103,7 +102,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1640;
-				LastUpgradeCheck = 2620;
+				LastUpgradeCheck = 2640;
 				TargetAttributes = {
 					00517B4D2E1A1AAA00AED7F2 = {
 						CreatedOnToolsVersion = 16.4;
@@ -134,7 +133,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				007B06BA2F840FAC0074DE95 /* Browse-Text-Files-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

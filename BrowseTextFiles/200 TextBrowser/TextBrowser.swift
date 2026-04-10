@@ -12,7 +12,7 @@ struct TextBrowser: View {
     @Environment(SettingsData.self) var settings
     @SceneStorage("rootURLData") private var rootURLData: Data?
 
-    @State private var bufferManager = TextBufferManager()
+    @State private var status = TextBrowserStatus()
 
     private var initURL: URL?
 
@@ -22,15 +22,15 @@ struct TextBrowser: View {
 
     var body: some View {
         VStack {
-            if bufferManager.isReady {
-                TextBrowserReady(bufferManager: bufferManager)
+            if status.isReady {
+                TextBrowserReady(status: status)
             } else {
                 Button("Open Folder") {
                     openFolderFromBlank()
                 }
             }
         }
-        .focusedSceneValue(\.selectedBufferManager, bufferManager)
+        .focusedSceneValue(\.selectedBrowserStatus, status)
         .toolbarBackground(.background, for: .windowToolbar)
         .toolbarBackgroundVisibility(.automatic, for: .windowToolbar)
         .toolbar(removing: .title)
@@ -53,7 +53,7 @@ struct TextBrowser: View {
 
             ToolbarItem(placement: .primaryAction) {
                 Button {
-                    bufferManager.reload()
+                    status.reload()
                 } label: {
                     Label("Reload", systemImage: "arrow.clockwise")
                 }
@@ -71,8 +71,8 @@ struct TextBrowser: View {
 
     func openFolderFromInitURL(_ url: URL) {
         print("openFolderFromInitURL: \(url.absoluteString)")
-        bufferManager.openFolder(at: url)
-        if let url = bufferManager.rootURL {
+        status.openFolder(at: url)
+        if let url = status.rootURL {
             saveBookmark(url)
             settings.addRecentDocumentURL(url)
         }
@@ -82,7 +82,7 @@ struct TextBrowser: View {
         print("openFolderFromRestoredURL: ...")
         if let url = loadBookmark() {
             print("openFolderFromRestoredURL: \(url.absoluteString)")
-            bufferManager.openFolder(at: url)
+            status.openFolder(at: url)
         }
     }
 
