@@ -7,8 +7,10 @@
 
 import Foundation
 
-public class FileMonitor {
+public final class FileMonitor {
     private var source: DispatchSourceFileSystemObject?
+
+    public init() {}
 
     public func startMonitoring(_ url: URL, onChange: @escaping (DispatchSource.FileSystemEvent) -> Void) {
         let fd = open(url.path, O_EVTONLY)

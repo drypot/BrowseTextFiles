@@ -14,15 +14,13 @@ final class TextBrowserStatus {
     private(set) var rootURL: URL?
     private(set) var rootFolder: Folder?
 
-    private(set) var folders: [Folder] = []
+    private(set) var folders: [Folder]?
     var selectedFolder: Folder?
 
-    private(set) var fileURLs: [URL] = []
+    private(set) var fileURLs: [URL]?
     var selectedFileURL: URL?
 
-    public private(set) var buffer: TextBuffer?
-
-    public init() {}
+    private(set) var buffer: TextBuffer?
 
     // MARK: - Root & Folders
 
@@ -30,17 +28,30 @@ final class TextBrowserStatus {
         return rootFolder != nil
     }
 
-    func openFolder(at rootURL: URL) {
+    private func reset() {
+        rootURL = nil
+        rootFolder = nil
+
+        folders = nil
+        selectedFolder = nil
+
+        fileURLs = nil
+        selectedFileURL = nil
+
+        buffer = nil
+    }
+
+    func openFolder(at url: URL) {
         do {
-            try withSecurityScope(rootURL) {
-                let folder = try FolderTreeBuilder().build(from: rootURL)
-                self.rootURL = rootURL
+            reset()
+            try withSecurityScope(url) {
+                let folder = try FolderTreeBuilder().build(from: url)
+                rootURL = url
                 rootFolder = folder
                 folders = [folder]  // SwiftUI List 에 root folder 를 표시하기 위해 root 용 어레이를 만들어 둔다.
                 selectedFolder = folder
             }
             refreshFiles()
-            releaseBuffer()
         } catch {
             print("openFolderURL: \(error.localizedDescription)")
         }
@@ -48,26 +59,27 @@ final class TextBrowserStatus {
 
     func reload() {
         do {
-            guard let rootURL else { return }
+            let savedRootURL = rootURL
             let savedFolderURL = selectedFolder?.url
             let savedFileURL = selectedFileURL
-            try withSecurityScope(rootURL) {
-                let folder = try FolderTreeBuilder().build(from: rootURL)
+
+            reset()
+
+            guard let url = savedRootURL else { return }
+            try withSecurityScope(url) {
+                let folder = try FolderTreeBuilder().build(from: url)
+                rootURL = url
                 rootFolder = folder
                 folders = [folder]  // SwiftUI List 에 root folder 를 표시하기 위해 root 용 어레이를 만들어 둔다.
+                selectedFolder = folder
                 if let savedFolderURL {
                     if let found = folder.findChild(with: savedFolderURL) {
                         selectedFolder = found
-                    } else {
-                        selectedFolder = folder
                     }
-                } else {
-                    selectedFolder = folder
                 }
             }
             refreshFiles()
-            releaseBuffer()
-            if fileURLs.contains(where: { $0 == savedFileURL }) {
+            if let fileURLs, let savedFileURL, fileURLs.contains(savedFileURL) {
                 selectedFileURL = savedFileURL
             }
             openSelectedFile()
@@ -82,10 +94,10 @@ final class TextBrowserStatus {
         do {
             guard let rootURL else { return }
             guard let selectedFolderURL = selectedFolder?.url else { return }
-            print("refreshFiles: \(selectedFolderURL)")
+            //print("refreshFiles: \(selectedFolderURL)")
             try withSecurityScope(rootURL) {
                 fileURLs = try TextFileURLCollector().collectShallowly(from: selectedFolderURL)
-                fileURLs.sort { $0.lastPathComponent < $1.lastPathComponent }
+                fileURLs?.sort { $0.lastPathComponent < $1.lastPathComponent }
                 selectedFileURL = nil
             }
         } catch {
@@ -100,8 +112,8 @@ final class TextBrowserStatus {
         // 파일 저장이라든지 ...
 
         if let buffer = TextBufferCache.shared.buffer(for: url) {
-            releaseBuffer()
-            allocBuffer(buffer)
+            self.buffer = buffer
+            print("openSelectedFile: found in cache")
             return
         }
 
@@ -109,34 +121,12 @@ final class TextBrowserStatus {
             guard let rootURL = rootFolder?.url else { return }
             try withSecurityScope(rootURL) {
                 let buffer = try TextBufferCache.shared.addCache(for: url)
-                releaseBuffer()
-                allocBuffer(buffer)
-
-//            withObservationTracking {
-//                _ = buffer.isValid
-//            } onChange: {
-//                Task { @MainActor in
-//                    let buffer = Self.bufferDic.removeValue(forKey: url)
-//                    buffer?.stopMonitoring()
-//                }
-//            }
-//            buffer.startMonitoring()
-
+                self.buffer = buffer
             }
+            print("openSelectedFile: added new")
         } catch {
             print("openSelectedFile: \(error.localizedDescription)")
         }
-    }
-
-    func releaseBuffer() {
-        guard let buffer else { return }
-        buffer.refCount -= 1
-        self.buffer = nil
-    }
-
-    func allocBuffer(_ buffer: TextBuffer) {
-        buffer.refCount += 1
-        self.buffer = buffer
     }
 }
 

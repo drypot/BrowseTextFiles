@@ -71,12 +71,12 @@ struct TextBrowser: View {
 
     var textBrowsesrReady: some View {
         HSplitView {
-            List(status.folders, children: \.folders, selection: $status.selectedFolder) { folder in
+            List(status.folders ?? [], children: \.folders, selection: $status.selectedFolder) { folder in
                 NavigationLink(folder.name, value: folder)
             }
             .frame(minWidth: 180, idealWidth: 260)
 
-            List(status.fileURLs, id: \.self, selection: $status.selectedFileURL) { file in
+            List(status.fileURLs ?? [], id: \.self, selection: $status.selectedFileURL) { file in
                 NavigationLink(file.lastPathComponent, value: file)
             }
             .frame(minWidth: 180, idealWidth: 260)
@@ -100,6 +100,11 @@ struct TextBrowser: View {
         }
         .onChange(of: status.selectedFileURL) {
             status.openSelectedFile()
+        }
+        .onChange(of: status.buffer?.isValid) {
+            if status.buffer?.isValid == false {
+                status.openSelectedFile()
+            }
         }
     }
 
