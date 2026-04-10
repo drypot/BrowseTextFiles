@@ -23,7 +23,7 @@ struct TextBrowser: View {
     var body: some View {
         VStack {
             if status.isReady {
-                TextBrowserReady(status: status)
+                textBrowsesrReady
             } else {
                 Button("Open Folder") {
                     openFolderFromBlank()
@@ -66,6 +66,40 @@ struct TextBrowser: View {
             } else {
                 openFolderFromRestoredURL()
             }
+        }
+    }
+
+    var textBrowsesrReady: some View {
+        HSplitView {
+            List(status.folders, children: \.folders, selection: $status.selectedFolder) { folder in
+                NavigationLink(folder.name, value: folder)
+            }
+            .frame(minWidth: 180, idealWidth: 260)
+
+            List(status.fileURLs, id: \.self, selection: $status.selectedFileURL) { file in
+                NavigationLink(file.lastPathComponent, value: file)
+            }
+            .frame(minWidth: 180, idealWidth: 260)
+
+            Group {
+                if let buffer = status.buffer, buffer.isValid {
+                    @Bindable var buffer = buffer
+                    TextEditor(text: $buffer.text)
+                        .font(.custom(settings.fontName, size: settings.fontSize))
+                        .lineSpacing(settings.lineSpacing)
+                        .padding(EdgeInsets(top: 0, leading: 18, bottom: 0, trailing: 18))
+                } else {
+                    Spacer()
+                }
+            }
+            .frame(minWidth: 300, maxWidth: .infinity)
+            .layoutPriority(1)
+        }
+        .onChange(of: status.selectedFolder) {
+            status.refreshFiles()
+        }
+        .onChange(of: status.selectedFileURL) {
+            status.openSelectedFile()
         }
     }
 
