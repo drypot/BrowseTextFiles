@@ -60,7 +60,6 @@ final class TextBrowserStatus {
     }
 
     func reload() {
-        log("hey, reloading")
         do {
             let savedRootURL = rootURL
             let savedFolderURL = selectedFolder?.url
@@ -109,24 +108,14 @@ final class TextBrowserStatus {
     }
 
     func openSelectedFile() {
+        guard let rootURL else { return }
         guard let url = selectedFileURL else { return }
 
         // prepare to change buffer
         // 파일 저장이라든지 ...
 
-        if let buffer = TextBufferCache.shared.buffer(for: url) {
-            self.buffer = buffer
-            log("openSelectedFile: found in cache")
-            return
-        }
-
         do {
-            guard let rootURL = rootFolder?.url else { return }
-            try withSecurityScope(rootURL) {
-                let buffer = try TextBufferCache.shared.addCache(for: url)
-                self.buffer = buffer
-            }
-            log("openSelectedFile: added new")
+            self.buffer = try TextBufferCache.shared.buffer(for: url, rootURL: rootURL)
         } catch {
             log("openSelectedFile: \(error.localizedDescription)")
         }

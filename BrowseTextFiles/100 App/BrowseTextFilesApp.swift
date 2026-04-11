@@ -104,7 +104,7 @@ struct BrowseTextFilesApp: App {
         }
         .commands {
             CommandGroup(after: .help) {
-                Button("Console") {
+                Button("Debug Console") {
                     openWindow(id: "console")
                 }
                 .keyboardShortcut("c", modifiers: [.command, .option])

@@ -114,14 +114,10 @@ struct TextBrowser: View {
     func openFolderFromInitURL(_ url: URL) {
         log("openFolderFromInitURL: \(url.absoluteString)")
         status.openFolder(at: url)
-        if let url = status.rootURL {
-            saveBookmark(url)
-            settings.addRecentDocumentURL(url)
-        }
+        saveRootURL()
     }
 
     func openFolderFromRestoredURL() {
-        log("openFolderFromRestoredURL: ...")
         if let url = loadBookmark() {
             log("openFolderFromRestoredURL: \(url.absoluteString)")
             status.openFolder(at: url)
@@ -129,15 +125,21 @@ struct TextBrowser: View {
     }
 
     func openFolderFromBlank() {
-        log("openFolderFromBlank: ...")
         let panel = NSOpenPanel()
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = true
         panel.canChooseFiles = false
         if panel.runModal() == .OK, let url = panel.url {
             log("openFolderFromBlank: \(url.absoluteString)")
-            openFolderFromInitURL(url)
+            status.openFolder(at: url)
+            saveRootURL()
         }
+    }
+
+    func saveRootURL() {
+        guard let url = status.rootURL else { return }
+        saveBookmark(url)
+        settings.addRecentDocumentURL(url)
     }
 
     func saveBookmark(_ url: URL) {

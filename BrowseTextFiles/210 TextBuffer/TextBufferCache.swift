@@ -18,15 +18,28 @@ final class TextBufferCache {
 
     private init() {}
 
-    public func buffer(for url: URL) -> TextBuffer? {
-        return bufferDic[url]
+    public func buffer(for url: URL, rootURL: URL) throws -> TextBuffer {
+        if let buffer = bufferDic[url] {
+            log("cache: buffer found in cache")
+            return buffer
+        }
+
+        return try withSecurityScope(rootURL) {
+            let buffer = try addBuffer(for: url)
+            addMonitor(for: url)
+            log("cache: buffer created")
+            return buffer
+        }
     }
 
-    public func addCache(for url: URL) throws -> TextBuffer {
+    private func addBuffer(for url: URL) throws -> TextBuffer {
         let buffer = TextBuffer(url: url)
         try buffer.loadContent()
         bufferDic[url] = buffer
+        return buffer
+    }
 
+    private func addMonitor(for url: URL) {
         let fileMonitor = FileMonitor()
         monitorDic[url] = fileMonitor
         fileMonitor.startMonitoring(url) { [weak self] data in
@@ -49,7 +62,5 @@ final class TextBufferCache {
                 monitor.stopMonitoring()
             }
         }
-
-        return buffer
     }
 }
