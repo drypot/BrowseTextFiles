@@ -10,11 +10,14 @@ import MyLibrary
 
 struct TextBrowser: View {
     @Environment(SettingsData.self) var settings
+
     @SceneStorage("rootURLData") private var rootURLData: Data?
 
     @State private var status = TextBrowserStatus()
 
     private var initURL: URL?
+
+    private let log = LogStore.shared.log
 
     init(_ url: URL? = nil) {
         initURL = url
@@ -109,7 +112,7 @@ struct TextBrowser: View {
     }
 
     func openFolderFromInitURL(_ url: URL) {
-        print("openFolderFromInitURL: \(url.absoluteString)")
+        log("openFolderFromInitURL: \(url.absoluteString)")
         status.openFolder(at: url)
         if let url = status.rootURL {
             saveBookmark(url)
@@ -118,21 +121,21 @@ struct TextBrowser: View {
     }
 
     func openFolderFromRestoredURL() {
-        print("openFolderFromRestoredURL: ...")
+        log("openFolderFromRestoredURL: ...")
         if let url = loadBookmark() {
-            print("openFolderFromRestoredURL: \(url.absoluteString)")
+            log("openFolderFromRestoredURL: \(url.absoluteString)")
             status.openFolder(at: url)
         }
     }
 
     func openFolderFromBlank() {
-        print("openFolderFromBlank: ...")
+        log("openFolderFromBlank: ...")
         let panel = NSOpenPanel()
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = true
         panel.canChooseFiles = false
         if panel.runModal() == .OK, let url = panel.url {
-            print("openFolderFromBlank: \(url.absoluteString)")
+            log("openFolderFromBlank: \(url.absoluteString)")
             openFolderFromInitURL(url)
         }
     }
@@ -143,7 +146,7 @@ struct TextBrowser: View {
                 rootURLData = try url.bookmarkData(options: .withSecurityScope)
             }
         } catch {
-            print("saving bookmark failed: \(error)")
+            log("saving bookmark failed: \(error)")
         }
     }
 
@@ -160,7 +163,7 @@ struct TextBrowser: View {
             }
             return url
         } catch {
-            print("loading bookmark failed: \(error)")
+            log("loading bookmark failed: \(error)")
         }
         return nil
     }

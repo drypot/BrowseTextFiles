@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import MyLibrary
 
 @main
 struct BrowseTextFilesApp: App {
@@ -94,6 +95,20 @@ struct BrowseTextFilesApp: App {
                 x: displayBounds.midX - (size.width / 2),
                 y: displayBounds.maxY - size.height - 140)
             return WindowPlacement(position, size: size)
+        }
+
+        Window("Console", id: "console") {
+            LogStoreView()
+                .padding()
+                .frame(minWidth: 150, minHeight: 150)
+        }
+        .commands {
+            CommandGroup(after: .help) {
+                Button("Console") {
+                    openWindow(id: "console")
+                }
+                .keyboardShortcut("c", modifiers: [.command, .option])
+            }
         }
 
         Window("About", id: "about") {

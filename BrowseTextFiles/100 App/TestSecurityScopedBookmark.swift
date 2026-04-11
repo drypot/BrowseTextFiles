@@ -10,6 +10,8 @@ import AppKit
 import MyLibrary
 
 struct TestSecurityScopedBookmark {
+    private let log = LogStore.shared.log
+
     func testASS() {
         let panel = NSOpenPanel()
         panel.allowsMultipleSelection = false
@@ -20,13 +22,13 @@ struct TestSecurityScopedBookmark {
                 do {
                     // 다이얼로그에서 파일 하나 찍어서 오픈하면, 성공,
                     // startAccessingSecurityScopedResource 하지 않아도 읽힌다.
-                    // print("data: try 1")
+                    // log("data: try 1")
                     // _ = try Data(contentsOf: url)
                 }
 
                 do {
                     // 다이얼로그에서 파일 하나 찍고, 그 옆에 파일을 오픈하려고 하면, 실패,
-                    // print("data: try 2")
+                    // log("data: try 2")
                     // let url = url.deletingLastPathComponent().appendingPathComponent("file02.txt")
                     // _ = try Data(contentsOf: url)
                 }
@@ -34,7 +36,7 @@ struct TestSecurityScopedBookmark {
                 do {
                     // 다이얼로그에서 파일 하나 찍고, 그 옆에 파일을 오픈하려고 하면,
                     // startAccessingSecurityScopedResource 에 상관없이 실패,
-                    // print("data: try 3")
+                    // log("data: try 3")
                     // let url = url.deletingLastPathComponent().appendingPathComponent("file02.txt")
                     // let accessing = url.startAccessingSecurityScopedResource()
                     // defer { if accessing { url.stopAccessingSecurityScopedResource() } }
@@ -43,7 +45,7 @@ struct TestSecurityScopedBookmark {
 
                 do {
                     // 다이얼로그에서 폴더를 찍고, 그 안에 파일을 읽으려고 하면, 성공,
-                    // print("data: try 4")
+                    // log("data: try 4")
                     // let url = url.appendingPathComponent("file02.txt")
                     //let accessing = url.startAccessingSecurityScopedResource()
                     //defer { if accessing { url.stopAccessingSecurityScopedResource() } }
@@ -52,21 +54,21 @@ struct TestSecurityScopedBookmark {
 
                 do {
                     // 날쌩 URL 을 새로 만들어서 접근하려고 하면?, 다이얼로그에서 일단 찍었으니, 성공,
-                    // print("data: try 5")
+                    // log("data: try 5")
                     // let url = URL(string: url.absoluteString)!
                     //  _ = try Data(contentsOf: url)
                 }
 
                 do {
                     // 다이얼로그에서 파일 하나 찍어서 북마크 만들고,
-                    print("data: try 6")
+                    log("data: try 6")
 
                     // NSOpenPanel 에서 받은 url 에서 bookmarkData 생성할 때는 sASS 하지 않아도 된다.
                     // 하지만 bookmarkData 생성한 url 에서 다시 bookmarkData 생성할 경우도 있으니 하긴 해야할 듯.
 
                     // let accessing = url.startAccessingSecurityScopedResource()
                     // defer { if accessing { url.stopAccessingSecurityScopedResource() } }
-                    // print("data: accessing, \(accessing)")
+                    // log("data: accessing, \(accessing)")
 
                     // bookmarkData 만들려면 Project -> Signing & Capabilities -> File Access 에 Read/Write 를 줘야 한다;
                     // ReadOnly 상태에서는 오류가 난다.
@@ -75,9 +77,9 @@ struct TestSecurityScopedBookmark {
                     UserDefaults.standard.set(bookmarkData, forKey: "SecurityScopedTest")
                 }
 
-                print("testSecurityScoped: all succeed")
+                log("testSecurityScoped: all succeed")
             } catch {
-                print("testSecurityScoped: fail, \(error.localizedDescription)")
+                log("testSecurityScoped: fail, \(error.localizedDescription)")
             }
         }
     }
@@ -92,7 +94,7 @@ struct TestSecurityScopedBookmark {
                               relativeTo: nil,
                               bookmarkDataIsStale: &isStale)
 
-            print("testSecurityScopedBookmark: isStale == \(isStale)")
+            log("testSecurityScopedBookmark: isStale == \(isStale)")
 
             do {
                 // 앱을 재 실행하고 BookmarkData 에서 URL을 새로 만들어 접근하려고 하면 퍼미션 에러가 난다.
@@ -101,7 +103,7 @@ struct TestSecurityScopedBookmark {
                 // let accessing = url.startAccessingSecurityScopedResource()
                 // defer { if accessing { url.stopAccessingSecurityScopedResource() } }
 
-                // print("testBookmark: start file accessing")
+                // log("testBookmark: start file accessing")
                 // _ = try Data(contentsOf: url)
             }
 
@@ -118,7 +120,7 @@ struct TestSecurityScopedBookmark {
                 // let securityScope = SecurityScope(for: url)
                 // defer { securityScope.stopAccessing() }
 
-                // print("testBookmark: start file accessing")
+                // log("testBookmark: start file accessing")
 
                 // _ = try Data(contentsOf: url)
             }
@@ -131,9 +133,9 @@ struct TestSecurityScopedBookmark {
                 }
             }
 
-            print("testSecurityScopedBookmark: all succeed")
+            log("testSecurityScopedBookmark: all succeed")
         } catch {
-            print("testSecurityScopedBookmark: fail, \(error.localizedDescription)")
+            log("testSecurityScopedBookmark: fail, \(error.localizedDescription)")
         }
     }
 
@@ -159,9 +161,9 @@ struct TestSecurityScopedBookmark {
 
             _ = try Data(contentsOf: url)
 
-            print("testSecurityScopedBookmark2: all succeed")
+            log("testSecurityScopedBookmark2: all succeed")
         } catch {
-            print("testSecurityScopedBookmark2: fail, \(error.localizedDescription)")
+            log("testSecurityScopedBookmark2: fail, \(error.localizedDescription)")
         }
     }
 }

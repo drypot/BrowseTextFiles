@@ -6,10 +6,12 @@
 //
 
 import Foundation
+import MyLibrary
 
 public class BookmarkManager {
-
     @MainActor public private(set) static var shared = BookmarkManager()
+
+    private let log = LogStore.shared.log
 
     private init() {}
 
@@ -23,7 +25,7 @@ public class BookmarkManager {
                                                     relativeTo: nil)
             UserDefaults.standard.set(bookmarkData, forKey: key)
         } catch {
-            print("saving bookmark failed: \(error)")
+            log("saving bookmark failed: \(error)")
         }
     }
 
@@ -41,7 +43,7 @@ public class BookmarkManager {
                 save(url!, forKey: key)
             }
         } catch {
-            print("loading bookmark failed: \(error)")
+            log("loading bookmark failed: \(error)")
         }
         return url
     }

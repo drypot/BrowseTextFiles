@@ -14,6 +14,8 @@ final class TextBufferCache {
     private var bufferDic: [URL: TextBuffer] = [:]
     private var monitorDic: [URL: FileMonitor] = [:]
 
+    private let log = LogStore.shared.log
+
     private init() {}
 
     public func buffer(for url: URL) -> TextBuffer? {
@@ -31,13 +33,13 @@ final class TextBufferCache {
             guard let self else { return }
 
             if data.contains(.delete) {
-                print("file monitor: delete, \(url.lastPathComponent)")
+                log("file monitor: delete, \(url.lastPathComponent)")
             }
             if data.contains(.rename) {
-                print("file monitor: rename, \(url.lastPathComponent)")
+                log("file monitor: rename, \(url.lastPathComponent)")
             }
             if data.contains(.write) {
-                print("file monitor: write, \(url.lastPathComponent)")
+                log("file monitor: write, \(url.lastPathComponent)")
             }
 
             if let buffer = self.bufferDic.removeValue(forKey: url) {

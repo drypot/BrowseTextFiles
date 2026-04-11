@@ -18,11 +18,11 @@ import Foundation
 public class SecurityScope {
     let url: URL
     private(set) var isAccessing: Bool = false
-    
+
     public init(for url: URL) {
         self.url = url
         self.isAccessing = url.startAccessingSecurityScopedResource()
-        print("SecurityScope: isAccessing == \(isAccessing)")
+//        print("SecurityScope: isAccessing == \(isAccessing)")
     }
     
 //    deinit {
@@ -33,7 +33,7 @@ public class SecurityScope {
         if isAccessing {
             url.stopAccessingSecurityScopedResource()
             isAccessing = false
-            print("SecurityScope: stopped")
+//            print("SecurityScope: stopped")
         }
     }
 }

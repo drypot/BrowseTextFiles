@@ -22,6 +22,8 @@ final class TextBrowserStatus {
 
     private(set) var buffer: TextBuffer?
 
+    private let log = LogStore.shared.log
+
     // MARK: - Root & Folders
 
     var isReady: Bool {
@@ -53,11 +55,12 @@ final class TextBrowserStatus {
             }
             refreshFiles()
         } catch {
-            print("openFolderURL: \(error.localizedDescription)")
+            log("openFolderURL: \(error.localizedDescription)")
         }
     }
 
     func reload() {
+        log("hey, reloading")
         do {
             let savedRootURL = rootURL
             let savedFolderURL = selectedFolder?.url
@@ -84,7 +87,7 @@ final class TextBrowserStatus {
             }
             openSelectedFile()
         } catch {
-            print("reload: \(error.localizedDescription)")
+            log("reload: \(error.localizedDescription)")
         }
     }
 
@@ -94,14 +97,14 @@ final class TextBrowserStatus {
         do {
             guard let rootURL else { return }
             guard let selectedFolderURL = selectedFolder?.url else { return }
-            //print("refreshFiles: \(selectedFolderURL)")
+            //log("refreshFiles: \(selectedFolderURL)")
             try withSecurityScope(rootURL) {
                 fileURLs = try TextFileURLCollector().collectShallowly(from: selectedFolderURL)
                 fileURLs?.sort { $0.lastPathComponent < $1.lastPathComponent }
                 selectedFileURL = nil
             }
         } catch {
-            print("refreshFiles: \(error.localizedDescription)")
+            log("refreshFiles: \(error.localizedDescription)")
         }
     }
 
@@ -113,7 +116,7 @@ final class TextBrowserStatus {
 
         if let buffer = TextBufferCache.shared.buffer(for: url) {
             self.buffer = buffer
-            print("openSelectedFile: found in cache")
+            log("openSelectedFile: found in cache")
             return
         }
 
@@ -123,9 +126,9 @@ final class TextBrowserStatus {
                 let buffer = try TextBufferCache.shared.addCache(for: url)
                 self.buffer = buffer
             }
-            print("openSelectedFile: added new")
+            log("openSelectedFile: added new")
         } catch {
-            print("openSelectedFile: \(error.localizedDescription)")
+            log("openSelectedFile: \(error.localizedDescription)")
         }
     }
 }
