@@ -65,6 +65,7 @@ final class TextBrowserStatus {
             let savedFolderURL = selectedFolder?.url
             let savedFileURL = selectedFileURL
 
+            TextBufferCache.shared.reset()
             reset()
 
             guard let url = savedRootURL else { return }
@@ -84,7 +85,7 @@ final class TextBrowserStatus {
             if let fileURLs, let savedFileURL, fileURLs.contains(savedFileURL) {
                 selectedFileURL = savedFileURL
             }
-            openSelectedFile()
+            openFile()
         } catch {
             log("reload: \(error.localizedDescription)")
         }
@@ -107,17 +108,26 @@ final class TextBrowserStatus {
         }
     }
 
-    func openSelectedFile() {
+    func openFile() {
         guard let rootURL else { return }
         guard let url = selectedFileURL else { return }
 
-        // prepare to change buffer
-        // 파일 저장이라든지 ...
+        saveFile()
 
         do {
             self.buffer = try TextBufferCache.shared.buffer(for: url, rootURL: rootURL)
         } catch {
-            log("openSelectedFile: \(error.localizedDescription)")
+            log("openFile: \(error.localizedDescription)")
+        }
+    }
+
+    func saveFile() {
+        guard let rootURL else { return }
+        guard let buffer, buffer.isEdited else { return }
+        do {
+            try TextBufferCache.shared.saveBuffer(buffer, rootURL: rootURL)
+        } catch {
+            log("saveFile: \(error.localizedDescription)")
         }
     }
 }

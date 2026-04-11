@@ -35,17 +35,17 @@ struct BrowseTextFilesApp: App {
         }
         .commands {
             CommandGroup(replacing: .newItem) {
-                Button("New Tab", systemImage: "plus.square") {
+                Button("New Tab") {
                     newTabFromMenu()
                 }
                 .keyboardShortcut("t", modifiers: .command)
 
-                Button("Open Folder...", systemImage: "arrow.up.right") {
+                Button("Open Folder...") {
                     openFolderFromMenu()
                 }
                 .keyboardShortcut("o", modifiers: .command)
 
-                Menu("Open Recent", systemImage: "clock") {
+                Menu("Open Recent") {
                     let urls = settings.recentDocumentURLs
                     if urls.isEmpty {
                         Text("No Recent Documents")
@@ -61,9 +61,16 @@ struct BrowseTextFilesApp: App {
                         }
                     }
                 }
+
+                Divider()
+
+                Button("Save") {
+                    selectedBrowserStatus?.saveFile()
+                }
+                .keyboardShortcut("s", modifiers: .command)
             }
             CommandGroup(after: .toolbar) {
-                Button("Reload", systemImage: "arrow.clockwise") {
+                Button("Reload") {
                     selectedBrowserStatus?.reload()
                 }
                 .keyboardShortcut("r", modifiers: .command)
@@ -143,7 +150,7 @@ struct BrowseTextFilesApp: App {
         .restorationBehavior(.disabled)
         .commands {
             CommandGroup(replacing: .appInfo) {
-                Button("About Browse Text Files", systemImage: "info.circle") {
+                Button("About Browse Text Files") {
                     openWindow(id: "about")
                 }
             }

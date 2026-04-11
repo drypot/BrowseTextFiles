@@ -35,7 +35,15 @@ public final class FileMonitor {
         source.resume()
     }
 
-    public func stopMonitoring() {
+    public func resume() {
+        source?.resume()
+    }
+
+    public func suspend() {
+        source?.suspend()
+    }
+
+    public func cancel() {
         source?.cancel()
     }
 }

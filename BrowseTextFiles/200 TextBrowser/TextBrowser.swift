@@ -102,11 +102,11 @@ struct TextBrowser: View {
             status.refreshFiles()
         }
         .onChange(of: status.selectedFileURL) {
-            status.openSelectedFile()
+            status.openFile()
         }
         .onChange(of: status.buffer?.isValid) {
             if status.buffer?.isValid == false {
-                status.openSelectedFile()
+                status.openFile()
             }
         }
     }
