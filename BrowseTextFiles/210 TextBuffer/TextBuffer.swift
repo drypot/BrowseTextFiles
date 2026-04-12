@@ -39,7 +39,7 @@ public final class TextBuffer: Identifiable, Hashable {
         } onChange: {
             Task { @MainActor in
                 self.isEdited = true
-                LogStore.shared.log("TextBuffer: edited, \(self.url.lastPathComponent)")
+                // LogStore.shared.log("TextBuffer: edited, \(self.url.lastPathComponent)")
             }
         }
     }

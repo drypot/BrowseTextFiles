@@ -17,26 +17,32 @@ class SettingsData {
         }
     }
 
-    var fontSize: CGFloat = 13 {
+    var fontSize: Double = 13 {
         didSet {
             UserDefaults.standard.set(fontSize, forKey: "Settings.fontSize")
         }
     }
 
-    var lineHeight: CGFloat = 1.2 {
+    var lineHeight: Double = 1.2 {
         didSet {
             UserDefaults.standard.set(lineHeight, forKey: "Settings.lineHeight")
         }
     }
 
-    var lineHeightMultiple: CGFloat = 0.0 {
+    var lineHeightMultiple: Double = 0.0 {
         didSet {
             UserDefaults.standard.set(lineHeightMultiple, forKey: "Settings.lineHeightMultiple")
         }
     }
 
-    var lineSpacing: CGFloat {
+    var lineSpacing: Double {
         (lineHeight - 1) * fontSize
+    }
+
+    var autoSavePerSeconds: Double = 10 {
+        didSet {
+            UserDefaults.standard.set(autoSavePerSeconds, forKey: "Settings.autoSavePerSeconds")
+        }
     }
 
     var recentDocumentURLs: [URL]
@@ -64,6 +70,11 @@ class SettingsData {
         let lineHeightMultiple = UserDefaults.standard.double(forKey: "Settings.lineHeightMultiple")
         if lineHeightMultiple > 0 {
             self.lineHeightMultiple = CGFloat(lineHeightMultiple)
+        }
+
+        let autoSavePerSeconds = UserDefaults.standard.double(forKey: "Settings.autoSavePerSeconds")
+        if autoSavePerSeconds > 0 {
+            self.autoSavePerSeconds = autoSavePerSeconds
         }
 
         recentDocumentURLs = NSDocumentController.shared.recentDocumentURLs
@@ -101,20 +112,27 @@ struct SettingsView: View {
                 Slider(value: $settings.fontSize, in: 10...30, step: 1) {
                     Text("Font Size ")
                 }
-                Text(String(format: "%.0f pt", settings.fontSize))
+                Text(settings.fontSize.formatted())
                     .font(.footnote)
             }
             Section {
                 Slider(value: $settings.lineHeight, in: 1.0...3.0, step: 0.1) {
                     Text("Line Height ")
                 }
-                Text(String(format: "%.1fx", settings.lineHeight))
+                Text(settings.lineHeight.formatted())
+                    .font(.footnote)
+            }
+            Section {
+                Slider(value: $settings.autoSavePerSeconds, in: 0.0...60.0, step: 2) {
+                    Text("Auto Save Per Seconds ")
+                }
+                Text(settings.autoSavePerSeconds.formatted())
                     .font(.footnote)
             }
         }
         .navigationTitle("Settings")
         .padding()
-        .frame(width: 400)
+        .frame(width: 600)
     }
 }
 

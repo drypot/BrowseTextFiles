@@ -79,6 +79,9 @@ struct TextBrowser: View {
         .task {
             initView()
         }
+        .task {
+            await autoSave()
+        }
     }
 
     var textBrowsesrReady: some View {
@@ -154,6 +157,17 @@ struct TextBrowser: View {
             status.openFolder(at: rootURL)
             save(sceneRootURL: rootURL)
             settings.addRecentDocumentURL(rootURL)
+        }
+    }
+
+    func autoSave() async {
+        while true {
+            let seconds = UInt64(settings.autoSavePerSeconds)
+            let nanoseconds: UInt64 = (seconds > 0 ? seconds : 60) * 1_000_000_000
+            try? await Task.sleep(nanoseconds: nanoseconds)
+            if seconds > 0 {
+                status.saveFile()
+            }
         }
     }
 
