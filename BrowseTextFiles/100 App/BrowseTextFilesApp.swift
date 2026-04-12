@@ -16,8 +16,8 @@ struct BrowseTextFilesApp: App {
     @State private var settings = SettingsData()
 
     var body: some Scene {
-        WindowGroup("Browser", id: "browser", for: URL.self) { $url in
-            TextBrowser(url)
+        WindowGroup("Browser", id: "browser", for: TextBrowser.InitParam.self) { $initParam in
+            TextBrowser(initParam)
                 .frame(maxWidth: .infinity, maxHeight: .infinity) // 빈 화면에서 drag & drop 받기 위해
                 .environment(settings)
 
@@ -173,13 +173,15 @@ struct BrowseTextFilesApp: App {
         panel.canChooseFiles = false
         if panel.runModal() == .OK {
             if let url = panel.url {
-                openWindow(id: "browser", value: url)
+                let initParam = TextBrowser.InitParam(rootURL: url)
+                openWindow(id: "browser", value: initParam)
             }
         }
     }
 
     func openRecentFromMenu(_ url: URL) {
-        openWindow(id: "browser", value: url)
+        let initParam = TextBrowser.InitParam(rootURL: url)
+        openWindow(id: "browser", value: initParam)
     }
 
 //    func openURLFromFinder(_ url: URL) {

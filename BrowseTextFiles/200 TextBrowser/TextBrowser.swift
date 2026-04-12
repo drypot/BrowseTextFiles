@@ -8,19 +8,32 @@
 import SwiftUI
 import MyLibrary
 
+
 struct TextBrowser: View {
     @Environment(SettingsData.self) var settings
-
-    @SceneStorage("rootURLData") private var rootURLData: Data?
+    @SceneStorage("rootURLData") private var sceneRootURLData: Data?
+    @SceneStorage("fileURLData") private var sceneFileURLData: Data?
 
     @State private var status = TextBrowserStatus()
 
-    private var initURL: URL?
+    public struct InitParam: Hashable, Codable {
+        let id: UUID
+        let rootURL: URL?
+        let fileURL: URL?
+
+        init(id: UUID = UUID(), rootURL: URL? = nil, fileURL: URL? = nil) {
+            self.id = id
+            self.rootURL = rootURL
+            self.fileURL = fileURL
+        }
+    }
+
+    private var initParam: InitParam?
 
     private let log = LogStore.shared.log
 
-    init(_ url: URL? = nil) {
-        initURL = url
+    init(_ initParam: InitParam?) {
+        self.initParam = initParam
     }
 
     var body: some View {
@@ -64,11 +77,7 @@ struct TextBrowser: View {
             }
         }
         .task {
-            if let initURL {
-                openFolderFromInitURL(initURL)
-            } else {
-                openFolderFromRestoredURL()
-            }
+            initView()
         }
     }
 
@@ -98,11 +107,15 @@ struct TextBrowser: View {
             .frame(minWidth: 300, maxWidth: .infinity)
             .layoutPriority(1)
         }
+        .navigationTitle(status.rootFolder?.name ?? "Browser")
         .onChange(of: status.selectedFolder) {
             status.refreshFiles()
         }
         .onChange(of: status.selectedFileURL) {
             status.openFile()
+            if let url = status.selectedFileURL {
+                save(sceneFileURL: url)
+            }
         }
         .onChange(of: status.buffer?.isValid) {
             if status.buffer?.isValid == false {
@@ -111,17 +124,22 @@ struct TextBrowser: View {
         }
     }
 
-    func openFolderFromInitURL(_ url: URL) {
-        log("openFolderFromInitURL: \(url.absoluteString)")
-        status.openFolder(at: url)
-        saveRootURL()
-    }
-
-    func openFolderFromRestoredURL() {
-        if let url = loadBookmark() {
-            log("openFolderFromRestoredURL: \(url.absoluteString)")
-            status.openFolder(at: url)
+    func initView() {
+        if let rootURL = loadSceneRootURL() {
+            log("TextBrowser: restore folder, \(rootURL.lastPathComponent)")
+            status.openFolder(at: rootURL, fileURL: loadSceneFileURL())
+            return
         }
+
+        if let rootURL = initParam?.rootURL {
+            log("TextBrowser: open folder, \(rootURL.lastPathComponent)")
+            status.openFolder(at: rootURL)
+            save(sceneRootURL: rootURL)
+            settings.addRecentDocumentURL(rootURL)
+            return
+        }
+
+        log("TextBrowser: open blank")
     }
 
     func openFolderFromBlank() {
@@ -129,51 +147,44 @@ struct TextBrowser: View {
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = true
         panel.canChooseFiles = false
-        if panel.runModal() == .OK, let url = panel.url {
-            log("openFolderFromBlank: \(url.absoluteString)")
-            status.openFolder(at: url)
-            saveRootURL()
+        if panel.runModal() == .OK, let rootURL = panel.url {
+            log("TextBrowser: open folder, \(rootURL.lastPathComponent)")
+            status.openFolder(at: rootURL)
+            save(sceneRootURL: rootURL)
+            settings.addRecentDocumentURL(rootURL)
         }
     }
 
-    func saveRootURL() {
-        guard let url = status.rootURL else { return }
-        saveBookmark(url)
-        settings.addRecentDocumentURL(url)
+    func save(sceneRootURL: URL) {
+        sceneRootURLData = try? sceneRootURL.bookmarkData(options: .withSecurityScope)
     }
 
-    func saveBookmark(_ url: URL) {
-        do {
-            try withSecurityScope(url) {
-                rootURLData = try url.bookmarkData(options: .withSecurityScope)
-            }
-        } catch {
-            log("saving bookmark failed: \(error)")
-        }
+    func loadSceneRootURL() ->URL? {
+        guard let data = sceneRootURLData else { return nil }
+        var isStale = false
+        return try? URL(resolvingBookmarkData: data,
+                        options: .withSecurityScope,
+                        relativeTo: nil,
+                        bookmarkDataIsStale: &isStale)
     }
 
-    func loadBookmark() -> URL? {
-        do {
-            guard let data = rootURLData else { return nil }
-            var isStale = false
-            let url = try URL(resolvingBookmarkData: data,
-                              options: .withSecurityScope,
-                              relativeTo: nil,
-                              bookmarkDataIsStale: &isStale)
-            if isStale {
-                saveBookmark(url)
-            }
-            return url
-        } catch {
-            log("loading bookmark failed: \(error)")
-        }
-        return nil
+    func save(sceneFileURL: URL) {
+        sceneFileURLData = try? sceneFileURL.bookmarkData(options: .withSecurityScope)
+    }
+
+    func loadSceneFileURL() -> URL? {
+        guard let data = sceneFileURLData else { return nil }
+        var isStale = false
+        return try? URL(resolvingBookmarkData: data,
+                        options: .withSecurityScope,
+                        relativeTo: nil,
+                        bookmarkDataIsStale: &isStale)
     }
 }
 
 #Preview {
-    let settings = SettingsData()
-    TextBrowser()
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .environment(settings)
+//    let settings = SettingsData()
+//    TextBrowser()
+//        .frame(maxWidth: .infinity, maxHeight: .infinity)
+//        .environment(settings)
 }

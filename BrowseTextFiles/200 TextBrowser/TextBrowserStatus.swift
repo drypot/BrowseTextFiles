@@ -43,7 +43,7 @@ final class TextBrowserStatus {
         buffer = nil
     }
 
-    func openFolder(at url: URL) {
+    func openFolder(at url: URL, fileURL: URL? = nil) {
         do {
             reset()
             try withSecurityScope(url) {
@@ -52,8 +52,18 @@ final class TextBrowserStatus {
                 rootFolder = folder
                 folders = [folder]  // SwiftUI List 에 root folder 를 표시하기 위해 root 용 어레이를 만들어 둔다.
                 selectedFolder = folder
+                if let fileURL {
+                    let folderURL = fileURL.deletingLastPathComponent()
+                    if let found = folder.findChild(with: folderURL) {
+                        selectedFolder = found
+                    }
+                }
             }
             refreshFiles()
+            if let fileURL {
+                selectedFileURL = fileURL
+                openFile()
+            }
         } catch {
             log("openFolderURL: \(error.localizedDescription)")
         }
