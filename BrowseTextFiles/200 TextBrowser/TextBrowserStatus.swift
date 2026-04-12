@@ -60,12 +60,12 @@ final class TextBrowserStatus {
                 }
             }
             refreshFiles()
-            if let fileURL {
+            if let fileURLs, let fileURL, fileURLs.contains(fileURL) {
                 selectedFileURL = fileURL
                 openFile()
             }
         } catch {
-            log("openFolderURL: \(error.localizedDescription)")
+            log("openFolder: \(error.localizedDescription)")
         }
     }
 
@@ -75,7 +75,7 @@ final class TextBrowserStatus {
             let savedFolderURL = selectedFolder?.url
             let savedFileURL = selectedFileURL
 
-            TextBufferCache.shared.reset()
+//            TextBufferCache.shared.reset()
             reset()
 
             guard let url = savedRootURL else { return }
@@ -125,7 +125,11 @@ final class TextBrowserStatus {
         saveFile()
 
         do {
-            self.buffer = try TextBufferCache.shared.buffer(for: url, rootURL: rootURL)
+            try withSecurityScope(rootURL) {
+                let buffer = TextBuffer(url: url)
+                try buffer.loadContent()
+                self.buffer = buffer
+            }
         } catch {
             log("openFile: \(error.localizedDescription)")
         }
@@ -135,7 +139,9 @@ final class TextBrowserStatus {
         guard let rootURL else { return }
         guard let buffer, buffer.isEdited else { return }
         do {
-            try TextBufferCache.shared.saveBuffer(buffer, rootURL: rootURL)
+            try withSecurityScope(rootURL) {
+                try buffer.saveContent()
+            }
         } catch {
             log("saveFile: \(error.localizedDescription)")
         }

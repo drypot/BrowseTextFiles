@@ -118,6 +118,8 @@ struct TextBrowser: View {
             }
         }
         .onChange(of: status.buffer?.isValid) {
+            let name = status.buffer?.name ?? "xxx"
+            log("update: \(name)")
             if status.buffer?.isValid == false {
                 status.openFile()
             }
@@ -133,7 +135,7 @@ struct TextBrowser: View {
 
         if let rootURL = initParam?.rootURL {
             log("TextBrowser: open folder, \(rootURL.lastPathComponent)")
-            status.openFolder(at: rootURL)
+            status.openFolder(at: rootURL, fileURL: initParam?.fileURL)
             save(sceneRootURL: rootURL)
             settings.addRecentDocumentURL(rootURL)
             return

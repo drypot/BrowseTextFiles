@@ -163,7 +163,12 @@ struct BrowseTextFilesApp: App {
     }
 
     func newTabFromMenu() {
-        openWindow(id: "browser")
+        if let status = selectedBrowserStatus {
+            let initParam = TextBrowser.InitParam(rootURL: status.rootURL, fileURL: status.selectedFileURL)
+            openWindow(id: "browser", value: initParam)
+        } else {
+            openWindow(id: "browser")
+        }
     }
 
     func openFolderFromMenu() {

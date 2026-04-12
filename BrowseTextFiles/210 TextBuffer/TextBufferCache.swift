@@ -8,6 +8,10 @@
 import Foundation
 import MyLibrary
 
+// 케쉬는 쓰지 않는 것으로.
+// 여러 윈도우에서 쓸 때 화면 업데이트의 복잡함, 엉킴, 처리 귀찮음.
+
+@available(*, deprecated)
 final class TextBufferCache {
     public static let shared = TextBufferCache()
 
