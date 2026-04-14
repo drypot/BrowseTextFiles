@@ -97,9 +97,9 @@ struct TextBrowser: View {
             .frame(minWidth: 180, idealWidth: 260)
 
             Group {
-                if let buffer = status.buffer, buffer.isValid {
+                if let buffer = status.buffer {
                     @Bindable var buffer = buffer
-                    TextEditor(text: $buffer.text)
+                    TextEditor(text: $buffer.textSetter)
                         .font(.custom(settings.fontName, size: settings.fontSize))
                         .lineSpacing(settings.lineSpacing)
                         .padding(EdgeInsets(top: 0, leading: 18, bottom: 0, trailing: 18))
@@ -112,20 +112,10 @@ struct TextBrowser: View {
         }
         .navigationTitle(status.rootFolder?.name ?? "Browser")
         .onChange(of: status.selectedFolder) {
-            status.refreshFiles()
+            refreshFiles()
         }
         .onChange(of: status.selectedFileURL) {
-            status.openFile()
-            if let url = status.selectedFileURL {
-                save(sceneFileURL: url)
-            }
-        }
-        .onChange(of: status.buffer?.isValid) {
-            let name = status.buffer?.name ?? "xxx"
-            log("update: \(name)")
-            if status.buffer?.isValid == false {
-                status.openFile()
-            }
+            openFile()
         }
     }
 
@@ -157,6 +147,18 @@ struct TextBrowser: View {
             status.openFolder(at: rootURL)
             save(sceneRootURL: rootURL)
             settings.addRecentDocumentURL(rootURL)
+        }
+    }
+
+    func refreshFiles() {
+        status.refreshFiles()
+    }
+
+    func openFile() {
+        status.saveFile()
+        status.openFile()
+        if let url = status.selectedFileURL {
+            save(sceneFileURL: url)
         }
     }
 

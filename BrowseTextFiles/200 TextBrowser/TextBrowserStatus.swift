@@ -21,6 +21,7 @@ final class TextBrowserStatus {
     var selectedFileURL: URL?
 
     private(set) var buffer: TextBuffer?
+    private var fileMonitor: FileMonitor?
 
     private let log = LogStore.shared.log
 
@@ -75,7 +76,6 @@ final class TextBrowserStatus {
             let savedFolderURL = selectedFolder?.url
             let savedFileURL = selectedFileURL
 
-//            TextBufferCache.shared.reset()
             reset()
 
             guard let url = savedRootURL else { return }
@@ -121,14 +121,19 @@ final class TextBrowserStatus {
     func openFile() {
         guard let rootURL else { return }
         guard let url = selectedFileURL else { return }
-
-        saveFile()
-
         do {
+            self.buffer = nil
+            self.fileMonitor = nil
             try withSecurityScope(rootURL) {
                 let buffer = TextBuffer(url: url)
                 try buffer.loadContent()
                 self.buffer = buffer
+
+                self.fileMonitor = FileMonitor()
+                fileMonitor?.startMonitoring(url) { [weak self] _ in
+                    guard let self else { return }
+                    self.openFile()
+                }
             }
         } catch {
             log("openFile: \(error.localizedDescription)")
@@ -140,7 +145,9 @@ final class TextBrowserStatus {
         guard let buffer, buffer.isEdited else { return }
         do {
             try withSecurityScope(rootURL) {
-                try buffer.saveContent()
+                try fileMonitor?.disableMonitoringWhile {
+                    try buffer.saveContent()
+                }
             }
         } catch {
             log("saveFile: \(error.localizedDescription)")
