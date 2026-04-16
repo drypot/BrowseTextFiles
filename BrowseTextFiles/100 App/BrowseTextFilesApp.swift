@@ -71,7 +71,7 @@ struct BrowseTextFilesApp: App {
             }
             CommandGroup(after: .toolbar) {
                 Button("Reload") {
-                    selectedBrowserStatus?.reload()
+                    selectedBrowserStatus?.reloadAll()
                 }
                 .keyboardShortcut("r", modifiers: .command)
 

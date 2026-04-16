@@ -69,7 +69,7 @@ struct TextBrowser: View {
 
             ToolbarItem(placement: .primaryAction) {
                 Button {
-                    status.reload()
+                    status.reloadAll()
                 } label: {
                     Label("Reload", systemImage: "arrow.clockwise")
                 }
@@ -122,13 +122,24 @@ struct TextBrowser: View {
     func initView() {
         if let rootURL = loadSceneRootURL() {
             log("TextBrowser: restore folder, \(rootURL.lastPathComponent)")
-            status.openFolder(at: rootURL, fileURL: loadSceneFileURL())
+            status.loadRoot(from: rootURL)
+            if let fileURL = loadSceneFileURL() {
+                status.loadFile(from: fileURL)
+            } else {
+                status.loadRootFolder()
+            }
             return
         }
 
         if let rootURL = initParam?.rootURL {
             log("TextBrowser: open folder, \(rootURL.lastPathComponent)")
-            status.openFolder(at: rootURL, fileURL: initParam?.fileURL)
+            status.loadRoot(from: rootURL)
+            if let fileURL = initParam?.fileURL {
+                status.loadFile(from: fileURL)
+            } else {
+                status.loadRootFolder()
+            }
+
             save(sceneRootURL: rootURL)
             settings.addRecentDocumentURL(rootURL)
             return
@@ -144,19 +155,20 @@ struct TextBrowser: View {
         panel.canChooseFiles = false
         if panel.runModal() == .OK, let rootURL = panel.url {
             log("TextBrowser: open folder, \(rootURL.lastPathComponent)")
-            status.openFolder(at: rootURL)
+            status.loadRoot(from: rootURL)
+            status.loadRootFolder()
             save(sceneRootURL: rootURL)
             settings.addRecentDocumentURL(rootURL)
         }
     }
 
     func refreshFiles() {
-        status.refreshFiles()
+        status.loadSelectedFolder()
     }
 
     func openFile() {
         status.saveFile()
-        status.openFile()
+        status.loadSelectedFile()
         if let url = status.selectedFileURL {
             save(sceneFileURL: url)
         }

@@ -25,13 +25,11 @@ final class TextBrowserStatus {
 
     private let log = LogStore.shared.log
 
-    // MARK: - Root & Folders
-
     var isReady: Bool {
         return rootFolder != nil
     }
 
-    private func reset() {
+    private func resetStatus() {
         rootURL = nil
         rootFolder = nil
 
@@ -44,81 +42,65 @@ final class TextBrowserStatus {
         buffer = nil
     }
 
-    func openFolder(at url: URL, fileURL: URL? = nil) {
+    func loadRoot(from rootURL: URL) {
         do {
-            reset()
-            try withSecurityScope(url) {
-                let folder = try FolderTreeBuilder().build(from: url)
-                rootURL = url
-                rootFolder = folder
-                folders = [folder]  // SwiftUI List 에 root folder 를 표시하기 위해 root 용 어레이를 만들어 둔다.
-                selectedFolder = folder
-                if let fileURL {
-                    let folderURL = fileURL.deletingLastPathComponent()
-                    if let found = folder.findChild(with: folderURL) {
-                        selectedFolder = found
-                    }
-                }
-            }
-            refreshFiles()
-            if let fileURLs, let fileURL, fileURLs.contains(fileURL) {
-                selectedFileURL = fileURL
-                openFile()
-            }
-        } catch {
-            log("openFolder: \(error.localizedDescription)")
-        }
-    }
-
-    func reload() {
-        do {
-            let savedRootURL = rootURL
-            let savedFolderURL = selectedFolder?.url
-            let savedFileURL = selectedFileURL
-
-            reset()
-
-            guard let url = savedRootURL else { return }
-            try withSecurityScope(url) {
-                let folder = try FolderTreeBuilder().build(from: url)
-                rootURL = url
-                rootFolder = folder
-                folders = [folder]  // SwiftUI List 에 root folder 를 표시하기 위해 root 용 어레이를 만들어 둔다.
-                selectedFolder = folder
-                if let savedFolderURL {
-                    if let found = folder.findChild(with: savedFolderURL) {
-                        selectedFolder = found
-                    }
-                }
-            }
-            refreshFiles()
-            if let fileURLs, let savedFileURL, fileURLs.contains(savedFileURL) {
-                selectedFileURL = savedFileURL
-            }
-            openFile()
-        } catch {
-            log("reload: \(error.localizedDescription)")
-        }
-    }
-
-    // MARK: - Files
-
-    func refreshFiles() {
-        do {
-            guard let rootURL else { return }
-            guard let selectedFolderURL = selectedFolder?.url else { return }
-            //log("refreshFiles: \(selectedFolderURL)")
+            resetStatus()
             try withSecurityScope(rootURL) {
-                fileURLs = try TextFileURLCollector().collectShallowly(from: selectedFolderURL)
-                fileURLs?.sort { $0.lastPathComponent < $1.lastPathComponent }
-                selectedFileURL = nil
+                let folder = try FolderTreeBuilder().build(from: rootURL)
+                self.rootURL = rootURL
+                rootFolder = folder
+                folders = [folder]  // SwiftUI List 에 root folder 를 표시하기 위해 root 용 어레이를 만들어 둔다.
             }
         } catch {
-            log("refreshFiles: \(error.localizedDescription)")
+            log("loadRoot: \(error.localizedDescription)")
         }
     }
 
-    func openFile() {
+    func loadFolder(from folder: Folder) {
+        selectedFolder = folder
+        loadSelectedFolder()
+    }
+
+    func loadRootFolder() {
+        selectedFolder = rootFolder
+        loadSelectedFolder()
+    }
+
+    func loadSelectedFolder() {
+        guard let rootURL else { return }
+        guard let folder = selectedFolder else { return }
+        do {
+            try withSecurityScope(rootURL) {
+                fileURLs = try TextFileURLCollector().collectShallowly(from: folder.url)
+                fileURLs?.sort { $0.lastPathComponent < $1.lastPathComponent }
+            }
+        } catch {
+            log("loadSelectedFolder: \(error.localizedDescription)")
+        }
+    }
+
+    func loadFile(from url: URL) {
+        guard let rootFolder else { return }
+        let folderURL = url.deletingLastPathComponent()
+        guard let folder = rootFolder.findChild(with: folderURL) else { return }
+        loadFolder(from: folder)
+        if let fileURLs, fileURLs.contains(url) {
+            selectedFileURL = url
+            loadSelectedFile()
+        }
+    }
+
+    func reloadAll() {
+        guard let rootURL else { return }
+        let savedFileURL = selectedFileURL
+
+        loadRoot(from: rootURL)
+        if let savedFileURL {
+            loadFile(from: savedFileURL)
+        }
+    }
+
+    func loadSelectedFile() {
         guard let rootURL else { return }
         guard let url = selectedFileURL else { return }
         do {
@@ -132,7 +114,7 @@ final class TextBrowserStatus {
                 self.fileMonitor = FileMonitor()
                 fileMonitor?.startMonitoring(url) { [weak self] _ in
                     guard let self else { return }
-                    self.openFile()
+                    self.loadSelectedFile()
                 }
             }
         } catch {
