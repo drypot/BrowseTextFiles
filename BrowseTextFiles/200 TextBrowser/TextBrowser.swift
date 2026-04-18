@@ -46,6 +46,11 @@ struct TextBrowser: View {
                 }
             }
         }
+        .alert("Error", isPresented: $status.isShowActiveError) {
+            Button("OK") { }
+        } message: {
+            Text(status.activeError?.message ?? "unknown error")
+        }
         .focusedSceneValue(\.selectedBrowserStatus, status)
         .toolbarBackground(.background, for: .windowToolbar)
         .toolbarBackgroundVisibility(.automatic, for: .windowToolbar)
@@ -121,7 +126,7 @@ struct TextBrowser: View {
 
     func initView() {
         if let rootURL = loadSceneRootURL() {
-            log("TextBrowser: restore folder, \(rootURL.lastPathComponent)")
+            log("restore folder: \(rootURL.lastPathComponent)")
 
             status.loadRoot(from: rootURL)
             guard status.isRootReady else { return }
@@ -136,7 +141,7 @@ struct TextBrowser: View {
         }
 
         if let rootURL = initParam?.rootURL {
-            log("TextBrowser: open folder, \(rootURL.lastPathComponent)")
+            log("open folder: \(rootURL.lastPathComponent)")
 
             status.loadRoot(from: rootURL)
             guard status.isRootReady else { return }
@@ -153,7 +158,7 @@ struct TextBrowser: View {
             return
         }
 
-        log("TextBrowser: open blank")
+        log("open folder: blank")
     }
 
     func openFolderFromBlank() {
@@ -162,7 +167,7 @@ struct TextBrowser: View {
         panel.canChooseDirectories = true
         panel.canChooseFiles = false
         if panel.runModal() == .OK, let rootURL = panel.url {
-            log("TextBrowser: open folder, \(rootURL.lastPathComponent)")
+            log("open folder: \(rootURL.lastPathComponent)")
             status.loadRoot(from: rootURL)
             status.loadRootFolder()
             save(sceneRootURL: rootURL)
@@ -175,7 +180,7 @@ struct TextBrowser: View {
     }
 
     func loadFile() {
-        status.saveFile()
+        status.saveFileIfEdited()
         status.loadSelectedFile()
         if let url = status.selectedFileURL {
             save(sceneFileURL: url)
@@ -188,7 +193,7 @@ struct TextBrowser: View {
             let nanoseconds: UInt64 = (seconds > 0 ? seconds : 60) * 1_000_000_000
             try? await Task.sleep(nanoseconds: nanoseconds)
             if seconds > 0 {
-                status.saveFile()
+                status.saveFileIfEdited()
             }
         }
     }

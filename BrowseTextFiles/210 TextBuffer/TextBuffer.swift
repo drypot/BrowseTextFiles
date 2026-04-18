@@ -53,7 +53,6 @@ public final class TextBuffer: Identifiable, Hashable {
         try fileHandle.close()
 
         isEdited = false
-        LogStore.shared.log("TextBuffer: saved, \(self.url.lastPathComponent)")
     }
 
     public static func == (lhs: TextBuffer, rhs: TextBuffer) -> Bool {

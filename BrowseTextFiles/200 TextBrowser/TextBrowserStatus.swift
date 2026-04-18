@@ -23,6 +23,9 @@ final class TextBrowserStatus {
     private(set) var buffer: TextBuffer?
     private var fileMonitor: FileMonitor?
 
+    var activeError: ActiveError?
+    var isShowActiveError = false
+
     private let log = LogStore.shared.log
 
     var isRootReady: Bool {
@@ -76,7 +79,9 @@ final class TextBrowserStatus {
                 folders = [rootFolder]  // SwiftUI List 에 root folder 를 표시하기 위해 root 용 어레이를 만들어 둔다.
             }
         } catch {
-            log("loadRoot: \(error.localizedDescription)")
+            activeError = ActiveError(message: "Root Folder Load Error: \(rootURL.lastPathComponent)")
+            isShowActiveError = true
+            log("load root: \(error.localizedDescription)")
         }
     }
 
@@ -100,7 +105,9 @@ final class TextBrowserStatus {
                 selectedFolder = folder
             }
         } catch {
-            log("loadFolder: \(error.localizedDescription)")
+            activeError = ActiveError(message: "Folder Load Error: \(folder.url.lastPathComponent)")
+            isShowActiveError = true
+            log("load folder: \(error.localizedDescription)")
         }
     }
 
@@ -128,6 +135,7 @@ final class TextBrowserStatus {
 
         guard let rootURL else { return }
         guard let url else { return }
+        let fileName = url.lastPathComponent
         do {
             try withSecurityScope(rootURL) {
                 let buffer = TextBuffer(url: url)
@@ -143,21 +151,33 @@ final class TextBrowserStatus {
                 selectedFileURL = url
             }
         } catch {
-            log("loadFile: \(error.localizedDescription)")
+            activeError = ActiveError(message: "File Load Error: \(fileName)")
+            isShowActiveError = true
+            log("load file: \(error.localizedDescription)")
         }
+    }
+
+    func saveFileIfEdited() {
+        guard let buffer, buffer.isEdited else { return }
+        saveFile()
     }
 
     func saveFile() {
         guard let rootURL else { return }
-        guard let buffer, buffer.isEdited else { return }
+        guard let buffer else { return }
+        let fileName = buffer.url.lastPathComponent
         do {
             try withSecurityScope(rootURL) {
                 try fileMonitor?.disableMonitoringWhile {
                     try buffer.saveContent()
                 }
             }
+            log("save file: file saved, \(fileName)")
         } catch {
-            log("saveFile: \(error.localizedDescription)")
+            activeError = ActiveError(message: "File Save Error: \(fileName)")
+            isShowActiveError = true
+            buffer.isEdited = false
+            log("save file: \(error.localizedDescription)")
         }
     }
 }
