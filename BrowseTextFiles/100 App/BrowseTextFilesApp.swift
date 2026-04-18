@@ -104,7 +104,7 @@ struct BrowseTextFilesApp: App {
             return WindowPlacement(position, size: size)
         }
 
-        Window("Console", id: "console") {
+        Window("Debug Console", id: "console") {
             LogStoreView()
                 .padding()
                 .frame(minWidth: 150, minHeight: 150)

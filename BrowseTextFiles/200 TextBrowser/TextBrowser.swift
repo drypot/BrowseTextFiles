@@ -38,7 +38,7 @@ struct TextBrowser: View {
 
     var body: some View {
         VStack {
-            if status.isReady {
+            if status.isRootReady {
                 textBrowsesrReady
             } else {
                 Button("Open Folder") {
@@ -91,7 +91,7 @@ struct TextBrowser: View {
             }
             .frame(minWidth: 180, idealWidth: 260)
 
-            List(status.fileURLs ?? [], id: \.self, selection: $status.selectedFileURL) { file in
+            List(status.folderFileURLs ?? [], id: \.self, selection: $status.selectedFileURL) { file in
                 NavigationLink(file.lastPathComponent, value: file)
             }
             .frame(minWidth: 180, idealWidth: 260)
@@ -112,20 +112,24 @@ struct TextBrowser: View {
         }
         .navigationTitle(status.rootFolder?.name ?? "Browser")
         .onChange(of: status.selectedFolder) {
-            refreshFiles()
+            refreshFolder()
         }
         .onChange(of: status.selectedFileURL) {
-            openFile()
+            loadFile()
         }
     }
 
     func initView() {
         if let rootURL = loadSceneRootURL() {
             log("TextBrowser: restore folder, \(rootURL.lastPathComponent)")
+
             status.loadRoot(from: rootURL)
+            guard status.isRootReady else { return }
+
             if let fileURL = loadSceneFileURL() {
-                status.loadFile(from: fileURL)
-            } else {
+                status.loadFolderAndFile(from: fileURL)
+            }
+            if !status.isFolderReady {
                 status.loadRootFolder()
             }
             return
@@ -133,10 +137,14 @@ struct TextBrowser: View {
 
         if let rootURL = initParam?.rootURL {
             log("TextBrowser: open folder, \(rootURL.lastPathComponent)")
+
             status.loadRoot(from: rootURL)
+            guard status.isRootReady else { return }
+
             if let fileURL = initParam?.fileURL {
-                status.loadFile(from: fileURL)
-            } else {
+                status.loadFolderAndFile(from: fileURL)
+            }
+            if !status.isFolderReady {
                 status.loadRootFolder()
             }
 
@@ -162,11 +170,11 @@ struct TextBrowser: View {
         }
     }
 
-    func refreshFiles() {
+    func refreshFolder() {
         status.loadSelectedFolder()
     }
 
-    func openFile() {
+    func loadFile() {
         status.saveFile()
         status.loadSelectedFile()
         if let url = status.selectedFileURL {
