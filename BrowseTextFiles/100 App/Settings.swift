@@ -11,27 +11,21 @@ import Observation
 @Observable
 class SettingsData {
 
-    var fontName: String = "Helvetica" {
+    var fontName: String {
         didSet {
-            UserDefaults.standard.set(fontName, forKey: "Settings.fontName")
+            UserDefaults.standard.set(fontName, forKey: "fontName")
         }
     }
 
-    var fontSize: Double = 13 {
+    var fontSize: Double {
         didSet {
-            UserDefaults.standard.set(fontSize, forKey: "Settings.fontSize")
+            UserDefaults.standard.set(fontSize, forKey: "fontSize")
         }
     }
 
-    var lineHeight: Double = 1.2 {
+    var lineHeight: Double {
         didSet {
-            UserDefaults.standard.set(lineHeight, forKey: "Settings.lineHeight")
-        }
-    }
-
-    var lineHeightMultiple: Double = 0.0 {
-        didSet {
-            UserDefaults.standard.set(lineHeightMultiple, forKey: "Settings.lineHeightMultiple")
+            UserDefaults.standard.set(lineHeight, forKey: "lineHeight")
         }
     }
 
@@ -39,9 +33,15 @@ class SettingsData {
         (lineHeight - 1) * fontSize
     }
 
-    var autoSavePerSeconds: Int = 10 {
+    var autoSavePerSeconds: Int {
         didSet {
-            UserDefaults.standard.set(autoSavePerSeconds, forKey: "Settings.autoSavePerSeconds")
+            UserDefaults.standard.set(autoSavePerSeconds, forKey: "autoSavePerSeconds")
+        }
+    }
+
+    var newFileTemplates: [String] = [] {
+        didSet {
+            UserDefaults.standard.set(newFileTemplates, forKey: "newFileTemplates")
         }
     }
 
@@ -53,28 +53,25 @@ class SettingsData {
         //        self.fontName = systemFont.fontName
         //        self.fontSize = systemFont.pointSize
 
-        if let fontName = UserDefaults.standard.string(forKey: "Settings.fontName") {
+        if let fontName = UserDefaults.standard.string(forKey: "fontName") {
             self.fontName = fontName
+        } else {
+            self.fontName = "SF Pro"
         }
 
-        let fontSize = UserDefaults.standard.double(forKey: "Settings.fontSize")
-        if fontSize > 0 {
-            self.fontSize = CGFloat(fontSize)
-        }
+        let fontSize = UserDefaults.standard.double(forKey: "fontSize")
+        self.fontSize = fontSize > 0 ? fontSize : 16
 
-        let lineHeight = UserDefaults.standard.double(forKey: "Settings.lineHeight")
-        if lineHeight > 0 {
-            self.lineHeight = CGFloat(lineHeight)
-        }
+        let lineHeight = UserDefaults.standard.double(forKey: "lineHeight")
+        self.lineHeight = lineHeight > 0 ? lineHeight : 1.3
 
-        let lineHeightMultiple = UserDefaults.standard.double(forKey: "Settings.lineHeightMultiple")
-        if lineHeightMultiple > 0 {
-            self.lineHeightMultiple = CGFloat(lineHeightMultiple)
-        }
+        let autoSavePerSeconds = UserDefaults.standard.integer(forKey: "autoSavePerSeconds")
+        self.autoSavePerSeconds = autoSavePerSeconds > 0 ? autoSavePerSeconds : 10
 
-        let autoSavePerSeconds = UserDefaults.standard.integer(forKey: "Settings.autoSavePerSeconds")
-        if autoSavePerSeconds > 0 {
-            self.autoSavePerSeconds = autoSavePerSeconds
+        if let newFileTemplates = UserDefaults.standard.stringArray(forKey: "newFileTemplates") {
+            self.newFileTemplates = newFileTemplates
+        } else {
+            self.newFileTemplates = ["template1", "template2", "template3"]
         }
 
         recentDocumentURLs = NSDocumentController.shared.recentDocumentURLs
