@@ -39,42 +39,56 @@ class SettingsData {
         }
     }
 
-    var newFileTemplates: [String] = [] {
+    var newFileTemplates: [String] {
         didSet {
             UserDefaults.standard.set(newFileTemplates, forKey: "newFileTemplates")
+        }
+    }
+
+    var newFileTemplateIndex: Int {
+        didSet {
+            UserDefaults.standard.set(newFileTemplateIndex, forKey: "newFileTemplateIndex")
         }
     }
 
     var recentDocumentURLs: [URL]
 
     init() {
-        //        let systemFont = NSFont.systemFont(ofSize: NSFont.systemFontSize)
-        //
-        //        self.fontName = systemFont.fontName
-        //        self.fontSize = systemFont.pointSize
+        self.fontName = Self.string(forKey: "fontName", defaultValue: "SF Pro")
+        self.fontSize = Self.double(forKey: "fontSize", defaultValue: 16)
+        self.lineHeight = Self.double(forKey: "lineHeight", defaultValue: 1.3)
 
-        if let fontName = UserDefaults.standard.string(forKey: "fontName") {
-            self.fontName = fontName
-        } else {
-            self.fontName = "SF Pro"
-        }
+        self.autoSavePerSeconds = Self.int(forKey: "autoSavePerSeconds", defaultValue: 10)
 
-        let fontSize = UserDefaults.standard.double(forKey: "fontSize")
-        self.fontSize = fontSize > 0 ? fontSize : 16
-
-        let lineHeight = UserDefaults.standard.double(forKey: "lineHeight")
-        self.lineHeight = lineHeight > 0 ? lineHeight : 1.3
-
-        let autoSavePerSeconds = UserDefaults.standard.integer(forKey: "autoSavePerSeconds")
-        self.autoSavePerSeconds = autoSavePerSeconds > 0 ? autoSavePerSeconds : 10
-
-        if let newFileTemplates = UserDefaults.standard.stringArray(forKey: "newFileTemplates") {
-            self.newFileTemplates = newFileTemplates
-        } else {
-            self.newFileTemplates = ["template1", "template2", "template3"]
-        }
+        self.newFileTemplates = Self.stringArray(forKey: "newFileTemplates", defaultValue: ["template1", "template2", "template3"], minSize: 5)
+        self.newFileTemplateIndex = Self.int(forKey: "newFileTemplateIndex", defaultValue: 0)
 
         recentDocumentURLs = NSDocumentController.shared.recentDocumentURLs
+    }
+
+    private static func double(forKey key: String, defaultValue: Double) -> Double {
+        let value = UserDefaults.standard.double(forKey: key)
+        return value > 0 ? value : defaultValue
+    }
+
+    private static func int(forKey key: String, defaultValue: Int) -> Int {
+        let value = UserDefaults.standard.integer(forKey: key)
+        return value > 0 ? value : defaultValue
+    }
+
+    private static func string(forKey key: String, defaultValue: String) -> String {
+        let value = UserDefaults.standard.string(forKey: key)
+        return value ?? defaultValue
+    }
+
+    private static func stringArray(forKey key: String, defaultValue: [String], minSize: Int = 0) -> [String] {
+        var value = UserDefaults.standard.stringArray(forKey: key) ?? defaultValue
+        if minSize > 0 {
+            while value.count < minSize {
+                value.append("")
+            }
+        }
+        return value
     }
 
     func addRecentDocumentURL(_ url: URL) {

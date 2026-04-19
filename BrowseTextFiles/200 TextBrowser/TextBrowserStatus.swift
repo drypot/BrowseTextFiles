@@ -26,6 +26,8 @@ final class TextBrowserStatus {
     var activeError: ActiveError?
     var isShowActiveError = false
 
+    var isShowNewFile = false
+
     private let log = LogStore.shared.log
 
     var isRootReady: Bool {
@@ -179,6 +181,15 @@ final class TextBrowserStatus {
             isShowActiveError = true
             log("save file: \(error.localizedDescription)")
         }
+    }
+
+    func showNewFileForm() {
+        guard isFolderReady else { return }
+        isShowNewFile = true
+    }
+    
+    func makeNewFile(path: String) {
+        log("make new file: \(path)")
     }
 }
 

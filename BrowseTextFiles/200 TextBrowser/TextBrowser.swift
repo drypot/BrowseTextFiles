@@ -39,7 +39,7 @@ struct TextBrowser: View {
     var body: some View {
         VStack {
             if status.isRootReady {
-                textBrowsesrReady
+                textBrowserView
             } else {
                 Button("Open Folder") {
                     openFolderFromBlank()
@@ -89,7 +89,7 @@ struct TextBrowser: View {
         }
     }
 
-    var textBrowsesrReady: some View {
+    var textBrowserView: some View {
         HSplitView {
             List(status.folders ?? [], children: \.folders, selection: $status.selectedFolder) { folder in
                 NavigationLink(folder.name, value: folder)
@@ -107,7 +107,7 @@ struct TextBrowser: View {
                     TextEditor(text: $buffer.textSetter)
                         .font(.custom(settings.fontName, size: settings.fontSize))
                         .lineSpacing(settings.lineSpacing)
-                        .padding(EdgeInsets(top: 0, leading: 18, bottom: 0, trailing: 18))
+                        .padding(EdgeInsets(top: 8, leading: 18, bottom: 8, trailing: 18))
                 } else {
                     Spacer()
                 }
@@ -116,6 +116,9 @@ struct TextBrowser: View {
             .layoutPriority(1)
         }
         .navigationTitle(status.rootFolder?.name ?? "Browser")
+        .sheet(isPresented: $status.isShowNewFile) {
+            NewFileSheet(status: status)
+        }
         .onChange(of: status.selectedFolder) {
             refreshFolder()
         }
