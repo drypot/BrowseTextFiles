@@ -14,17 +14,16 @@ public final class TextBuffer: Identifiable, Hashable {
     public var url: URL
     public var name: String
 
-    public var text: String
+    public var text: String = ""
 
-    public var isEdited: Bool
+    public var isEdited = false
+    public var hasSaveError = false
 
     public var id: URL { url }
 
     init(url: URL) {
         self.url = url
         self.name = url.lastPathComponent
-        self.text = ""
-        self.isEdited = false
     }
 
     var textSetter: String {
@@ -45,13 +44,14 @@ public final class TextBuffer: Identifiable, Hashable {
 //         try text.write(to: url, atomically: true, encoding: .utf8)
 
         guard let data = text.data(using: .utf8) else { return }
+
+        hasSaveError = true
         let fileHandle = try FileHandle(forWritingTo: url)
-        try fileHandle.seek(toOffset: 0)
+        try fileHandle.truncate(atOffset: 0)
         try fileHandle.write(contentsOf: data)
-        try fileHandle.truncate(atOffset: UInt64(data.count))
-        try fileHandle.synchronize()
         try fileHandle.close()
 
+        hasSaveError = false
         isEdited = false
     }
 

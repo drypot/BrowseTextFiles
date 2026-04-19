@@ -79,7 +79,7 @@ final class TextBrowserStatus {
                 folders = [rootFolder]  // SwiftUI List 에 root folder 를 표시하기 위해 root 용 어레이를 만들어 둔다.
             }
         } catch {
-            activeError = ActiveError(message: "Root Folder Load Error: \(rootURL.lastPathComponent)")
+            activeError = ActiveError(message: error.localizedDescription)
             isShowActiveError = true
             log("load root: \(error.localizedDescription)")
         }
@@ -105,7 +105,7 @@ final class TextBrowserStatus {
                 selectedFolder = folder
             }
         } catch {
-            activeError = ActiveError(message: "Folder Load Error: \(folder.url.lastPathComponent)")
+            activeError = ActiveError(message: error.localizedDescription)
             isShowActiveError = true
             log("load folder: \(error.localizedDescription)")
         }
@@ -149,16 +149,17 @@ final class TextBrowserStatus {
                 }
 
                 selectedFileURL = url
+                log("load file: file loaded, \(fileName)")
             }
         } catch {
-            activeError = ActiveError(message: "File Load Error: \(fileName)")
+            activeError = ActiveError(message: error.localizedDescription)
             isShowActiveError = true
             log("load file: \(error.localizedDescription)")
         }
     }
 
     func saveFileIfEdited() {
-        guard let buffer, buffer.isEdited else { return }
+        guard let buffer, buffer.isEdited, !buffer.hasSaveError else { return }
         saveFile()
     }
 
@@ -174,9 +175,8 @@ final class TextBrowserStatus {
             }
             log("save file: file saved, \(fileName)")
         } catch {
-            activeError = ActiveError(message: "File Save Error: \(fileName)")
+            activeError = ActiveError(message: error.localizedDescription)
             isShowActiveError = true
-            buffer.isEdited = false
             log("save file: \(error.localizedDescription)")
         }
     }
