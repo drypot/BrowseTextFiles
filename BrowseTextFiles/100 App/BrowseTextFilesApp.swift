@@ -35,13 +35,18 @@ struct BrowseTextFilesApp: App {
         }
         .commands {
             CommandGroup(replacing: .newItem) {
+                Button("New File") {
+                    selectedBrowserStatus?.showNewFileForm()
+                }
+                .keyboardShortcut("n", modifiers: .command)
+
                 Button("New Tab") {
-                    newTabFromMenu()
+                    newTab()
                 }
                 .keyboardShortcut("t", modifiers: .command)
 
                 Button("Open Folder...") {
-                    openFolderFromMenu()
+                    openFolder()
                 }
                 .keyboardShortcut("o", modifiers: .command)
 
@@ -52,7 +57,7 @@ struct BrowseTextFilesApp: App {
                     } else {
                         ForEach(urls, id: \.self) { url in
                             Button(url.lastPathComponent) {
-                                openRecentFromMenu(url)
+                                openRecent(url)
                             }
                         }
                         Divider()
@@ -104,65 +109,16 @@ struct BrowseTextFilesApp: App {
             return WindowPlacement(position, size: size)
         }
 
-        Window("Debug Console", id: "console") {
-            LogStoreView()
-                .padding()
-                .frame(minWidth: 150, minHeight: 150)
-        }
-        .commands {
-            CommandGroup(after: .help) {
-                Button("Debug Console") {
-                    openWindow(id: "console")
-                }
-                .keyboardShortcut("c", modifiers: [.command, .option])
-            }
-        }
+        ConsoneWindow()
+        AboutWindow()
 
-        Window("About", id: "about") {
-            let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "-"
-            // let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "-"
-            VStack(spacing: 32) {
-                Image(nsImage: NSApp.applicationIconImage)
-                    .resizable()
-                    .frame(width: 128, height: 128)
-                VStack(spacing: 4) {
-                    Text("Browse Text Files")
-                        .font(.headline)
-                    Text("Version " + version)
-                }
-                VStack(spacing: 4) {
-                    Text("Source code")
-                    Link("https://github.com/drypot/BrowseTextFiles", destination: URL(string: "https://github.com/drypot/BrowseTextFiles")!)
-                }
-                VStack(spacing: 4) {
-                    Text("Email")
-                    Link("drypot@gmail.com", destination: URL(string: "mailto:drypot@gmail.com")!)
-                }
-                Text("© 2026 Kyuhyun Park")
-            }
-            .padding(EdgeInsets(top: 48, leading: 24, bottom: 48, trailing: 24))
-            .frame(width: 320)
-            .containerBackground(.thickMaterial, for: .window)
-            .windowMinimizeBehavior(.disabled)
-        }
-        .windowResizability(.contentSize)
-        .windowStyle(.hiddenTitleBar)
-        .restorationBehavior(.disabled)
-        .commands {
-            CommandGroup(replacing: .appInfo) {
-                Button("About Browse Text Files") {
-                    openWindow(id: "about")
-                }
-            }
-        }
-        
         Settings {
             SettingsView()
                 .environment(settings)
         }
     }
 
-    func newTabFromMenu() {
+    func newTab() {
         if let status = selectedBrowserStatus {
             let initParam = TextBrowser.InitParam(rootURL: status.rootURL, fileURL: status.selectedFileURL)
             openWindow(id: "browser", value: initParam)
@@ -171,7 +127,7 @@ struct BrowseTextFilesApp: App {
         }
     }
 
-    func openFolderFromMenu() {
+    func openFolder() {
         let panel = NSOpenPanel()
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = true
@@ -184,7 +140,7 @@ struct BrowseTextFilesApp: App {
         }
     }
 
-    func openRecentFromMenu(_ url: URL) {
+    func openRecent(_ url: URL) {
         let initParam = TextBrowser.InitParam(rootURL: url)
         openWindow(id: "browser", value: initParam)
     }
