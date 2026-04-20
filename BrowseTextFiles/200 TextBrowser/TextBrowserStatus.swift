@@ -15,10 +15,8 @@ final class TextBrowserStatus {
     private(set) var rootFolder: Folder?
 
     private(set) var folders: [Folder]?
-    var selectedFolder: Folder?
 
     private(set) var folderFileURLs: [URL]?
-    var selectedFileURL: URL?
 
     private(set) var buffer: TextBuffer?
     private var fileMonitor: FileMonitor?
@@ -29,6 +27,18 @@ final class TextBrowserStatus {
     var isShowNewFile = false
 
     private let log = LogStore.shared.log
+
+    var selectedFolder: Folder? {
+        didSet {
+            loadSelectedFolder()
+        }
+    }
+
+    var selectedFileURL: URL? {
+        didSet {
+            loadSelectedFile()
+        }
+    }
 
     var isRootReady: Bool {
         return rootFolder != nil
@@ -43,34 +53,21 @@ final class TextBrowserStatus {
     }
 
     func reloadAll() {
+        saveFileIfEdited()
+        guard !isShowActiveError else { return }
+
         let savedFileURL = selectedFileURL
 
         loadRoot(from: rootURL)
-        loadFolderAndFile(from: savedFileURL)
+        loadFolder(from: savedFileURL)
+        loadFile(from: savedFileURL)
         log("reloadAll:")
     }
 
-    private func resetRoot() {
-        rootURL = nil
+    func loadRoot(from rootURL: URL?) {
+        self.rootURL = nil
         rootFolder = nil
         folders = nil
-        resetFolder()
-    }
-
-    private func resetFolder() {
-        selectedFolder = nil
-        folderFileURLs = nil
-        resetFile()
-    }
-
-    private func resetFile() {
-        selectedFileURL = nil
-        buffer = nil
-        fileMonitor = nil
-    }
-
-    func loadRoot(from rootURL: URL?) {
-        resetRoot()
 
         guard let rootURL else { return }
         do {
@@ -78,8 +75,9 @@ final class TextBrowserStatus {
                 rootFolder = try FolderTreeBuilder().build(from: rootURL)
                 guard let rootFolder else { return }
                 self.rootURL = rootURL
-                folders = [rootFolder]  // SwiftUI List 에 root folder 를 표시하기 위해 root 용 어레이를 만들어 둔다.
+                folders = [rootFolder]
             }
+            log("load root: \(rootURL.lastPathComponent)")
         } catch {
             activeError = ActiveError(message: error.localizedDescription)
             isShowActiveError = true
@@ -87,25 +85,47 @@ final class TextBrowserStatus {
         }
     }
 
+    // data driven 방식으로,
+    // selectedFolder 를 변경하면 다른 프로퍼티들을 자동 로딩한다.
+
+    func loadFolder(from url: URL?) {
+        guard let rootFolder else { return }
+        guard let url else { return }
+
+        let folderURL = url.deletingLastPathComponent()
+        if let folder = rootFolder.findChild(with: folderURL) {
+            selectedFolder = folder
+        } else {
+            selectedFolder = nil
+        }
+    }
+
+    func loadFile(from url: URL?) {
+        guard rootFolder != nil else { return }
+        guard let url else { return }
+
+        if let folderFileURLs, folderFileURLs.contains(url) {
+            selectedFileURL = url
+        } else {
+            selectedFileURL = nil
+        }
+    }
+
     func loadRootFolder() {
-        loadFolder(from: rootFolder)
+        selectedFolder = rootFolder
     }
 
-    func loadSelectedFolder() {
-        loadFolder(from: selectedFolder)
-    }
-
-    func loadFolder(from folder: Folder?) {
-        resetFolder()
+    private func loadSelectedFolder() {
+        folderFileURLs = nil
 
         guard let rootURL else { return }
-        guard let folder else { return }
+        guard let folder = selectedFolder else { return }
         do {
             try withSecurityScope(rootURL) {
                 folderFileURLs = try TextFileURLCollector().collectShallowly(from: folder.url)
                 folderFileURLs?.sort { $0.lastPathComponent < $1.lastPathComponent }
-                selectedFolder = folder
             }
+            log("load folder: \(folder.name)")
         } catch {
             activeError = ActiveError(message: error.localizedDescription)
             isShowActiveError = true
@@ -113,30 +133,15 @@ final class TextBrowserStatus {
         }
     }
 
-    func loadFolderAndFile(from url: URL?) {
-        resetFolder()
+    private func loadSelectedFile() {
+        saveFileIfEdited()
+        guard !isShowActiveError else { return }
 
-        guard let rootFolder else { return }
-        guard let url else { return }
-
-        let folderURL = url.deletingLastPathComponent()
-        guard let folder = rootFolder.findChild(with: folderURL) else { return }
-        loadFolder(from: folder)
-
-        if let folderFileURLs, folderFileURLs.contains(url) {
-            loadFile(from: url)
-        }
-    }
-
-    func loadSelectedFile() {
-        loadFile(from: selectedFileURL)
-    }
-
-    func loadFile(from url: URL?) {
-        resetFile()
+        buffer = nil
+        fileMonitor = nil
 
         guard let rootURL else { return }
-        guard let url else { return }
+        guard let url = selectedFileURL else { return }
         let fileName = url.lastPathComponent
         do {
             try withSecurityScope(rootURL) {
@@ -144,14 +149,13 @@ final class TextBrowserStatus {
                 try buffer.loadContent()
                 self.buffer = buffer
 
-                self.fileMonitor = FileMonitor()
+                fileMonitor = FileMonitor()
                 fileMonitor?.startMonitoring(url) { [weak self] _ in
                     guard let self else { return }
-                    self.loadFile(from: url)
+                    self.loadSelectedFile()
                 }
 
-                selectedFileURL = url
-                log("load file: file loaded, \(fileName)")
+                log("load file: \(fileName)")
             }
         } catch {
             activeError = ActiveError(message: error.localizedDescription)
@@ -175,7 +179,7 @@ final class TextBrowserStatus {
                     try buffer.saveContent()
                 }
             }
-            log("save file: file saved, \(fileName)")
+            log("save file: \(fileName)")
         } catch {
             activeError = ActiveError(message: error.localizedDescription)
             isShowActiveError = true
@@ -184,12 +188,36 @@ final class TextBrowserStatus {
     }
 
     func showNewFileForm() {
+        saveFileIfEdited()
+        guard !isShowActiveError else { return }
+
         guard isFolderReady else { return }
         isShowNewFile = true
     }
     
     func makeNewFile(path: String) {
-        log("make new file: \(path)")
+        guard let rootURL else { return }
+        let url = rootURL.appending(component: path)
+        let fileManager = FileManager.default
+        do {
+            try withSecurityScope(rootURL) {
+                if !fileManager.fileExists(atPath: url.path) {
+                    let folderURL = url.deletingLastPathComponent()
+                    if !fileManager.fileExists(atPath: folderURL.path) {
+                        try fileManager.createDirectory(at: folderURL, withIntermediateDirectories: true, attributes: nil)
+                        loadRoot(from: rootURL)
+                    }
+                    try "".write(to: url, atomically: true, encoding: .utf8)
+                    log("new file: \(path)")
+                }
+                loadFolder(from: url)
+                loadFile(from: url)
+            }
+        } catch {
+            activeError = ActiveError(message: error.localizedDescription)
+            isShowActiveError = true
+            log("new file: \(error.localizedDescription)")
+        }
     }
 }
 

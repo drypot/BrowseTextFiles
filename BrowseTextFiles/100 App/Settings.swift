@@ -11,6 +11,11 @@ import Observation
 @Observable
 class SettingsData {
 
+    private let newFileTemplateDefaults = [
+        "{current-folder}/Untitled.txt",
+        "{year}/{month}/{year}-{month}-{day}-{weekday-short}.txt",
+    ]
+
     var fontName: String {
         didSet {
             UserDefaults.standard.set(fontName, forKey: "fontName")
@@ -60,7 +65,7 @@ class SettingsData {
 
         self.autoSavePerSeconds = Self.int(forKey: "autoSavePerSeconds", defaultValue: 10)
 
-        self.newFileTemplates = Self.stringArray(forKey: "newFileTemplates", defaultValue: ["template1", "template2", "template3"], minSize: 5)
+        self.newFileTemplates = Self.stringArray(forKey: "newFileTemplates", defaultValue: newFileTemplateDefaults, minSize: 5)
         self.newFileTemplateIndex = Self.int(forKey: "newFileTemplateIndex", defaultValue: 0)
 
         recentDocumentURLs = NSDocumentController.shared.recentDocumentURLs
@@ -99,6 +104,11 @@ class SettingsData {
     func clearRecentDocuments() {
         NSDocumentController.shared.clearRecentDocuments(nil)
         recentDocumentURLs = NSDocumentController.shared.recentDocumentURLs
+    }
+
+    func resetNewFileTemplatesToDefaults() {
+        let minSize = self.newFileTemplates.count
+        self.newFileTemplates = Self.stringArray(forKey: "_NoneKey_", defaultValue: newFileTemplateDefaults, minSize: minSize)
     }
 }
 

@@ -27,7 +27,7 @@ struct NewFileSheet: View {
                 .font(.headline)
                 .padding()
             Form {
-                Section(header: Text("File Path")) {
+                Section(header: Text("Relative file path from the root")) {
                     TextField("", text: $newFilePath)
                         .frame(maxWidth: .infinity)
                         .labelsHidden()
@@ -35,8 +35,8 @@ struct NewFileSheet: View {
                 }
                 Section(header: Text("Templates")) {
                     @Bindable var settings = settings
-                    let count = settings.newFileTemplates.count
-                    ForEach(0..<count, id: \.self) { (index:Int) in
+                    let range = 0 ..< settings.newFileTemplates.count
+                    ForEach(range, id: \.self) { index in
                         HStack {
                             let selected = settings.newFileTemplateIndex == index
                             Image(systemName: selected ? "largecircle.fill.circle" : "circle")
@@ -49,7 +49,7 @@ struct NewFileSheet: View {
                                 .frame(maxWidth: .infinity)
                                 .labelsHidden()
                                 .textFieldStyle(.roundedBorder)
-                                .onChange(of: settings.newFileTemplates[index]) { _, newValue in
+                                .onChange(of: settings.newFileTemplates[index]) {
                                     if selected {
                                         updateNewFilePath()
                                     }
@@ -59,13 +59,16 @@ struct NewFileSheet: View {
                     }
                 }
                 Section(header: Text("Expressions")) {
-                    Text(example())
+                    Text(expressionExamples())
                         .textSelection(.enabled)
                 }
             }
             .formStyle(.grouped)
 
             HStack {
+                Button("Reset templates to defaults") {
+                    settings.resetNewFileTemplatesToDefaults()
+                }
                 Spacer()
                 Button("Cancel") {
                     dismiss()
@@ -102,7 +105,7 @@ struct NewFileSheet: View {
         newFilePath = expand(template: template)
     }
 
-    func example() -> String {
+    func expressionExamples() -> String {
         let exps = ["{year}", "{month}", "{day}", "{hour}", "{minute}", "{second}", "{weekday}", "{weekday-short}", "{current-folder}"]
         var result = ""
         for exp in exps {
@@ -124,7 +127,7 @@ struct NewFileSheet: View {
         let weekday = components.weekday ?? 0
         let rootPath = status.rootURL?.path ?? ""
         let folderPath = status.selectedFolder?.url.path ?? ""
-        let relativeFolderPath = String(folderPath.dropFirst(rootPath.count + 1))
+        let relativeFolderPath = rootPath == folderPath ? "." : String(folderPath.dropFirst(rootPath.count + 1))
         return template
             .replacingOccurrences(of: "{year}", with: year.formatted(.number.grouping(.never).precision(.integerLength(4))))
             .replacingOccurrences(of: "{month}", with: month.formatted(.number.precision(.integerLength(2))))

@@ -119,11 +119,8 @@ struct TextBrowser: View {
         .sheet(isPresented: $status.isShowNewFile) {
             NewFileSheet(status: status)
         }
-        .onChange(of: status.selectedFolder) {
-            refreshFolder()
-        }
-        .onChange(of: status.selectedFileURL) {
-            loadFile()
+        .onChange(of: status.selectedFileURL) { _, newValue in
+            save(sceneFileURL: newValue)
         }
     }
 
@@ -135,7 +132,8 @@ struct TextBrowser: View {
             guard status.isRootReady else { return }
 
             if let fileURL = loadSceneFileURL() {
-                status.loadFolderAndFile(from: fileURL)
+                status.loadFolder(from: fileURL)
+                status.loadFile(from: fileURL)
             }
             if !status.isFolderReady {
                 status.loadRootFolder()
@@ -150,7 +148,8 @@ struct TextBrowser: View {
             guard status.isRootReady else { return }
 
             if let fileURL = initParam?.fileURL {
-                status.loadFolderAndFile(from: fileURL)
+                status.loadFolder(from: fileURL)
+                status.loadFile(from: fileURL)
             }
             if !status.isFolderReady {
                 status.loadRootFolder()
@@ -178,18 +177,6 @@ struct TextBrowser: View {
         }
     }
 
-    func refreshFolder() {
-        status.loadSelectedFolder()
-    }
-
-    func loadFile() {
-        status.saveFileIfEdited()
-        status.loadSelectedFile()
-        if let url = status.selectedFileURL {
-            save(sceneFileURL: url)
-        }
-    }
-
     func autoSave() async {
         while true {
             let seconds = UInt64(settings.autoSavePerSeconds)
@@ -214,8 +201,10 @@ struct TextBrowser: View {
                         bookmarkDataIsStale: &isStale)
     }
 
-    func save(sceneFileURL: URL) {
-        sceneFileURLData = try? sceneFileURL.bookmarkData(options: .withSecurityScope)
+    func save(sceneFileURL url: URL?) {
+        if let url {
+            sceneFileURLData = try? url.bookmarkData(options: .withSecurityScope)
+        }
     }
 
     func loadSceneFileURL() -> URL? {
