@@ -18,6 +18,7 @@ public final class TextBuffer: Identifiable, Hashable {
 
     public var isEdited = false
     public var hasSaveError = false
+    public var loadError: String? = nil
 
     public var id: URL { url }
 

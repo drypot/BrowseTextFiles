@@ -53,11 +53,9 @@ final class TextBrowserStatus {
     }
 
     func reloadAll() {
-        saveFileIfEdited()
-        guard !isShowActiveError else { return }
+        guard saveFileAndCheckResult() else { return }
 
         let savedFileURL = selectedFileURL
-
         loadRoot(from: rootURL)
         loadFolder(from: savedFileURL)
         loadFile(from: savedFileURL)
@@ -133,9 +131,10 @@ final class TextBrowserStatus {
         }
     }
 
-    private func loadSelectedFile() {
-        saveFileIfEdited()
-        guard !isShowActiveError else { return }
+    private func loadSelectedFile(skipAutoSave: Bool = false) {
+        if !skipAutoSave {
+            guard saveFileAndCheckResult() else { return }
+        }
 
         buffer = nil
         fileMonitor = nil
@@ -143,25 +142,36 @@ final class TextBrowserStatus {
         guard let rootURL else { return }
         guard let url = selectedFileURL else { return }
         let fileName = url.lastPathComponent
+
+        let buffer = TextBuffer(url: url)
+        self.buffer = buffer
         do {
             try withSecurityScope(rootURL) {
-                let buffer = TextBuffer(url: url)
                 try buffer.loadContent()
-                self.buffer = buffer
-
+                
                 fileMonitor = FileMonitor()
                 fileMonitor?.startMonitoring(url) { [weak self] _ in
                     guard let self else { return }
-                    self.loadSelectedFile()
+                    self.loadSelectedFile(skipAutoSave: true)
                 }
 
                 log("load file: \(fileName)")
             }
         } catch {
-            activeError = ActiveError(message: error.localizedDescription)
+            let message = error.localizedDescription
+
+            buffer.loadError = message
+
+            activeError = ActiveError(message: message)
             isShowActiveError = true
-            log("load file: \(error.localizedDescription)")
+
+            log("load file: \(message)")
         }
+    }
+
+    func saveFileAndCheckResult() -> Bool {
+        saveFileIfEdited()
+        return !isShowActiveError
     }
 
     func saveFileIfEdited() {
@@ -172,6 +182,7 @@ final class TextBrowserStatus {
     func saveFile() {
         guard let rootURL else { return }
         guard let buffer else { return }
+        guard buffer.loadError == nil else { return }
         let fileName = buffer.url.lastPathComponent
         do {
             try withSecurityScope(rootURL) {
@@ -188,9 +199,7 @@ final class TextBrowserStatus {
     }
 
     func showNewFileForm() {
-        saveFileIfEdited()
-        guard !isShowActiveError else { return }
-
+        guard saveFileAndCheckResult() else { return }
         guard isFolderReady else { return }
         isShowNewFile = true
     }

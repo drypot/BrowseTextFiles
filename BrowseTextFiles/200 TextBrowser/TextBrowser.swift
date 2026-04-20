@@ -102,17 +102,22 @@ struct TextBrowser: View {
             .frame(minWidth: 180, idealWidth: 260)
 
             Group {
-                if let buffer = status.buffer {
+                if let loadError = status.buffer?.loadError {
+                    Text(loadError)
+                        .font(.custom(settings.fontName, size: settings.fontSize))
+                        .lineSpacing(settings.lineSpacing)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                } else if let buffer = status.buffer {
                     @Bindable var buffer = buffer
                     TextEditor(text: $buffer.textSetter)
                         .font(.custom(settings.fontName, size: settings.fontSize))
                         .lineSpacing(settings.lineSpacing)
-                        .padding(EdgeInsets(top: 8, leading: 18, bottom: 8, trailing: 18))
                 } else {
                     Spacer()
                 }
             }
-            .frame(minWidth: 300, maxWidth: .infinity)
+            .padding(EdgeInsets(top: 8, leading: 18, bottom: 8, trailing: 18))
+            .frame(minWidth: 300, maxWidth: .infinity, maxHeight: .infinity)
             .layoutPriority(1)
         }
         .navigationTitle(status.rootFolder?.name ?? "Browser")
