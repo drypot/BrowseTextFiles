@@ -31,11 +31,11 @@ public final class Folder: Identifiable, Comparable, Hashable {
         hasher.combine(id)
     }
 
-    public func findChild(with url: URL) -> Folder? {
+    public func findFolder(with url: URL) -> Folder? {
         if self.url == url { return self }
         if let folders {
             for folder in folders {
-                if let found = folder.findChild(with: url) {
+                if let found = folder.findFolder(with: url) {
                     return found
                 }
             }

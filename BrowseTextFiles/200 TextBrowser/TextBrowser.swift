@@ -91,12 +91,12 @@ struct TextBrowser: View {
 
     var textBrowserView: some View {
         HSplitView {
-            List(status.folderTreeFolders, children: \.folders, selection: status.selectedFolderBinding()) { folder in
+            List(status.foldersForList, children: \.folders, selection: status.selectedFolderBinding()) { folder in
                 NavigationLink(folder.name, value: folder)
             }
             .frame(minWidth: 180, idealWidth: 260)
 
-            List(status.folderFileURLs, id: \.self, selection: status.selectedFileURLBinding()) { file in
+            List(status.fileURLsForList, id: \.self, selection: status.selectedFileURLBinding()) { file in
                 NavigationLink(file.lastPathComponent, value: file)
             }
             .frame(minWidth: 180, idealWidth: 260)
@@ -120,7 +120,7 @@ struct TextBrowser: View {
             .frame(minWidth: 300, maxWidth: .infinity, maxHeight: .infinity)
             .layoutPriority(1)
         }
-        .navigationTitle(status.rootFolder?.name ?? "Browser")
+        .navigationTitle(status.rootName ?? "Browser")
         .sheet(isPresented: $status.isShowNewFile) {
             NewFileSheet(status: status)
         }
