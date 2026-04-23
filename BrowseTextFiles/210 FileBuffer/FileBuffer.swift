@@ -1,5 +1,5 @@
 //
-//  TextBuffer.swift
+//  FileBuffer.swift
 //  BrowseTextFiles
 //
 //  Created by Kyuhyun Park on 3/1/26.
@@ -10,7 +10,7 @@ import UniformTypeIdentifiers
 import MyLibrary
 
 @Observable
-public final class TextBuffer: Identifiable, Hashable {
+public final class FileBuffer: Identifiable, Hashable {
     public var url: URL
     public var name: String
 
@@ -56,7 +56,7 @@ public final class TextBuffer: Identifiable, Hashable {
         isEdited = false
     }
 
-    public static func == (lhs: TextBuffer, rhs: TextBuffer) -> Bool {
+    public static func == (lhs: FileBuffer, rhs: FileBuffer) -> Bool {
         return lhs.id == rhs.id
     }
 

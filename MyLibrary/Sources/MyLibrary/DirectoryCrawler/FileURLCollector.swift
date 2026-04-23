@@ -6,15 +6,16 @@
 //
 
 import Foundation
+import UniformTypeIdentifiers
 
 public struct FileURLCollector {
     public init() {}
 
-    public func collectShallowly(from url: URL) throws -> [URL] {
+    public func collectShallowly(from url: URL, filter: (UTType) -> Bool) throws -> [URL] {
         let fileManager = FileManager.default
         var results: [URL] = []
 
-        let keys: [URLResourceKey] = [.isRegularFileKey]
+        let keys: [URLResourceKey] = [.isRegularFileKey, .contentTypeKey]
         let keySet = Set(keys)
         let options: FileManager.DirectoryEnumerationOptions = [.skipsHiddenFiles]
 
@@ -28,7 +29,11 @@ public struct FileURLCollector {
             try autoreleasepool {
                 let values = try item.resourceValues(forKeys: keySet)
                 if values.isRegularFile == true {
-                    results.append(item)
+                    if let contentType = values.contentType {
+                        if filter(contentType) {
+                            results.append(item)
+                        }
+                    }
                 }
             }
         }

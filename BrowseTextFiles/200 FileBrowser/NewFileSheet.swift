@@ -19,7 +19,7 @@ struct NewFileSheet: View {
 
     @State private var newFilePath = ""
 
-    @Bindable var status: TextBrowserStatus
+    @Bindable var status: FileBrowserStatus
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {

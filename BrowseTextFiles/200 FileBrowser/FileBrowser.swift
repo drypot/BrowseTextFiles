@@ -1,5 +1,5 @@
 //
-//  TextBrowser.swift
+//  FileBrowser.swift
 //  BrowseTextFiles
 //
 //  Created by Kyuhyun Park on 7/6/25.
@@ -8,13 +8,12 @@
 import SwiftUI
 import MyLibrary
 
-
-struct TextBrowser: View {
+struct FileBrowser: View {
     @Environment(SettingsData.self) var settings
     @SceneStorage("rootURLData") private var sceneRootURLData: Data?
     @SceneStorage("fileURLData") private var sceneFileURLData: Data?
 
-    @State private var status = TextBrowserStatus()
+    @State private var status = FileBrowserStatus()
 
     public struct InitParam: Hashable, Codable {
         let id: UUID
@@ -102,12 +101,12 @@ struct TextBrowser: View {
             .frame(minWidth: 180, idealWidth: 260)
 
             Group {
-                if let loadError = status.buffer?.loadError {
+                if let loadError = status.fileBuffer?.loadError {
                     Text(loadError)
                         .font(.custom(settings.fontName, size: settings.fontSize))
                         .lineSpacing(settings.lineSpacing)
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-                } else if let buffer = status.buffer {
+                } else if let buffer = status.fileBuffer {
                     @Bindable var buffer = buffer
                     TextEditor(text: $buffer.textSetter)
                         .font(.custom(settings.fontName, size: settings.fontSize))
@@ -220,7 +219,7 @@ struct TextBrowser: View {
 
 #Preview {
 //    let settings = SettingsData()
-//    TextBrowser()
+//    FileBrowser()
 //        .frame(maxWidth: .infinity, maxHeight: .infinity)
 //        .environment(settings)
 }

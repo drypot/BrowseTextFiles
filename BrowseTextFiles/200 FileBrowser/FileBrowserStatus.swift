@@ -1,5 +1,5 @@
 //
-//  TextBrowserStatus.swift
+//  FileBrowserStatus.swift
 //  BrowseTextFiles
 //
 //  Created by Kyuhyun Park on 3/1/26.
@@ -10,14 +10,14 @@ import UniformTypeIdentifiers
 import MyLibrary
 
 @Observable
-final class TextBrowserStatus {
+final class FileBrowserStatus {
     private var rootFolder: Folder?
     public var selectedFolder: Folder?
 
     private(set) var fileURLs: [URL]?
     public var selectedFileURL: URL?
 
-    private(set) var buffer: TextBuffer?
+    private(set) var fileBuffer: FileBuffer?
     private var fileMonitor: FileMonitor?
 
     var activeError: ActiveError?
@@ -122,7 +122,10 @@ final class TextBrowserStatus {
         do {
             guard let rootURL else { return }
             try withSecurityScope(rootURL) {
-                fileURLs = try TextFileURLCollector().collectShallowly(from: folderURL)
+                fileURLs = try FileURLCollector().collectShallowly(from: folderURL) { contentType in
+                    // contentType.conforms(to: .text)
+                    return true
+                }
                 fileURLs?.sort { $0.lastPathComponent < $1.lastPathComponent }
             }
             log("load folder: \(folderURL.lastPathComponent)")
@@ -161,14 +164,14 @@ final class TextBrowserStatus {
     // MARK: - Buffer
 
     var isBufferReady: Bool {
-        buffer != nil
+        fileBuffer != nil
     }
 
     func resetFileBuffer() {
         saveFileIfEdited()
         if isShowActiveError { return }
 
-        buffer = nil
+        fileBuffer = nil
         fileMonitor = nil
     }
 
@@ -180,12 +183,12 @@ final class TextBrowserStatus {
     }
 
     private func loadFileLoop(from url: URL) {
-        buffer = TextBuffer(url: url)
+        fileBuffer = FileBuffer(url: url)
         fileMonitor = nil
         do {
             guard let rootURL else { return }
             try withSecurityScope(rootURL) {
-                try buffer!.loadContent()
+                try fileBuffer!.loadContent()
 
                 fileMonitor = FileMonitor()
                 fileMonitor!.startMonitoring(url) { [weak self] _ in
@@ -197,7 +200,7 @@ final class TextBrowserStatus {
             }
         } catch {
             let message = error.localizedDescription
-            buffer!.loadError = message
+            fileBuffer!.loadError = message
             activeError = ActiveError(message: message)
             isShowActiveError = true
             log("load file: \(message)")
@@ -226,7 +229,7 @@ final class TextBrowserStatus {
         if isShowActiveError { return }
 
         let folderURL = selectedFolder?.url
-        let fileURL = buffer?.url
+        let fileURL = fileBuffer?.url
 
         reloadFolderTree()
         if isShowActiveError { return }
@@ -243,21 +246,21 @@ final class TextBrowserStatus {
     // MARK: - Save File
 
     func saveFileIfEdited() {
-        guard let buffer, buffer.isEdited, !buffer.hasSaveError else { return }
+        guard let fileBuffer, fileBuffer.isEdited, !fileBuffer.hasSaveError else { return }
         saveFile()
     }
 
     func saveFile() {
-        guard let buffer else { return }
-        if buffer.loadError != nil { return }
+        guard let fileBuffer else { return }
+        if fileBuffer.loadError != nil { return }
         do {
             guard let rootURL else { return }
             try withSecurityScope(rootURL) {
                 try fileMonitor?.disableMonitoringWhile {
-                    try buffer.saveContent()
+                    try fileBuffer.saveContent()
                 }
             }
-            log("save file: \(buffer.url.lastPathComponent)")
+            log("save file: \(fileBuffer.url.lastPathComponent)")
         } catch {
             let message = error.localizedDescription
             activeError = ActiveError(message: message)

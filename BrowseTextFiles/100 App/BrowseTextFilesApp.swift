@@ -11,13 +11,13 @@ import MyLibrary
 @main
 struct BrowseTextFilesApp: App {
     @Environment(\.openWindow) private var openWindow
-    @FocusedValue(\.selectedBrowserStatus) var selectedBrowserStatus: TextBrowserStatus?
+    @FocusedValue(\.selectedBrowserStatus) var selectedBrowserStatus: FileBrowserStatus?
 
     @State private var settings = SettingsData()
 
     var body: some Scene {
-        WindowGroup("Browser", id: "browser", for: TextBrowser.InitParam.self) { $initParam in
-            TextBrowser(initParam)
+        WindowGroup("Browser", id: "browser", for: FileBrowser.InitParam.self) { $initParam in
+            FileBrowser(initParam)
                 .frame(maxWidth: .infinity, maxHeight: .infinity) // 빈 화면에서 drag & drop 받기 위해
                 .environment(settings)
 
@@ -120,7 +120,7 @@ struct BrowseTextFilesApp: App {
 
     func newTab() {
         if let status = selectedBrowserStatus {
-            let initParam = TextBrowser.InitParam(rootURL: status.rootURL, fileURL: status.selectedFileURL)
+            let initParam = FileBrowser.InitParam(rootURL: status.rootURL, fileURL: status.selectedFileURL)
             openWindow(id: "browser", value: initParam)
         } else {
             openWindow(id: "browser")
@@ -134,14 +134,14 @@ struct BrowseTextFilesApp: App {
         panel.canChooseFiles = false
         if panel.runModal() == .OK {
             if let url = panel.url {
-                let initParam = TextBrowser.InitParam(rootURL: url)
+                let initParam = FileBrowser.InitParam(rootURL: url)
                 openWindow(id: "browser", value: initParam)
             }
         }
     }
 
     func openRecent(_ url: URL) {
-        let initParam = TextBrowser.InitParam(rootURL: url)
+        let initParam = FileBrowser.InitParam(rootURL: url)
         openWindow(id: "browser", value: initParam)
     }
 
@@ -158,5 +158,5 @@ struct BrowseTextFilesApp: App {
 }
 
 extension FocusedValues {
-    @Entry var selectedBrowserStatus: TextBrowserStatus? = nil
+    @Entry var selectedBrowserStatus: FileBrowserStatus? = nil
 }
