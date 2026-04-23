@@ -91,12 +91,12 @@ struct TextBrowser: View {
 
     var textBrowserView: some View {
         HSplitView {
-            List(status.folders ?? [], children: \.folders, selection: $status.selectedFolder) { folder in
+            List(status.folderTreeFolders, children: \.folders, selection: status.selectedFolderBinding()) { folder in
                 NavigationLink(folder.name, value: folder)
             }
             .frame(minWidth: 180, idealWidth: 260)
 
-            List(status.folderFileURLs ?? [], id: \.self, selection: $status.selectedFileURL) { file in
+            List(status.folderFileURLs, id: \.self, selection: status.selectedFileURLBinding()) { file in
                 NavigationLink(file.lastPathComponent, value: file)
             }
             .frame(minWidth: 180, idealWidth: 260)
@@ -133,15 +133,13 @@ struct TextBrowser: View {
         if let rootURL = loadSceneRootURL() {
             log("restore folder: \(rootURL.lastPathComponent)")
 
-            status.loadRoot(from: rootURL)
-            guard status.isRootReady else { return }
+            status.loadFolderTree(from: rootURL)
+            if !status.isRootReady { return }
 
             if let fileURL = loadSceneFileURL() {
-                status.loadFolder(from: fileURL)
-                status.loadFile(from: fileURL)
-            }
-            if !status.isFolderReady {
-                status.loadRootFolder()
+                status.updateSelectedFolderAndFile(with: fileURL)
+            } else {
+                status.updateSelectedFolderToRoot()
             }
             return
         }
@@ -149,15 +147,13 @@ struct TextBrowser: View {
         if let rootURL = initParam?.rootURL {
             log("open folder: \(rootURL.lastPathComponent)")
 
-            status.loadRoot(from: rootURL)
-            guard status.isRootReady else { return }
+            status.loadFolderTree(from: rootURL)
+            if !status.isRootReady { return }
 
             if let fileURL = initParam?.fileURL {
-                status.loadFolder(from: fileURL)
-                status.loadFile(from: fileURL)
-            }
-            if !status.isFolderReady {
-                status.loadRootFolder()
+                status.updateSelectedFolderAndFile(with: fileURL)
+            } else {
+                status.updateSelectedFolderToRoot()
             }
 
             save(sceneRootURL: rootURL)
@@ -175,8 +171,8 @@ struct TextBrowser: View {
         panel.canChooseFiles = false
         if panel.runModal() == .OK, let rootURL = panel.url {
             log("open folder: \(rootURL.lastPathComponent)")
-            status.loadRoot(from: rootURL)
-            status.loadRootFolder()
+            status.loadFolderTree(from: rootURL)
+            status.updateSelectedFolderToRoot()
             save(sceneRootURL: rootURL)
             settings.addRecentDocumentURL(rootURL)
         }
