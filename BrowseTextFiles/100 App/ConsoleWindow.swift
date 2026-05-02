@@ -1,5 +1,5 @@
 //
-//  ConsoneWindow.swift
+//  ConsoleWindow.swift
 //  Browse Text Files
 //
 //  Created by Kyuhyun Park on 4/19/26.
@@ -8,7 +8,7 @@
 import SwiftUI
 import MyLibrary
 
-struct ConsoneWindow: Scene {
+struct ConsoleWindow: Scene {
     @Environment(\.openWindow) private var openWindow
 
     var body: some Scene {

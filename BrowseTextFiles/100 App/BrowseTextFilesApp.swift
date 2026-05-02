@@ -109,7 +109,7 @@ struct BrowseTextFilesApp: App {
             return WindowPlacement(position, size: size)
         }
 
-        ConsoneWindow()
+        ConsoleWindow()
         AboutWindow()
 
         Settings {

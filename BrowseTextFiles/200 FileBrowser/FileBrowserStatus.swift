@@ -11,11 +11,12 @@ import MyLibrary
 
 @Observable
 final class FileBrowserStatus {
-    private var rootFolder: Folder?
-    public var selectedFolder: Folder?
+    private(set) var rootFolder: Folder?
+    private(set) var selectedFolder: Folder?
+    private(set) var expandedFolders: Set<URL> = []
 
     private(set) var fileURLs: [URL]?
-    public var selectedFileURL: URL?
+    private(set) var selectedFileURL: URL?
 
     private(set) var fileBuffer: FileBuffer?
     private var fileMonitor: FileMonitor?
@@ -52,6 +53,7 @@ final class FileBrowserStatus {
     func resetFolderTree() {
         rootFolder = nil
         selectedFolder = nil
+        //expandedFolders.removeAll()
     }
 
     func loadFolderTree(from rootURL: URL) {
@@ -59,6 +61,7 @@ final class FileBrowserStatus {
         do {
             try withSecurityScope(rootURL) {
                 rootFolder = try FolderTreeBuilder().build(from: rootURL)
+                expandFolder(with: rootURL)
             }
             log("load root: \(rootURL.lastPathComponent)")
         } catch {
@@ -77,6 +80,8 @@ final class FileBrowserStatus {
         }
     }
 
+    // MARK: - Folder Tree, Selection
+
     func selectedFolderBinding() -> Binding<Folder?> {
         Binding<Folder?>(
             get: { self.selectedFolder },
@@ -84,7 +89,7 @@ final class FileBrowserStatus {
         )
     }
 
-    private func updateSelectedFolder(to folder: Folder?) {
+    func updateSelectedFolder(to folder: Folder?) {
         selectedFolder = folder
         if let folder {
             loadFileList(from: folder.url)
@@ -93,13 +98,155 @@ final class FileBrowserStatus {
         }
     }
 
-    private func updateSelectedFolder(with url: URL) {
+    func updateSelectedFolder(with url: URL) {
         let folder = rootFolder?.findFolder(with: url)
         updateSelectedFolder(to: folder)
     }
 
     func updateSelectedFolderToRoot() {
         updateSelectedFolder(to: rootFolder)
+    }
+
+    func moveDownSelectedFolder() {
+        guard let rootFolder else { return }
+        var previous: Folder?
+
+        func findNext(current: Folder) -> Folder? {
+            if previous == selectedFolder {
+                return current
+            }
+            previous = current
+
+            if let children = current.folders, isFolderExpanded(for: current.url) {
+                for child in children {
+                    if let result = findNext(current: child) {
+                        return result
+                    }
+                }
+            }
+
+            return nil
+        }
+
+        guard let result = findNext(current: rootFolder) else { return }
+        updateSelectedFolder(to: result)
+    }
+
+    func moveUpSelectedFolder() {
+        guard let rootFolder else { return }
+        var previous: Folder?
+
+        func findPrevious(current: Folder) -> Folder? {
+            if current == selectedFolder {
+                return previous
+            }
+            previous = current
+
+            if let children = current.folders, isFolderExpanded(for: current.url) {
+                for child in children {
+                    if let result = findPrevious(current: child) {
+                        return result
+                    }
+                }
+            }
+
+            return nil
+        }
+
+        guard let result = findPrevious(current: rootFolder) else { return }
+        updateSelectedFolder(to: result)
+    }
+
+    func moveToParentFolder() {
+        guard let rootFolder else { return }
+        guard let selectedFolder else { return }
+
+        func findParent(parent: Folder?, current: Folder) -> Folder? {
+            if current == selectedFolder {
+                return parent
+            }
+
+            if let children = current.folders, isFolderExpanded(for: current.url) {
+                for child in children {
+                    if let result = findParent(parent: current, current: child) {
+                        return result
+                    }
+                }
+            }
+
+            return nil
+        }
+
+        if let result = findParent(parent: nil, current: rootFolder) {
+            updateSelectedFolder(to: result)
+        }
+    }
+
+    // MARK: - Folder Tree, Folding
+
+    func isFolderExpanded(for url: URL) -> Bool {
+        expandedFolders.contains(url)
+    }
+
+    func isFolderExpandedBinding(for url: URL) -> Binding<Bool> {
+        Binding<Bool>(
+            get: { self.isFolderExpanded(for: url) },
+            set: {
+                if $0 {
+                    self.expandFolder(with: url)
+                } else {
+                    self.collapseFolder(with: url)
+                }
+            }
+        )
+    }
+
+    func expandFolder(with url: URL) {
+        expandedFolders.insert(url)
+    }
+
+    func collapseFolder(with url: URL) {
+        expandedFolders.remove(url)
+    }
+
+    func toggleFolder(with url: URL) {
+        if isFolderExpanded(for: url) {
+            collapseFolder(with: url)
+        } else {
+            expandFolder(with: url)
+        }
+    }
+
+    func expandSelectedFolder() {
+        guard let selectedFolder else { return }
+
+        if selectedFolder.folders != nil {
+            expandFolder(with: selectedFolder.url)
+            print("do")
+        }
+    }
+
+    func collapseSelectedFolder() {
+        guard let selectedFolder else { return }
+
+        if selectedFolder.folders != nil, isFolderExpanded(for: selectedFolder.url) {
+            collapseFolder(with: selectedFolder.url)
+        } else {
+            moveToParentFolder()
+        }
+    }
+
+    private func expandFolders(for folderURL: URL) {
+        guard let rootURL else { return }
+        let rootCount = rootURL.pathComponents.count
+        let folderCount = folderURL.pathComponents.count
+        let count = folderCount - rootCount
+
+        var loopURL = folderURL
+        for _ in 0 ..< count {
+            expandFolder(with: loopURL)
+            loopURL = loopURL.deletingLastPathComponent()
+        }
     }
 
     // MARK: - File List
@@ -217,6 +364,7 @@ final class FileBrowserStatus {
 
         if selectedFolder != nil {
             updateSelectedFileURL(withChecked: url)
+            expandFolders(for: folderURL)
         } else {
             updateSelectedFolder(to: rootFolder)
         }

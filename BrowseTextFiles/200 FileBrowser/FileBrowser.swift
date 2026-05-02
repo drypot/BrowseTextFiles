@@ -37,7 +37,7 @@ struct FileBrowser: View {
 
     var body: some View {
         VStack {
-            if status.isRootReady {
+            if status.rootFolder != nil {
                 textBrowserView
             } else {
                 Button("Open Folder") {
@@ -90,10 +90,13 @@ struct FileBrowser: View {
 
     var textBrowserView: some View {
         HSplitView {
-            List(status.foldersForList, children: \.folders, selection: status.selectedFolderBinding()) { folder in
-                NavigationLink(folder.name, value: folder)
-            }
-            .frame(minWidth: 180, idealWidth: 260)
+//            List(status.foldersForList, children: \.folders, selection: status.selectedFolderBinding()) { folder in
+//                NavigationLink(folder.name, value: folder)
+//            }
+//            .frame(minWidth: 180, idealWidth: 260)
+
+            FolderTreeView(status: status)
+                .frame(minWidth: 180, idealWidth: 260, maxHeight: .infinity)
 
             List(status.fileURLsForList, id: \.self, selection: status.selectedFileURLBinding()) { file in
                 NavigationLink(file.lastPathComponent, value: file)
