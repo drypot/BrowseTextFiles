@@ -26,6 +26,17 @@ final class FileBrowserStatus {
 
     var isShowNewFile = false
 
+    var isShowSearch = false
+    var isSearching = false
+    var searchText = ""
+    var searchResults: [SearchResult]?
+
+    nonisolated struct SearchResult: Sendable {
+        let url: URL
+        let title: String
+        let lines: [String]
+    }
+
     private let log = LogStore.shared.log
 
     // MARK: - Folder Tree
@@ -370,6 +381,7 @@ final class FileBrowserStatus {
         saveFileIfEdited()
         if isShowActiveError { return }
 
+        isShowSearch = false
         loadFileLoop(from: url)
     }
 
@@ -413,6 +425,11 @@ final class FileBrowserStatus {
             updateSelectedFolder(to: rootFolder)
         }
     }
+
+    func loadSearchedFile(from url: URL) {
+        updateSelectedFolderAndFile(with: url)
+    }
+
 
     // MARK: - Reload
 
@@ -499,6 +516,101 @@ final class FileBrowserStatus {
             isShowActiveError = true
             log("new file: \(message)")
         }
+    }
+
+    // MARK: - Search
+
+    func toggleSearchView() {
+        if !isRootReady { return }
+        isShowSearch.toggle()
+    }
+
+    func startSearch() {
+        guard let rootURL else { return }
+        if isSearching { return }
+        if searchText.count < 2 { return }
+
+        searchResults = []
+        isSearching = true
+        log("start search: \(rootURL.lastPathComponent)")
+
+        Task {
+            do {
+                searchResults = try await searchParallel(rootURL: rootURL, searchText: searchText)
+                isSearching = false
+            } catch {
+                let message = error.localizedDescription
+                activeError = ActiveError(message: message)
+                isShowActiveError = true
+                log("start search: \(message)")
+            }
+        }
+    }
+
+    @concurrent
+    public func searchParallel(rootURL: URL, searchText: String) async throws -> [SearchResult] {
+        let isAccessing = rootURL.startAccessingSecurityScopedResource()
+        defer {
+            if isAccessing { rootURL.stopAccessingSecurityScopedResource() }
+        }
+
+        let basePath = rootURL.deletingLastPathComponent().path(percentEncoded: false)
+        let basePathLength = basePath.count
+
+        return try await withThrowingTaskGroup(of: SearchResult?.self) { group in
+            for url in try FileURLCollector().collectRecursively(from: rootURL) {
+                group.addTask(priority: .userInitiated) {
+                    let lines = try self.filterLines(from: url, searchText: searchText)
+                    if lines.count == 0 { return nil }
+                    let title = String(url.path(percentEncoded: false).dropFirst(basePathLength))
+                    return SearchResult(url: url, title: title, lines: lines)
+                }
+            }
+            var results: [SearchResult] = []
+            while let result = try await group.next() {
+                guard let result else { continue }
+                results.append(result)
+            }
+            return results.sorted { $0.title < $1.title }
+        }
+    }
+
+    nonisolated private func filterLines(from url: URL, searchText: String) throws -> [String] {
+        let fileHandle = try FileHandle(forReadingFrom: url)
+        defer { try? fileHandle.close() }
+
+        var buffer = Data()
+        var result: [String] = []
+        var count = 0
+
+        while let chunk = try fileHandle.read(upToCount: 4096), !chunk.isEmpty {
+            buffer.append(chunk)
+            while let range = buffer.range(of: Data([0x0A])) {
+                let lineData = buffer.subdata(in: 0..<range.lowerBound)
+                buffer.removeSubrange(0...range.lowerBound)
+                let line = String(data: lineData, encoding: .utf8)
+                if let line, line.contains(searchText) {
+                    result.append(line)
+                    count += 1
+                    if count >= 5 {
+                        return result
+                    }
+                }
+            }
+        }
+
+        // 마지막 줄 처리 (개행 없이 끝나는 경우)
+        if let lastLine = String(data: buffer, encoding: .utf8),
+            lastLine.contains(searchText) {
+                result.append(lastLine)
+        }
+
+        return result
+    }
+
+    func clearSearchResult() {
+        searchResults = nil
+        searchText = ""
     }
 }
 

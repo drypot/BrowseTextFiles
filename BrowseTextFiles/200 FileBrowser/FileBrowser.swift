@@ -15,6 +15,8 @@ struct FileBrowser: View {
 
     @State private var status = FileBrowserStatus()
 
+    @FocusState var isSearchTextFocused: Bool
+
     public struct InitParam: Hashable, Codable {
         let id: UUID
         let rootURL: URL?
@@ -37,8 +39,8 @@ struct FileBrowser: View {
 
     var body: some View {
         VStack {
-            if status.rootFolder != nil {
-                textBrowserView
+            if status.isRootReady {
+                browserView
             } else {
                 Button("Open Folder") {
                     openFolderFromBlank()
@@ -53,7 +55,7 @@ struct FileBrowser: View {
         .focusedSceneValue(\.selectedBrowserStatus, status)
         .toolbarBackground(.background, for: .windowToolbar)
         .toolbarBackgroundVisibility(.automatic, for: .windowToolbar)
-        .toolbar(removing: .title)
+//        .toolbar(removing: .title)
         .toolbar {
 
 //            ToolbarItem(placement: .navigation) {
@@ -71,13 +73,24 @@ struct FileBrowser: View {
 //                .controlGroupStyle(.navigation) // macOS 스타일의 화살표 묶음으로 표시된다
 //            }
 
-            ToolbarItem(placement: .primaryAction) {
+            ToolbarItemGroup(placement: .navigation) {
                 Button {
                     status.reloadAll()
                 } label: {
                     Label("Reload", systemImage: "arrow.clockwise")
                 }
                 .help("Reload")
+            }
+
+            ToolbarSpacer()
+
+            ToolbarItemGroup(placement: .primaryAction) {
+                Button {
+                    status.toggleSearchView()
+                } label: {
+                    Label("Search", systemImage: "magnifyingglass")
+                }
+                .help("Search")
             }
         }
         .task {
@@ -88,7 +101,7 @@ struct FileBrowser: View {
         }
     }
 
-    var textBrowserView: some View {
+    var browserView: some View {
         HSplitView {
 //            List(status.foldersForList, children: \.folders, selection: status.selectedFolderBinding()) { folder in
 //                NavigationLink(folder.name, value: folder)
@@ -107,7 +120,9 @@ struct FileBrowser: View {
                 .frame(minWidth: 180, idealWidth: 260, maxHeight: .infinity)
 
             Group {
-                if let loadError = status.fileBuffer?.loadError {
+                if status.isShowSearch {
+                    searchView
+                } else if let loadError = status.fileBuffer?.loadError {
                     Text(loadError)
                         .font(.custom(settings.fontName, size: settings.fontSize))
                         .lineSpacing(settings.lineSpacing)
@@ -132,6 +147,59 @@ struct FileBrowser: View {
         .onChange(of: status.selectedFileURL) { _, newValue in
             save(sceneFileURL: newValue)
         }
+    }
+
+    var searchView: some View {
+        VStack {
+            HStack {
+                TextField("Search", text: $status.searchText)
+                    .frame(width: 320)
+                    .focused($isSearchTextFocused)
+                    .onSubmit {
+                        status.startSearch()
+                    }
+                    .onExitCommand {
+                        status.toggleSearchView()
+                    }
+                    .onAppear {
+                        isSearchTextFocused = true
+                    }
+
+                Button("Search") {
+                    status.startSearch()
+                }
+
+                Button("Reset") {
+                    status.clearSearchResult()
+                }
+            }
+            .padding(.vertical, 16)
+
+            List {
+                if let results = status.searchResults {
+                    ForEach(results, id: \.url) { result in
+                        Group {
+                            Text(result.title)
+                                .foregroundStyle(.link)
+                                .onTapGesture {
+                                    status.loadSearchedFile(from: result.url)
+                                }
+                            ForEach(result.lines, id: \.self) { line in
+                                Text(line)
+                            }
+                            .listRowSeparator(.hidden)
+                        }
+                        Spacer()
+                            .frame(height: 16)
+                    }
+                } else {
+                    Text("No results")
+                }
+            }
+
+            Spacer()
+        }
+
     }
 
     func initView() {
