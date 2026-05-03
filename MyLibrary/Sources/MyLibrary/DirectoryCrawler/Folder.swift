@@ -13,6 +13,7 @@ public final class Folder: Identifiable, Comparable, Hashable {
     public var folders: [Folder]?
 
     public var id: URL { url }
+    public var hasChildren: Bool { folders != nil }
 
     public init(url: URL) {
         self.url = url

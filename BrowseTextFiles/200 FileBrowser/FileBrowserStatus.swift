@@ -90,6 +90,8 @@ final class FileBrowserStatus {
     }
 
     func updateSelectedFolder(to folder: Folder?) {
+        if selectedFolder == folder { return }
+        
         selectedFolder = folder
         if let folder {
             loadFileList(from: folder.url)
@@ -220,7 +222,7 @@ final class FileBrowserStatus {
     func expandSelectedFolder() {
         guard let selectedFolder else { return }
 
-        if selectedFolder.folders != nil {
+        if selectedFolder.hasChildren {
             expandFolder(with: selectedFolder.url)
             print("do")
         }
@@ -229,7 +231,7 @@ final class FileBrowserStatus {
     func collapseSelectedFolder() {
         guard let selectedFolder else { return }
 
-        if selectedFolder.folders != nil, isFolderExpanded(for: selectedFolder.url) {
+        if selectedFolder.hasChildren, isFolderExpanded(for: selectedFolder.url) {
             collapseFolder(with: selectedFolder.url)
         } else {
             moveToParentFolder()
@@ -291,7 +293,7 @@ final class FileBrowserStatus {
         )
     }
 
-    private func updateSelectedFileURL(with url: URL?) {
+    func updateSelectedFileURL(with url: URL?) {
         selectedFileURL = url
         if let url {
             loadFile(from: url)
@@ -305,6 +307,42 @@ final class FileBrowserStatus {
             updateSelectedFileURL(with: url)
         } else {
             updateSelectedFileURL(with: nil)
+        }
+    }
+
+    func moveDownSelectedFile() {
+        guard let fileURLs else { return }
+        var previous: URL?
+        var result: URL?
+
+        for item in fileURLs {
+            if previous == selectedFileURL {
+                result = item
+                break
+            }
+            previous = item
+        }
+
+        if let result {
+            updateSelectedFileURL(with: result)
+        }
+    }
+
+    func moveUpSelectedFile() {
+        guard let fileURLs else { return }
+        var previous: URL?
+        var result: URL?
+
+        for item in fileURLs {
+            if item == selectedFileURL {
+                result = previous
+                break
+            }
+            previous = item
+        }
+
+        if let result {
+            updateSelectedFileURL(with: result)
         }
     }
 

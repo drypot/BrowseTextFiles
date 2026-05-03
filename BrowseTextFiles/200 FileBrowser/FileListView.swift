@@ -1,14 +1,14 @@
 //
-//  FolderTreeView.swift
+//  FileListView.swift
 //  Browse Text Files
 //
-//  Created by Kyuhyun Park on 4/23/26.
+//  Created by Kyuhyun Park on 5/03/26.
 //
 
 import SwiftUI
 import MyLibrary
 
-struct FolderTreeView: View {
+struct FileListView: View {
     @Environment(\.controlActiveState) var controlActiveState
     @FocusState private var isFocused: Bool
 
@@ -17,25 +17,17 @@ struct FolderTreeView: View {
     var body: some View {
         let isActive = controlActiveState != .inactive && isFocused
         List {
-            if let rootFolder = status.rootFolder {
-                RowView(status: status, item: rootFolder, level: 0, isActive: isActive)
+            ForEach(status.fileURLsForList, id: \.self) { url in
+                RowView(status: status, item: url, isActive: isActive)
             }
         }
         .focused($isFocused)
         .onKeyPress(.downArrow) {
-            status.moveDownSelectedFolder()
+            status.moveDownSelectedFile()
             return .handled
         }
         .onKeyPress(.upArrow) {
-            status.moveUpSelectedFolder()
-            return .handled
-        }
-        .onKeyPress(.rightArrow) {
-            status.expandSelectedFolder()
-            return .handled
-        }
-        .onKeyPress(.leftArrow) {
-            status.collapseSelectedFolder()
+            status.moveUpSelectedFile()
             return .handled
         }
     }
@@ -43,12 +35,11 @@ struct FolderTreeView: View {
 
 fileprivate struct RowView: View {
     let status: FileBrowserStatus
-    let item: Folder
-    let level: Int
+    let item: URL
     let isActive: Bool
 
     var isSelected: Bool {
-        item == status.selectedFolder
+        item == status.selectedFileURL
     }
 
     var foregroundStyle: Color {
@@ -76,20 +67,10 @@ fileprivate struct RowView: View {
     }
 
     var body: some View {
-        let hasChildren = item.hasChildren
-        let isExpanded = hasChildren && status.isFolderExpanded(for: item.url)
-
-        HStack(spacing: 2) {
-            Spacer()
-                .frame(width: 9 * CGFloat(level))
-
-            Chevron(hasChildren: hasChildren, isExpaned: isExpanded) {
-                status.toggleFolder(with: item.url)
-            }
-
-            Text(item.name)
+        HStack {
+            Text(item.lastPathComponent)
                 .lineLimit(1)
-            
+
             Spacer()
         }
         .foregroundStyle(foregroundStyle)
@@ -102,19 +83,13 @@ fileprivate struct RowView: View {
         .frame(maxWidth: .infinity)
         .contentShape(Rectangle()) // 빈공간도 클릭되게 한다.
         .onTapGesture {
-            status.updateSelectedFolder(to: item)
+            status.updateSelectedFileURL(with: item)
         }
         .focusable()
         .focusEffectDisabled() // 포커스 테두리 표시 안 함
-
-        if let folders = item.folders, isExpanded {
-            ForEach(folders) { child in
-                RowView(status: status, item: child, level: level + 1, isActive: isActive)
-            }
-        }
     }
 }
 
 #Preview {
-//    FolderTreeView()
+//    FileListView()
 }

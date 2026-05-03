@@ -98,10 +98,13 @@ struct FileBrowser: View {
             FolderTreeView(status: status)
                 .frame(minWidth: 180, idealWidth: 260, maxHeight: .infinity)
 
-            List(status.fileURLsForList, id: \.self, selection: status.selectedFileURLBinding()) { file in
-                NavigationLink(file.lastPathComponent, value: file)
-            }
-            .frame(minWidth: 180, idealWidth: 260)
+//            List(status.fileURLsForList, id: \.self, selection: status.selectedFileURLBinding()) { file in
+//                NavigationLink(file.lastPathComponent, value: file)
+//            }
+//            .frame(minWidth: 180, idealWidth: 260)
+
+            FileListView(status: status)
+                .frame(minWidth: 180, idealWidth: 260, maxHeight: .infinity)
 
             Group {
                 if let loadError = status.fileBuffer?.loadError {
