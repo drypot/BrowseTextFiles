@@ -91,7 +91,7 @@ final class FileBrowserStatus {
 
     func updateSelectedFolder(to folder: Folder?) {
         if selectedFolder == folder { return }
-        
+
         selectedFolder = folder
         if let folder {
             loadFileList(from: folder.url)
@@ -286,6 +286,12 @@ final class FileBrowserStatus {
         }
     }
 
+    func reloadFileList() {
+        guard let selectedFolder else { return }
+        loadFileList(from: selectedFolder.url)
+    }
+
+
     func selectedFileURLBinding() -> Binding<URL?> {
         return Binding<URL?>(
             get: { self.selectedFileURL },
@@ -461,7 +467,7 @@ final class FileBrowserStatus {
         saveFileIfEdited()
         if isShowActiveError { return }
 
-        if selectedFolder != nil { return }
+        if selectedFolder == nil { return }
         isShowNewFile = true
     }
     
@@ -482,6 +488,7 @@ final class FileBrowserStatus {
                         reloadFolderTree()
                     }
                     try "".write(to: newFileURL, atomically: true, encoding: .utf8)
+                    reloadFileList()
                     log("new file: \(path)")
                 }
                 updateSelectedFolderAndFile(with: newFileURL)
