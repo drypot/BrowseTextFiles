@@ -173,31 +173,38 @@ struct FileBrowser: View {
                     status.clearSearchResult()
                 }
             }
-            .padding(.vertical, 16)
+            .padding(.bottom, 16)
+
+            Divider()
 
             List {
                 if let results = status.searchResults {
                     ForEach(results, id: \.url) { result in
                         Group {
-                            Text(result.title)
-                                .foregroundStyle(.link)
-                                .onTapGesture {
-                                    status.loadSearchedFile(from: result.url)
-                                }
+                            Button(result.title) {
+                                status.loadSearchedFile(from: result.url)
+                            }
+                            .buttonStyle(.plain)
+                            .fontWeight(.bold)
+                            .foregroundStyle(.link)
+                            .pointerStyle(.link)
+
                             ForEach(result.lines, id: \.self) { line in
                                 Text(line)
                             }
-                            .listRowSeparator(.hidden)
+                            Spacer()
+                                .frame(height: 8)
                         }
-                        Spacer()
-                            .frame(height: 16)
                     }
+                    .font(.custom(settings.fontName, size: settings.fontSize))
+                    .lineSpacing(settings.lineSpacing)
+                    .listRowSeparator(.hidden)
                 } else {
                     Text("No results")
+                        .font(.custom(settings.fontName, size: settings.fontSize))
+                        .lineSpacing(settings.lineSpacing)
                 }
             }
-
-            Spacer()
         }
 
     }

@@ -554,7 +554,7 @@ final class FileBrowserStatus {
             if isAccessing { rootURL.stopAccessingSecurityScopedResource() }
         }
 
-        let basePath = rootURL.deletingLastPathComponent().path(percentEncoded: false)
+        let basePath = rootURL.path(percentEncoded: false)
         let basePathLength = basePath.count
 
         return try await withThrowingTaskGroup(of: SearchResult?.self) { group in
@@ -581,7 +581,7 @@ final class FileBrowserStatus {
 
         var buffer = Data()
         var result: [String] = []
-        var count = 0
+//        var count = 0
 
         while let chunk = try fileHandle.read(upToCount: 4096), !chunk.isEmpty {
             buffer.append(chunk)
@@ -591,10 +591,10 @@ final class FileBrowserStatus {
                 let line = String(data: lineData, encoding: .utf8)
                 if let line, line.contains(searchText) {
                     result.append(line)
-                    count += 1
-                    if count >= 5 {
-                        return result
-                    }
+//                    count += 1
+//                    if count >= 5 {
+//                        return result
+//                    }
                 }
             }
         }
