@@ -538,16 +538,17 @@ final class FileBrowserStatus {
     func startSearch() {
         guard let rootURL else { return }
         if isSearching { return }
-        if searchText.count < 2 { return }
+        if searchText.isEmpty { return }
 
         searchResults = []
         isSearching = true
-        log("start search: \(rootURL.lastPathComponent)")
+        log("start search: \"\(searchText)\"")
 
         Task {
             do {
                 searchResults = try await searchParallel(rootURL: rootURL, searchText: searchText)
                 isSearching = false
+                log("start search: found \(searchResults?.count ?? 0) files")
             } catch {
                 let message = error.localizedDescription
                 activeError = ActiveError(message: message)

@@ -138,12 +138,12 @@ struct FileBrowser: View {
                 Text(loadError)
                     .font(.custom(settings.fontName, size: settings.fontSize))
                     .lineSpacing(settings.lineSpacing)
-                    .findDisabled(false)
-                    .replaceDisabled(false)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             } else if let buffer = status.fileBuffer {
                 @Bindable var buffer = buffer
                 TextEditor(text: $buffer.textSetter)
+                    .findDisabled(false)
+                    .replaceDisabled(false)
                     .font(.custom(settings.fontName, size: settings.fontSize))
                     .lineSpacing(settings.lineSpacing)
             } else {
@@ -185,7 +185,7 @@ struct FileBrowser: View {
             Divider()
 
             List {
-                if let results = status.searchResults {
+                if let results = status.searchResults, !results.isEmpty {
                     ForEach(results, id: \.url) { result in
                         Group {
                             Button(result.title) {
