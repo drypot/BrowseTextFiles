@@ -525,6 +525,11 @@ final class FileBrowserStatus {
         isShowSearch.toggle()
     }
 
+    func hideSearchView() {
+        if !isRootReady { return }
+        isShowSearch = false
+    }
+
     func startSearch() {
         guard let rootURL else { return }
         if isSearching { return }

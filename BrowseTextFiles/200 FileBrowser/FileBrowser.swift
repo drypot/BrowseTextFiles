@@ -119,26 +119,7 @@ struct FileBrowser: View {
             FileListView(status: status)
                 .frame(minWidth: 180, idealWidth: 260, maxHeight: .infinity)
 
-            Group {
-                if status.isShowSearch {
-                    searchView
-                } else if let loadError = status.fileBuffer?.loadError {
-                    Text(loadError)
-                        .font(.custom(settings.fontName, size: settings.fontSize))
-                        .lineSpacing(settings.lineSpacing)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-                } else if let buffer = status.fileBuffer {
-                    @Bindable var buffer = buffer
-                    TextEditor(text: $buffer.textSetter)
-                        .font(.custom(settings.fontName, size: settings.fontSize))
-                        .lineSpacing(settings.lineSpacing)
-                } else {
-                    Spacer()
-                }
-            }
-            .padding(EdgeInsets(top: 8, leading: 18, bottom: 8, trailing: 18))
-            .frame(minWidth: 300, maxWidth: .infinity, maxHeight: .infinity)
-            .layoutPriority(1)
+            textEditorView
         }
         .navigationTitle(status.rootName ?? "Browser")
         .sheet(isPresented: $status.isShowNewFile) {
@@ -147,6 +128,30 @@ struct FileBrowser: View {
         .onChange(of: status.selectedFileURL) { _, newValue in
             save(sceneFileURL: newValue)
         }
+    }
+
+    var textEditorView: some View {
+        Group {
+            if status.isShowSearch {
+                searchView
+            } else if let loadError = status.fileBuffer?.loadError {
+                Text(loadError)
+                    .font(.custom(settings.fontName, size: settings.fontSize))
+                    .lineSpacing(settings.lineSpacing)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            } else if let buffer = status.fileBuffer {
+                @Bindable var buffer = buffer
+                TextEditor(text: $buffer.textSetter)
+                    .font(.custom(settings.fontName, size: settings.fontSize))
+                    .lineSpacing(settings.lineSpacing)
+            } else {
+                Spacer()
+            }
+        }
+        .padding(.horizontal, 18)
+        .padding(.vertical, 8)
+        .frame(minWidth: 300, maxWidth: .infinity, maxHeight: .infinity)
+        .layoutPriority(1)
     }
 
     var searchView: some View {
@@ -159,7 +164,7 @@ struct FileBrowser: View {
                         status.startSearch()
                     }
                     .onExitCommand {
-                        status.toggleSearchView()
+                        status.hideSearchView()
                     }
                     .onAppear {
                         isSearchTextFocused = true
@@ -204,6 +209,9 @@ struct FileBrowser: View {
                         .font(.custom(settings.fontName, size: settings.fontSize))
                         .lineSpacing(settings.lineSpacing)
                 }
+            }
+            .onExitCommand {
+                status.hideSearchView()
             }
         }
 
