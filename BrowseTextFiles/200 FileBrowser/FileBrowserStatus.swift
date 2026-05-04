@@ -26,10 +26,10 @@ final class FileBrowserStatus {
 
     var isShowNewFile = false
 
-    var isShowSearch = false
-    var isSearching = false
+    private(set) var isShowSearch = false
+    private(set) var isSearching = false
     var searchText = ""
-    var searchResults: [SearchResult]?
+    private(set) var searchResults: [SearchResult]?
 
     nonisolated struct SearchResult: Sendable {
         let url: URL
@@ -528,6 +528,11 @@ final class FileBrowserStatus {
     func hideSearchView() {
         if !isRootReady { return }
         isShowSearch = false
+    }
+
+    func showSearchView() {
+        if !isRootReady { return }
+        isShowSearch = true
     }
 
     func startSearch() {

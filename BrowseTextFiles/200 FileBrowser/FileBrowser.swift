@@ -138,6 +138,8 @@ struct FileBrowser: View {
                 Text(loadError)
                     .font(.custom(settings.fontName, size: settings.fontSize))
                     .lineSpacing(settings.lineSpacing)
+                    .findDisabled(false)
+                    .replaceDisabled(false)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             } else if let buffer = status.fileBuffer {
                 @Bindable var buffer = buffer

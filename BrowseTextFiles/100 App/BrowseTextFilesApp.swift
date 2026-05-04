@@ -35,22 +35,22 @@ struct BrowseTextFilesApp: App {
         }
         .commands {
             CommandGroup(replacing: .newItem) {
-                Button("New File") {
+                Button("New File", systemImage: "text.document") {
                     selectedBrowserStatus?.showNewFileForm()
                 }
                 .keyboardShortcut("n", modifiers: .command)
 
-                Button("New Tab") {
+                Button("New Tab", systemImage: "macwindow") {
                     newTab()
                 }
                 .keyboardShortcut("t", modifiers: .command)
 
-                Button("Open Folder...") {
+                Button("Open Folder...", systemImage: "folder") {
                     openFolder()
                 }
                 .keyboardShortcut("o", modifiers: .command)
 
-                Menu("Open Recent") {
+                Menu("Open Recent", systemImage: "text.below.folder") {
                     let urls = settings.recentDocumentURLs
                     if urls.isEmpty {
                         Text("No Recent Documents")
@@ -69,13 +69,14 @@ struct BrowseTextFilesApp: App {
 
                 Divider()
 
-                Button("Save") {
+                Button("Save", systemImage: "square.and.arrow.down") {
                     selectedBrowserStatus?.saveFile()
                 }
                 .keyboardShortcut("s", modifiers: .command)
             }
+
             CommandGroup(after: .toolbar) {
-                Button("Reload") {
+                Button("Reload", systemImage: "arrow.clockwise") {
                     selectedBrowserStatus?.reloadAll()
                 }
                 .keyboardShortcut("r", modifiers: .command)
@@ -98,6 +99,15 @@ struct BrowseTextFilesApp: App {
 //                .keyboardShortcut("t", modifiers: [.command, .shift, .control])
             }
 
+            TextEditingCommands()
+
+            CommandGroup(after: .textEditing) {
+                Divider()
+                Button("Find in Files", systemImage: "magnifyingglass") {
+                    selectedBrowserStatus?.showSearchView()
+                }
+                .keyboardShortcut("f", modifiers: [.command, .shift])
+            }
         }
         .defaultWindowPlacement { proxy, context in
             let displayBounds = context.defaultDisplay.visibleRect
