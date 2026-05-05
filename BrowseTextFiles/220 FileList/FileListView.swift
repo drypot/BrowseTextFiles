@@ -18,9 +18,9 @@ struct FileListView: View {
         let isActive = controlActiveState != .inactive && isFocused
 
         List {
-            if let fileURLs = status.fileList {
-                ForEach(fileURLs) { fileItem in
-                    RowView(status: status, fileItem: fileItem, isActive: isActive)
+            if let fileList = status.fileList {
+                ForEach(fileList) { fileItem in
+                    RowView(item: fileItem, isActive: isActive, status: status)
                 }
             }
         }
@@ -37,12 +37,12 @@ struct FileListView: View {
 }
 
 fileprivate struct RowView: View {
-    let status: FileBrowserStatus
-    let fileItem: FileItem
+    let item: FileItem
     let isActive: Bool
+    let status: FileBrowserStatus
 
     var isSelected: Bool {
-        fileItem == status.selectedFile
+        item == status.selectedFile
     }
 
     var foregroundStyle: Color {
@@ -71,7 +71,7 @@ fileprivate struct RowView: View {
 
     var body: some View {
         HStack {
-            Text(fileItem.title)
+            Text(item.name)
                 .lineLimit(1)
 
             Spacer()
@@ -88,11 +88,11 @@ fileprivate struct RowView: View {
         .focusEffectDisabled() // 포커스 테두리 표시 안 함
         .contentShape(Rectangle()) // 빈공간도 클릭되게 한다.
         .onTapGesture {
-            status.updateSelectedFileURL(with: fileItem)
+            status.updateSelectedFile(with: item)
         }
         .contextMenu {
             Button("Show in Finder") {
-                Finder.shared.open(url: fileItem.url)
+                Finder.shared.open(url: item.url)
             }
         }
     }

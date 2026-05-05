@@ -11,11 +11,11 @@ struct TextEditorView: View {
     @Environment(SettingsData.self) var settings
 
     @Bindable var status: FileBrowserStatus
-    @FocusState var isTextEditorFocused: Bool
+    @FocusState var isFocused: Bool
 
     var body: some View {
         Group {
-            if status.isShowSearch {
+            if status.isShowSearchView {
                 SearchResultView(status: status)
             } else if let loadError = status.fileBuffer?.loadError {
                 Text(loadError)
@@ -24,16 +24,16 @@ struct TextEditorView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             } else if let buffer = status.fileBuffer {
                 @Bindable var buffer = buffer
-                TextEditor(text: $buffer.textSetter, selection: $buffer.selection)
+                TextEditor(text: buffer.textBinding(), selection: $buffer.selection)
                 // 애플 공식문서에 나와있는 것인데 효과 없다.
                 // .contentMargins(.horizontal, 20.0, for: .scrollContent)
-                    .focused($isTextEditorFocused)
+                    .focused($isFocused)
                     .findDisabled(false)
                     .replaceDisabled(false)
                     .font(.custom(settings.fontName, size: settings.fontSize))
                     .lineSpacing(settings.lineSpacing)
                     .onAppear {
-                        isTextEditorFocused = true
+                        isFocused = true
                     }
             } else {
                 Spacer()

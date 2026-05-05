@@ -15,36 +15,36 @@ import Foundation
 struct FolderTreeBuilder {
     init() {}
     
-    func build(from url: URL) throws -> FolderItem {
+    func buildTree(from rootURL: URL) throws -> FolderItem {
         let keys: [URLResourceKey] = [.isDirectoryKey]
         let keySet = Set(keys)
         let options: FileManager.DirectoryEnumerationOptions = [.skipsHiddenFiles]
 
-        func buildFolder(from url: URL) throws -> FolderItem {
+        func buildSubtree(from folderURL: URL) throws -> FolderItem {
             let fileManager = FileManager.default
-            let folder = FolderItem(url: url)
+            let folderItem = FolderItem(from: folderURL)
 
-            let items = try fileManager.contentsOfDirectory(at: url,
+            let urls = try fileManager.contentsOfDirectory(at: folderURL,
                                                             includingPropertiesForKeys: keys,
                                                             options: options)
-            for item in items {
+            for url in urls {
                 try autoreleasepool {
-                    let values = try item.resourceValues(forKeys: keySet)
+                    let values = try url.resourceValues(forKeys: keySet)
                     if values.isDirectory == true {
-                        let child = try buildFolder(from: item)
-                        if folder.children == nil {
-                            folder.children = [child]
+                        let childItem = try buildSubtree(from: url)
+                        if folderItem.children == nil {
+                            folderItem.children = [childItem]
                         } else {
-                            folder.children!.append(child)
+                            folderItem.children!.append(childItem)
                         }
                     }
                 }
             }
-            folder.children?.sort()
+            folderItem.children?.sort()
 
-            return folder
+            return folderItem
         }
 
-        return try buildFolder(from: url)
+        return try buildSubtree(from: rootURL)
     }
 }

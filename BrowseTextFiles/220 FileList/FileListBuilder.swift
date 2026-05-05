@@ -13,8 +13,6 @@ nonisolated struct FileListBuilder {
 
     func collectShallowly(from folderURL: URL, filter: (UTType) -> Bool) throws -> [FileItem] {
         let fileManager = FileManager.default
-        var results: [FileItem] = []
-
         let keys: [URLResourceKey] = [.isRegularFileKey, .contentTypeKey]
         let keySet = Set(keys)
         let options: FileManager.DirectoryEnumerationOptions = [.skipsHiddenFiles]
@@ -25,13 +23,14 @@ nonisolated struct FileListBuilder {
             options: options
         )
 
+        var results: [FileItem] = []
         for url in urls {
             try autoreleasepool {
                 let values = try url.resourceValues(forKeys: keySet)
                 if values.isRegularFile == true {
                     if let contentType = values.contentType {
                         if filter(contentType) {
-                            results.append(FileItem(url: url))
+                            results.append(FileItem(from: url))
                         }
                     }
                 }
@@ -48,8 +47,9 @@ nonisolated struct FileListBuilder {
         let options: FileManager.DirectoryEnumerationOptions = [.skipsHiddenFiles]
 
         let values = try rootURL.resourceValues(forKeys: keySet)
+
         if values.isRegularFile == true {
-            return [FileItem(url: rootURL)]
+            return [FileItem(from: rootURL)]
         }
         if values.isDirectory == true {
             guard let enumerator = fileManager.enumerator(at: rootURL,
@@ -60,7 +60,7 @@ nonisolated struct FileListBuilder {
                 try autoreleasepool {
                     let values = try url.resourceValues(forKeys: keySet)
                     if values.isRegularFile == true {
-                        results.append(FileItem(url: url))
+                        results.append(FileItem(from: url))
                     }
                 }
             }

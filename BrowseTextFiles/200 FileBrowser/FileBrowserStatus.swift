@@ -21,15 +21,15 @@ final class FileBrowserStatus {
     private(set) var fileBuffer: FileBuffer?
     private var fileMonitor: FileMonitor?
 
+    var isShowNewFileView = false
+
+    var isShowSearchView = false
+    var searchText = ""
+    private(set) var isSearching = false
+    private(set) var searchResults: [SearchResult]?
+
     var activeError: ActiveError?
     var isShowActiveError = false
-
-    var isShowNewFile = false
-
-    private(set) var isShowSearch = false
-    private(set) var isSearching = false
-    var searchText = ""
-    private(set) var searchResults: [SearchResult]?
 
     private let log = LogStore.shared.log
 
@@ -43,8 +43,8 @@ final class FileBrowserStatus {
         rootFolder?.url
     }
 
-    var rootTitle: String? {
-        rootFolder?.title
+    var rootName: String? {
+        rootFolder?.name
     }
 
     func resetFolderTree() {
@@ -57,8 +57,8 @@ final class FileBrowserStatus {
         resetFolderTree()
         do {
             try withSecurityScope(rootURL) {
-                rootFolder = try FolderTreeBuilder().build(from: rootURL)
-                expandFolderWith(rootURL)
+                rootFolder = try FolderTreeBuilder().buildTree(from: rootURL)
+                expandFolder(for: rootURL)
             }
             log("load root: \(rootURL.lastPathComponent)")
         } catch {
@@ -116,7 +116,7 @@ final class FileBrowserStatus {
             }
             previous = current
 
-            if let children = current.children, isFolderExpandedFor(current.url) {
+            if let children = current.children, isFolderExpanded(for: current.url) {
                 for child in children {
                     if let result = findNext(from: child) {
                         return result
@@ -141,7 +141,7 @@ final class FileBrowserStatus {
             }
             previous = current
 
-            if let children = current.children, isFolderExpandedFor(current.url) {
+            if let children = current.children, isFolderExpanded(for: current.url) {
                 for child in children {
                     if let result = findPrevious(from: child) {
                         return result
@@ -165,7 +165,7 @@ final class FileBrowserStatus {
                 return parent
             }
 
-            if let children = current.children, isFolderExpandedFor(current.url) {
+            if let children = current.children, isFolderExpanded(for: current.url) {
                 for child in children {
                     if let result = findParent(from: child, parent: current) {
                         return result
@@ -183,36 +183,36 @@ final class FileBrowserStatus {
 
     // MARK: - Folder Tree, Folding
 
-    func isFolderExpandedFor(_ url: URL) -> Bool {
+    func isFolderExpanded(for url: URL) -> Bool {
         expandedFolders.contains(url)
     }
 
-    func isFolderExpandedBindingFor(_ url: URL) -> Binding<Bool> {
+    func isFolderExpandedBinding(for url: URL) -> Binding<Bool> {
         Binding<Bool>(
-            get: { self.isFolderExpandedFor(url) },
+            get: { self.isFolderExpanded(for: url) },
             set: {
                 if $0 {
-                    self.expandFolderWith(url)
+                    self.expandFolder(for: url)
                 } else {
-                    self.collapseFolderWith(url)
+                    self.collapseFolder(for: url)
                 }
             }
         )
     }
 
-    func expandFolderWith(_ url: URL) {
+    func expandFolder(for url: URL) {
         expandedFolders.insert(url)
     }
 
-    func collapseFolderWith(_ url: URL) {
+    func collapseFolder(for url: URL) {
         expandedFolders.remove(url)
     }
 
-    func toggleFolderWith(_ url: URL) {
-        if isFolderExpandedFor(url) {
-            collapseFolderWith(url)
+    func toggleFolder(for url: URL) {
+        if isFolderExpanded(for: url) {
+            collapseFolder(for: url)
         } else {
-            expandFolderWith(url)
+            expandFolder(for: url)
         }
     }
 
@@ -220,16 +220,15 @@ final class FileBrowserStatus {
         guard let selectedFolder else { return }
 
         if selectedFolder.hasChildren {
-            expandFolderWith(selectedFolder.url)
-            print("do")
+            expandFolder(for: selectedFolder.url)
         }
     }
 
     func collapseSelectedFolder() {
         guard let selectedFolder else { return }
 
-        if selectedFolder.hasChildren, isFolderExpandedFor(selectedFolder.url) {
-            collapseFolderWith(selectedFolder.url)
+        if selectedFolder.hasChildren, isFolderExpanded(for: selectedFolder.url) {
+            collapseFolder(for: selectedFolder.url)
         } else {
             moveToParentFolder()
         }
@@ -241,10 +240,10 @@ final class FileBrowserStatus {
         let folderCount = folderURL.pathComponents.count
         let count = folderCount - rootCount
 
-        var loopURL = folderURL
+        var tmpURL = folderURL
         for _ in 0 ..< count {
-            expandFolderWith(loopURL)
-            loopURL = loopURL.deletingLastPathComponent()
+            expandFolder(for: tmpURL)
+            tmpURL = tmpURL.deletingLastPathComponent()
         }
     }
 
@@ -264,14 +263,14 @@ final class FileBrowserStatus {
                     // contentType.conforms(to: .text)
                     return true
                 }
-                fileList?.sort { $0.title < $1.title }
+                fileList?.sort { $0.name < $1.name }
             }
-            log("load folder: \(folderURL.lastPathComponent)")
+            log("load file list: \(folderURL.lastPathComponent)")
         } catch {
             let message = error.localizedDescription
             activeError = ActiveError(message: message)
             isShowActiveError = true
-            log("load folder: \(message)")
+            log("load file list: \(message)")
         }
     }
 
@@ -280,15 +279,14 @@ final class FileBrowserStatus {
         loadFileList(from: selectedFolder.url)
     }
 
-
-    func selectedFileURLBinding() -> Binding<FileItem?> {
+    func selectedFileBinding() -> Binding<FileItem?> {
         return Binding<FileItem?>(
             get: { self.selectedFile },
-            set: { self.updateSelectedFileURL(with: $0) }
+            set: { self.updateSelectedFile(with: $0) }
         )
     }
 
-    func updateSelectedFileURL(with fileItem: FileItem?) {
+    func updateSelectedFile(with fileItem: FileItem?) {
         selectedFile = fileItem
         if let fileItem {
             loadFile(from: fileItem.url)
@@ -297,12 +295,12 @@ final class FileBrowserStatus {
         }
     }
 
-    private func updateSelectedFileURL(withChecked url: URL) {
+    private func updateSelectedFile(withChecked url: URL) {
         let first = fileList?.first { $0.url == url }
         if let first {
-            updateSelectedFileURL(with: first)
+            updateSelectedFile(with: first)
         } else {
-            updateSelectedFileURL(with: nil)
+            updateSelectedFile(with: nil)
         }
     }
 
@@ -320,7 +318,7 @@ final class FileBrowserStatus {
         }
 
         if let result {
-            updateSelectedFileURL(with: result)
+            updateSelectedFile(with: result)
         }
     }
 
@@ -338,15 +336,11 @@ final class FileBrowserStatus {
         }
 
         if let result {
-            updateSelectedFileURL(with: result)
+            updateSelectedFile(with: result)
         }
     }
 
     // MARK: - Buffer
-
-    var isBufferReady: Bool {
-        fileBuffer != nil
-    }
 
     func resetFileBuffer() {
         saveFileIfEdited()
@@ -360,12 +354,12 @@ final class FileBrowserStatus {
         saveFileIfEdited()
         if isShowActiveError { return }
 
-        isShowSearch = false
+        isShowSearchView = false
         loadFileLoop(from: url)
     }
 
     private func loadFileLoop(from url: URL) {
-        fileBuffer = FileBuffer(url: url)
+        fileBuffer = FileBuffer(from: url)
         fileMonitor = nil
         do {
             guard let rootURL else { return }
@@ -398,7 +392,7 @@ final class FileBrowserStatus {
         if isShowActiveError { return }
 
         if selectedFolder != nil {
-            updateSelectedFileURL(withChecked: url)
+            updateSelectedFile(withChecked: url)
             expandFolders(for: folderURL)
         } else {
             updateSelectedFolder(to: rootFolder)
@@ -449,7 +443,7 @@ final class FileBrowserStatus {
         updateSelectedFolderToFolder(with: folderURL)
 
         guard let fileURL else { return }
-        updateSelectedFileURL(withChecked: fileURL)
+        updateSelectedFile(withChecked: fileURL)
 
         log("reload all:")
     }
@@ -487,7 +481,7 @@ final class FileBrowserStatus {
         if isShowActiveError { return }
 
         if selectedFolder == nil { return }
-        isShowNewFile = true
+        isShowNewFileView = true
     }
     
     func makeNewFile(path: String) {
@@ -524,17 +518,17 @@ final class FileBrowserStatus {
 
     func toggleSearchView() {
         if !isRootReady { return }
-        isShowSearch.toggle()
+        isShowSearchView.toggle()
     }
 
     func hideSearchView() {
         if !isRootReady { return }
-        isShowSearch = false
+        isShowSearchView = false
     }
 
     func showSearchView() {
         if !isRootReady { return }
-        isShowSearch = true
+        isShowSearchView = true
     }
 
     func startSearch() {
@@ -574,7 +568,7 @@ final class FileBrowserStatus {
             for fileItem in try FileListBuilder().collectRecursively(from: rootURL) {
                 group.addTask(priority: .userInitiated) {
                     let lines = try Self.filterLines(from: fileItem.url, searchText: searchText)
-                    if fileItem.title.contains(searchText) || lines.count > 0 {
+                    if fileItem.name.contains(searchText) || lines.count > 0 {
                         let title = String(fileItem.url.path(percentEncoded: false).dropFirst(basePathLength))
                         return SearchResult(url: fileItem.url, title: title, lines: lines)
                     } else {
@@ -630,6 +624,3 @@ final class FileBrowserStatus {
         searchText = ""
     }
 }
-
-
-

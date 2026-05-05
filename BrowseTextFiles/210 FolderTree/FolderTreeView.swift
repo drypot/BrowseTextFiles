@@ -19,7 +19,7 @@ struct FolderTreeView: View {
         
         List {
             if let rootFolder = status.rootFolder {
-                RowView(status: status, item: rootFolder, level: 0, isActive: isActive)
+                RowView(item: rootFolder, level: 0, isActive: isActive, status: status, )
             }
         }
         .focused($isFocused)
@@ -45,10 +45,10 @@ struct FolderTreeView: View {
 fileprivate struct RowView: View {
     @Environment(\.openWindow) private var openWindow
     
-    let status: FileBrowserStatus
     let item: FolderItem
     let level: Int
     let isActive: Bool
+    let status: FileBrowserStatus
 
     var isSelected: Bool {
         item == status.selectedFolder
@@ -79,18 +79,17 @@ fileprivate struct RowView: View {
     }
 
     var body: some View {
-        let hasChildren = item.hasChildren
-        let isExpanded = hasChildren && status.isFolderExpandedFor(item.url)
+        let isExpanded = item.hasChildren && status.isFolderExpanded(for: item.url)
 
         HStack(spacing: 2) {
             Spacer()
                 .frame(width: 9 * CGFloat(level))
 
-            Chevron(hasChildren: hasChildren, isExpaned: isExpanded) {
-                status.toggleFolderWith(item.url)
+            Chevron(hasChildren: item.hasChildren, isExpaned: isExpanded) {
+                status.toggleFolder(for: item.url)
             }
 
-            Text(item.title)
+            Text(item.name)
                 .lineLimit(1)
             
             Spacer()
@@ -120,9 +119,9 @@ fileprivate struct RowView: View {
             }
         }
 
-        if let folders = item.children, isExpanded {
-            ForEach(folders) { child in
-                RowView(status: status, item: child, level: level + 1, isActive: isActive)
+        if let children = item.children, isExpanded {
+            ForEach(children) { child in
+                RowView(item: child, level: level + 1, isActive: isActive, status: status)
             }
         }
     }

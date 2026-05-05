@@ -11,14 +11,14 @@ struct SearchResultView: View {
     @Environment(SettingsData.self) var settings
 
     @Bindable var status: FileBrowserStatus
-    @FocusState var isSearchTextFocused: Bool
+    @FocusState var isFocused: Bool
 
     var body: some View {
         VStack {
             HStack {
                 TextField("Search", text: $status.searchText)
                     .frame(width: 320)
-                    .focused($isSearchTextFocused)
+                    .focused($isFocused)
                     .onSubmit {
                         status.startSearch()
                     }
@@ -26,7 +26,7 @@ struct SearchResultView: View {
                         status.hideSearchView()
                     }
                     .onAppear {
-                        isSearchTextFocused = true
+                        isFocused = true
                     }
 
                 Button("Search") {

@@ -11,14 +11,14 @@ final class FolderItem: Identifiable, Comparable, Hashable {
     let id = UUID()
     
     var url: URL
-    var title: String
+    var name: String
     var children: [FolderItem]?
 
     var hasChildren: Bool { children != nil }
 
-    init(url: URL) {
+    init(from url: URL) {
         self.url = url
-        self.title = url.lastPathComponent
+        self.name = url.lastPathComponent
     }
 
     static func == (lhs: FolderItem, rhs: FolderItem) -> Bool {
@@ -26,7 +26,7 @@ final class FolderItem: Identifiable, Comparable, Hashable {
     }
 
     static func < (lhs: FolderItem, rhs: FolderItem) -> Bool {
-        return lhs.title < rhs.title
+        return lhs.name < rhs.name
     }
 
     func hash(into hasher: inout Hasher) {

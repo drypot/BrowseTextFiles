@@ -20,6 +20,7 @@ struct FileBrowser: View {
         let rootURL: URL?
         let fileURL: URL?
 
+        // Codable 해야 해서 init 를 번잡스럽게 만들어 준다.
         init(id: UUID = UUID(), rootURL: URL? = nil, fileURL: URL? = nil) {
             self.id = id
             self.rootURL = rootURL
@@ -40,9 +41,7 @@ struct FileBrowser: View {
             if status.isRootReady {
                 browserView
             } else {
-                Button("Open Folder") {
-                    openFolderFromBlank()
-                }
+                blankView
             }
         }
         .alert("Error", isPresented: $status.isShowActiveError) {
@@ -99,6 +98,12 @@ struct FileBrowser: View {
         }
     }
 
+    var blankView: some View {
+        Button("Open Folder") {
+            openFolderFromBlank()
+        }
+    }
+    
     var browserView: some View {
         HSplitView {
 //            List(status.foldersForList, children: \.folders, selection: status.selectedFolderBinding()) { folder in
@@ -109,7 +114,7 @@ struct FileBrowser: View {
             FolderTreeView(status: status)
                 .frame(minWidth: 180, idealWidth: 260, maxHeight: .infinity)
 
-//            List(status.fileURLsForList, id: \.self, selection: status.selectedFileURLBinding()) { file in
+//            List(status.fileURLsForList, id: \.self, selection: status.selectedFileBinding()) { file in
 //                NavigationLink(file.lastPathComponent, value: file)
 //            }
 //            .frame(minWidth: 180, idealWidth: 260)
@@ -119,8 +124,8 @@ struct FileBrowser: View {
 
             TextEditorView(status: status)
         }
-        .navigationTitle(status.rootTitle ?? "Browser")
-        .sheet(isPresented: $status.isShowNewFile) {
+        .navigationTitle(status.rootName ?? "Browser")
+        .sheet(isPresented: $status.isShowNewFileView) {
             NewFileSheet(status: status)
         }
         .onChange(of: status.selectedFile) { _, newValue in

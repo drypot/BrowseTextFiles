@@ -10,38 +10,40 @@ import UniformTypeIdentifiers
 import MyLibrary
 
 @Observable
-public final class FileBuffer: Identifiable, Hashable {
-    public var url: URL
-    public var name: String
+final class FileBuffer: Identifiable, Hashable {
+    let id = UUID()
 
-    public var text: String = ""
-    public var selection: TextSelection?
+    private(set) var url: URL
+    private(set) var name: String
 
-    public var isEdited = false
-    public var hasSaveError = false
-    public var loadError: String?
+    private(set) var text: String = ""
+    var selection: TextSelection?
 
-    public var id: URL { url }
+    private(set) var isEdited = false
+    var hasSaveError = false
+    var loadError: String?
 
-    init(url: URL) {
+    init(from url: URL) {
         self.url = url
         self.name = url.lastPathComponent
     }
 
-    var textSetter: String {
-        get { text }
-        set {
-            text = newValue
-            isEdited = true
-        }
+    func textBinding() -> Binding<String> {
+        Binding<String>(
+            get: { self.text },
+            set: {
+                self.text = $0
+                self.isEdited = true
+            }
+        )
     }
 
-    public func loadContent() throws {
+    func loadContent() throws {
         text = try String(contentsOf: url, encoding: .utf8)
         isEdited = false
     }
 
-    public func saveContent() throws {
+    func saveContent() throws {
 //         파일을 이렇게 생성하면 먼저 붙였던 fileMonitor 가 떨어져 나간다.
 //         try text.write(to: url, atomically: true, encoding: .utf8)
 
@@ -57,11 +59,11 @@ public final class FileBuffer: Identifiable, Hashable {
         isEdited = false
     }
 
-    public static func == (lhs: FileBuffer, rhs: FileBuffer) -> Bool {
+    static func == (lhs: FileBuffer, rhs: FileBuffer) -> Bool {
         return lhs.id == rhs.id
     }
 
-    public func hash(into hasher: inout Hasher) {
+    func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
 }

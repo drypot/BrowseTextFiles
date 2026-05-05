@@ -11,11 +11,11 @@ nonisolated struct FileItem: Identifiable, Comparable, Hashable {
     let id = UUID()
 
     var url: URL
-    var title: String
+    var name: String
 
-    init(url: URL) {
+    init(from url: URL) {
         self.url = url
-        self.title = url.lastPathComponent
+        self.name = url.lastPathComponent
     }
 
     static func == (lhs: FileItem, rhs: FileItem) -> Bool {
@@ -23,7 +23,7 @@ nonisolated struct FileItem: Identifiable, Comparable, Hashable {
     }
 
     static func < (lhs: FileItem, rhs: FileItem) -> Bool {
-        return lhs.title < rhs.title
+        return lhs.name < rhs.name
     }
 
     func hash(into hasher: inout Hasher) {

@@ -7,17 +7,17 @@
 
 import Foundation
 
-public final class FileMonitor {
+final class FileMonitor {
     private var source: DispatchSourceFileSystemObject?
-    public var ignoreEvent = false
+    var ignoreEvent = false
 
-    public init() {}
+    init() {}
 
     deinit {
         cancel()
     }
 
-    public func startMonitoring(_ url: URL, onChange: @escaping (DispatchSource.FileSystemEvent) -> Void) {
+    func startMonitoring(_ url: URL, onChange: @escaping (DispatchSource.FileSystemEvent) -> Void) {
         let fd = open(url.path, O_EVTONLY)
         guard fd != -1 else { return }
 
@@ -54,23 +54,23 @@ public final class FileMonitor {
 //    resume 을 하면 쌓였던 event 가 한꺼번에 handler 에게 넘어간다.
 //    파일 저장시 잠시 모니터링을 멈추는 용도로는 쓸 수 없다.
 
-//    public func suspend() {
+//    func suspend() {
 //        guard let source else { return }
 //        source.suspend()
 //    }
 //
-//    public func resume() {
+//    func resume() {
 //        guard let source else { return }
 //        source.resume()
 //    }
 
-    public func cancel() {
+    func cancel() {
         guard let source else { return }
         source.cancel()
         self.source = nil
     }
 
-    public func disableMonitoringWhile<T>(block: () throws -> T) throws -> T {
+    func disableMonitoringWhile<T>(block: () throws -> T) throws -> T {
         // print("FileMonitor: ignoreEvent <- true")
         ignoreEvent = true
         defer {
