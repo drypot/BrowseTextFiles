@@ -15,9 +15,6 @@ struct FileBrowser: View {
 
     @State private var status = FileBrowserStatus()
 
-    @FocusState var isTextEditorFocused: Bool
-    @FocusState var isSearchTextFocused: Bool
-
     public struct InitParam: Hashable, Codable {
         let id: UUID
         let rootURL: URL?
@@ -120,112 +117,15 @@ struct FileBrowser: View {
             FileListView(status: status)
                 .frame(minWidth: 180, idealWidth: 260, maxHeight: .infinity)
 
-            textEditorView
+            TextEditorView(status: status)
         }
-        .navigationTitle(status.rootName ?? "Browser")
+        .navigationTitle(status.rootTitle ?? "Browser")
         .sheet(isPresented: $status.isShowNewFile) {
             NewFileSheet(status: status)
         }
-        .onChange(of: status.selectedFileURL) { _, newValue in
-            save(sceneFileURL: newValue)
+        .onChange(of: status.selectedFile) { _, newValue in
+            save(sceneFileURL: newValue?.url)
         }
-    }
-
-    var textEditorView: some View {
-        Group {
-            if status.isShowSearch {
-                searchView
-            } else if let loadError = status.fileBuffer?.loadError {
-                Text(loadError)
-                    .font(.custom(settings.fontName, size: settings.fontSize))
-                    .lineSpacing(settings.lineSpacing)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            } else if let buffer = status.fileBuffer {
-                @Bindable var buffer = buffer
-                TextEditor(text: $buffer.textSetter, selection: $buffer.selection)
-                    // 애플 공식문서에 나와있는 것인데 효과 없다.
-                    // .contentMargins(.horizontal, 20.0, for: .scrollContent)
-                    .focused($isTextEditorFocused)
-                    .findDisabled(false)
-                    .replaceDisabled(false)
-                    .font(.custom(settings.fontName, size: settings.fontSize))
-                    .lineSpacing(settings.lineSpacing)
-                    .onAppear {
-                        isTextEditorFocused = true
-                    }
-            } else {
-                Spacer()
-            }
-        }
-        // padding 을 주면 find 기능 사용할 때 화면이 반전되면 좌우 흰색이 안 이쁘게 나타난다.
-        // 하지만 contentMargins 이 동작하지 않으니 그냥 써야.
-        .padding(.horizontal, 16)
-//        .padding(.top, 16)
-        .frame(minWidth: 300, maxWidth: .infinity, maxHeight: .infinity)
-        .layoutPriority(1)
-    }
-
-    var searchView: some View {
-        VStack {
-            HStack {
-                TextField("Search", text: $status.searchText)
-                    .frame(width: 320)
-                    .focused($isSearchTextFocused)
-                    .onSubmit {
-                        status.startSearch()
-                    }
-                    .onExitCommand {
-                        status.hideSearchView()
-                    }
-                    .onAppear {
-                        isSearchTextFocused = true
-                    }
-
-                Button("Search") {
-                    status.startSearch()
-                }
-
-                Button("Reset") {
-                    status.clearSearchResult()
-                }
-            }
-            .padding(.bottom, 16)
-
-            Divider()
-
-            List {
-                if let results = status.searchResults, !results.isEmpty {
-                    ForEach(results, id: \.url) { result in
-                        Group {
-                            Button(result.title) {
-                                status.loadSearchedFile(result.url)
-                            }
-                            .buttonStyle(.plain)
-                            .fontWeight(.bold)
-                            .foregroundStyle(.link)
-                            .pointerStyle(.link)
-
-                            ForEach(result.lines) { line in
-                                Text(line.text)
-                            }
-                            Spacer()
-                                .frame(height: 8)
-                        }
-                    }
-                    .font(.custom(settings.fontName, size: settings.fontSize))
-                    .lineSpacing(settings.lineSpacing)
-                    .listRowSeparator(.hidden)
-                } else {
-                    Text("No results")
-                        .font(.custom(settings.fontName, size: settings.fontSize))
-                        .lineSpacing(settings.lineSpacing)
-                }
-            }
-            .onExitCommand {
-                status.hideSearchView()
-            }
-        }
-
     }
 
     func initView() {

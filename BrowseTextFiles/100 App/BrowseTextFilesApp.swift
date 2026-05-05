@@ -130,7 +130,7 @@ struct BrowseTextFilesApp: App {
 
     func newTab() {
         if let status = selectedBrowserStatus {
-            let initParam = FileBrowser.InitParam(rootURL: status.rootURL, fileURL: status.selectedFileURL)
+            let initParam = FileBrowser.InitParam(rootURL: status.rootURL, fileURL: status.selectedFile?.url)
             openWindow(id: "browser", value: initParam)
         } else {
             openWindow(id: "browser")

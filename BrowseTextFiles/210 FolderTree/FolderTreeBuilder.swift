@@ -15,14 +15,14 @@ import Foundation
 struct FolderTreeBuilder {
     init() {}
     
-    func build(from url: URL) throws -> Folder {
+    func build(from url: URL) throws -> FolderItem {
         let keys: [URLResourceKey] = [.isDirectoryKey]
         let keySet = Set(keys)
         let options: FileManager.DirectoryEnumerationOptions = [.skipsHiddenFiles]
 
-        func buildFolder(from url: URL) throws -> Folder {
+        func buildFolder(from url: URL) throws -> FolderItem {
             let fileManager = FileManager.default
-            let folder = Folder(url: url)
+            let folder = FolderItem(url: url)
 
             let items = try fileManager.contentsOfDirectory(at: url,
                                                             includingPropertiesForKeys: keys,
@@ -32,15 +32,15 @@ struct FolderTreeBuilder {
                     let values = try item.resourceValues(forKeys: keySet)
                     if values.isDirectory == true {
                         let child = try buildFolder(from: item)
-                        if folder.folders == nil {
-                            folder.folders = [child]
+                        if folder.children == nil {
+                            folder.children = [child]
                         } else {
-                            folder.folders!.append(child)
+                            folder.children!.append(child)
                         }
                     }
                 }
             }
-            folder.folders?.sort()
+            folder.children?.sort()
 
             return folder
         }
