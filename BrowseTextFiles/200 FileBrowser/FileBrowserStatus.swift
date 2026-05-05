@@ -58,14 +58,6 @@ final class FileBrowserStatus {
         rootFolder?.name
     }
 
-    var foldersForList: [Folder] {
-        if let rootFolder {
-            [rootFolder]
-        } else {
-            []
-        }
-    }
-
     func resetFolderTree() {
         rootFolder = nil
         selectedFolder = nil
@@ -268,14 +260,6 @@ final class FileBrowserStatus {
     }
 
     // MARK: - File List
-
-    var fileURLsForList: [URL] {
-        if let urls = fileURLs {
-            urls
-        } else {
-            []
-        }
-    }
 
     func resetFileList() {
         fileURLs = nil
