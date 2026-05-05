@@ -84,12 +84,17 @@ fileprivate struct RowView: View {
                 .padding(.horizontal, 10)
         )
         .frame(maxWidth: .infinity)
+        .focusable()
+        .focusEffectDisabled() // 포커스 테두리 표시 안 함
         .contentShape(Rectangle()) // 빈공간도 클릭되게 한다.
         .onTapGesture {
             status.updateSelectedFileURL(with: item)
         }
-        .focusable()
-        .focusEffectDisabled() // 포커스 테두리 표시 안 함
+        .contextMenu {
+            Button("Show in Finder") {
+                Finder.shared.open(url: item)
+            }
+        }
     }
 }
 

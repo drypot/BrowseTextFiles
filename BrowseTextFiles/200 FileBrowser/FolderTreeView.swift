@@ -43,6 +43,8 @@ struct FolderTreeView: View {
 }
 
 fileprivate struct RowView: View {
+    @Environment(\.openWindow) private var openWindow
+    
     let status: FileBrowserStatus
     let item: Folder
     let level: Int
@@ -101,12 +103,22 @@ fileprivate struct RowView: View {
                 .padding(.horizontal, 10)
         )
         .frame(maxWidth: .infinity)
+        .focusable()
+        .focusEffectDisabled() // 포커스 테두리 표시 안 함
         .contentShape(Rectangle()) // 빈공간도 클릭되게 한다.
         .onTapGesture {
             status.updateSelectedFolder(to: item)
         }
-        .focusable()
-        .focusEffectDisabled() // 포커스 테두리 표시 안 함
+        .contextMenu {
+            Button("Open in New Tab") {
+                let initParam = FileBrowser.InitParam(rootURL: item.url, fileURL: nil)
+                openWindow(id: "browser", value: initParam)
+            }
+            Divider()
+            Button("Show in Finder") {
+                Finder.shared.open(url: item.url)
+            }
+        }
 
         if let folders = item.folders, isExpanded {
             ForEach(folders) { child in
