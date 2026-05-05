@@ -5,7 +5,7 @@
 //  Created by Kyuhyun Park on 3/1/26.
 //
 
-import Foundation
+import SwiftUI
 import UniformTypeIdentifiers
 import MyLibrary
 
@@ -15,6 +15,7 @@ public final class FileBuffer: Identifiable, Hashable {
     public var name: String
 
     public var text: String = ""
+    public var selection: TextSelection?
 
     public var isEdited = false
     public var hasSaveError = false

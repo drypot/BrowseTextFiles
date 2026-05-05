@@ -12,10 +12,10 @@ import Foundation
  https://stackoverflow.com/questions/46383143/why-does-filemanager-enumerator-use-an-absurd-amount-of-memory
  */
 
-public struct FolderTreeBuilder {
-    public init() {}
+struct FolderTreeBuilder {
+    init() {}
     
-    public func build(from url: URL) throws -> Folder {
+    func build(from url: URL) throws -> Folder {
         let keys: [URLResourceKey] = [.isDirectoryKey]
         let keySet = Set(keys)
         let options: FileManager.DirectoryEnumerationOptions = [.skipsHiddenFiles]

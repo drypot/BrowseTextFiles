@@ -16,6 +16,7 @@ struct FolderTreeView: View {
 
     var body: some View {
         let isActive = controlActiveState != .inactive && isFocused
+        
         List {
             if let rootFolder = status.rootFolder {
                 RowView(status: status, item: rootFolder, level: 0, isActive: isActive)

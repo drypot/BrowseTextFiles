@@ -16,6 +16,7 @@ struct FileListView: View {
 
     var body: some View {
         let isActive = controlActiveState != .inactive && isFocused
+
         List {
             ForEach(status.fileURLsForList, id: \.self) { url in
                 RowView(status: status, item: url, isActive: isActive)

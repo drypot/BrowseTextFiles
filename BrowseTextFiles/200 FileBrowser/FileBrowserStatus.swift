@@ -32,9 +32,14 @@ final class FileBrowserStatus {
     private(set) var searchResults: [SearchResult]?
 
     nonisolated struct SearchResult: Sendable {
+        struct Line: Identifiable {
+            let id = UUID()
+            let text: String
+        }
+
         let url: URL
         let title: String
-        let lines: [String]
+        let lines: [Line]
     }
 
     private let log = LogStore.shared.log
@@ -412,7 +417,7 @@ final class FileBrowserStatus {
 
     // MARK: - Load File
 
-    func updateSelectedFolderAndFile(with url: URL) {
+    func loadFileAndSetupEnvironment(for url: URL) {
         let folderURL = url.deletingLastPathComponent()
 
         updateSelectedFolder(with: folderURL)
@@ -426,8 +431,31 @@ final class FileBrowserStatus {
         }
     }
 
-    func loadSearchedFile(from url: URL) {
-        updateSelectedFolderAndFile(with: url)
+    func loadSearchedFile(_ url: URL) {
+        loadFileAndSetupEnvironment(for: url)
+
+        guard let fileBuffer else { return }
+
+        // 파일 내용중 '학생'을 검색해서 커서를 이동시키는데
+        // 어떨 때는 정상으로 이동하다가
+        // 파일 뒤에 내용이 별로 없으면 커서가 학생으로 가지 않고 화일 끝으로 가는 현상이 있었다.
+        // 원인은 모르겠다.
+
+        // Swift String 과 NSString 차이 때문에 발생하는 것 같진 않았다.
+        // 이리저리 테스트하다가 테스트 코드는 일단 다 삭제.
+
+        // 검색 단어로 커서를 옮기는 아래 기능은
+        // 될 때가 있고 안 될 때가 있어서 일단 사용중지.
+
+        // let range = fileBuffer.text.range(of: searchText)
+        // if let range {
+        //     fileBuffer.selection = TextSelection(insertionPoint: range.lowerBound)
+        //     log("range: \(range)")
+        // }
+
+        let findPasteboard = NSPasteboard(name: .find)
+        findPasteboard.declareTypes([.string], owner: nil)
+        findPasteboard.setString(searchText, forType: .string)
     }
 
 
@@ -437,7 +465,7 @@ final class FileBrowserStatus {
         saveFileIfEdited()
         if isShowActiveError { return }
 
-        let folderURL = selectedFolder?.url
+        let folderURL = fileBuffer?.url.deletingLastPathComponent()
         let fileURL = fileBuffer?.url
 
         reloadFolderTree()
@@ -508,7 +536,7 @@ final class FileBrowserStatus {
                     reloadFileList()
                     log("new file: \(path)")
                 }
-                updateSelectedFolderAndFile(with: newFileURL)
+                loadFileAndSetupEnvironment(for: newFileURL)
             }
         } catch {
             let message = error.localizedDescription
@@ -571,27 +599,32 @@ final class FileBrowserStatus {
         return try await withThrowingTaskGroup(of: SearchResult?.self) { group in
             for url in try FileURLCollector().collectRecursively(from: rootURL) {
                 group.addTask(priority: .userInitiated) {
-                    let lines = try self.filterLines(from: url, searchText: searchText)
-                    if lines.count == 0 { return nil }
-                    let title = String(url.path(percentEncoded: false).dropFirst(basePathLength))
-                    return SearchResult(url: url, title: title, lines: lines)
+                    let lines = try Self.filterLines(from: url, searchText: searchText)
+                    let fileName = url.lastPathComponent
+                    if fileName.contains(searchText) || lines.count > 0 {
+                        let title = String(url.path(percentEncoded: false).dropFirst(basePathLength))
+                        return SearchResult(url: url, title: title, lines: lines)
+                    } else {
+                        return nil
+                    }
                 }
             }
             var results: [SearchResult] = []
             while let result = try await group.next() {
                 guard let result else { continue }
+                print("\(result)")
                 results.append(result)
             }
             return results.sorted { $0.title < $1.title }
         }
     }
 
-    nonisolated private func filterLines(from url: URL, searchText: String) throws -> [String] {
+    nonisolated private static func filterLines(from url: URL, searchText: String) throws -> [SearchResult.Line] {
         let fileHandle = try FileHandle(forReadingFrom: url)
         defer { try? fileHandle.close() }
 
         var buffer = Data()
-        var result: [String] = []
+        var result: [SearchResult.Line] = []
 //        var count = 0
 
         while let chunk = try fileHandle.read(upToCount: 4096), !chunk.isEmpty {
@@ -599,9 +632,9 @@ final class FileBrowserStatus {
             while let range = buffer.range(of: Data([0x0A])) {
                 let lineData = buffer.subdata(in: 0..<range.lowerBound)
                 buffer.removeSubrange(0...range.lowerBound)
-                let line = String(data: lineData, encoding: .utf8)
-                if let line, line.contains(searchText) {
-                    result.append(line)
+                let text = String(data: lineData, encoding: .utf8)
+                if let text, text.contains(searchText) {
+                    result.append(SearchResult.Line(text: text))
 //                    count += 1
 //                    if count >= 5 {
 //                        return result
@@ -611,9 +644,9 @@ final class FileBrowserStatus {
         }
 
         // 마지막 줄 처리 (개행 없이 끝나는 경우)
-        if let lastLine = String(data: buffer, encoding: .utf8),
-            lastLine.contains(searchText) {
-                result.append(lastLine)
+        if let text = String(data: buffer, encoding: .utf8),
+            text.contains(searchText) {
+                result.append(SearchResult.Line(text: text))
         }
 
         return result

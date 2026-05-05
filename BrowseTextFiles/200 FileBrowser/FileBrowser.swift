@@ -15,6 +15,7 @@ struct FileBrowser: View {
 
     @State private var status = FileBrowserStatus()
 
+    @FocusState var isTextEditorFocused: Bool
     @FocusState var isSearchTextFocused: Bool
 
     public struct InitParam: Hashable, Codable {
@@ -141,17 +142,25 @@ struct FileBrowser: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             } else if let buffer = status.fileBuffer {
                 @Bindable var buffer = buffer
-                TextEditor(text: $buffer.textSetter)
+                TextEditor(text: $buffer.textSetter, selection: $buffer.selection)
+                    // 애플 공식문서에 나와있는 것인데 효과 없다.
+                    // .contentMargins(.horizontal, 20.0, for: .scrollContent)
+                    .focused($isTextEditorFocused)
                     .findDisabled(false)
                     .replaceDisabled(false)
                     .font(.custom(settings.fontName, size: settings.fontSize))
                     .lineSpacing(settings.lineSpacing)
+                    .onAppear {
+                        isTextEditorFocused = true
+                    }
             } else {
                 Spacer()
             }
         }
-        .padding(.horizontal, 18)
-        .padding(.vertical, 8)
+        // padding 을 주면 find 기능 사용할 때 화면이 반전되면 좌우 흰색이 안 이쁘게 나타난다.
+        // 하지만 contentMargins 이 동작하지 않으니 그냥 써야.
+        .padding(.horizontal, 16)
+//        .padding(.top, 16)
         .frame(minWidth: 300, maxWidth: .infinity, maxHeight: .infinity)
         .layoutPriority(1)
     }
@@ -189,15 +198,15 @@ struct FileBrowser: View {
                     ForEach(results, id: \.url) { result in
                         Group {
                             Button(result.title) {
-                                status.loadSearchedFile(from: result.url)
+                                status.loadSearchedFile(result.url)
                             }
                             .buttonStyle(.plain)
                             .fontWeight(.bold)
                             .foregroundStyle(.link)
                             .pointerStyle(.link)
 
-                            ForEach(result.lines, id: \.self) { line in
-                                Text(line)
+                            ForEach(result.lines) { line in
+                                Text(line.text)
                             }
                             Spacer()
                                 .frame(height: 8)
@@ -227,7 +236,7 @@ struct FileBrowser: View {
             if !status.isRootReady { return }
 
             if let fileURL = loadSceneFileURL() {
-                status.updateSelectedFolderAndFile(with: fileURL)
+                status.loadFileAndSetupEnvironment(for: fileURL)
             } else {
                 status.updateSelectedFolderToRoot()
             }
@@ -241,7 +250,7 @@ struct FileBrowser: View {
             if !status.isRootReady { return }
 
             if let fileURL = initParam?.fileURL {
-                status.updateSelectedFolderAndFile(with: fileURL)
+                status.loadFileAndSetupEnvironment(for: fileURL)
             } else {
                 status.updateSelectedFolderToRoot()
             }

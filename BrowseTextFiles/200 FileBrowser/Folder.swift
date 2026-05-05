@@ -7,32 +7,35 @@
 
 import Foundation
 
-public final class Folder: Identifiable, Comparable, Hashable {
-    public var url: URL
-    public var name: String
-    public var folders: [Folder]?
+final class Folder: Identifiable, Comparable, Hashable {
+    // Root 폴더 새로 생성시 TreeView 가 리프레쉬 되게 하기 위해
+    // URL 에서 UUID 로 id 를 변경한다.
+    let id = UUID()
+    
+    var url: URL
+    var name: String
+    var folders: [Folder]?
 
-    public var id: URL { url }
-    public var hasChildren: Bool { folders != nil }
+    var hasChildren: Bool { folders != nil }
 
-    public init(url: URL) {
+    init(url: URL) {
         self.url = url
         self.name = url.lastPathComponent
     }
 
-    public static func == (lhs: Folder, rhs: Folder) -> Bool {
+    static func == (lhs: Folder, rhs: Folder) -> Bool {
         lhs.id == rhs.id
     }
 
-    public static func < (lhs: Folder, rhs: Folder) -> Bool {
+    static func < (lhs: Folder, rhs: Folder) -> Bool {
         return lhs.name < rhs.name
     }
 
-    public func hash(into hasher: inout Hasher) {
+    func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
 
-    public func findFolder(with url: URL) -> Folder? {
+    func findFolder(with url: URL) -> Folder? {
         if self.url == url { return self }
         if let folders {
             for folder in folders {
