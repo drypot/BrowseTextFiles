@@ -24,11 +24,15 @@ struct FolderTreeView: View {
         }
         .focused($isFocused)
         .onKeyPress(.downArrow) {
-            status.moveDownSelectedFolder()
+            if status.moveSelectedFolderDown() {
+                status.updateFileListFromSelectedFolder()
+            }
             return .handled
         }
         .onKeyPress(.upArrow) {
-            status.moveUpSelectedFolder()
+            if status.moveSelectedFolderUp() {
+                status.updateFileListFromSelectedFolder()
+            }
             return .handled
         }
         .onKeyPress(.rightArrow) {
@@ -36,7 +40,9 @@ struct FolderTreeView: View {
             return .handled
         }
         .onKeyPress(.leftArrow) {
-            status.collapseSelectedFolder()
+            if status.collapseSelectedFolder() {
+                status.updateFileListFromSelectedFolder()
+            }
             return .handled
         }
     }
@@ -107,6 +113,7 @@ fileprivate struct RowView: View {
         .contentShape(Rectangle()) // 빈공간도 클릭되게 한다.
         .onTapGesture {
             status.updateSelectedFolder(to: item)
+            status.updateFileListFromSelectedFolder()
         }
         .contextMenu {
             Button("Open in New Tab") {

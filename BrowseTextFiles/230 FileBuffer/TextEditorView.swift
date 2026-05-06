@@ -17,7 +17,7 @@ struct TextEditorView: View {
         Group {
             if status.isShowSearchView {
                 SearchResultView(status: status)
-            } else if let loadError = status.fileBuffer?.loadError {
+            } else if let loadError = status.fileBuffer?.loadingError {
                 Text(loadError)
                     .font(.custom(settings.fontName, size: settings.fontSize))
                     .lineSpacing(settings.lineSpacing)

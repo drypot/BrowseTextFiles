@@ -36,7 +36,7 @@ struct BrowseTextFilesApp: App {
         .commands {
             CommandGroup(replacing: .newItem) {
                 Button("New File", systemImage: "text.document") {
-                    selectedBrowserStatus?.showNewFileForm()
+                    selectedBrowserStatus?.showNewFileView()
                 }
                 .keyboardShortcut("n", modifiers: .command)
 

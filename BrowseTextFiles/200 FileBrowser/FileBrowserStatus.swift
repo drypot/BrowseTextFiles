@@ -19,7 +19,6 @@ final class FileBrowserStatus {
     private(set) var selectedFile: FileItem?
 
     private(set) var fileBuffer: FileBuffer?
-    private var fileMonitor: FileMonitor?
 
     var isShowNewFileView = false
 
@@ -53,14 +52,15 @@ final class FileBrowserStatus {
         //expandedFolders.removeAll()
     }
 
-    func loadFolderTree(from rootURL: URL) {
+    func updateFolderTree(from url: URL) {
         resetFolderTree()
         do {
-            try withSecurityScope(rootURL) {
-                rootFolder = try FolderTreeBuilder().buildTree(from: rootURL)
-                expandFolder(for: rootURL)
+            try withSecurityScope(url) {
+                rootFolder = try FolderTreeBuilder().buildTree(from: url)
+                selectedFolder = rootFolder
+                expandFolder(for: url)
             }
-            log("load root: \(rootURL.lastPathComponent)")
+            log("load root: \(url.lastPathComponent)")
         } catch {
             let message = error.localizedDescription
             activeError = ActiveError(message: message)
@@ -70,44 +70,47 @@ final class FileBrowserStatus {
     }
 
     func reloadFolderTree() {
-        if let rootURL {
-            loadFolderTree(from: rootURL)
-        } else {
+        guard let rootURL else {
             resetFolderTree()
+            return
+        }
+
+        let selectedFolderURL = selectedFolder?.url
+
+        updateFolderTree(from: rootURL)
+        if let selectedFolderURL {
+            updateSelectedFolder(from: selectedFolderURL)
         }
     }
 
-    // MARK: - Folder Tree, Selection
+    // MARK: - Selected Folder
 
     func selectedFolderBinding() -> Binding<FolderItem?> {
         Binding<FolderItem?>(
             get: { self.selectedFolder },
-            set: { self.updateSelectedFolder(to: $0) }
+            set: {
+                self.updateSelectedFolder(to: $0)
+                self.updateFileListFromSelectedFolder()
+            }
         )
     }
 
     func updateSelectedFolder(to folder: FolderItem?) {
-        if selectedFolder == folder { return }
-
         selectedFolder = folder
-        if let folder {
-            loadFileList(from: folder.url)
-        } else {
-            resetFileList()
-        }
     }
 
-    func updateSelectedFolderToFolder(with url: URL) {
-        let folder = rootFolder?.findFolder(with: url)
-        updateSelectedFolder(to: folder)
+    func updateSelectedFolder(from url: URL) {
+        if let folder = rootFolder?.findFolder(with: url) {
+            updateSelectedFolder(to: folder)
+        }
     }
 
     func updateSelectedFolderToRoot() {
         updateSelectedFolder(to: rootFolder)
     }
 
-    func moveDownSelectedFolder() {
-        guard let rootFolder else { return }
+    func moveSelectedFolderDown() -> Bool {
+        guard let rootFolder else { return false }
         var previous: FolderItem?
 
         func findNext(from current: FolderItem) -> FolderItem? {
@@ -127,12 +130,13 @@ final class FileBrowserStatus {
             return nil
         }
 
-        guard let result = findNext(from: rootFolder) else { return }
+        guard let result = findNext(from: rootFolder) else { return false }
         updateSelectedFolder(to: result)
+        return true
     }
 
-    func moveUpSelectedFolder() {
-        guard let rootFolder else { return }
+    func moveSelectedFolderUp() -> Bool {
+        guard let rootFolder else { return false }
         var previous: FolderItem?
 
         func findPrevious(from current: FolderItem) -> FolderItem? {
@@ -152,13 +156,14 @@ final class FileBrowserStatus {
             return nil
         }
 
-        guard let result = findPrevious(from: rootFolder) else { return }
+        guard let result = findPrevious(from: rootFolder) else { return false }
         updateSelectedFolder(to: result)
+        return true
     }
 
-    func moveToParentFolder() {
-        guard let rootFolder else { return }
-        guard let selectedFolder else { return }
+    func moveSelectedFolderToParent() -> Bool {
+        guard let rootFolder else { return false }
+        guard let selectedFolder else { return false }
 
         func findParent(from current: FolderItem, parent: FolderItem?) -> FolderItem? {
             if current == selectedFolder {
@@ -176,28 +181,15 @@ final class FileBrowserStatus {
             return nil
         }
 
-        if let result = findParent(from: rootFolder, parent: nil) {
-            updateSelectedFolder(to: result)
-        }
+        guard let result = findParent(from: rootFolder, parent: nil) else { return false }
+        updateSelectedFolder(to: result)
+        return true
     }
 
-    // MARK: - Folder Tree, Folding
+    // MARK: - Folder Folding
 
     func isFolderExpanded(for url: URL) -> Bool {
         expandedFolders.contains(url)
-    }
-
-    func isFolderExpandedBinding(for url: URL) -> Binding<Bool> {
-        Binding<Bool>(
-            get: { self.isFolderExpanded(for: url) },
-            set: {
-                if $0 {
-                    self.expandFolder(for: url)
-                } else {
-                    self.collapseFolder(for: url)
-                }
-            }
-        )
     }
 
     func expandFolder(for url: URL) {
@@ -218,29 +210,28 @@ final class FileBrowserStatus {
 
     func expandSelectedFolder() {
         guard let selectedFolder else { return }
-
         if selectedFolder.hasChildren {
             expandFolder(for: selectedFolder.url)
         }
     }
 
-    func collapseSelectedFolder() {
-        guard let selectedFolder else { return }
-
+    func collapseSelectedFolder() -> Bool {
+        guard let selectedFolder else { return false }
         if selectedFolder.hasChildren, isFolderExpanded(for: selectedFolder.url) {
             collapseFolder(for: selectedFolder.url)
         } else {
-            moveToParentFolder()
+            return moveSelectedFolderToParent()
         }
+        return false
     }
 
-    private func expandFolders(for folderURL: URL) {
+    private func expandFolders(for url: URL) {
         guard let rootURL else { return }
         let rootCount = rootURL.pathComponents.count
-        let folderCount = folderURL.pathComponents.count
-        let count = folderCount - rootCount
+        let urlCount = url.pathComponents.count
+        let count = urlCount - rootCount
 
-        var tmpURL = folderURL
+        var tmpURL = url
         for _ in 0 ..< count {
             expandFolder(for: tmpURL)
             tmpURL = tmpURL.deletingLastPathComponent()
@@ -254,18 +245,18 @@ final class FileBrowserStatus {
         selectedFile = nil
     }
 
-    func loadFileList(from folderURL: URL) {
+    func updateFileList(from url: URL) {
         resetFileList()
         do {
             guard let rootURL else { return }
             try withSecurityScope(rootURL) {
-                fileList = try FileListBuilder().collectShallowly(from: folderURL) { contentType in
+                fileList = try FileListBuilder().collectShallowly(from: url) { contentType in
                     // contentType.conforms(to: .text)
                     return true
                 }
                 fileList?.sort { $0.name < $1.name }
             }
-            log("load file list: \(folderURL.lastPathComponent)")
+            log("load file list: \(url.lastPathComponent)")
         } catch {
             let message = error.localizedDescription
             activeError = ActiveError(message: message)
@@ -274,133 +265,126 @@ final class FileBrowserStatus {
         }
     }
 
-    func reloadFileList() {
-        guard let selectedFolder else { return }
-        loadFileList(from: selectedFolder.url)
+    func updateFileListFromSelectedFolder() {
+        if let folder = selectedFolder {
+            updateFileList(from: folder.url)
+        } else {
+            resetFileList()
+        }
     }
 
     func selectedFileBinding() -> Binding<FileItem?> {
         return Binding<FileItem?>(
             get: { self.selectedFile },
-            set: { self.updateSelectedFile(with: $0) }
+            set: {
+                self.updateSelectedFile(to: $0)
+                self.updateFileBufferFromSelectedFile()
+            }
         )
     }
 
-    func updateSelectedFile(with fileItem: FileItem?) {
+    func updateSelectedFile(to fileItem: FileItem?) {
         selectedFile = fileItem
-        if let fileItem {
-            loadFile(from: fileItem.url)
-        } else {
-            resetFileBuffer()
-        }
     }
 
-    private func updateSelectedFile(withChecked url: URL) {
-        let first = fileList?.first { $0.url == url }
-        if let first {
-            updateSelectedFile(with: first)
-        } else {
-            updateSelectedFile(with: nil)
-        }
+    func updateSelectedFile(from url: URL) {
+        selectedFile = fileList?.first { $0.url == url }
     }
 
-    func moveDownSelectedFile() {
-        guard let fileList else { return }
+    func moveSelectedFileDown() -> Bool {
+        guard let fileList else { return false }
         var previous: FileItem?
-        var result: FileItem?
 
         for item in fileList {
             if previous == selectedFile {
-                result = item
-                break
+                updateSelectedFile(to: item)
+                return true
             }
             previous = item
         }
 
-        if let result {
-            updateSelectedFile(with: result)
-        }
+        return false
     }
 
-    func moveUpSelectedFile() {
-        guard let fileList else { return }
+    func moveSelectedFileUp() -> Bool {
+        guard let fileList else { return false }
         var previous: FileItem?
-        var result: FileItem?
 
         for item in fileList {
             if item == selectedFile {
-                result = previous
-                break
+                guard let previous else { return false }
+                updateSelectedFile(to: previous)
+                return true
             }
             previous = item
         }
 
-        if let result {
-            updateSelectedFile(with: result)
-        }
+        return false
     }
 
-    // MARK: - Buffer
+    // MARK: - FileBuffer
 
     func resetFileBuffer() {
         saveFileIfEdited()
         if isShowActiveError { return }
 
         fileBuffer = nil
-        fileMonitor = nil
     }
 
-    func loadFile(from url: URL) {
+    func updateFileBuffer(from url: URL) {
+        guard let rootURL else { return }
+
         saveFileIfEdited()
         if isShowActiveError { return }
 
-        isShowSearchView = false
-        loadFileLoop(from: url)
-    }
-
-    private func loadFileLoop(from url: URL) {
-        fileBuffer = FileBuffer(from: url)
-        fileMonitor = nil
         do {
-            guard let rootURL else { return }
+            fileBuffer = FileBuffer(from: url)
+            guard let fileBuffer else { return }
+
+            isShowSearchView = false
+
             try withSecurityScope(rootURL) {
-                try fileBuffer!.loadContent()
-
-                fileMonitor = FileMonitor()
-                fileMonitor!.startMonitoring(url) { [weak self] _ in
-                    guard let self else { return }
-                    self.loadFileLoop(from: url)
-                }
-
-                log("load file: \(url.lastPathComponent)")
+                try fileBuffer.loadFile()
+                fileBuffer.startMonitoring()
+                log("load file: \(fileBuffer.name)")
             }
         } catch {
             let message = error.localizedDescription
-            fileBuffer!.loadError = message
-            activeError = ActiveError(message: message)
-            isShowActiveError = true
+            // loading error 는 다이얼로그 대신 TextEditor 표시될 부분에 표시된다.
+            // activeError = ActiveError(message: message)
+            // isShowActiveError = true
             log("load file: \(message)")
         }
     }
 
-    // MARK: - Load File
-
-    func loadFileAndSetupEnvironment(for url: URL) {
-        let folderURL = url.deletingLastPathComponent()
-
-        updateSelectedFolderToFolder(with: folderURL)
-        if isShowActiveError { return }
-
-        if selectedFolder != nil {
-            updateSelectedFile(withChecked: url)
-            expandFolders(for: folderURL)
+    func updateFileBufferFromSelectedFile() {
+        if let fileItem = selectedFile {
+            updateFileBuffer(from: fileItem.url)
         } else {
-            updateSelectedFolder(to: rootFolder)
+            resetFileBuffer()
         }
     }
 
-    func loadSearchedFile(_ url: URL) {
-        loadFileAndSetupEnvironment(for: url)
+    func updateAll(from url: URL) {
+        let folderURL = url.deletingLastPathComponent()
+
+        updateSelectedFolder(from: folderURL)
+        updateFileList(from: folderURL)
+        if isShowActiveError { return }
+
+        if fileList != nil {
+            updateSelectedFile(from: url)
+            updateFileBuffer(from: url)
+            expandFolders(for: folderURL)
+        }
+    }
+
+    func updateAll(fromSearchedFile url: URL) {
+        let findPasteboard = NSPasteboard(name: .find)
+        findPasteboard.declareTypes([.string], owner: nil)
+        findPasteboard.setString(searchText, forType: .string)
+
+        updateAll(from: url)
 
         // guard let fileBuffer else { return }
 
@@ -420,52 +404,37 @@ final class FileBrowserStatus {
         //     fileBuffer.selection = TextSelection(insertionPoint: range.lowerBound)
         //     log("range: \(range)")
         // }
-
-        let findPasteboard = NSPasteboard(name: .find)
-        findPasteboard.declareTypes([.string], owner: nil)
-        findPasteboard.setString(searchText, forType: .string)
     }
-
-
-    // MARK: - Reload
 
     func reloadAll() {
         saveFileIfEdited()
         if isShowActiveError { return }
 
-        let folderURL = fileBuffer?.url.deletingLastPathComponent()
         let fileURL = fileBuffer?.url
 
         reloadFolderTree()
         if isShowActiveError { return }
 
-        guard let folderURL else { return }
-        updateSelectedFolderToFolder(with: folderURL)
-
-        guard let fileURL else { return }
-        updateSelectedFile(withChecked: fileURL)
+        if let fileURL {
+            updateAll(from: fileURL)
+        }
 
         log("reload all:")
     }
 
-    // MARK: - Save File
-
     func saveFileIfEdited() {
-        guard let fileBuffer, fileBuffer.isEdited, !fileBuffer.hasSaveError else { return }
+        guard let fileBuffer, fileBuffer.isEdited, !fileBuffer.hasSavingError else { return }
         saveFile()
     }
 
     func saveFile() {
+        guard let rootURL else { return }
         guard let fileBuffer else { return }
-        if fileBuffer.loadError != nil { return }
         do {
-            guard let rootURL else { return }
             try withSecurityScope(rootURL) {
-                try fileMonitor?.disableMonitoringWhile {
-                    try fileBuffer.saveContent()
-                }
+                try fileBuffer.saveFile()
             }
-            log("save file: \(fileBuffer.url.lastPathComponent)")
+            log("save file: \(fileBuffer.name)")
         } catch {
             let message = error.localizedDescription
             activeError = ActiveError(message: message)
@@ -476,19 +445,24 @@ final class FileBrowserStatus {
 
     // MARK: - New File
 
-    func showNewFileForm() {
+    func showNewFileView() {
         saveFileIfEdited()
         if isShowActiveError { return }
 
-        if selectedFolder == nil { return }
-        isShowNewFileView = true
+        if selectedFolder == nil {
+            activeError = ActiveError(message: "Select folder first.")
+            isShowActiveError = true
+        } else {
+            isShowNewFileView = true
+        }
     }
     
     func makeNewFile(path: String) {
+        let fileManager = FileManager.default
+        guard let rootURL else { return }
+
         do {
-            guard let rootURL else { return }
             let newFileURL = rootURL.appending(component: path)
-            let fileManager = FileManager.default
             try withSecurityScope(rootURL) {
                 if fileManager.fileExists(atPath: newFileURL.path) {
                     // do nothing
@@ -501,10 +475,9 @@ final class FileBrowserStatus {
                         reloadFolderTree()
                     }
                     try "".write(to: newFileURL, atomically: true, encoding: .utf8)
-                    reloadFileList()
                     log("new file: \(path)")
                 }
-                loadFileAndSetupEnvironment(for: newFileURL)
+                updateAll(from: newFileURL)
             }
         } catch {
             let message = error.localizedDescription
@@ -579,7 +552,6 @@ final class FileBrowserStatus {
             var results: [SearchResult] = []
             while let result = try await group.next() {
                 guard let result else { continue }
-                print("\(result)")
                 results.append(result)
             }
             return results.sorted { $0.title < $1.title }

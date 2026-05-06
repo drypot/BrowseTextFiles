@@ -44,10 +44,10 @@ struct FileBrowser: View {
                 blankView
             }
         }
-        .alert("Error", isPresented: $status.isShowActiveError) {
+        .alert("", isPresented: $status.isShowActiveError) {
             Button("OK") { }
         } message: {
-            Text(status.activeError?.message ?? "unknown error")
+            Text(status.activeError?.message ?? "Unknown error.")
         }
         .focusedSceneValue(\.selectedBrowserStatus, status)
         .toolbarBackground(.background, for: .windowToolbar)
@@ -137,13 +137,14 @@ struct FileBrowser: View {
         if let rootURL = loadSceneRootURL() {
             log("restore folder: \(rootURL.lastPathComponent)")
 
-            status.loadFolderTree(from: rootURL)
+            status.updateFolderTree(from: rootURL)
             if !status.isRootReady { return }
 
             if let fileURL = loadSceneFileURL() {
-                status.loadFileAndSetupEnvironment(for: fileURL)
+                status.updateAll(from: fileURL)
             } else {
                 status.updateSelectedFolderToRoot()
+                status.updateFileListFromSelectedFolder()
             }
             return
         }
@@ -151,13 +152,14 @@ struct FileBrowser: View {
         if let rootURL = initParam?.rootURL {
             log("open folder: \(rootURL.lastPathComponent)")
 
-            status.loadFolderTree(from: rootURL)
+            status.updateFolderTree(from: rootURL)
             if !status.isRootReady { return }
 
             if let fileURL = initParam?.fileURL {
-                status.loadFileAndSetupEnvironment(for: fileURL)
+                status.updateAll(from: fileURL)
             } else {
                 status.updateSelectedFolderToRoot()
+                status.updateFileListFromSelectedFolder()
             }
 
             save(sceneRootURL: rootURL)
@@ -175,8 +177,9 @@ struct FileBrowser: View {
         panel.canChooseFiles = false
         if panel.runModal() == .OK, let rootURL = panel.url {
             log("open folder: \(rootURL.lastPathComponent)")
-            status.loadFolderTree(from: rootURL)
+            status.updateFolderTree(from: rootURL)
             status.updateSelectedFolderToRoot()
+            status.updateFileListFromSelectedFolder()
             save(sceneRootURL: rootURL)
             settings.addRecentDocumentURL(rootURL)
         }

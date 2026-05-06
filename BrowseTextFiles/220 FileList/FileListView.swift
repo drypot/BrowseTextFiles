@@ -26,11 +26,15 @@ struct FileListView: View {
         }
         .focused($isFocused)
         .onKeyPress(.downArrow) {
-            status.moveDownSelectedFile()
+            if status.moveSelectedFileDown() {
+                status.updateFileBufferFromSelectedFile()
+            }
             return .handled
         }
         .onKeyPress(.upArrow) {
-            status.moveUpSelectedFile()
+            if status.moveSelectedFileUp() {
+                status.updateFileBufferFromSelectedFile()
+            }
             return .handled
         }
     }
@@ -88,7 +92,8 @@ fileprivate struct RowView: View {
         .focusEffectDisabled() // 포커스 테두리 표시 안 함
         .contentShape(Rectangle()) // 빈공간도 클릭되게 한다.
         .onTapGesture {
-            status.updateSelectedFile(with: item)
+            status.updateSelectedFile(to: item)
+            status.updateFileBufferFromSelectedFile()
         }
         .contextMenu {
             Button("Show in Finder") {

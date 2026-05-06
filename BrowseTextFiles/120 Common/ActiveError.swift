@@ -1,5 +1,5 @@
 //
-//  ActiveErrorView.swift
+//  ActiveError.swift
 //  Browse Text Files
 //
 //  Created by Kyuhyun Park on 4/18/26.

@@ -46,7 +46,7 @@ struct SearchResultView: View {
                     ForEach(results) { result in
                         Group {
                             Button(result.title) {
-                                status.loadSearchedFile(result.url)
+                                status.updateAll(fromSearchedFile: result.url)
                             }
                             .buttonStyle(.plain)
                             .fontWeight(.bold)
