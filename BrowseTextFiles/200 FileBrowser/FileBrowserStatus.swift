@@ -246,9 +246,10 @@ final class FileBrowserStatus {
     }
 
     func updateFileList(from url: URL) {
+        guard let rootURL else { return }
+
         resetFileList()
         do {
-            guard let rootURL else { return }
             try withSecurityScope(rootURL) {
                 fileList = try FileListBuilder().collectShallowly(from: url) { contentType in
                     // contentType.conforms(to: .text)

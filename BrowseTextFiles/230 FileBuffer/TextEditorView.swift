@@ -10,8 +10,15 @@ import SwiftUI
 struct TextEditorView: View {
     @Environment(SettingsData.self) var settings
 
-    @Bindable var status: FileBrowserStatus
-    @FocusState var isFocused: Bool
+    var status: FileBrowserStatus
+//    @FocusState private var isFocused: Bool
+
+    private let debugID = UUID()
+
+//    init(status: FileBrowserStatus) {
+//        self.status = status
+//        print("TextEditorView re-created")
+//    }
 
     var body: some View {
         Group {
@@ -22,19 +29,32 @@ struct TextEditorView: View {
                     .font(.custom(settings.fontName, size: settings.fontSize))
                     .lineSpacing(settings.lineSpacing)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            } else if let buffer = status.fileBuffer {
-                @Bindable var buffer = buffer
-                TextEditor(text: buffer.textBinding(), selection: $buffer.selection)
+            } else if let fileBuffer = status.fileBuffer {
+                //let _ = Self._printChanges()
+                TextEditor(
+                    text: fileBuffer.textBinding(),
+                    // selection: $status.fileBuffer!.selection
+                )
                 // 애플 공식문서에 나와있는 것인데 효과 없다.
                 // .contentMargins(.horizontal, 20.0, for: .scrollContent)
-                    .focused($isFocused)
-                    .findDisabled(false)
-                    .replaceDisabled(false)
-                    .font(.custom(settings.fontName, size: settings.fontSize))
-                    .lineSpacing(settings.lineSpacing)
-                    .onAppear {
-                        isFocused = true
-                    }
+
+                // .findDisabled(false)
+                // .replaceDisabled(false)
+
+                .font(.custom(settings.fontName, size: settings.fontSize))
+                .lineSpacing(settings.lineSpacing)
+
+                // .focused($isFocused)
+                // .onAppear {
+                //     isFocused = true
+                // }
+
+                // .overlay(
+                //     Text(debugID.uuidString.prefix(4))
+                //         .font(.caption)
+                //         .foregroundColor(.red),
+                //     alignment: .topTrailing
+                // )
             } else {
                 Spacer()
             }

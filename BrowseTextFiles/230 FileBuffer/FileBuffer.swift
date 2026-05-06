@@ -27,7 +27,7 @@ final class FileBuffer: Identifiable, Hashable {
     private(set) var url: URL
     private(set) var name: String
 
-    private(set) var text: String = ""
+    var text: String = ""
     private(set) var isEdited = false
     var selection: TextSelection?
 
