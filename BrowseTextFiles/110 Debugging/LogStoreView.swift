@@ -7,11 +7,11 @@
 
 import SwiftUI
 
-public struct LogStoreView: View {
+struct LogStoreView: View {
 
-    public init() {}
+    init() {}
     
-    public var body: some View {
+    var body: some View {
         let store = LogStore.shared
         ScrollViewReader { proxy in
             ScrollView {

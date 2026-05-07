@@ -1,5 +1,5 @@
 //
-//  Log.swift
+//  LogStore.swift
 //  MyLibrary
 //
 //  Created by Kyuhyun Park on 4/11/26.
@@ -10,29 +10,29 @@ import Foundation
 // use,
 // private let log = LogStore.shared.log
 
-public struct LogEntry: Identifiable {
+struct LogEntry: Identifiable {
     private static let style = Date.ISO8601FormatStyle(timeZone: TimeZone.current)
         .time(includingFractionalSeconds: false)
 
-    public let id = UUID()
-    public let dateTime = Date()
-    public let message: String
+    let id = UUID()
+    let dateTime = Date()
+    let message: String
 
-    public var description: String {
+    var description: String {
         let timestamp = dateTime.formatted(Self.style)
         return "\(timestamp), \(message)"
     }
 }
 
 @MainActor @Observable
-public class LogStore {
-    public static let shared = LogStore()
+class LogStore {
+    static let shared = LogStore()
 
     private(set) var logs: [LogEntry] = []
 
     private init() {}
 
-    public func log(_ message: String) {
+    func log(_ message: String) {
         let entry = LogEntry(message: message)
         logs.append(entry)
         print(entry.description)
@@ -42,7 +42,7 @@ public class LogStore {
         }
     }
 
-    public func clear() {
+    func clear() {
         logs.removeAll()
     }
 }
