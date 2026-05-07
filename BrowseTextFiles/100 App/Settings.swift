@@ -63,7 +63,7 @@ class SettingsData {
         self.fontSize = Self.double(forKey: "fontSize", defaultValue: 16)
         self.lineHeight = Self.double(forKey: "lineHeight", defaultValue: 1.3)
 
-        self.autoSavePerSeconds = Self.int(forKey: "autoSavePerSeconds", defaultValue: 10)
+        self.autoSavePerSeconds = Self.int(forKey: "autoSavePerSeconds", defaultValue: 2)
 
         self.newFileTemplates = Self.stringArray(forKey: "newFileTemplates", defaultValue: newFileTemplateDefaults, minSize: 5)
         self.newFileTemplateIndex = Self.int(forKey: "newFileTemplateIndex", defaultValue: 0)

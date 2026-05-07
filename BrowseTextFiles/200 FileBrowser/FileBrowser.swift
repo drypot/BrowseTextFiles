@@ -94,9 +94,6 @@ struct FileBrowser: View {
         .task {
             initView()
         }
-        .task {
-            await autoSave()
-        }
     }
 
     var blankView: some View {
@@ -130,7 +127,7 @@ struct FileBrowser: View {
             NewFileSheet(status: status)
         }
         .onChange(of: status.selectedFile) { _, newValue in
-            save(sceneFileURL: newValue?.url)
+            saveSceneData(fileURL: newValue?.url)
         }
         .onChange(of: scenePhase) { oldPhase, newPhase in
             if newPhase == .background {
@@ -172,7 +169,7 @@ struct FileBrowser: View {
                 status.updateFileListFromSelectedFolder()
             }
 
-            save(sceneRootURL: rootURL)
+            saveSceneData(rootURL: rootURL)
             settings.addRecentDocumentURL(rootURL)
             return
         }
@@ -190,24 +187,13 @@ struct FileBrowser: View {
             status.updateFolderTree(from: rootURL)
             status.updateSelectedFolderToRoot()
             status.updateFileListFromSelectedFolder()
-            save(sceneRootURL: rootURL)
+            saveSceneData(rootURL: rootURL)
             settings.addRecentDocumentURL(rootURL)
         }
     }
 
-    func autoSave() async {
-        while true {
-            let seconds = UInt64(settings.autoSavePerSeconds)
-            let nanoseconds: UInt64 = (seconds > 0 ? seconds : 60) * 1_000_000_000
-            try? await Task.sleep(nanoseconds: nanoseconds)
-            if seconds > 0 {
-                status.saveFileIfEdited()
-            }
-        }
-    }
-
-    func save(sceneRootURL: URL) {
-        sceneRootURLData = try? sceneRootURL.bookmarkData(options: .withSecurityScope)
+    func saveSceneData(rootURL: URL) {
+        sceneRootURLData = try? rootURL.bookmarkData(options: .withSecurityScope)
     }
 
     func loadSceneRootURL() ->URL? {
@@ -219,7 +205,7 @@ struct FileBrowser: View {
                         bookmarkDataIsStale: &isStale)
     }
 
-    func save(sceneFileURL url: URL?) {
+    func saveSceneData(fileURL url: URL?) {
         if let url {
             sceneFileURLData = try? url.bookmarkData(options: .withSecurityScope)
         }

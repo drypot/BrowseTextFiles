@@ -10,10 +10,12 @@ import SwiftUI
 struct TextEditorView: View {
     @Environment(SettingsData.self) var settings
 
-    var status: FileBrowserStatus
+    @State private var autoSaveTask: Task<Void, Never>?
 //    @FocusState private var isFocused: Bool
 
-    private let debugID = UUID()
+    var status: FileBrowserStatus
+
+//    private let debugID = UUID()
 
 //    init(status: FileBrowserStatus) {
 //        self.status = status
@@ -43,7 +45,9 @@ struct TextEditorView: View {
 
                 .font(.custom(settings.fontName, size: settings.fontSize))
                 .lineSpacing(settings.lineSpacing)
-
+                .onChange(of: fileBuffer.text) {
+                    scheduleAutoSave()
+                }
                 // .focused($isFocused)
                 // .onAppear {
                 //     isFocused = true
@@ -65,6 +69,16 @@ struct TextEditorView: View {
         //        .padding(.top, 16)
         .frame(minWidth: 300, maxWidth: .infinity, maxHeight: .infinity)
         .layoutPriority(1)
+    }
+
+    func scheduleAutoSave() {
+        if settings.autoSavePerSeconds == 0 { return }
+        autoSaveTask?.cancel()
+        autoSaveTask = Task {
+            try? await Task.sleep(for: .seconds(settings.autoSavePerSeconds))
+            if Task.isCancelled { return }
+            status.saveFileIfEdited()
+        }
     }
 }
 
