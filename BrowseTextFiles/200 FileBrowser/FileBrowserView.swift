@@ -15,7 +15,7 @@ struct FileBrowserView: View {
     @SceneStorage("rootURLData") private var sceneRootURLData: Data?
     @SceneStorage("fileURLData") private var sceneFileURLData: Data?
 
-    @State private var status = FileBrowserStatus()
+    @State private var state = FileBrowserState()
     @State private var window: NSWindow?
 
     public struct InitParam: Hashable, Codable {
@@ -41,47 +41,47 @@ struct FileBrowserView: View {
 
     var body: some View {
         VStack {
-            if !status.isRootReady {
+            if !state.isRootReady {
                 Button("Open Folder") {
                     openFolderFromBlank()
                 }
             } else {
                 HSplitView {
-                    // List(status.foldersForList, children: \.folders, selection: status.selectedFolderBinding()) { folder in
+                    // List(state.foldersForList, children: \.folders, selection: state.selectedFolderBinding()) { folder in
                     //     NavigationLink(folder.name, value: folder)
                     // }
                     // .frame(minWidth: 180, idealWidth: 260)
 
-                    FolderTreeView(status: status)
+                    FolderTreeView(state: state)
                         .frame(minWidth: 180, idealWidth: 260, maxHeight: .infinity)
 
-                    // List(status.fileURLsForList, id: \.self, selection: status.selectedFileBinding()) { file in
+                    // List(state.fileURLsForList, id: \.self, selection: state.selectedFileBinding()) { file in
                     //     NavigationLink(file.lastPathComponent, value: file)
                     // }
                     // .frame(minWidth: 180, idealWidth: 260)
 
-                    FileListView(status: status)
+                    FileListView(state: state)
                         .frame(minWidth: 180, idealWidth: 260, maxHeight: .infinity)
 
-                    FileBufferView(status: status)
+                    FileBufferView(state: state)
                 }
             }
         }
         .background(WindowAccessor { window in self.window = window })
-        .navigationTitle(status.rootName ?? "Browser")
-        .focusedSceneValue(\.selectedBrowserStatus, status)
-        .onChange(of: status.selectedFile) { _, newValue in
+        .navigationTitle(state.rootName ?? "Browser")
+        .focusedSceneValue(\.selectedBrowserState, state)
+        .onChange(of: state.selectedFile) { _, newValue in
             saveSceneData(fileURL: newValue?.url)
         }
         .sheet(
-            isPresented: $status.isShowNewFileView,
-            content: { NewFileSheet(status: status) }
+            isPresented: $state.isShowNewFileView,
+            content: { NewFileSheet(state: state) }
         )
         .alert(
             "",
-            isPresented: $status.isShowActiveError,
+            isPresented: $state.isShowActiveError,
             actions: { Button("OK") { } },
-            message: { Text(status.activeError?.message ?? "Unknown error.") }
+            message: { Text(state.activeError?.message ?? "Unknown error.") }
         )
         .task {
             initView()
@@ -89,29 +89,29 @@ struct FileBrowserView: View {
         // scenePhase 로는 먼가 감지가 잘 안돼서 Notification 을 쓰도록 한다.
         // .onReceive(NotificationCenter.default.publisher(for: NSWindow.didBecomeMainNotification)) { notification in
         //     guard self.window == notification.object as? NSWindow else { return }
-        //     log("notification: become main window, \(status.debuggingName)")
-        //     status.saveFileIfEdited()
+        //     log("notification: become main window, \(state.debuggingName)")
+        //     state.saveFileIfEdited()
         // }
         .onReceive(NotificationCenter.default.publisher(for: NSWindow.didResignMainNotification)) { notification in
             guard self.window == notification.object as? NSWindow else { return }
-            log("notification: resign main window, \(status.debuggingName)")
-            status.saveFileIfEdited()
+            log("notification: resign main window, \(state.debuggingName)")
+            state.saveFileIfEdited()
         }
 
         // 프로그램 전환할 때 ResignMain 신호가 와서 ResignActive 까지 받진 않아도 될 것 같다.
         // .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { notification in
-        //     log("notification: become active app, \(status.debuggingName)")
-        //     status.saveFileIfEdited()
+        //     log("notification: become active app, \(state.debuggingName)")
+        //     state.saveFileIfEdited()
         // }
         // .onReceive(NotificationCenter.default.publisher(for: NSApplication.didResignActiveNotification)) { notification in
-        //     log("notification: resign active app, \(status.debuggingName)")
-        //     status.saveFileIfEdited()
+        //     log("notification: resign active app, \(state.debuggingName)")
+        //     state.saveFileIfEdited()
         // }
 
         // 프로그램 종료할 때 ResignMain 신호가 와서 Terminate 까지 받진 않아도 될 것 같다.
         // .onReceive(NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification)) { notification in
         //     log("notification: will terminate")
-        //     status.saveFileIfEdited()
+        //     state.saveFileIfEdited()
         // }
 
         .toolbarBackground(.background, for: .windowToolbar)
@@ -136,7 +136,7 @@ struct FileBrowserView: View {
 
             ToolbarItemGroup(placement: .navigation) {
                 Button {
-                    status.reloadAll()
+                    state.reloadAll()
                 } label: {
                     Label("Reload", systemImage: "arrow.clockwise")
                 }
@@ -147,8 +147,8 @@ struct FileBrowserView: View {
 
             ToolbarItemGroup(placement: .primaryAction) {
                 Button {
-                    openWindow(id: "search", value: status.id)
-                    // status.toggleSearchView()
+                    openWindow(id: "search", value: state.id)
+                    // state.toggleSearchView()
                 } label: {
                     Label("Search", systemImage: "magnifyingglass")
                 }
@@ -161,14 +161,14 @@ struct FileBrowserView: View {
         if let rootURL = loadSceneRootURL() {
             log("restore folder: \(rootURL.lastPathComponent)")
 
-            status.updateFolderTree(from: rootURL)
-            if !status.isRootReady { return }
+            state.updateFolderTree(from: rootURL)
+            if !state.isRootReady { return }
 
             if let fileURL = loadSceneFileURL() {
-                status.updateAll(from: fileURL)
+                state.updateAll(from: fileURL)
             } else {
-                status.updateSelectedFolderToRoot()
-                status.updateFileListFromSelectedFolder()
+                state.updateSelectedFolderToRoot()
+                state.updateFileListFromSelectedFolder()
             }
             return
         }
@@ -176,14 +176,14 @@ struct FileBrowserView: View {
         if let rootURL = initParam?.rootURL {
             log("open folder: \(rootURL.lastPathComponent)")
 
-            status.updateFolderTree(from: rootURL)
-            if !status.isRootReady { return }
+            state.updateFolderTree(from: rootURL)
+            if !state.isRootReady { return }
 
             if let fileURL = initParam?.fileURL {
-                status.updateAll(from: fileURL)
+                state.updateAll(from: fileURL)
             } else {
-                status.updateSelectedFolderToRoot()
-                status.updateFileListFromSelectedFolder()
+                state.updateSelectedFolderToRoot()
+                state.updateFileListFromSelectedFolder()
             }
 
             saveSceneData(rootURL: rootURL)
@@ -201,9 +201,9 @@ struct FileBrowserView: View {
         panel.canChooseFiles = false
         if panel.runModal() == .OK, let rootURL = panel.url {
             log("open folder: \(rootURL.lastPathComponent)")
-            status.updateFolderTree(from: rootURL)
-            status.updateSelectedFolderToRoot()
-            status.updateFileListFromSelectedFolder()
+            state.updateFolderTree(from: rootURL)
+            state.updateSelectedFolderToRoot()
+            state.updateFileListFromSelectedFolder()
             saveSceneData(rootURL: rootURL)
             settings.addRecentDocumentURL(rootURL)
         }

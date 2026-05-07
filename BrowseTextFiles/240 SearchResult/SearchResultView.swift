@@ -10,31 +10,31 @@ import SwiftUI
 struct SearchResultView: View {
     @Environment(SettingsData.self) var settings
 
-    @Bindable var status: FileBrowserStatus
+    @Bindable var state: FileBrowserState
     @FocusState var isFocused: Bool
 
     var body: some View {
         VStack {
             HStack {
-                TextField("Search", text: $status.searchText)
+                TextField("Search", text: $state.searchText)
                     .frame(width: 320)
                     .focused($isFocused)
                     .onSubmit {
-                        status.startSearch()
+                        state.startSearch()
                     }
                     .onExitCommand {
-                        status.hideSearchView()
+                        state.hideSearchView()
                     }
                     .onAppear {
                         isFocused = true
                     }
 
                 Button("Search") {
-                    status.startSearch()
+                    state.startSearch()
                 }
 
                 Button("Reset") {
-                    status.clearSearchResult()
+                    state.clearSearchResult()
                 }
             }
             .padding(.bottom, 16)
@@ -42,11 +42,11 @@ struct SearchResultView: View {
             Divider()
 
             List {
-                if let results = status.searchResults, !results.isEmpty {
+                if let results = state.searchResults, !results.isEmpty {
                     ForEach(results) { result in
                         Group {
                             Button(result.title) {
-                                status.updateAll(fromSearchedFile: result.url)
+                                state.updateAll(fromSearchedFile: result.url)
                             }
                             .buttonStyle(.plain)
                             .fontWeight(.bold)
@@ -70,7 +70,7 @@ struct SearchResultView: View {
                 }
             }
             .onExitCommand {
-                status.hideSearchView()
+                state.hideSearchView()
             }
         }
     }

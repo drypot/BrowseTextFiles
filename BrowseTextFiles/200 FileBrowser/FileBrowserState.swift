@@ -1,5 +1,5 @@
 //
-//  FileBrowserStatus.swift
+//  FileBrowserState.swift
 //  BrowseTextFiles
 //
 //  Created by Kyuhyun Park on 3/1/26.
@@ -10,7 +10,7 @@ import UniformTypeIdentifiers
 import MyLibrary
 
 @Observable
-final class FileBrowserStatus {
+final class FileBrowserState {
     let id = UUID()
 
     private(set) var rootFolder: FolderItem?

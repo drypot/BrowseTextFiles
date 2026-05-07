@@ -13,29 +13,29 @@ struct FileBufferView: View {
     @State private var autoSaveTask: Task<Void, Never>?
     @FocusState private var isFocused: Bool
 
-    var status: FileBrowserStatus
+    var state: FileBrowserState
 
 //    private let debugID = UUID()
 
-//    init(status: FileBrowserStatus) {
-//        self.status = status
+//    init(state: FileBrowserState) {
+//        self.state = state
 //        print("FileBufferView re-created")
 //    }
 
     var body: some View {
         Group {
-            if status.isShowSearchView {
-                SearchResultView(status: status)
-            } else if let loadError = status.fileBuffer?.loadingError {
+            if state.isShowSearchView {
+                SearchResultView(state: state)
+            } else if let loadError = state.fileBuffer?.loadingError {
                 Text(loadError)
                     .font(.custom(settings.fontName, size: settings.fontSize))
                     .lineSpacing(settings.lineSpacing)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            } else if let fileBuffer = status.fileBuffer {
+            } else if let fileBuffer = state.fileBuffer {
                 //let _ = Self._printChanges()
                 TextEditor(
                     text: fileBuffer.textBinding(),
-                    // selection: $status.fileBuffer!.selection
+                    // selection: $state.fileBuffer!.selection
                 )
                 // 애플 공식문서에 나와있는 것인데 효과 없다.
                 // .contentMargins(.horizontal, 20.0, for: .scrollContent)
@@ -77,7 +77,7 @@ struct FileBufferView: View {
         autoSaveTask = Task {
             try? await Task.sleep(for: .seconds(settings.autoSavePerSeconds))
             if Task.isCancelled { return }
-            status.saveFileIfEdited()
+            state.saveFileIfEdited()
         }
     }
 }

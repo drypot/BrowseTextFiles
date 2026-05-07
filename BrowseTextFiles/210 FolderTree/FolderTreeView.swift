@@ -12,36 +12,36 @@ struct FolderTreeView: View {
     @Environment(\.controlActiveState) var controlActiveState
     @FocusState private var isFocused: Bool
 
-    let status: FileBrowserStatus
+    let state: FileBrowserState
 
     var body: some View {
         let isActive = controlActiveState != .inactive && isFocused
         
         List {
-            if let rootFolder = status.rootFolder {
-                RowView(item: rootFolder, level: 0, isActive: isActive, status: status, )
+            if let rootFolder = state.rootFolder {
+                RowView(item: rootFolder, level: 0, isActive: isActive, state: state, )
             }
         }
         .focused($isFocused)
         .onKeyPress(.downArrow) {
-            if status.moveSelectedFolderDown() {
-                status.updateFileListFromSelectedFolder()
+            if state.moveSelectedFolderDown() {
+                state.updateFileListFromSelectedFolder()
             }
             return .handled
         }
         .onKeyPress(.upArrow) {
-            if status.moveSelectedFolderUp() {
-                status.updateFileListFromSelectedFolder()
+            if state.moveSelectedFolderUp() {
+                state.updateFileListFromSelectedFolder()
             }
             return .handled
         }
         .onKeyPress(.rightArrow) {
-            status.expandSelectedFolder()
+            state.expandSelectedFolder()
             return .handled
         }
         .onKeyPress(.leftArrow) {
-            if status.collapseSelectedFolder() {
-                status.updateFileListFromSelectedFolder()
+            if state.collapseSelectedFolder() {
+                state.updateFileListFromSelectedFolder()
             }
             return .handled
         }
@@ -54,10 +54,10 @@ fileprivate struct RowView: View {
     let item: FolderItem
     let level: Int
     let isActive: Bool
-    let status: FileBrowserStatus
+    let state: FileBrowserState
 
     var isSelected: Bool {
-        item == status.selectedFolder
+        item == state.selectedFolder
     }
 
     var foregroundStyle: Color {
@@ -85,14 +85,14 @@ fileprivate struct RowView: View {
     }
 
     var body: some View {
-        let isExpanded = item.hasChildren && status.isFolderExpanded(for: item.url)
+        let isExpanded = item.hasChildren && state.isFolderExpanded(for: item.url)
 
         HStack(spacing: 2) {
             Spacer()
                 .frame(width: 9 * CGFloat(level))
 
             Chevron(hasChildren: item.hasChildren, isExpaned: isExpanded) {
-                status.toggleFolder(for: item.url)
+                state.toggleFolder(for: item.url)
             }
 
             Text(item.name)
@@ -112,8 +112,8 @@ fileprivate struct RowView: View {
         .focusEffectDisabled() // 포커스 테두리 표시 안 함
         .contentShape(Rectangle()) // 빈공간도 클릭되게 한다.
         .onTapGesture {
-            status.updateSelectedFolder(to: item)
-            status.updateFileListFromSelectedFolder()
+            state.updateSelectedFolder(to: item)
+            state.updateFileListFromSelectedFolder()
         }
         .contextMenu {
             Button("Open in New Tab") {
@@ -128,7 +128,7 @@ fileprivate struct RowView: View {
 
         if let children = item.children, isExpanded {
             ForEach(children) { child in
-                RowView(item: child, level: level + 1, isActive: isActive, status: status)
+                RowView(item: child, level: level + 1, isActive: isActive, state: state)
             }
         }
     }

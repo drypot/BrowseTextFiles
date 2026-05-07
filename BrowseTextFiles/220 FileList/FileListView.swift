@@ -12,28 +12,28 @@ struct FileListView: View {
     @Environment(\.controlActiveState) var controlActiveState
     @FocusState private var isFocused: Bool
 
-    let status: FileBrowserStatus
+    let state: FileBrowserState
 
     var body: some View {
         let isActive = controlActiveState != .inactive && isFocused
 
         List {
-            if let fileList = status.fileList {
+            if let fileList = state.fileList {
                 ForEach(fileList) { fileItem in
-                    RowView(item: fileItem, isActive: isActive, status: status)
+                    RowView(item: fileItem, isActive: isActive, state: state)
                 }
             }
         }
         .focused($isFocused)
         .onKeyPress(.downArrow) {
-            if status.moveSelectedFileDown() {
-                status.updateFileBufferFromSelectedFile()
+            if state.moveSelectedFileDown() {
+                state.updateFileBufferFromSelectedFile()
             }
             return .handled
         }
         .onKeyPress(.upArrow) {
-            if status.moveSelectedFileUp() {
-                status.updateFileBufferFromSelectedFile()
+            if state.moveSelectedFileUp() {
+                state.updateFileBufferFromSelectedFile()
             }
             return .handled
         }
@@ -43,10 +43,10 @@ struct FileListView: View {
 fileprivate struct RowView: View {
     let item: FileItem
     let isActive: Bool
-    let status: FileBrowserStatus
+    let state: FileBrowserState
 
     var isSelected: Bool {
-        item == status.selectedFile
+        item == state.selectedFile
     }
 
     var foregroundStyle: Color {
@@ -92,8 +92,8 @@ fileprivate struct RowView: View {
         .focusEffectDisabled() // 포커스 테두리 표시 안 함
         .contentShape(Rectangle()) // 빈공간도 클릭되게 한다.
         .onTapGesture {
-            status.updateSelectedFile(to: item)
-            status.updateFileBufferFromSelectedFile()
+            state.updateSelectedFile(to: item)
+            state.updateFileBufferFromSelectedFile()
         }
         .contextMenu {
             Button("Show in Finder") {
