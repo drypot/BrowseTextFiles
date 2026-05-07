@@ -11,6 +11,8 @@ import MyLibrary
 
 @Observable
 final class FileBrowserStatus {
+    let id = UUID()
+
     private(set) var rootFolder: FolderItem?
     private(set) var selectedFolder: FolderItem?
     private(set) var expandedFolders: Set<URL> = []
@@ -44,6 +46,10 @@ final class FileBrowserStatus {
 
     var rootName: String? {
         rootFolder?.name
+    }
+
+    var debuggingName: String {
+        rootName ?? "nil"
     }
 
     func resetFolderTree() {

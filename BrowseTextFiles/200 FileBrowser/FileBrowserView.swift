@@ -1,5 +1,5 @@
 //
-//  FileBrowser.swift
+//  FileBrowserView.swift
 //  BrowseTextFiles
 //
 //  Created by Kyuhyun Park on 7/6/25.
@@ -8,13 +8,15 @@
 import SwiftUI
 import MyLibrary
 
-struct FileBrowser: View {
-    @Environment(\.scenePhase) private var scenePhase
+struct FileBrowserView: View {
+    @Environment(\.openWindow) private var openWindow
+    // @Environment(\.scenePhase) private var scenePhase
     @Environment(SettingsData.self) var settings
     @SceneStorage("rootURLData") private var sceneRootURLData: Data?
     @SceneStorage("fileURLData") private var sceneFileURLData: Data?
 
     @State private var status = FileBrowserStatus()
+    @State private var window: NSWindow?
 
     public struct InitParam: Hashable, Codable {
         let id: UUID
@@ -39,18 +41,79 @@ struct FileBrowser: View {
 
     var body: some View {
         VStack {
-            if status.isRootReady {
-                browserView
+            if !status.isRootReady {
+                Button("Open Folder") {
+                    openFolderFromBlank()
+                }
             } else {
-                blankView
+                HSplitView {
+                    // List(status.foldersForList, children: \.folders, selection: status.selectedFolderBinding()) { folder in
+                    //     NavigationLink(folder.name, value: folder)
+                    // }
+                    // .frame(minWidth: 180, idealWidth: 260)
+
+                    FolderTreeView(status: status)
+                        .frame(minWidth: 180, idealWidth: 260, maxHeight: .infinity)
+
+                    // List(status.fileURLsForList, id: \.self, selection: status.selectedFileBinding()) { file in
+                    //     NavigationLink(file.lastPathComponent, value: file)
+                    // }
+                    // .frame(minWidth: 180, idealWidth: 260)
+
+                    FileListView(status: status)
+                        .frame(minWidth: 180, idealWidth: 260, maxHeight: .infinity)
+
+                    FileBufferView(status: status)
+                }
             }
         }
-        .alert("", isPresented: $status.isShowActiveError) {
-            Button("OK") { }
-        } message: {
-            Text(status.activeError?.message ?? "Unknown error.")
-        }
+        .background(WindowAccessor { window in self.window = window })
+        .navigationTitle(status.rootName ?? "Browser")
         .focusedSceneValue(\.selectedBrowserStatus, status)
+        .onChange(of: status.selectedFile) { _, newValue in
+            saveSceneData(fileURL: newValue?.url)
+        }
+        .sheet(
+            isPresented: $status.isShowNewFileView,
+            content: { NewFileSheet(status: status) }
+        )
+        .alert(
+            "",
+            isPresented: $status.isShowActiveError,
+            actions: { Button("OK") { } },
+            message: { Text(status.activeError?.message ?? "Unknown error.") }
+        )
+        .task {
+            initView()
+        }
+        // scenePhase 로는 먼가 감지가 잘 안돼서 Notification 을 쓰도록 한다.
+        // .onReceive(NotificationCenter.default.publisher(for: NSWindow.didBecomeMainNotification)) { notification in
+        //     guard self.window == notification.object as? NSWindow else { return }
+        //     log("notification: become main window, \(status.debuggingName)")
+        //     status.saveFileIfEdited()
+        // }
+        .onReceive(NotificationCenter.default.publisher(for: NSWindow.didResignMainNotification)) { notification in
+            guard self.window == notification.object as? NSWindow else { return }
+            log("notification: resign main window, \(status.debuggingName)")
+            status.saveFileIfEdited()
+        }
+
+        // 프로그램 전환할 때 ResignMain 신호가 와서 ResignActive 까지 받진 않아도 될 것 같다.
+        // .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { notification in
+        //     log("notification: become active app, \(status.debuggingName)")
+        //     status.saveFileIfEdited()
+        // }
+        // .onReceive(NotificationCenter.default.publisher(for: NSApplication.didResignActiveNotification)) { notification in
+        //     log("notification: resign active app, \(status.debuggingName)")
+        //     status.saveFileIfEdited()
+        // }
+
+        // 프로그램 종료할 때 ResignMain 신호가 와서 Terminate 까지 받진 않아도 될 것 같다.
+        // .onReceive(NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification)) { notification in
+        //     log("notification: will terminate")
+        //     status.saveFileIfEdited()
+        // }
+
         .toolbarBackground(.background, for: .windowToolbar)
         .toolbarBackgroundVisibility(.automatic, for: .windowToolbar)
 //        .toolbar(removing: .title)
@@ -84,59 +147,13 @@ struct FileBrowser: View {
 
             ToolbarItemGroup(placement: .primaryAction) {
                 Button {
-                    status.toggleSearchView()
+                    openWindow(id: "search", value: status.id)
+                    // status.toggleSearchView()
                 } label: {
                     Label("Search", systemImage: "magnifyingglass")
                 }
                 .help("Search")
             }
-        }
-        .task {
-            initView()
-        }
-    }
-
-    var blankView: some View {
-        Button("Open Folder") {
-            openFolderFromBlank()
-        }
-    }
-    
-    var browserView: some View {
-        HSplitView {
-//            List(status.foldersForList, children: \.folders, selection: status.selectedFolderBinding()) { folder in
-//                NavigationLink(folder.name, value: folder)
-//            }
-//            .frame(minWidth: 180, idealWidth: 260)
-
-            FolderTreeView(status: status)
-                .frame(minWidth: 180, idealWidth: 260, maxHeight: .infinity)
-
-//            List(status.fileURLsForList, id: \.self, selection: status.selectedFileBinding()) { file in
-//                NavigationLink(file.lastPathComponent, value: file)
-//            }
-//            .frame(minWidth: 180, idealWidth: 260)
-
-            FileListView(status: status)
-                .frame(minWidth: 180, idealWidth: 260, maxHeight: .infinity)
-
-            TextEditorView(status: status)
-        }
-        .navigationTitle(status.rootName ?? "Browser")
-        .sheet(isPresented: $status.isShowNewFileView) {
-            NewFileSheet(status: status)
-        }
-        .onChange(of: status.selectedFile) { _, newValue in
-            saveSceneData(fileURL: newValue?.url)
-        }
-        .onChange(of: scenePhase) { oldPhase, newPhase in
-            if newPhase == .background {
-                status.saveFileIfEdited()
-            }
-        }
-        // scenePhase 만으로는 App 이동이 감지되지 않아서 Notification 도 함께 쓰도록 한다.
-        .onReceive(NotificationCenter.default.publisher(for: NSWindow.didResignKeyNotification)) { notification in
-            status.saveFileIfEdited()
         }
     }
 
@@ -223,7 +240,7 @@ struct FileBrowser: View {
 
 #Preview {
 //    let settings = SettingsData()
-//    FileBrowser()
+//    FileBrowserView()
 //        .frame(maxWidth: .infinity, maxHeight: .infinity)
 //        .environment(settings)
 }

@@ -13,8 +13,8 @@ struct FileBrowserWindow: Scene {
     @FocusedValue(\.selectedBrowserStatus) var selectedBrowserStatus: FileBrowserStatus?
 
     var body: some Scene {
-        WindowGroup("Browser", id: "browser", for: FileBrowser.InitParam.self) { $initParam in
-            FileBrowser(initParam)
+        WindowGroup("Browser", id: "browser", for: FileBrowserView.InitParam.self) { $initParam in
+            FileBrowserView(initParam)
                 .frame(maxWidth: .infinity, maxHeight: .infinity) // 빈 화면에서 drag & drop 받기 위해
             
             // 외부에서 file url 을 받았을 경우 folder 에 대한 권한이 없어서 원만히 작동하기가 힘들다.
@@ -100,7 +100,9 @@ struct FileBrowserWindow: Scene {
             CommandGroup(after: .textEditing) {
                 Divider()
                 Button("Find in Files", systemImage: "magnifyingglass") {
-                    selectedBrowserStatus?.showSearchView()
+                    guard let selectedBrowserStatus else { return }
+                    openWindow(id: "search", value: selectedBrowserStatus.id)
+                    //selectedBrowserStatus?.showSearchView()
                 }
                 .keyboardShortcut("f", modifiers: [.command, .shift])
             }
@@ -118,7 +120,7 @@ struct FileBrowserWindow: Scene {
 
     func newTab() {
         if let status = selectedBrowserStatus {
-            let initParam = FileBrowser.InitParam(rootURL: status.rootURL, fileURL: status.selectedFile?.url)
+            let initParam = FileBrowserView.InitParam(rootURL: status.rootURL, fileURL: status.selectedFile?.url)
             openWindow(id: "browser", value: initParam)
         } else {
             openWindow(id: "browser")
@@ -132,14 +134,14 @@ struct FileBrowserWindow: Scene {
         panel.canChooseFiles = false
         if panel.runModal() == .OK {
             if let url = panel.url {
-                let initParam = FileBrowser.InitParam(rootURL: url)
+                let initParam = FileBrowserView.InitParam(rootURL: url)
                 openWindow(id: "browser", value: initParam)
             }
         }
     }
 
     func openRecent(_ url: URL) {
-        let initParam = FileBrowser.InitParam(rootURL: url)
+        let initParam = FileBrowserView.InitParam(rootURL: url)
         openWindow(id: "browser", value: initParam)
     }
 

@@ -1,5 +1,5 @@
 //
-//  TextEditorView.swift
+//  FileBufferView.swift
 //  Browse Text Files
 //
 //  Created by Kyuhyun Park on 5/5/26.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct TextEditorView: View {
+struct FileBufferView: View {
     @Environment(SettingsData.self) var settings
 
     @State private var autoSaveTask: Task<Void, Never>?
@@ -19,7 +19,7 @@ struct TextEditorView: View {
 
 //    init(status: FileBrowserStatus) {
 //        self.status = status
-//        print("TextEditorView re-created")
+//        print("FileBufferView re-created")
 //    }
 
     var body: some View {
@@ -83,5 +83,5 @@ struct TextEditorView: View {
 }
 
 #Preview {
-    //    TextEditorView()
+    //    FileBufferView()
 }

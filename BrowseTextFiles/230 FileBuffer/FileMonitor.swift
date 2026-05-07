@@ -7,7 +7,7 @@
 
 import Foundation
 
-final class FileMonitor {
+nonisolated final class FileMonitor {
     private var source: DispatchSourceFileSystemObject?
     var ignoreEvent = false
 

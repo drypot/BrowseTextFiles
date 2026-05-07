@@ -117,7 +117,7 @@ fileprivate struct RowView: View {
         }
         .contextMenu {
             Button("Open in New Tab") {
-                let initParam = FileBrowser.InitParam(rootURL: item.url, fileURL: nil)
+                let initParam = FileBrowserView.InitParam(rootURL: item.url, fileURL: nil)
                 openWindow(id: "browser", value: initParam)
             }
             Divider()

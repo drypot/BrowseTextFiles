@@ -10,10 +10,14 @@ import MyLibrary
 
 @main
 struct BrowseTextFilesApp: App {
+
     @State private var settings = SettingsData()
 
     var body: some Scene {
         FileBrowserWindow()
+            .environment(settings)
+
+        SearchWindow()
             .environment(settings)
 
         AboutWindow()
