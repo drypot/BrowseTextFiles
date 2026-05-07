@@ -11,7 +11,7 @@ struct TextEditorView: View {
     @Environment(SettingsData.self) var settings
 
     @State private var autoSaveTask: Task<Void, Never>?
-//    @FocusState private var isFocused: Bool
+    @FocusState private var isFocused: Bool
 
     var status: FileBrowserStatus
 
@@ -48,10 +48,10 @@ struct TextEditorView: View {
                 .onChange(of: fileBuffer.text) {
                     scheduleAutoSave()
                 }
-                // .focused($isFocused)
-                // .onAppear {
-                //     isFocused = true
-                // }
+                .focused($isFocused)
+                .onAppear {
+                    isFocused = true
+                }
 
                 // .overlay(
                 //     Text(debugID.uuidString.prefix(4))

@@ -12,14 +12,14 @@ struct ConsoleWindow: Scene {
     @Environment(\.openWindow) private var openWindow
 
     var body: some Scene {
-        Window("Debug Console", id: "console") {
+        Window("Debugging Console", id: "console") {
             LogStoreView()
                 .padding()
                 .frame(minWidth: 150, minHeight: 150)
         }
         .commands {
             CommandGroup(after: .help) {
-                Button("Debug Console") {
+                Button("Debugging Console") {
                     openWindow(id: "console")
                 }
                 .keyboardShortcut("c", modifiers: [.command, .option])
