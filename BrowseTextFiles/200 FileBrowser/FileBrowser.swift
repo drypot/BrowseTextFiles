@@ -9,6 +9,7 @@ import SwiftUI
 import MyLibrary
 
 struct FileBrowser: View {
+    @Environment(\.scenePhase) private var scenePhase
     @Environment(SettingsData.self) var settings
     @SceneStorage("rootURLData") private var sceneRootURLData: Data?
     @SceneStorage("fileURLData") private var sceneFileURLData: Data?
@@ -130,6 +131,15 @@ struct FileBrowser: View {
         }
         .onChange(of: status.selectedFile) { _, newValue in
             save(sceneFileURL: newValue?.url)
+        }
+        .onChange(of: scenePhase) { oldPhase, newPhase in
+            if newPhase == .background {
+                status.saveFileIfEdited()
+            }
+        }
+        // scenePhase 만으로는 App 이동이 감지되지 않아서 Notification 도 함께 쓰도록 한다.
+        .onReceive(NotificationCenter.default.publisher(for: NSWindow.didResignKeyNotification)) { notification in
+            status.saveFileIfEdited()
         }
     }
 
