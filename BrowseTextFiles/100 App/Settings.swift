@@ -72,28 +72,31 @@ class SettingsData {
     }
 
     private static func double(forKey key: String, defaultValue: Double) -> Double {
-        let value = UserDefaults.standard.double(forKey: key)
-        return value > 0 ? value : defaultValue
+        if UserDefaults.standard.object(forKey: key) == nil {
+            defaultValue
+        } else {
+            UserDefaults.standard.double(forKey: key)
+        }
     }
 
     private static func int(forKey key: String, defaultValue: Int) -> Int {
-        let value = UserDefaults.standard.integer(forKey: key)
-        return value > 0 ? value : defaultValue
+        if UserDefaults.standard.object(forKey: key) == nil {
+            defaultValue
+        } else {
+            UserDefaults.standard.integer(forKey: key)
+        }
     }
 
     private static func string(forKey key: String, defaultValue: String) -> String {
-        let value = UserDefaults.standard.string(forKey: key)
-        return value ?? defaultValue
+        UserDefaults.standard.string(forKey: key) ?? defaultValue
     }
 
     private static func stringArray(forKey key: String, defaultValue: [String], minSize: Int = 0) -> [String] {
-        var value = UserDefaults.standard.stringArray(forKey: key) ?? defaultValue
-        if minSize > 0 {
-            while value.count < minSize {
-                value.append("")
-            }
+        var strings = UserDefaults.standard.stringArray(forKey: key) ?? defaultValue
+        while strings.count < minSize {
+            strings.append("")
         }
-        return value
+        return strings
     }
 
     func addRecentDocumentURL(_ url: URL) {
