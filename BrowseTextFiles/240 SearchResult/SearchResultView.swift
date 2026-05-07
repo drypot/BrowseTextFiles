@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct SearchResultView: View {
-    @Environment(SettingsData.self) var settings
+    @Environment(AppState.self) var appState
 
     @Bindable var state: FileBrowserState
     @FocusState var isFocused: Bool
@@ -60,13 +60,13 @@ struct SearchResultView: View {
                                 .frame(height: 8)
                         }
                     }
-                    .font(.custom(settings.fontName, size: settings.fontSize))
-                    .lineSpacing(settings.lineSpacing)
+                    .font(.custom(appState.fontName, size: appState.fontSize))
+                    .lineSpacing(appState.lineSpacing)
                     .listRowSeparator(.hidden)
                 } else {
                     Text("No results")
-                        .font(.custom(settings.fontName, size: settings.fontSize))
-                        .lineSpacing(settings.lineSpacing)
+                        .font(.custom(appState.fontName, size: appState.fontSize))
+                        .lineSpacing(appState.lineSpacing)
                 }
             }
             .onExitCommand {

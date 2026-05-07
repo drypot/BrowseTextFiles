@@ -8,15 +8,15 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @Environment(SettingsData.self) private var settings
+    @Environment(AppState.self) private var appState
 
     let fontFamilies = NSFontManager.shared.availableFontFamilies.sorted()
 
     var body: some View {
-        @Bindable var settings = settings
+        @Bindable var appState = appState
         Form {
             Section {
-                Picker("Font", selection: $settings.fontName) {
+                Picker("Font", selection: $appState.fontName) {
                     ForEach(fontFamilies, id: \.self) { family in
                         Text(family)
                             .font(.custom(family, size: 13))
@@ -24,28 +24,28 @@ struct SettingsView: View {
                 }
             }
             Section {
-                Slider(value: $settings.fontSize, in: 10...30, step: 1) {
+                Slider(value: $appState.fontSize, in: 10...30, step: 1) {
                     Text("Font Size ")
                 }
-                Text(settings.fontSize.formatted())
+                Text(appState.fontSize.formatted())
                     .font(.footnote)
             }
             Section {
-                Slider(value: $settings.lineHeight, in: 1.0...3.0, step: 0.1) {
+                Slider(value: $appState.lineHeight, in: 1.0...3.0, step: 0.1) {
                     Text("Line Height ")
                 }
-                Text(settings.lineHeight.formatted())
+                Text(appState.lineHeight.formatted())
                     .font(.footnote)
             }
             Section {
                 let binding = Binding<Double>(
-                    get: { Double(settings.autoSavePerSeconds) },
-                    set: { settings.autoSavePerSeconds = Int($0) }
+                    get: { Double(appState.autoSavePerSeconds) },
+                    set: { appState.autoSavePerSeconds = Int($0) }
                 )
                 Slider(value: binding, in: 0.0...60.0, step: 2) {
                     Text("Auto Save Per Seconds ")
                 }
-                Text(settings.autoSavePerSeconds.formatted())
+                Text(appState.autoSavePerSeconds.formatted())
                     .font(.footnote)
             }
         }
@@ -56,7 +56,7 @@ struct SettingsView: View {
 }
 
 #Preview {
-    let settings = SettingsData()
+    let appState = AppState()
     SettingsView()
-        .environment(settings)
+        .environment(appState)
 }

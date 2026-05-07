@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct SearchWindow: Scene {
-    @Environment(SettingsData.self) var settings
+    @Environment(AppState.self) var appState
     @FocusedValue(\.selectedBrowserState) var selectedBrowserState: FileBrowserState?
 
     var body: some Scene {

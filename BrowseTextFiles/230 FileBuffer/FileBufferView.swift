@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct FileBufferView: View {
-    @Environment(SettingsData.self) var settings
+    @Environment(AppState.self) var appState
 
     @State private var autoSaveTask: Task<Void, Never>?
     @FocusState private var isFocused: Bool
@@ -28,8 +28,8 @@ struct FileBufferView: View {
                 SearchResultView(state: state)
             } else if let loadError = state.fileBuffer?.loadingError {
                 Text(loadError)
-                    .font(.custom(settings.fontName, size: settings.fontSize))
-                    .lineSpacing(settings.lineSpacing)
+                    .font(.custom(appState.fontName, size: appState.fontSize))
+                    .lineSpacing(appState.lineSpacing)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             } else if let fileBuffer = state.fileBuffer {
                 //let _ = Self._printChanges()
@@ -43,8 +43,8 @@ struct FileBufferView: View {
                 // .findDisabled(false)
                 // .replaceDisabled(false)
 
-                .font(.custom(settings.fontName, size: settings.fontSize))
-                .lineSpacing(settings.lineSpacing)
+                .font(.custom(appState.fontName, size: appState.fontSize))
+                .lineSpacing(appState.lineSpacing)
                 .onChange(of: fileBuffer.text) {
                     scheduleAutoSave()
                 }
@@ -72,10 +72,10 @@ struct FileBufferView: View {
     }
 
     func scheduleAutoSave() {
-        if settings.autoSavePerSeconds == 0 { return }
+        if appState.autoSavePerSeconds == 0 { return }
         autoSaveTask?.cancel()
         autoSaveTask = Task {
-            try? await Task.sleep(for: .seconds(settings.autoSavePerSeconds))
+            try? await Task.sleep(for: .seconds(appState.autoSavePerSeconds))
             if Task.isCancelled { return }
             state.saveFileIfEdited()
         }

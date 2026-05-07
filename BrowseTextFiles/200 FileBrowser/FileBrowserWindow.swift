@@ -9,7 +9,7 @@ import SwiftUI
 
 struct FileBrowserWindow: Scene {
     @Environment(\.openWindow) private var openWindow
-    @Environment(SettingsData.self) var settings
+    @Environment(AppState.self) var appState
     @FocusedValue(\.selectedBrowserState) var state: FileBrowserState?
 
     var body: some Scene {
@@ -47,7 +47,7 @@ struct FileBrowserWindow: Scene {
                 .keyboardShortcut("o", modifiers: .command)
                 
                 Menu("Open Recent", systemImage: "text.below.folder") {
-                    let urls = settings.recentDocumentURLs
+                    let urls = appState.recentDocumentURLs
                     if urls.isEmpty {
                         Text("No Recent Documents")
                     } else {
@@ -58,7 +58,7 @@ struct FileBrowserWindow: Scene {
                         }
                         Divider()
                         Button("Clear Menu") {
-                            settings.clearRecentDocuments()
+                            appState.clearRecentDocuments()
                         }
                     }
                 }

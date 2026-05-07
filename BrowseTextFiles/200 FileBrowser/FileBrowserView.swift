@@ -11,7 +11,7 @@ import MyLibrary
 struct FileBrowserView: View {
     @Environment(\.openWindow) private var openWindow
     // @Environment(\.scenePhase) private var scenePhase
-    @Environment(SettingsData.self) var settings
+    @Environment(AppState.self) var appState
     @SceneStorage("rootURLData") private var sceneRootURLData: Data?
     @SceneStorage("fileURLData") private var sceneFileURLData: Data?
 
@@ -187,7 +187,7 @@ struct FileBrowserView: View {
             }
 
             saveSceneData(rootURL: rootURL)
-            settings.addRecentDocumentURL(rootURL)
+            appState.addRecentDocumentURL(rootURL)
             return
         }
 
@@ -205,7 +205,7 @@ struct FileBrowserView: View {
             state.updateSelectedFolderToRoot()
             state.updateFileListFromSelectedFolder()
             saveSceneData(rootURL: rootURL)
-            settings.addRecentDocumentURL(rootURL)
+            appState.addRecentDocumentURL(rootURL)
         }
     }
 
@@ -239,8 +239,8 @@ struct FileBrowserView: View {
 }
 
 #Preview {
-//    let settings = SettingsData()
+//    let appState = AppState()
 //    FileBrowserView()
 //        .frame(maxWidth: .infinity, maxHeight: .infinity)
-//        .environment(settings)
+//        .environment(appState)
 }

@@ -14,7 +14,7 @@ fileprivate struct OptionItem: Identifiable {
 }
 
 struct NewFileSheet: View {
-    @Environment(SettingsData.self) var settings
+    @Environment(AppState.self) var appState
     @Environment(\.dismiss) private var dismiss
 
     @State private var newFilePath = ""
@@ -34,22 +34,22 @@ struct NewFileSheet: View {
                         .textFieldStyle(.roundedBorder)
                 }
                 Section(header: Text("Templates")) {
-                    @Bindable var settings = settings
-                    let range = 0 ..< settings.newFileTemplates.count
+                    @Bindable var appState = appState
+                    let range = 0 ..< appState.newFileTemplates.count
                     ForEach(range, id: \.self) { index in
                         HStack {
-                            let selected = settings.newFileTemplateIndex == index
+                            let selected = appState.newFileTemplateIndex == index
                             Image(systemName: selected ? "largecircle.fill.circle" : "circle")
                                 .foregroundColor(.accentColor)
                                 .onTapGesture {
-                                    settings.newFileTemplateIndex = index
+                                    appState.newFileTemplateIndex = index
                                     updateNewFilePath()
                                 }
-                            TextField("", text: $settings.newFileTemplates[index])
+                            TextField("", text: $appState.newFileTemplates[index])
                                 .frame(maxWidth: .infinity)
                                 .labelsHidden()
                                 .textFieldStyle(.roundedBorder)
-                                .onChange(of: settings.newFileTemplates[index]) {
+                                .onChange(of: appState.newFileTemplates[index]) {
                                     if selected {
                                         updateNewFilePath()
                                     }
@@ -67,7 +67,7 @@ struct NewFileSheet: View {
 
             HStack {
                 Button("Reset templates to defaults") {
-                    settings.resetNewFileTemplatesToDefaults()
+                    appState.resetNewFileTemplatesToDefaults()
                 }
                 Spacer()
                 Button("Cancel") {
@@ -101,7 +101,7 @@ struct NewFileSheet: View {
     }
 
     func updateNewFilePath() {
-        let template = settings.newFileTemplates[settings.newFileTemplateIndex]
+        let template = appState.newFileTemplates[appState.newFileTemplateIndex]
         newFilePath = expand(template: template)
     }
 

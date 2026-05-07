@@ -11,19 +11,19 @@ import MyLibrary
 @main
 struct BrowseTextFilesApp: App {
 
-    @State private var settings = SettingsData()
+    @State private var appState = AppState()
 
     var body: some Scene {
         FileBrowserWindow()
-            .environment(settings)
+            .environment(appState)
 
         SearchWindow()
-            .environment(settings)
+            .environment(appState)
 
         AboutWindow()
 
         SettingsWindow()
-            .environment(settings)
+            .environment(appState)
 
         ConsoleWindow()
     }
