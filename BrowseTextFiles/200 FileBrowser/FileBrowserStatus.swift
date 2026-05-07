@@ -543,7 +543,7 @@ final class FileBrowserStatus {
                 group.addTask(priority: .userInitiated) {
                     let lines = try Self.filterLines(from: fileItem.url, searchText: searchText)
                     if fileItem.name.contains(searchText) || lines.count > 0 {
-                        let title = String(fileItem.url.path(percentEncoded: false).dropFirst(basePathLength))
+                        let title = String(fileItem.url.path(percentEncoded: false).dropFirst(basePathLength)).precomposedStringWithCanonicalMapping
                         return SearchResult(url: fileItem.url, title: title, lines: lines)
                     } else {
                         return nil
