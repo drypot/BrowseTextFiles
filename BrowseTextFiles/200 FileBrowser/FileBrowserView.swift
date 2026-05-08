@@ -17,24 +17,11 @@ struct FileBrowserView: View {
     @State private var state = FileBrowserState()
     @State private var window: NSWindow?
 
-    public struct InitParam: Hashable, Codable {
-        let id: UUID
-        let rootURL: URL?
-        let fileURL: URL?
-
-        // Codable 해야 해서 init 를 번잡스럽게 만들어 준다.
-        init(id: UUID = UUID(), rootURL: URL? = nil, fileURL: URL? = nil) {
-            self.id = id
-            self.rootURL = rootURL
-            self.fileURL = fileURL
-        }
-    }
-
-    private var initParam: InitParam?
+    private var initParam: FileBrowserWindow.InitParam?
 
     private let log = LogStore.shared.log
 
-    init(_ initParam: InitParam?) {
+    init(_ initParam: FileBrowserWindow.InitParam?) {
         self.initParam = initParam
     }
 

@@ -16,8 +16,21 @@ struct FileBrowserWindow: Scene {
     @Environment(AppState.self) var appState
     @FocusedValue(\.currentFileBrowserState) var currentState: FileBrowserState?
 
+    public struct InitParam: Hashable, Codable {
+        let id: UUID
+        let rootURL: URL?
+        let fileURL: URL?
+
+        // Codable 해야 해서 init 를 번잡스럽게 만들어 준다.
+        init(id: UUID = UUID(), rootURL: URL? = nil, fileURL: URL? = nil) {
+            self.id = id
+            self.rootURL = rootURL
+            self.fileURL = fileURL
+        }
+    }
+
     var body: some Scene {
-        WindowGroup("Browser", id: "browser", for: FileBrowserView.InitParam.self) { $initParam in
+        WindowGroup("Browser", id: "browser", for: InitParam.self) { $initParam in
             FileBrowserView(initParam)
                 .frame(maxWidth: .infinity, maxHeight: .infinity) // 빈 화면에서 drag & drop 받기 위해
             
@@ -124,7 +137,7 @@ struct FileBrowserWindow: Scene {
 
     func newTab() {
         if let state = currentState {
-            let initParam = FileBrowserView.InitParam(rootURL: state.rootURL, fileURL: state.selectedFile?.url)
+            let initParam = InitParam(rootURL: state.rootURL, fileURL: state.selectedFile?.url)
             openWindow(id: "browser", value: initParam)
         } else {
             openWindow(id: "browser")
@@ -138,14 +151,14 @@ struct FileBrowserWindow: Scene {
         panel.canChooseFiles = false
         if panel.runModal() == .OK {
             if let url = panel.url {
-                let initParam = FileBrowserView.InitParam(rootURL: url)
+                let initParam = InitParam(rootURL: url)
                 openWindow(id: "browser", value: initParam)
             }
         }
     }
 
     func openRecent(_ url: URL) {
-        let initParam = FileBrowserView.InitParam(rootURL: url)
+        let initParam = InitParam(rootURL: url)
         openWindow(id: "browser", value: initParam)
     }
 
