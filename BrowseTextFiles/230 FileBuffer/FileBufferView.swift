@@ -24,9 +24,7 @@ struct FileBufferView: View {
 
     var body: some View {
         Group {
-            if state.isShowSearchView {
-                SearchResultView(state: state)
-            } else if let loadError = state.fileBuffer?.loadingError {
+            if let loadError = state.fileBuffer?.loadingError {
                 Text(loadError)
                     .font(.custom(appState.fontName, size: appState.fontSize))
                     .lineSpacing(appState.lineSpacing)

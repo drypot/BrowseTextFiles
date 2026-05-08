@@ -104,6 +104,7 @@ class AppState {
 
     // MARK: - RecentDocuments
 
+    @ObservationIgnored
     var recentDocumentURLs: [URL]
 
     func addRecentDocumentURL(_ url: URL) {
@@ -118,11 +119,22 @@ class AppState {
 
     // MARK: - AutoSave
 
+    @ObservationIgnored
     var autoSavePerSeconds: Int {
         didSet {
             UserDefaults.standard.set(autoSavePerSeconds, forKey: "autoSavePerSeconds")
         }
     }
 
-}
+    // MARK: - FileBrowserState
 
+    @ObservationIgnored
+    weak var currentFileBrowserState: FileBrowserState? = nil
+
+    func openSearchWindow(state: FileBrowserState, openWindow: OpenWindowAction) {
+        currentFileBrowserState = state
+        openWindow(id: "search", value: state.id)
+    }
+
+
+}

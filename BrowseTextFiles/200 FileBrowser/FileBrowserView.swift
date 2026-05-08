@@ -10,7 +10,6 @@ import MyLibrary
 
 struct FileBrowserView: View {
     @Environment(\.openWindow) private var openWindow
-    // @Environment(\.scenePhase) private var scenePhase
     @Environment(AppState.self) var appState
     @SceneStorage("rootURLData") private var sceneRootURLData: Data?
     @SceneStorage("fileURLData") private var sceneFileURLData: Data?
@@ -69,7 +68,7 @@ struct FileBrowserView: View {
         }
         .background(WindowAccessor { window in self.window = window })
         .navigationTitle(state.rootName ?? "Browser")
-        .focusedSceneValue(\.selectedBrowserState, state)
+        .focusedSceneValue(\.currentFileBrowserState, state)
         .onChange(of: state.selectedFile) { _, newValue in
             saveSceneData(fileURL: newValue?.url)
         }
@@ -90,7 +89,7 @@ struct FileBrowserView: View {
         // .onReceive(NotificationCenter.default.publisher(for: NSWindow.didBecomeMainNotification)) { notification in
         //     guard self.window == notification.object as? NSWindow else { return }
         //     log("notification: become main window, \(state.debuggingName)")
-        //     state.saveFileIfEdited()
+
         // }
         .onReceive(NotificationCenter.default.publisher(for: NSWindow.didResignMainNotification)) { notification in
             guard self.window == notification.object as? NSWindow else { return }
@@ -101,17 +100,14 @@ struct FileBrowserView: View {
         // 프로그램 전환할 때 ResignMain 신호가 와서 ResignActive 까지 받진 않아도 될 것 같다.
         // .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { notification in
         //     log("notification: become active app, \(state.debuggingName)")
-        //     state.saveFileIfEdited()
         // }
         // .onReceive(NotificationCenter.default.publisher(for: NSApplication.didResignActiveNotification)) { notification in
         //     log("notification: resign active app, \(state.debuggingName)")
-        //     state.saveFileIfEdited()
         // }
 
         // 프로그램 종료할 때 ResignMain 신호가 와서 Terminate 까지 받진 않아도 될 것 같다.
         // .onReceive(NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification)) { notification in
         //     log("notification: will terminate")
-        //     state.saveFileIfEdited()
         // }
 
         .toolbarBackground(.background, for: .windowToolbar)
@@ -119,26 +115,17 @@ struct FileBrowserView: View {
 //        .toolbar(removing: .title)
         .toolbar {
 
-//            ToolbarItem(placement: .navigation) {
-//                ControlGroup {
-//                    Button(action: {}) {
-//                        Image(systemName: "chevron.left")
-//                    }
-//                    .help("이전 항목으로 이동")
-//
-//                    Button(action: {}) {
-//                        Image(systemName: "chevron.right")
-//                    }
-//                    .help("다음 항목으로 이동")
-//                }
-//                .controlGroupStyle(.navigation) // macOS 스타일의 화살표 묶음으로 표시된다
-//            }
-
             ToolbarItemGroup(placement: .navigation) {
-                Button {
+                // Button("Prev", systemName: "chevron.left")  {
+                // }
+                // .help("이전 항목으로 이동")
+
+                // Button("Next", systemName: "chevron.right") {
+                // }
+                // .help("다음 항목으로 이동")
+
+                Button("Reload", systemImage: "arrow.clockwise") {
                     state.reloadAll()
-                } label: {
-                    Label("Reload", systemImage: "arrow.clockwise")
                 }
                 .help("Reload")
             }
@@ -146,11 +133,9 @@ struct FileBrowserView: View {
             ToolbarSpacer()
 
             ToolbarItemGroup(placement: .primaryAction) {
-                Button {
-                    openWindow(id: "search", value: state.id)
+                Button("Search", systemImage: "magnifyingglass") {
+                    appState.openSearchWindow(state: state, openWindow: openWindow)
                     // state.toggleSearchView()
-                } label: {
-                    Label("Search", systemImage: "magnifyingglass")
                 }
                 .help("Search")
             }

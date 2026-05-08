@@ -24,7 +24,6 @@ final class FileBrowserState {
 
     var isShowNewFileView = false
 
-    var isShowSearchView = false
     var searchText = ""
     private(set) var isSearching = false
     private(set) var searchResults: [SearchResult]?
@@ -348,8 +347,6 @@ final class FileBrowserState {
             fileBuffer = FileBuffer(from: url)
             guard let fileBuffer else { return }
 
-            isShowSearchView = false
-
             try withSecurityScope(rootURL) {
                 try fileBuffer.loadFile()
                 fileBuffer.startMonitoring()
@@ -495,21 +492,6 @@ final class FileBrowserState {
     }
 
     // MARK: - Search
-
-    func toggleSearchView() {
-        if !isRootReady { return }
-        isShowSearchView.toggle()
-    }
-
-    func hideSearchView() {
-        if !isRootReady { return }
-        isShowSearchView = false
-    }
-
-    func showSearchView() {
-        if !isRootReady { return }
-        isShowSearchView = true
-    }
 
     func startSearch() {
         guard let rootURL else { return }

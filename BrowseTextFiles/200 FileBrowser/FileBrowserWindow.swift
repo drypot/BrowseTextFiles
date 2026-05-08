@@ -7,10 +7,14 @@
 
 import SwiftUI
 
+extension FocusedValues {
+    @Entry var currentFileBrowserState: FileBrowserState? = nil
+}
+
 struct FileBrowserWindow: Scene {
     @Environment(\.openWindow) private var openWindow
     @Environment(AppState.self) var appState
-    @FocusedValue(\.selectedBrowserState) var state: FileBrowserState?
+    @FocusedValue(\.currentFileBrowserState) var currentState: FileBrowserState?
 
     var body: some Scene {
         WindowGroup("Browser", id: "browser", for: FileBrowserView.InitParam.self) { $initParam in
@@ -32,7 +36,7 @@ struct FileBrowserWindow: Scene {
         .commands {
             CommandGroup(replacing: .newItem) {
                 Button("New File", systemImage: "text.document") {
-                    state?.showNewFileView()
+                    currentState?.showNewFileView()
                 }
                 .keyboardShortcut("n", modifiers: .command)
                 
@@ -66,14 +70,14 @@ struct FileBrowserWindow: Scene {
                 Divider()
                 
                 Button("Save", systemImage: "square.and.arrow.down") {
-                    state?.saveFile()
+                    currentState?.saveFile()
                 }
                 .keyboardShortcut("s", modifiers: .command)
             }
             
             CommandGroup(after: .toolbar) {
                 Button("Reload", systemImage: "arrow.clockwise") {
-                    state?.reloadAll()
+                    currentState?.reloadAll()
                 }
                 .keyboardShortcut("r", modifiers: .command)
                 
@@ -100,8 +104,8 @@ struct FileBrowserWindow: Scene {
             CommandGroup(after: .textEditing) {
                 Divider()
                 Button("Find in Files", systemImage: "magnifyingglass") {
-                    guard let state else { return }
-                    openWindow(id: "search", value: state.id)
+                    guard let currentState else { return }
+                    appState.openSearchWindow(state: currentState, openWindow: openWindow)
                     //state?.showSearchView()
                 }
                 .keyboardShortcut("f", modifiers: [.command, .shift])
@@ -119,7 +123,7 @@ struct FileBrowserWindow: Scene {
     }
 
     func newTab() {
-        if let state = state {
+        if let state = currentState {
             let initParam = FileBrowserView.InitParam(rootURL: state.rootURL, fileURL: state.selectedFile?.url)
             openWindow(id: "browser", value: initParam)
         } else {
@@ -156,6 +160,3 @@ struct FileBrowserWindow: Scene {
     //    }
 }
 
-extension FocusedValues {
-    @Entry var selectedBrowserState: FileBrowserState? = nil
-}

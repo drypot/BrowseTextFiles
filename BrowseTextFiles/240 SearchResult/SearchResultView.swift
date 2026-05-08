@@ -11,19 +11,21 @@ struct SearchResultView: View {
     @Environment(AppState.self) var appState
 
     @Bindable var state: FileBrowserState
+
     @FocusState var isFocused: Bool
 
     var body: some View {
-        VStack {
+        VStack(spacing: 0) {
             HStack {
                 TextField("Search", text: $state.searchText)
                     .frame(width: 320)
                     .focused($isFocused)
                     .onSubmit {
+                        let findPasteboard = NSPasteboard(name: .find)
+                        findPasteboard.declareTypes([.string], owner: nil)
+                        findPasteboard.setString(state.searchText, forType: .string)
+
                         state.startSearch()
-                    }
-                    .onExitCommand {
-                        state.hideSearchView()
                     }
                     .onAppear {
                         isFocused = true
@@ -37,7 +39,7 @@ struct SearchResultView: View {
                     state.clearSearchResult()
                 }
             }
-            .padding(.bottom, 16)
+            .padding(.vertical, 24)
 
             Divider()
 
@@ -46,7 +48,7 @@ struct SearchResultView: View {
                     ForEach(results) { result in
                         Group {
                             Button(result.title) {
-                                state.updateAll(fromSearchedFile: result.url)
+                                state.updateAll(from: result.url)
                             }
                             .buttonStyle(.plain)
                             .fontWeight(.bold)
@@ -69,9 +71,7 @@ struct SearchResultView: View {
                         .lineSpacing(appState.lineSpacing)
                 }
             }
-            .onExitCommand {
-                state.hideSearchView()
-            }
+            .padding(.horizontal, 16)
         }
     }
 }
