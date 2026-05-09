@@ -10,23 +10,38 @@ import SwiftUI
 
 struct FileBufferEditor: NSViewRepresentable {
     @Environment(AppState.self) var appState
-
-    let fileBuffer: FileBuffer
+    @Environment(FileBrowserState.self) var state
 
     func makeCoordinator() -> Coordinator {
         return Coordinator(self)
     }
 
     func makeNSView(context: Context) -> NSScrollView {
+        //print("nsview created: \(state.id), FileBufferEditor.makeNSView")
+
         let textView = makeTextView()
         let scrollView = makeScrollView(for: textView)
 
         // configureForNoWrap(textView, scrollView)
         textView.delegate = context.coordinator
 
-        fileBuffer.textView = textView
-
         return scrollView
+    }
+
+    func updateNSView(_ nsView: NSScrollView, context: Context) {
+        guard let fileBuffer = state.fileBuffer else { return }
+
+        //print("nsview updated: \(fileBuffer.name), FileBufferEditor, updateNSView")
+
+        // LogStore @Observable 이라; 여기서 쓰면 View 삭제될 때 무한 루프 생긴다;
+        // let log = LogStore.shared.log
+
+        if fileBuffer.shouldTextViewCopyOriginalText {
+            guard let textView = nsView.documentView as? NSTextView else { return }
+            textView.string = fileBuffer.originalText
+            fileBuffer.textView = textView
+            fileBuffer.shouldTextViewCopyOriginalText = false
+        }
     }
 
     func makeTextView() -> NSTextView {
@@ -101,33 +116,20 @@ struct FileBufferEditor: NSViewRepresentable {
         textContainer.widthTracksTextView = false // **
     }
 
-    func updateNSView(_ nsView: NSScrollView, context: Context) {
-        // LogStore @Observable 이라; 여기서 쓰면 View 삭제될 때 무한 루프 생긴다;
-        // let log = LogStore.shared.log
-
-        // print("updateNSView: FileBufferEditor")
-
-        if fileBuffer.shouldTextViewCopyOriginalText {
-            guard let textView = nsView.documentView as? NSTextView else { return }
-            textView.string = fileBuffer.originalText
-            fileBuffer.shouldTextViewCopyOriginalText = false
-        }
-    }
-
     final class Coordinator: NSObject, NSTextViewDelegate {
         let view: FileBufferEditor
 
         init(_ view: FileBufferEditor) {
+            //print("coordinator created: \(view.state.id), FileBufferEditor.Coordinator")
             self.view = view
         }
 
         func textDidChange(_ notification: Notification) {
-            // print("textDidChange: Coordinator")
+            guard let fileBuffer = view.state.fileBuffer else { return }
+            //print("text changed: \(fileBuffer.name), FileBufferEditor.Coordinator")
             // guard let textView = notification.object as? NSTextView else { return }
 
-            let fileBuffer = view.fileBuffer
             let appState = view.appState
-
             fileBuffer.isTextViewEdited = true
             if appState.autoSaveEnabled {
                 fileBuffer.scheduleAutoSave(after: appState.autoSaveAfterSeconds)

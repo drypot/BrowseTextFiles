@@ -39,9 +39,9 @@ struct SettingsView: View {
                 Divider()
 
                 SettingsRow {
-                    Text("Line Height: \(appState.lineHeight.formatted())x")
+                    Text("Line Height: \(appState.lineHeightMultiple.formatted())x")
                     Spacer()
-                    Slider(value: $appState.lineHeight, in: 1.0...3.0, step: 0.1)
+                    Slider(value: $appState.lineHeightMultiple, in: 1.0...3.0, step: 0.1)
                         .frame(maxWidth: sliderWidth)
                 }
             }

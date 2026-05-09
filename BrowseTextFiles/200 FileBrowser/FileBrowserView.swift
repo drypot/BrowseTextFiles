@@ -11,6 +11,7 @@ import MyLibrary
 struct FileBrowserView: View {
     @Environment(\.openWindow) private var openWindow
     @Environment(AppState.self) var appState
+
     @SceneStorage("rootURLData") private var sceneRootURLData: Data?
     @SceneStorage("fileURLData") private var sceneFileURLData: Data?
 
@@ -38,7 +39,7 @@ struct FileBrowserView: View {
                     // }
                     // .frame(minWidth: 180, idealWidth: 260)
 
-                    FolderTreeView(state: state)
+                    FolderTreeView()
                         .frame(minWidth: 180, idealWidth: 260, maxHeight: .infinity)
 
                     // List(state.fileURLsForList, id: \.self, selection: state.selectedFileBinding()) { file in
@@ -46,15 +47,16 @@ struct FileBrowserView: View {
                     // }
                     // .frame(minWidth: 180, idealWidth: 260)
 
-                    FileListView(state: state)
+                    FileListView()
                         .frame(minWidth: 180, idealWidth: 260, maxHeight: .infinity)
 
-                    FileBufferView(state: state)
+                    FileBufferView()
                 }
             }
         }
         .background(WindowAccessor { window in self.window = window })
         .navigationTitle(state.rootName ?? "Browser")
+        .environment(state)
         .focusedSceneValue(\.currentFileBrowserState, state)
         .onChange(of: state.selectedFile) { _, newValue in
             saveSceneData(fileURL: newValue?.url)

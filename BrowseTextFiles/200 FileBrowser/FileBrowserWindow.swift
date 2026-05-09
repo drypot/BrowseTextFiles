@@ -33,7 +33,7 @@ struct FileBrowserWindow: Scene {
         WindowGroup("Browser", id: "browser", for: InitParam.self) { $initParam in
             FileBrowserView(initParam)
                 .frame(maxWidth: .infinity, maxHeight: .infinity) // 빈 화면에서 drag & drop 받기 위해
-            
+
             // 외부에서 file url 을 받았을 경우 folder 에 대한 권한이 없어서 원만히 작동하기가 힘들다.
             // finder, drag & drop 연동은 일단 하지 않기로 한다.
             // 오로지 folder 만 open 할 수 있는 것으로.
@@ -90,7 +90,7 @@ struct FileBrowserWindow: Scene {
             
             CommandGroup(after: .toolbar) {
                 Button("Reload", systemImage: "arrow.clockwise") {
-                    currentState?.reloadAll()
+                     currentState?.reloadAll()
                 }
                 .keyboardShortcut("r", modifiers: .command)
                 

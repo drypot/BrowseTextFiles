@@ -14,7 +14,7 @@ class AppState {
     init() {
         self.fontName = Self.userDefaultsString(forKey: "fontName", defaultValue: "SF Pro")
         self.fontSize = Self.userDefaultsDouble(forKey: "fontSize", defaultValue: 16)
-        self.lineHeight = Self.userDefaultsDouble(forKey: "lineHeight", defaultValue: 1.3)
+        self.lineHeightMultiple = Self.userDefaultsDouble(forKey: "lineHeightMultiple", defaultValue: 1.3)
 
         self.autoSaveEnabled = Self.userDefaultsBool(forKey: "autoSaveEnabled", defaultValue: true)
         self.autoSaveAfterSeconds = Self.userDefaultsInt(forKey: "autoSaveAfterSeconds", defaultValue: 2)
@@ -77,14 +77,14 @@ class AppState {
         }
     }
 
-    var lineHeight: Double {
+    var lineHeightMultiple: Double {
         didSet {
-            UserDefaults.standard.set(lineHeight, forKey: "lineHeight")
+            UserDefaults.standard.set(lineHeightMultiple, forKey: "lineHeightMultiple")
         }
     }
 
     var lineSpacing: Double {
-        (lineHeight - 1) * fontSize
+        (lineHeightMultiple - 1) * fontSize
     }
 
     // MARK: - New File Templates

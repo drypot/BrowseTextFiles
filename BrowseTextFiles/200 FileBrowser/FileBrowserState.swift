@@ -267,12 +267,12 @@ final class FileBrowserState {
                 }
                 fileList?.sort { $0.name < $1.name }
             }
-            log("load file list: \(url.lastPathComponent)")
+            log("load list: \(url.lastPathComponent)")
         } catch {
             let message = error.localizedDescription
             alertMessage = message
             hasAlertMessage = true
-            log("load file list: \(message)")
+            log("load list: \(message)")
         }
     }
 
@@ -343,6 +343,7 @@ final class FileBrowserState {
 
     func resetFileBuffer() {
         guard autoSaveFileBuffer() else { return }
+        fileBuffer?.invalidate()
         fileBuffer = nil
         log("reset fileBuffer:")
     }
@@ -354,6 +355,7 @@ final class FileBrowserState {
         fileBuffer = FileBuffer(from: url, rootURL: rootURL)
         guard let fileBuffer else { return }
 
+        log("filebuffer created: \(fileBuffer.name), updateFileBuffer")
         fileBuffer.loadOriginalText()
     }
 

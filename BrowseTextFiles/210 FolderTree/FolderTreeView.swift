@@ -10,9 +10,8 @@ import MyLibrary
 
 struct FolderTreeView: View {
     @Environment(\.controlActiveState) var controlActiveState
+    @Environment(FileBrowserState.self) var state
     @FocusState private var isFocused: Bool
-
-    let state: FileBrowserState
 
     var body: some View {
         let isActive = controlActiveState != .inactive && isFocused

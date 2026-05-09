@@ -54,11 +54,13 @@ final class FileBuffer: Identifiable, Hashable {
         savingError != nil
     }
 
-    // 애초에 수작업 invalidate 필요없게 만들자.
-    // func invalidate() {
-    //     fileMonitor = nil
-    //     autoSaveTask?.cancel()
-    // }
+    // 애초에 수작업 invalidate 필요없게 만든다고 신경은 썼는네,
+    // 혹시나 모르니 확실히 하자.
+    func invalidate() {
+        fileMonitor = nil
+        textView = nil
+        autoSaveTask?.cancel()
+    }
 
 //    func textBinding() -> Binding<String> {
 //        Binding<String>(
@@ -118,15 +120,9 @@ final class FileBuffer: Identifiable, Hashable {
     }
 
     func saveTextView() {
-        print("a")
         guard !hasLoadingError else { return }
-        print("b")
-
-        print("\(textView?.string.count ?? -1)")
         guard let text = textView?.string else { return }
-        print("c")
         guard let data = text.data(using: .utf8) else { return }
-        print("d")
 
         do {
             // 이렇게 하면 먼저 붙였던 fileMonitor 가 떨어져 나간다. 하지 말 것.
@@ -142,6 +138,7 @@ final class FileBuffer: Identifiable, Hashable {
             try fileHandle.write(contentsOf: data)
             try fileHandle.close()
             savingError = nil
+            isTextViewEdited = false
             log("save text: \(name)")
         } catch {
             let message = error.localizedDescription
@@ -159,8 +156,9 @@ final class FileBuffer: Identifiable, Hashable {
         guard let font = NSFont(name: appState.fontName, size: appState.fontSize) else { return }
 
         let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.lineSpacing = appState.lineSpacing
-        // paragraphStyle.lineHeightMultiple = appState.lineHeight
+        // lineSpacing 쓰면 엔터 입력시 커서가 사라진다; macOS 26
+        // paragraphStyle.lineSpacing = appState.lineSpacing
+        paragraphStyle.lineHeightMultiple = appState.lineHeightMultiple
 
         let attributes: [NSAttributedString.Key: Any] = [
             .font: font,

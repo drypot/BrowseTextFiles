@@ -9,8 +9,7 @@ import SwiftUI
 
 struct FileBufferView: View {
     @Environment(AppState.self) var appState
-
-    var state: FileBrowserState
+    @Environment(FileBrowserState.self) var state
 
 //    private let debugID = UUID()
 
@@ -34,7 +33,7 @@ struct FileBufferView: View {
                 // TextEditor source of truth 동기화 비효율이 심해서
                 // FileBufferEditor 를 만들었다. NSTextView.string 을 source 로 쓴다.
 
-                FileBufferEditor(fileBuffer: fileBuffer)
+                FileBufferEditor()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .onAppear {
                     fileBuffer.updateTextViewStyle(appState: appState)
