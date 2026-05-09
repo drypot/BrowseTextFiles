@@ -16,7 +16,7 @@ class AppState {
         self.fontSize = Self.userDefaultsDouble(forKey: "fontSize", defaultValue: 16)
         self.lineHeight = Self.userDefaultsDouble(forKey: "lineHeight", defaultValue: 1.3)
 
-        self.autoSavePerSeconds = Self.userDefaultsInt(forKey: "autoSavePerSeconds", defaultValue: 2)
+        self.autoSaveAfterSeconds = Self.userDefaultsInt(forKey: "autoSaveAfterSeconds", defaultValue: 2)
 
         self.newFileTemplates = Self.userDefaultsStringArray(forKey: "newFileTemplates", defaultValue: newFileTemplateDefaults, minSize: 5)
         self.newFileTemplateIndex = Self.userDefaultsInt(forKey: "newFileTemplateIndex", defaultValue: 0)
@@ -120,9 +120,9 @@ class AppState {
     // MARK: - AutoSave
 
     @ObservationIgnored
-    var autoSavePerSeconds: Int {
+    var autoSaveAfterSeconds: Int {
         didSet {
-            UserDefaults.standard.set(autoSavePerSeconds, forKey: "autoSavePerSeconds")
+            UserDefaults.standard.set(autoSaveAfterSeconds, forKey: "autoSaveAfterSeconds")
         }
     }
 

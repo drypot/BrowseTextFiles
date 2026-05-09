@@ -39,13 +39,13 @@ struct SettingsView: View {
             }
             Section {
                 let binding = Binding<Double>(
-                    get: { Double(appState.autoSavePerSeconds) },
-                    set: { appState.autoSavePerSeconds = Int($0) }
+                    get: { Double(appState.autoSaveAfterSeconds) },
+                    set: { appState.autoSaveAfterSeconds = Int($0) }
                 )
                 Slider(value: binding, in: 0.0...60.0, step: 2) {
-                    Text("Auto Save Per Seconds ")
+                    Text("Auto Save After Seconds ")
                 }
-                Text(appState.autoSavePerSeconds.formatted())
+                Text(appState.autoSaveAfterSeconds.formatted())
                     .font(.footnote)
             }
         }

@@ -65,9 +65,15 @@ struct FileBrowserView: View {
         )
         .alert(
             "",
-            isPresented: $state.isShowActiveError,
+            isPresented: $state.hasAlertMessage,
             actions: { Button("OK") { } },
-            message: { Text(state.activeError?.message ?? "Unknown error.") }
+            message: { Text(state.alertMessage ?? "Unknown error.") }
+        )
+        .alert(
+            "",
+            isPresented: $state.hasFileBufferAlertMessage,
+            actions: { Button("OK") { } },
+            message: { Text(state.fileBuffer?.alertMessage ?? "Unknown error.") }
         )
         .task {
             initView()
@@ -81,7 +87,7 @@ struct FileBrowserView: View {
         .onReceive(NotificationCenter.default.publisher(for: NSWindow.didResignMainNotification)) { notification in
             guard self.window == notification.object as? NSWindow else { return }
             log("notification: resign main window, \(state.debuggingName)")
-            state.saveFileIfEdited()
+            state.fileBuffer?.autoSaveTextView()
         }
 
         // 프로그램 전환할 때 ResignMain 신호가 와서 ResignActive 까지 받진 않아도 될 것 같다.

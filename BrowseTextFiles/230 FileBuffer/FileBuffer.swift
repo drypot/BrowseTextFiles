@@ -9,103 +9,170 @@ import SwiftUI
 import UniformTypeIdentifiers
 import MyLibrary
 
-enum FileBufferError: Error, LocalizedError {
-    case hasLoadingError(String)
-
-    var errorDescription: String? {
-        switch self {
-        case .hasLoadingError(let message):
-            return message
-        }
-    }
-}
-
 @Observable
 final class FileBuffer: Identifiable, Hashable {
     let id = UUID()
 
+    private(set) var rootURL: URL
     private(set) var url: URL
     private(set) var name: String
 
-    var text: String = ""
-    private(set) var isEdited = false
-    var selection: TextSelection?
+    private(set) var originalText: String = ""
+    var shouldTextViewCopyOriginalText = false
 
-    private(set) var loadingError: String?
-    var hasLoadingError: Bool {
-        loadingError != nil
-    }
+    @ObservationIgnored
+    weak var textView: NSTextView?
 
-    private(set) var hasSavingError = false
+    @ObservationIgnored
+    var isTextViewEdited = false
 
+    @ObservationIgnored
     private var fileMonitor: FileMonitor?
 
-    init(from url: URL) {
+    @ObservationIgnored
+    private var autoSaveTask: Task<Void, Never>?
+
+    private(set) var loadingError: String?
+    private(set) var savingError: String?
+
+    private(set) var alertMessage: String?
+    var hasAlertMessage: Bool = false
+
+    private let log = LogStore.shared.log
+
+    init(from url: URL, rootURL: URL) {
+        self.rootURL = rootURL
         self.url = url
         self.name = url.lastPathComponent
     }
 
-    func textBinding() -> Binding<String> {
-        Binding<String>(
-            get: { self.text },
-            set: {
-                self.text = $0
-                self.isEdited = true
-            }
-        )
+    var hasLoadingError: Bool {
+        loadingError != nil
     }
 
-    func loadFile() throws {
+    var hasSavingError: Bool {
+        savingError != nil
+    }
+
+    // 애초에 수작업 invalidate 필요없게 만들자.
+    // func invalidate() {
+    //     fileMonitor = nil
+    //     autoSaveTask?.cancel()
+    // }
+
+//    func textBinding() -> Binding<String> {
+//        Binding<String>(
+//            get: { self.text },
+//            set: {
+//                self.text = $0
+//                self.isEdited = true
+//            }
+//        )
+//    }
+
+    func loadOriginalText() {
+        autoSaveTask?.cancel()
         do {
-            text = try String(contentsOf: url, encoding: .utf8)
-            isEdited = false
+            try withSecurityScope(rootURL) {
+                originalText = try String(contentsOf: url, encoding: .utf8)
+                startFileMonitoring()
+            }
+            loadingError = nil
+            shouldTextViewCopyOriginalText = true
+            log("load text: \(name)")
         } catch {
             let message = error.localizedDescription
             loadingError = message
-            throw error
+            log("load text: \(message)")
         }
     }
 
-    func startMonitoring() {
+    private func startFileMonitoring() {
         fileMonitor = FileMonitor()
         fileMonitor!.startMonitoring(url) { [weak self] _ in
             guard let self else { return }
-            do {
-                try self.loadFile()
-            } catch {
+            self.loadOriginalText()
+            if hasLoadingError {
                 fileMonitor = nil
             }
         }
     }
 
-    func saveFile() throws {
-        if hasLoadingError {
-            throw FileBufferError.hasLoadingError(loadingError!)
-        }
+    func scheduleAutoSave(after seconds: Int) {
+        guard seconds > 0 else { return }
+        autoSaveTask?.cancel()
+        autoSaveTask = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(seconds))
+            if Task.isCancelled { return }
 
-        if let fileMonitor {
-            try fileMonitor.disableMonitoringWhile {
-                try saveFileCore()
-            }
-        } else {
-            try saveFileCore()
+            guard let self else { return }
+            self.autoSaveTextView()
         }
     }
 
-    private func saveFileCore() throws {
-        // 파일을 이렇게 생성하면 먼저 붙였던 fileMonitor 가 떨어져 나간다.
-        // try text.write(to: url, atomically: true, encoding: .utf8)
+    func autoSaveTextView() {
+        guard isTextViewEdited else { return }
+        guard !hasLoadingError else { return }
+        guard !hasSavingError else { return }
+        saveTextView()
+    }
 
+    func saveTextView() {
+        guard !hasLoadingError else { return }
+
+        fileMonitor?.ignoreEvent = true
+        defer {
+            fileMonitor?.ignoreEvent = false
+        }
+
+        guard let text = textView?.string else { return }
         guard let data = text.data(using: .utf8) else { return }
 
-        hasSavingError = true
-        let fileHandle = try FileHandle(forWritingTo: url)
-        try fileHandle.truncate(atOffset: 0)
-        try fileHandle.write(contentsOf: data)
-        try fileHandle.close()
+        do {
+            // 이렇게 하면 먼저 붙였던 fileMonitor 가 떨어져 나간다. 하지 말 것.
+            // try text.write(to: url, atomically: true, encoding: .utf8)
 
-        hasSavingError = false
-        isEdited = false
+            let fileHandle = try FileHandle(forWritingTo: url)
+            try fileHandle.truncate(atOffset: 0)
+            try fileHandle.write(contentsOf: data)
+            try fileHandle.close()
+            savingError = nil
+            log("save text: \(name)")
+        } catch {
+            let message = error.localizedDescription
+            savingError = message
+
+            alertMessage = message
+            hasAlertMessage = true
+            log("save text: \(message)")
+        }
+    }
+
+    func updateTextViewStyle(appState: AppState) {
+        guard let textView else { return }
+
+        guard let font = NSFont(name: appState.fontName, size: appState.fontSize) else { return }
+
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineSpacing = appState.lineSpacing
+        // paragraphStyle.lineHeightMultiple = appState.lineHeight
+
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: font,
+            .paragraphStyle: paragraphStyle
+        ]
+
+        textView.typingAttributes = attributes
+
+        guard let storage = textView.textStorage else { return }
+        let range = NSRange(
+            location: 0,
+            length: storage.length
+            // length: textView.string.utf16.count
+        )
+        storage.beginEditing()
+        storage.setAttributes(attributes, range: range)
+        storage.endEditing()
     }
 
     static func == (lhs: FileBuffer, rhs: FileBuffer) -> Bool {

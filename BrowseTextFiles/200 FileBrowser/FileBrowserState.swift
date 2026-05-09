@@ -28,8 +28,8 @@ final class FileBrowserState {
     private(set) var isSearching = false
     private(set) var searchResults: [SearchResult]?
 
-    var activeError: ActiveError?
-    var isShowActiveError = false
+    var alertMessage: String?
+    var hasAlertMessage = false
 
     private let log = LogStore.shared.log
 
@@ -51,6 +51,11 @@ final class FileBrowserState {
         rootName ?? "nil"
     }
 
+    var hasFileBufferAlertMessage: Bool {
+        get { fileBuffer?.hasAlertMessage ?? false }
+        set { fileBuffer?.hasAlertMessage = newValue }
+    }
+
     func resetFolderTree() {
         rootFolder = nil
         selectedFolder = nil
@@ -68,8 +73,8 @@ final class FileBrowserState {
             log("load root: \(url.lastPathComponent)")
         } catch {
             let message = error.localizedDescription
-            activeError = ActiveError(message: message)
-            isShowActiveError = true
+            alertMessage = message
+            hasAlertMessage = true
             log("load root: \(message)")
         }
     }
@@ -265,8 +270,8 @@ final class FileBrowserState {
             log("load file list: \(url.lastPathComponent)")
         } catch {
             let message = error.localizedDescription
-            activeError = ActiveError(message: message)
-            isShowActiveError = true
+            alertMessage = message
+            hasAlertMessage = true
             log("load file list: \(message)")
         }
     }
@@ -330,35 +335,26 @@ final class FileBrowserState {
 
     // MARK: - FileBuffer
 
-    func resetFileBuffer() {
-        saveFileIfEdited()
-        if isShowActiveError { return }
+    private func autoSaveFileBuffer() -> Bool {
+        guard let fileBuffer else { return true }
+        fileBuffer.autoSaveTextView()
+        return !fileBuffer.hasAlertMessage
+    }
 
+    func resetFileBuffer() {
+        guard autoSaveFileBuffer() else { return }
         fileBuffer = nil
+        log("reset fileBuffer:")
     }
 
     func updateFileBuffer(from url: URL) {
         guard let rootURL else { return }
+        guard autoSaveFileBuffer() else { return }
 
-        saveFileIfEdited()
-        if isShowActiveError { return }
+        fileBuffer = FileBuffer(from: url, rootURL: rootURL)
+        guard let fileBuffer else { return }
 
-        do {
-            fileBuffer = FileBuffer(from: url)
-            guard let fileBuffer else { return }
-
-            try withSecurityScope(rootURL) {
-                try fileBuffer.loadFile()
-                fileBuffer.startMonitoring()
-                log("load file: \(fileBuffer.name)")
-            }
-        } catch {
-            let message = error.localizedDescription
-            // loading error 는 다이얼로그 대신 TextEditor 표시될 부분에 표시된다.
-            // activeError = ActiveError(message: message)
-            // isShowActiveError = true
-            log("load file: \(message)")
-        }
+        fileBuffer.loadOriginalText()
     }
 
     func updateFileBufferFromSelectedFile() {
@@ -374,7 +370,7 @@ final class FileBrowserState {
 
         updateSelectedFolder(from: folderURL)
         updateFileList(from: folderURL)
-        if isShowActiveError { return }
+        if hasAlertMessage { return }
 
         if fileList != nil {
             updateSelectedFile(from: url)
@@ -411,13 +407,12 @@ final class FileBrowserState {
     }
 
     func reloadAll() {
-        saveFileIfEdited()
-        if isShowActiveError { return }
+        guard autoSaveFileBuffer() else { return }
 
         let fileURL = fileBuffer?.url
 
         reloadFolderTree()
-        if isShowActiveError { return }
+        if hasAlertMessage { return }
 
         if let fileURL {
             updateAll(from: fileURL)
@@ -426,36 +421,19 @@ final class FileBrowserState {
         log("reload all:")
     }
 
-    func saveFileIfEdited() {
-        guard let fileBuffer, fileBuffer.isEdited, !fileBuffer.hasSavingError else { return }
-        saveFile()
-    }
-
     func saveFile() {
-        guard let rootURL else { return }
         guard let fileBuffer else { return }
-        do {
-            try withSecurityScope(rootURL) {
-                try fileBuffer.saveFile()
-            }
-            log("save file: \(fileBuffer.name)")
-        } catch {
-            let message = error.localizedDescription
-            activeError = ActiveError(message: message)
-            isShowActiveError = true
-            log("save file: \(message)")
-        }
+        fileBuffer.saveTextView()
     }
 
     // MARK: - New File
 
     func showNewFileView() {
-        saveFileIfEdited()
-        if isShowActiveError { return }
+        guard autoSaveFileBuffer() else { return }
 
         if selectedFolder == nil {
-            activeError = ActiveError(message: "Select folder first.")
-            isShowActiveError = true
+            alertMessage = "Select folder first."
+            hasAlertMessage = true
         } else {
             isShowNewFileView = true
         }
@@ -485,8 +463,8 @@ final class FileBrowserState {
             }
         } catch {
             let message = error.localizedDescription
-            activeError = ActiveError(message: message)
-            isShowActiveError = true
+            alertMessage = message
+            hasAlertMessage = true
             log("new file: \(message)")
         }
     }
@@ -509,8 +487,8 @@ final class FileBrowserState {
                 log("start search: found \(searchResults?.count ?? 0) files")
             } catch {
                 let message = error.localizedDescription
-                activeError = ActiveError(message: message)
-                isShowActiveError = true
+                alertMessage = message
+                hasAlertMessage = true
                 log("start search: \(message)")
             }
         }
