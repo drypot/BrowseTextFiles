@@ -32,7 +32,7 @@ nonisolated final class FileMonitor {
         source.setEventHandler { [weak self] in
             guard let self else { return }
             guard let data = self.source?.data else { return } // DispatchSource.FileSystemEvent
-            // print("FileMonitor: eventHandler, ignoreEvent == \(ignoreEvent)")
+            //print("FileMonitor: eventHandler, ignoreEvent == \(ignoreEvent)")
             if !ignoreEvent {
                 onChange(data)
             }

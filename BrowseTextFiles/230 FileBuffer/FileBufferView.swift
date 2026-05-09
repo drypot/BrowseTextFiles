@@ -31,18 +31,16 @@ struct FileBufferView: View {
                 // .font(.custom(appState.fontName, size: appState.fontSize))
                 // .lineSpacing(appState.lineSpacing)
 
+                // TextEditor source of truth 동기화 비효율이 심해서
+                // FileBufferEditor 를 만들었다. NSTextView.string 을 source 로 쓴다.
+
                 FileBufferEditor(fileBuffer: fileBuffer)
-
-                // 애플 공식문서에 나와있는 것인데 효과 없다.
-                // .contentMargins(.horizontal, 20.0, for: .scrollContent)
-
-                // .findDisabled(false)
-                // .replaceDisabled(false)
-
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .onAppear {
                     fileBuffer.updateTextViewStyle(appState: appState)
                 }
+                // FileBufferEditor.updateNSView 에서 스타일까지 업데이트하면 비효율이 심해진다.
+                // 여기로 따로 빼놨다.
                 .onChange(of: appState.fontName) {
                     fileBuffer.updateTextViewStyle(appState: appState)
                 }

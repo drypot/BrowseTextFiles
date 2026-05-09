@@ -129,9 +129,8 @@ struct FileBufferEditor: NSViewRepresentable {
             let appState = view.appState
 
             fileBuffer.isTextViewEdited = true
-            let seconds = appState.autoSaveAfterSeconds
-            if seconds > 0 {
-                fileBuffer.scheduleAutoSave(after: seconds)
+            if appState.autoSaveEnabled {
+                fileBuffer.scheduleAutoSave(after: appState.autoSaveAfterSeconds)
             }
         }
     }

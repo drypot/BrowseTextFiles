@@ -16,6 +16,7 @@ class AppState {
         self.fontSize = Self.userDefaultsDouble(forKey: "fontSize", defaultValue: 16)
         self.lineHeight = Self.userDefaultsDouble(forKey: "lineHeight", defaultValue: 1.3)
 
+        self.autoSaveEnabled = Self.userDefaultsBool(forKey: "autoSaveEnabled", defaultValue: true)
         self.autoSaveAfterSeconds = Self.userDefaultsInt(forKey: "autoSaveAfterSeconds", defaultValue: 2)
 
         self.newFileTemplates = Self.userDefaultsStringArray(forKey: "newFileTemplates", defaultValue: newFileTemplateDefaults, minSize: 5)
@@ -39,6 +40,14 @@ class AppState {
             defaultValue
         } else {
             UserDefaults.standard.integer(forKey: key)
+        }
+    }
+
+    private static func userDefaultsBool(forKey key: String, defaultValue: Bool) -> Bool {
+        if UserDefaults.standard.object(forKey: key) == nil {
+            defaultValue
+        } else {
+            UserDefaults.standard.bool(forKey: key)
         }
     }
 
@@ -119,7 +128,12 @@ class AppState {
 
     // MARK: - AutoSave
 
-    @ObservationIgnored
+    var autoSaveEnabled: Bool {
+        didSet {
+            UserDefaults.standard.set(autoSaveEnabled, forKey: "autoSaveEnabled")
+        }
+    }
+
     var autoSaveAfterSeconds: Int {
         didSet {
             UserDefaults.standard.set(autoSaveAfterSeconds, forKey: "autoSaveAfterSeconds")
@@ -135,6 +149,5 @@ class AppState {
         currentFileBrowserState = state
         openWindow(id: "search", value: state.id)
     }
-
 
 }

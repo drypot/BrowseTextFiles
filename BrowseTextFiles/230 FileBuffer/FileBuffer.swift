@@ -118,19 +118,24 @@ final class FileBuffer: Identifiable, Hashable {
     }
 
     func saveTextView() {
+        print("a")
         guard !hasLoadingError else { return }
+        print("b")
 
-        fileMonitor?.ignoreEvent = true
-        defer {
-            fileMonitor?.ignoreEvent = false
-        }
-
+        print("\(textView?.string.count ?? -1)")
         guard let text = textView?.string else { return }
+        print("c")
         guard let data = text.data(using: .utf8) else { return }
+        print("d")
 
         do {
             // 이렇게 하면 먼저 붙였던 fileMonitor 가 떨어져 나간다. 하지 말 것.
             // try text.write(to: url, atomically: true, encoding: .utf8)
+
+            fileMonitor?.ignoreEvent = true
+            defer {
+                fileMonitor?.ignoreEvent = false
+            }
 
             let fileHandle = try FileHandle(forWritingTo: url)
             try fileHandle.truncate(atOffset: 0)
