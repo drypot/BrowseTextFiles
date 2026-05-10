@@ -20,7 +20,7 @@ final class FileBrowserState {
     private(set) var fileList: [FileItem]?
     private(set) var selectedFile: FileItem?
 
-    private(set) var fileBuffer: FileBuffer?
+    private(set) var fileBuffer: TextBuffer?
 
     var isShowNewFileView = false
 
@@ -333,7 +333,7 @@ final class FileBrowserState {
         return false
     }
 
-    // MARK: - FileBuffer
+    // MARK: - TextBuffer
 
     private func autoSaveFileBuffer() -> Bool {
         guard let fileBuffer else { return true }
@@ -352,7 +352,7 @@ final class FileBrowserState {
         guard let rootURL else { return }
         guard autoSaveFileBuffer() else { return }
 
-        fileBuffer = FileBuffer(from: url, rootURL: rootURL)
+        fileBuffer = TextBuffer(from: url, rootURL: rootURL)
         guard let fileBuffer else { return }
 
         log("filebuffer created: \(fileBuffer.name), updateFileBuffer")

@@ -1,5 +1,5 @@
 //
-//  FileBufferView.swift
+//  TextBufferView.swift
 //  Browse Text Files
 //
 //  Created by Kyuhyun Park on 5/5/26.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct FileBufferView: View {
+struct TextBufferView: View {
     @Environment(AppState.self) var appState
     @Environment(FileBrowserState.self) var state
 
@@ -31,14 +31,14 @@ struct FileBufferView: View {
                 // .lineSpacing(appState.lineSpacing)
 
                 // TextEditor source of truth 동기화 비효율이 심해서
-                // FileBufferEditor 를 만들었다. NSTextView.string 을 source 로 쓴다.
+                // TextBufferEditor 를 만들었다. NSTextView.string 을 source 로 쓴다.
 
-                FileBufferEditor()
+                TextBufferEditor()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .onAppear {
                     fileBuffer.updateTextViewStyle(appState: appState)
                 }
-                // FileBufferEditor.updateNSView 에서 스타일까지 업데이트하면 비효율이 심해진다.
+                // TextBufferEditor.updateNSView 에서 스타일까지 업데이트하면 비효율이 심해진다.
                 // 여기로 따로 빼놨다.
                 .onChange(of: appState.fontName) {
                     fileBuffer.updateTextViewStyle(appState: appState)
@@ -70,5 +70,5 @@ struct FileBufferView: View {
 }
 
 #Preview {
-    //    FileBufferView()
+    //    TextBufferView()
 }

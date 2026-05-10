@@ -1,5 +1,5 @@
 //
-//  FileBufferEditor.swift
+//  TextBufferEditor.swift
 //  BrowseTextFiles
 //
 //  Created by Kyuhyun Park on 7/26/25.
@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-struct FileBufferEditor: NSViewRepresentable {
+struct TextBufferEditor: NSViewRepresentable {
     @Environment(AppState.self) var appState
     @Environment(FileBrowserState.self) var state
 
@@ -17,7 +17,7 @@ struct FileBufferEditor: NSViewRepresentable {
     }
 
     func makeNSView(context: Context) -> NSScrollView {
-        //print("nsview created: \(state.id), FileBufferEditor.makeNSView")
+        //print("nsview created: \(state.id), TextBufferEditor.makeNSView")
 
         let textView = makeTextView()
         let scrollView = makeScrollView(for: textView)
@@ -31,7 +31,7 @@ struct FileBufferEditor: NSViewRepresentable {
     func updateNSView(_ nsView: NSScrollView, context: Context) {
         guard let fileBuffer = state.fileBuffer else { return }
 
-        //print("nsview updated: \(fileBuffer.name), FileBufferEditor, updateNSView")
+        //print("nsview updated: \(fileBuffer.name), TextBufferEditor, updateNSView")
 
         // LogStore @Observable 이라; 여기서 쓰면 View 삭제될 때 무한 루프 생긴다;
         // let log = LogStore.shared.log
@@ -117,16 +117,16 @@ struct FileBufferEditor: NSViewRepresentable {
     }
 
     final class Coordinator: NSObject, NSTextViewDelegate {
-        let view: FileBufferEditor
+        let view: TextBufferEditor
 
-        init(_ view: FileBufferEditor) {
-            //print("coordinator created: \(view.state.id), FileBufferEditor.Coordinator")
+        init(_ view: TextBufferEditor) {
+            //print("coordinator created: \(view.state.id), TextBufferEditor.Coordinator")
             self.view = view
         }
 
         func textDidChange(_ notification: Notification) {
             guard let fileBuffer = view.state.fileBuffer else { return }
-            //print("text changed: \(fileBuffer.name), FileBufferEditor.Coordinator")
+            //print("text changed: \(fileBuffer.name), TextBufferEditor.Coordinator")
             // guard let textView = notification.object as? NSTextView else { return }
 
             let appState = view.appState

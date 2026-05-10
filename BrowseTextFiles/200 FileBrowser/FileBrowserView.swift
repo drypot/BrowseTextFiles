@@ -50,7 +50,7 @@ struct FileBrowserView: View {
                     FileListView()
                         .frame(minWidth: 180, idealWidth: 260, maxHeight: .infinity)
 
-                    FileBufferView()
+                    TextBufferView()
                 }
             }
         }
