@@ -38,6 +38,7 @@ struct TextBufferView: View {
                 .onAppear {
                     fileBuffer.updateTextViewStyle(appState: appState)
                 }
+
                 // TextBufferEditor.updateNSView 에서 스타일까지 업데이트하면 비효율이 심해진다.
                 // 여기로 따로 빼놨다.
                 .onChange(of: appState.fontName) {
@@ -49,6 +50,7 @@ struct TextBufferView: View {
                 .onChange(of: appState.lineSpacing) {
                     fileBuffer.updateTextViewStyle(appState: appState)
                 }
+
                 // .overlay(
                 //     Text(debugID.uuidString.prefix(4))
                 //         .font(.caption)
@@ -62,7 +64,6 @@ struct TextBufferView: View {
         // padding 을 주면 find 기능 사용할 때 화면이 반전되면 좌우 흰색이 안 이쁘게 나타난다.
         // 하지만 contentMargins 이 동작하지 않으니 그냥 써야.
         // .padding(.horizontal, 16)
-
         // .padding(.top, 16)
         .frame(minWidth: 300, maxWidth: .infinity, maxHeight: .infinity)
         .layoutPriority(1)

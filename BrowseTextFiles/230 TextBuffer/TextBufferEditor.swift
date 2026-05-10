@@ -125,11 +125,12 @@ struct TextBufferEditor: NSViewRepresentable {
         }
 
         func textDidChange(_ notification: Notification) {
+            let appState = view.appState
             guard let fileBuffer = view.state.fileBuffer else { return }
+
             //print("text changed: \(fileBuffer.name), TextBufferEditor.Coordinator")
             // guard let textView = notification.object as? NSTextView else { return }
 
-            let appState = view.appState
             fileBuffer.isTextViewEdited = true
             if appState.autoSaveEnabled {
                 fileBuffer.scheduleAutoSave(after: appState.autoSaveAfterSeconds)
