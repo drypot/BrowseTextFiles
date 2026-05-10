@@ -129,8 +129,7 @@ struct FileBrowserView: View {
 
             ToolbarItemGroup(placement: .primaryAction) {
                 Button("Search", systemImage: "magnifyingglass") {
-                    appState.openSearchWindow(state: state, openWindow: openWindow)
-                    // state.toggleSearchView()
+                    appState.openSearchWindow(for: state, openWindow: openWindow)
                 }
                 .help("Search")
             }

@@ -111,6 +111,44 @@ class AppState {
         self.newFileTemplates = Self.userDefaultsStringArray(forKey: "_NoneKey_", defaultValue: newFileTemplateDefaults, minSize: minSize)
     }
 
+    // MARK: - AutoSave
+
+    var autoSaveEnabled: Bool {
+        didSet {
+            UserDefaults.standard.set(autoSaveEnabled, forKey: "autoSaveEnabled")
+        }
+    }
+
+    var autoSaveAfterSeconds: Int {
+        didSet {
+            UserDefaults.standard.set(autoSaveAfterSeconds, forKey: "autoSaveAfterSeconds")
+        }
+    }
+
+    // MARK: - Browser Window
+
+    func openNewBrowserWindow(from currentState: FileBrowserState?, openWindow: OpenWindowAction) {
+        if let state = currentState {
+            let initParam = FileBrowserWindow.InitParam(rootURL: state.rootURL, fileURL: state.selectedFile?.url)
+            openWindow(id: "browser", value: initParam)
+        } else {
+            openWindow(id: "browser")
+        }
+    }
+
+    func openNewBrowserWindowFromDialog(openWindow: OpenWindowAction) {
+        let panel = NSOpenPanel()
+        panel.allowsMultipleSelection = false
+        panel.canChooseDirectories = true
+        panel.canChooseFiles = false
+        if panel.runModal() == .OK {
+            if let url = panel.url {
+                let initParam = FileBrowserWindow.InitParam(rootURL: url)
+                openWindow(id: "browser", value: initParam)
+            }
+        }
+    }
+
     // MARK: - RecentDocuments
 
     @ObservationIgnored
@@ -126,26 +164,13 @@ class AppState {
         recentDocumentURLs = NSDocumentController.shared.recentDocumentURLs
     }
 
-    // MARK: - AutoSave
-
-    var autoSaveEnabled: Bool {
-        didSet {
-            UserDefaults.standard.set(autoSaveEnabled, forKey: "autoSaveEnabled")
-        }
-    }
-
-    var autoSaveAfterSeconds: Int {
-        didSet {
-            UserDefaults.standard.set(autoSaveAfterSeconds, forKey: "autoSaveAfterSeconds")
-        }
-    }
-
-    // MARK: - FileBrowserState
+    // MARK: - Search Window
 
     @ObservationIgnored
     weak var currentFileBrowserState: FileBrowserState? = nil
 
-    func openSearchWindow(state: FileBrowserState, openWindow: OpenWindowAction) {
+    func openSearchWindow(for state: FileBrowserState?, openWindow: OpenWindowAction) {
+        guard let state else { return }
         currentFileBrowserState = state
         openWindow(id: "search", value: state.id)
     }

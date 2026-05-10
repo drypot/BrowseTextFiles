@@ -14,6 +14,7 @@ extension FocusedValues {
 struct FileBrowserWindow: Scene {
     @Environment(\.openWindow) private var openWindow
     @Environment(AppState.self) var appState
+
     @FocusedValue(\.currentFileBrowserState) var currentState: FileBrowserState?
 
     public struct InitParam: Hashable, Codable {
@@ -32,13 +33,13 @@ struct FileBrowserWindow: Scene {
     var body: some Scene {
         WindowGroup("Browser", id: "browser", for: InitParam.self) { $initParam in
             FileBrowserView(initParam)
-                .frame(maxWidth: .infinity, maxHeight: .infinity) // 빈 화면에서 drag & drop 받기 위해
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             // 외부에서 file url 을 받았을 경우 folder 에 대한 권한이 없어서 원만히 작동하기가 힘들다.
             // finder, drag & drop 연동은 일단 하지 않기로 한다.
             // 오로지 folder 만 open 할 수 있는 것으로.
             
-            //.contentShape(Rectangle())
+            //.contentShape(Rectangle()) // 빈 화면에서 drag & drop 받기 위해
             // .onOpenURL { url in
             //     openURLFromFinder(url)
             // }
@@ -48,18 +49,18 @@ struct FileBrowserWindow: Scene {
         }
         .commands {
             CommandGroup(replacing: .newItem) {
+                Button("New Window", systemImage: "macwindow") {
+                    appState.openNewBrowserWindow(from: currentState, openWindow: openWindow)
+                }
+                .keyboardShortcut("n", modifiers: .command)
+
                 Button("New File", systemImage: "text.document") {
                     currentState?.showNewFileView()
                 }
-                .keyboardShortcut("n", modifiers: .command)
-                
-                Button("New Tab", systemImage: "macwindow") {
-                    newTab()
-                }
-                .keyboardShortcut("t", modifiers: .command)
-                
+                .keyboardShortcut("n", modifiers: [.command, .shift])
+
                 Button("Open Folder...", systemImage: "folder") {
-                    openFolder()
+                    appState.openNewBrowserWindowFromDialog(openWindow: openWindow)
                 }
                 .keyboardShortcut("o", modifiers: .command)
                 
@@ -70,7 +71,8 @@ struct FileBrowserWindow: Scene {
                     } else {
                         ForEach(urls, id: \.self) { url in
                             Button(url.lastPathComponent) {
-                                openRecent(url)
+                                let initParam = InitParam(rootURL: url)
+                                openWindow(id: "browser", value: initParam)
                             }
                         }
                         Divider()
@@ -79,10 +81,9 @@ struct FileBrowserWindow: Scene {
                         }
                     }
                 }
-                
                 Divider()
-                
-                Button("Save", systemImage: "square.and.arrow.down") {
+
+                Button("Save File", systemImage: "square.and.arrow.down") {
                     currentState?.saveFile()
                 }
                 .keyboardShortcut("s", modifiers: .command)
@@ -93,23 +94,22 @@ struct FileBrowserWindow: Scene {
                      currentState?.reloadAll()
                 }
                 .keyboardShortcut("r", modifiers: .command)
-                
                 Divider()
                 
-                //                Button("Test SecurityScoped") {
-                //                    TestSecurityScopedBookmark().testASS()
-                //                }
-                //                .keyboardShortcut("t", modifiers: .command)
-                //
-                //                Button("Test SecurityScoped Bookmark") {
-                //                    TestSecurityScopedBookmark().testBookmark()
-                //                }
-                //                .keyboardShortcut("t", modifiers: [.command, .shift])
-                //
-                //                Button("Test SecurityScoped Bookmark 2") {
-                //                    TestSecurityScopedBookmark().testBookmark2()
-                //                }
-                //                .keyboardShortcut("t", modifiers: [.command, .shift, .control])
+                // Button("Test SecurityScoped") {
+                //     TestSecurityScopedBookmark().testASS()
+                // }
+                // .keyboardShortcut("t", modifiers: .command)
+
+                // Button("Test SecurityScoped Bookmark") {
+                //     TestSecurityScopedBookmark().testBookmark()
+                // }
+                // .keyboardShortcut("t", modifiers: [.command, .shift])
+
+                // Button("Test SecurityScoped Bookmark 2") {
+                //     TestSecurityScopedBookmark().testBookmark2()
+                // }
+                // .keyboardShortcut("t", modifiers: [.command, .shift, .control])
             }
             
             TextEditingCommands()
@@ -117,9 +117,7 @@ struct FileBrowserWindow: Scene {
             CommandGroup(after: .textEditing) {
                 Divider()
                 Button("Find in Files", systemImage: "magnifyingglass") {
-                    guard let currentState else { return }
-                    appState.openSearchWindow(state: currentState, openWindow: openWindow)
-                    //state?.showSearchView()
+                    appState.openSearchWindow(for: currentState, openWindow: openWindow)
                 }
                 .keyboardShortcut("f", modifiers: [.command, .shift])
             }
@@ -134,42 +132,5 @@ struct FileBrowserWindow: Scene {
             return WindowPlacement(position, size: size)
         }
     }
-
-    func newTab() {
-        if let state = currentState {
-            let initParam = InitParam(rootURL: state.rootURL, fileURL: state.selectedFile?.url)
-            openWindow(id: "browser", value: initParam)
-        } else {
-            openWindow(id: "browser")
-        }
-    }
-
-    func openFolder() {
-        let panel = NSOpenPanel()
-        panel.allowsMultipleSelection = false
-        panel.canChooseDirectories = true
-        panel.canChooseFiles = false
-        if panel.runModal() == .OK {
-            if let url = panel.url {
-                let initParam = InitParam(rootURL: url)
-                openWindow(id: "browser", value: initParam)
-            }
-        }
-    }
-
-    func openRecent(_ url: URL) {
-        let initParam = InitParam(rootURL: url)
-        openWindow(id: "browser", value: initParam)
-    }
-
-    //    func openURLFromFinder(_ url: URL) {
-    //        openWindow(id: "browser", value: url)
-    //    }
-    //
-    //    func openURLsFromDragDrop(_ urls: [URL]) {
-    //        for url in urls {
-    //            openWindow(id: "browser", value: url)
-    //        }
-    //    }
 }
 
