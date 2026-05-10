@@ -18,28 +18,21 @@ struct SearchResultView: View {
             HStack {
                 TextField("Search", text: $state.searchText)
                     .frame(width: 320)
-                    .focused($isFocused)
                     .onSubmit {
-                        let findPasteboard = NSPasteboard(name: .find)
-                        findPasteboard.declareTypes([.string], owner: nil)
-                        findPasteboard.setString(state.searchText, forType: .string)
-
                         state.startSearch()
                     }
-                    .onAppear {
+                    .focused($isFocused)
+                    .task {
                         isFocused = true
                     }
-
                 Button("Search") {
                     state.startSearch()
                 }
-
                 Button("Reset") {
                     state.clearSearchResult()
                 }
             }
             .padding(.vertical, 24)
-
             Divider()
 
             List {
@@ -73,6 +66,7 @@ struct SearchResultView: View {
             .padding(.horizontal, 16)
         }
     }
+
 }
 
 #Preview {

@@ -19,6 +19,9 @@ struct TextBufferView: View {
                 Text(loadError)
                     .font(.custom(appState.fontName, size: appState.fontSize))
                     .lineSpacing(appState.lineSpacing)
+                    .textSelection(.enabled)
+                    .padding(.horizontal, 16)
+                    .padding(.top, 16)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             } else if let fileBuffer = state.fileBuffer {
                 // let _ = Self._printChanges()
@@ -61,10 +64,6 @@ struct TextBufferView: View {
                 Spacer()
             }
         }
-        // padding 을 주면 find 기능 사용할 때 화면이 반전되면 좌우 흰색이 안 이쁘게 나타난다.
-        // 하지만 contentMargins 이 동작하지 않으니 그냥 써야.
-        // .padding(.horizontal, 16)
-        // .padding(.top, 16)
         .frame(minWidth: 300, maxWidth: .infinity, maxHeight: .infinity)
         .layoutPriority(1)
     }

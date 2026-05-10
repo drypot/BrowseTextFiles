@@ -73,7 +73,6 @@ final class TextBuffer: Identifiable, Hashable {
 //    }
 
     func loadOriginalText() {
-        autoSaveTask?.cancel()
         do {
             try withSecurityScope(rootURL) {
                 originalText = try String(contentsOf: url, encoding: .utf8)
@@ -93,6 +92,7 @@ final class TextBuffer: Identifiable, Hashable {
         fileMonitor = FileMonitor()
         fileMonitor!.startMonitoring(url) { [weak self] _ in
             guard let self else { return }
+            self.autoSaveTask?.cancel()
             self.loadOriginalText()
             if hasLoadingError {
                 fileMonitor = nil
@@ -105,9 +105,8 @@ final class TextBuffer: Identifiable, Hashable {
         autoSaveTask?.cancel()
         autoSaveTask = Task { [weak self] in
             try? await Task.sleep(for: .seconds(seconds))
-            if Task.isCancelled { return }
-
             guard let self else { return }
+            guard !Task.isCancelled else { return }
             self.autoSaveTextView()
         }
     }

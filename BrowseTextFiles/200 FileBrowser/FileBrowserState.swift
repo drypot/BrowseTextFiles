@@ -473,6 +473,10 @@ final class FileBrowserState {
         isSearching = true
         log("start search: \"\(searchText)\"")
 
+        let findPasteboard = NSPasteboard(name: .find)
+        findPasteboard.declareTypes([.string], owner: nil)
+        findPasteboard.setString(searchText, forType: .string)
+
         Task {
             do {
                 searchResults = try await searchParallel(rootURL: rootURL, searchText: searchText)
