@@ -9,7 +9,7 @@ import SwiftUI
 import MyLibrary
 
 struct FileListView: View {
-    //@Environment(AppState.self) var appState
+    @Environment(AppState.self) var appState
     @Environment(FileBrowserState.self) var state
     @Environment(\.controlActiveState) var controlActiveState
 
@@ -21,7 +21,7 @@ struct FileListView: View {
         List {
             if let fileList = state.fileList {
                 ForEach(fileList) { fileItem in
-                    RowView(item: fileItem, isActive: isActive, state: state)
+                    RowView(item: fileItem, isActive: isActive, state: state, appState: appState)
                 }
             }
         }
@@ -42,9 +42,45 @@ struct FileListView: View {
 }
 
 fileprivate struct RowView: View {
+    @Environment(\.openWindow) private var openWindow
+
     let item: FileItem
     let isActive: Bool
     let state: FileBrowserState
+    let appState: AppState
+
+    var body: some View {
+        HStack {
+            Text(item.name)
+                .lineLimit(1)
+
+            Spacer()
+        }
+        .foregroundStyle(foregroundStyle)
+        .listRowSeparator(.hidden)
+        .listRowBackground(
+            RoundedRectangle(cornerRadius: 8)
+                .fill(backgroundStyle)
+                .padding(.horizontal, 10)
+        )
+        .frame(maxWidth: .infinity)
+        .focusable()
+        .focusEffectDisabled() // 포커스 테두리 표시 안 함
+        .contentShape(Rectangle()) // 빈공간도 클릭되게 한다.
+        .onTapGesture {
+            state.updateSelectedFile(to: item)
+            state.updateFileBufferFromSelectedFile()
+        }
+        .contextMenu {
+            Button("Open in New Window") {
+                appState.openNewBrowserWindow(fromFileURL: item.url, openWindow: openWindow)
+            }
+            Divider()
+            Button("Show in Finder") {
+                Finder.shared.open(url: item.url)
+            }
+        }
+    }
 
     var isSelected: Bool {
         item == state.selectedFile
@@ -71,35 +107,6 @@ fileprivate struct RowView: View {
             }
         } else {
             Color(nsColor: .clear)
-        }
-    }
-
-    var body: some View {
-        HStack {
-            Text(item.name)
-                .lineLimit(1)
-
-            Spacer()
-        }
-        .foregroundStyle(foregroundStyle)
-        .listRowSeparator(.hidden)
-        .listRowBackground(
-            RoundedRectangle(cornerRadius: 8)
-                .fill(backgroundStyle)
-                .padding(.horizontal, 10)
-        )
-        .frame(maxWidth: .infinity)
-        .focusable()
-        .focusEffectDisabled() // 포커스 테두리 표시 안 함
-        .contentShape(Rectangle()) // 빈공간도 클릭되게 한다.
-        .onTapGesture {
-            state.updateSelectedFile(to: item)
-            state.updateFileBufferFromSelectedFile()
-        }
-        .contextMenu {
-            Button("Show in Finder") {
-                Finder.shared.open(url: item.url)
-            }
         }
     }
 }

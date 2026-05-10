@@ -132,6 +132,12 @@ class AppState {
         openWindow(id: "browser", value: initParam)
     }
 
+    func openNewBrowserWindow(fromFileURL fileURL: URL, openWindow: OpenWindowAction) {
+        let rootURL = fileURL.deletingLastPathComponent()
+        let initParam = FileBrowserInitParam(rootURL: rootURL, fileURL: fileURL)
+        openWindow(id: "browser", value: initParam)
+    }
+
     func openNewBrowserWindow(fromState state: FileBrowserState?, openWindow: OpenWindowAction) {
         openNewBrowserWindow(fromRootURL: state?.rootURL, fileURL: state?.selectedFile?.url, openWindow: openWindow)
     }
