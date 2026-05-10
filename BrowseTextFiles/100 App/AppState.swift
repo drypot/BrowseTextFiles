@@ -16,11 +16,15 @@ class AppState {
         self.fontSize = Self.userDefaultsDouble(forKey: "fontSize", defaultValue: 16)
         self.lineHeightMultiple = Self.userDefaultsDouble(forKey: "lineHeightMultiple", defaultValue: 1.3)
 
-        self.autoSaveEnabled = Self.userDefaultsBool(forKey: "autoSaveEnabled", defaultValue: true)
-        self.autoSaveAfterSeconds = Self.userDefaultsInt(forKey: "autoSaveAfterSeconds", defaultValue: 2)
+        self.isAutoSaveEnabled = Self.userDefaultsBool(forKey: "isAutoSaveEnabled", defaultValue: true)
+        self.autoSaveDelay = Self.userDefaultsInt(forKey: "autoSaveDelay", defaultValue: 2)
 
         self.newFileTemplates = Self.userDefaultsStringArray(forKey: "newFileTemplates", defaultValue: newFileTemplateDefaults, minSize: 5)
         self.newFileTemplateIndex = Self.userDefaultsInt(forKey: "newFileTemplateIndex", defaultValue: 0)
+
+        let tabKeyActionRaw = Self.userDefaultsInt(forKey: "tabKeyAction", defaultValue: TabKeyAction.default.rawValue)
+        self.tabKeyAction =  TabKeyAction(rawValue: tabKeyActionRaw) ?? TabKeyAction.default
+        self.indentSize = Self.userDefaultsInt(forKey: "indentSize", defaultValue: 4)
 
         recentDocumentURLs = NSDocumentController.shared.recentDocumentURLs
     }
@@ -113,15 +117,15 @@ class AppState {
 
     // MARK: - AutoSave
 
-    var autoSaveEnabled: Bool {
+    var isAutoSaveEnabled: Bool {
         didSet {
-            UserDefaults.standard.set(autoSaveEnabled, forKey: "autoSaveEnabled")
+            UserDefaults.standard.set(isAutoSaveEnabled, forKey: "isAutoSaveEnabled")
         }
     }
 
-    var autoSaveAfterSeconds: Int {
+    var autoSaveDelay: Int {
         didSet {
-            UserDefaults.standard.set(autoSaveAfterSeconds, forKey: "autoSaveAfterSeconds")
+            UserDefaults.standard.set(autoSaveDelay, forKey: "autoSaveDelay")
         }
     }
 
@@ -202,4 +206,23 @@ class AppState {
         openWindow(id: "search", value: state.id)
     }
 
+    // MARK: - Tab Key
+
+    enum TabKeyAction: Int {
+        case `default` = 0
+        case indentWithSpace = 1
+    }
+
+    var tabKeyAction: TabKeyAction {
+        didSet {
+            UserDefaults.standard.set(tabKeyAction.rawValue, forKey: "tabKeyAction")
+        }
+    }
+
+    var indentSize: Int {
+        didSet {
+            UserDefaults.standard.set(indentSize, forKey: "indentSize")
+        }
+    }
 }
+

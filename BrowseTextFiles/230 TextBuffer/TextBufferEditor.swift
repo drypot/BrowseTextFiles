@@ -138,9 +138,25 @@ struct TextBufferEditor: NSViewRepresentable {
             // guard let textView = notification.object as? NSTextView else { return }
 
             fileBuffer.isTextViewEdited = true
-            if appState.autoSaveEnabled {
-                fileBuffer.scheduleAutoSave(after: appState.autoSaveAfterSeconds)
+            if appState.isAutoSaveEnabled {
+                fileBuffer.scheduleAutoSave(after: appState.autoSaveDelay)
             }
+        }
+
+        func textView(_ textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
+            if commandSelector == #selector(NSResponder.insertTab(_:)) {
+                //indentSelection(textView)
+                print("tab")
+                return true
+            }
+
+            if commandSelector == #selector(NSResponder.insertBacktab(_:)) {
+                //outdentSelection(textView)
+                print("shift tab")
+                return true
+            }
+
+            return false
         }
     }
 

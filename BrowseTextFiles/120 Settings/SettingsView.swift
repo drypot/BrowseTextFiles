@@ -26,12 +26,11 @@ struct SettingsView: View {
                                 .font(.custom(family, size: 13))
                         }
                     }
-                    .frame(width: sliderWidth)
                 }
                 Divider()
 
                 SettingsRow {
-                    Text("Font Size: \(appState.fontSize.formatted()) pt")
+                    Text("Font size: \(appState.fontSize.formatted()) pt")
                     Spacer()
                     Slider(value: $appState.fontSize, in: 8...36, step: 1)
                         .frame(width: sliderWidth)
@@ -39,7 +38,7 @@ struct SettingsView: View {
                 Divider()
 
                 SettingsRow {
-                    Text("Line Height: \(appState.lineHeightMultiple.formatted())x")
+                    Text("Line height: \(appState.lineHeightMultiple.formatted())x")
                     Spacer()
                     Slider(value: $appState.lineHeightMultiple, in: 1.0...3.0, step: 0.1)
                         .frame(maxWidth: sliderWidth)
@@ -48,24 +47,53 @@ struct SettingsView: View {
 
             SettingsSection(title: "Auto Save") {
                 SettingsRow {
-                    Text("Auto Save Enabled")
+                    Text("Auto save enabled")
                     Spacer()
-                    Toggle("", isOn: $appState.autoSaveEnabled)
+                    Toggle("", isOn: $appState.isAutoSaveEnabled)
                         .labelsHidden()
                         .controlSize(.mini)
                         .toggleStyle(.switch)
                 }
                 Divider()
 
-                let binding = Binding<Double>(
-                    get: { Double(appState.autoSaveAfterSeconds) },
-                    set: { appState.autoSaveAfterSeconds = Int($0) }
-                )
+
                 SettingsRow {
-                    Text("Auto Save After \(appState.autoSaveAfterSeconds.formatted()) Seconds")
+                    Text("Auto save after \(appState.autoSaveDelay.formatted()) seconds")
                     Spacer()
+                    let binding = Binding<Double>(
+                        get: { Double(appState.autoSaveDelay) },
+                        set: { appState.autoSaveDelay = Int($0) }
+                    )
                     Slider(value: binding, in: 2.0...60.0, step: 2)
-                        .disabled(!appState.autoSaveEnabled)
+                        .disabled(!appState.isAutoSaveEnabled)
+                        .frame(maxWidth: sliderWidth)
+                }
+            }
+
+            SettingsSection(title: "Tab Key") {
+                SettingsRow {
+                    Text("Tab key action")
+                    Spacer()
+                    let binding = Binding<Int>(
+                        get: { appState.tabKeyAction.rawValue },
+                        set: { appState.tabKeyAction = AppState.TabKeyAction(rawValue: $0) ?? .default }
+                    )
+                    Picker("", selection: binding) {
+                        Text("Insert Tab").tag(AppState.TabKeyAction.default.rawValue)
+                        Text("Indent with Space").tag(AppState.TabKeyAction.indentWithSpace.rawValue)
+                    }
+                }
+                Divider()
+
+                SettingsRow {
+                    Text("Indent with \(appState.indentSize.formatted()) spaces")
+                    Spacer()
+                    let binding = Binding<Double>(
+                        get: { Double(appState.indentSize) },
+                        set: { appState.indentSize = Int($0) }
+                    )
+                    Slider(value: binding, in: 2.0...16.0, step: 1)
+                        .disabled(appState.tabKeyAction != .indentWithSpace)
                         .frame(maxWidth: sliderWidth)
                 }
             }
