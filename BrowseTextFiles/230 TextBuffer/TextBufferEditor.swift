@@ -62,6 +62,8 @@ struct TextBufferEditor: NSViewRepresentable {
         textView.isEditable = true
         textView.isSelectable = true
 
+        textView.allowsUndo = true
+
         textView.usesFindBar = true
         //textView.usesFindPanel = true
 
