@@ -63,7 +63,11 @@ struct TextBufferEditor: NSViewRepresentable {
         textView.isSelectable = true
 
         textView.usesFindBar = true
-        textView.isIncrementalSearchingEnabled = true
+        //textView.usesFindPanel = true
+
+        // 이 기능은 고장나있다.
+        // 기능하게 하려면 꽤 코딩이 필요할 듯. 일단 쓰지 않는 것으로.
+        textView.isIncrementalSearchingEnabled = false
 
         textView.isRichText = false
         textView.importsGraphics = false

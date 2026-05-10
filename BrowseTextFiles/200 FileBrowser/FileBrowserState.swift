@@ -473,9 +473,14 @@ final class FileBrowserState {
         isSearching = true
         log("start search: \"\(searchText)\"")
 
-        let findPasteboard = NSPasteboard(name: .find)
-        findPasteboard.declareTypes([.string], owner: nil)
-        findPasteboard.setString(searchText, forType: .string)
+        let pasteboard = NSPasteboard(name: .find)
+        pasteboard.declareTypes([.string], owner: nil)
+        pasteboard.setString(searchText, forType: .string)
+
+        // textView 에 FindBar 를 띄운다.
+        let dummyItem = NSMenuItem()
+        dummyItem.tag = Int(NSFindPanelAction.showFindPanel.rawValue)
+        fileBuffer?.textView?.performTextFinderAction(dummyItem)
 
         Task {
             do {

@@ -17,7 +17,7 @@ struct SearchResultView: View {
         VStack(spacing: 0) {
             HStack {
                 TextField("Search", text: $state.searchText)
-                    .frame(width: 320)
+                    .frame(minWidth: 180)
                     .onSubmit {
                         state.startSearch()
                     }
@@ -33,6 +33,7 @@ struct SearchResultView: View {
                 }
             }
             .padding(.vertical, 24)
+            .padding(.horizontal, 28)
             Divider()
 
             List {
@@ -57,14 +58,16 @@ struct SearchResultView: View {
                     .font(.custom(appState.fontName, size: appState.fontSize))
                     .lineSpacing(appState.lineSpacing)
                     .listRowSeparator(.hidden)
+                    .padding(.horizontal, 10)
                 } else {
                     Text("No results")
                         .font(.custom(appState.fontName, size: appState.fontSize))
                         .lineSpacing(appState.lineSpacing)
+                        .padding(.horizontal, 12)
                 }
             }
-            .padding(.horizontal, 16)
         }
+        .frame(minWidth: 440)
     }
 
 }
