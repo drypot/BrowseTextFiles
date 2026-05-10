@@ -9,8 +9,9 @@ import SwiftUI
 import MyLibrary
 
 struct FileListView: View {
-    @Environment(\.controlActiveState) var controlActiveState
+    //@Environment(AppState.self) var appState
     @Environment(FileBrowserState.self) var state
+    @Environment(\.controlActiveState) var controlActiveState
 
     @FocusState private var isFocused: Bool
 

@@ -9,6 +9,10 @@ import SwiftUI
 import UniformTypeIdentifiers
 import MyLibrary
 
+extension FocusedValues {
+    @Entry var currentFileBrowserState: FileBrowserState? = nil
+}
+
 @Observable
 final class FileBrowserState {
     let id = UUID()
@@ -335,12 +339,6 @@ final class FileBrowserState {
 
     // MARK: - TextBuffer
 
-    private func autoSaveFileBuffer() -> Bool {
-        guard let fileBuffer else { return true }
-        fileBuffer.autoSaveTextView()
-        return !fileBuffer.hasAlertMessage
-    }
-
     func resetFileBuffer() {
         guard autoSaveFileBuffer() else { return }
         fileBuffer?.invalidate()
@@ -355,7 +353,7 @@ final class FileBrowserState {
         fileBuffer = TextBuffer(from: url, rootURL: rootURL)
         guard let fileBuffer else { return }
 
-        log("filebuffer created: \(fileBuffer.name), updateFileBuffer")
+        log("create filebuffer: \(fileBuffer.name)")
         fileBuffer.loadOriginalText()
     }
 
@@ -367,45 +365,43 @@ final class FileBrowserState {
         }
     }
 
-    func updateAll(from url: URL) {
-        let folderURL = url.deletingLastPathComponent()
+    private func autoSaveFileBuffer() -> Bool {
+        guard let fileBuffer else { return true }
+        fileBuffer.autoSaveTextView()
+        return !fileBuffer.hasAlertMessage
+    }
+
+    func saveFile() {
+        guard let fileBuffer else { return }
+        fileBuffer.saveTextView()
+    }
+
+    // MARK: - Update All
+
+    func updateAll(fromRootURL rootURL: URL, fileURL: URL?) {
+        updateFolderTree(from: rootURL)
+        if !isRootReady { return }
+
+        if let fileURL {
+            updateAll(fromFileURL: fileURL)
+        } else {
+            updateSelectedFolderToRoot()
+            updateFileListFromSelectedFolder()
+        }
+    }
+
+    func updateAll(fromFileURL fileURL: URL) {
+        let folderURL = fileURL.deletingLastPathComponent()
 
         updateSelectedFolder(from: folderURL)
         updateFileList(from: folderURL)
         if hasAlertMessage { return }
 
         if fileList != nil {
-            updateSelectedFile(from: url)
-            updateFileBuffer(from: url)
+            updateSelectedFile(from: fileURL)
+            updateFileBuffer(from: fileURL)
             expandFolders(for: folderURL)
         }
-    }
-
-    func updateAll(fromSearchedFile url: URL) {
-        let findPasteboard = NSPasteboard(name: .find)
-        findPasteboard.declareTypes([.string], owner: nil)
-        findPasteboard.setString(searchText, forType: .string)
-
-        updateAll(from: url)
-
-        // guard let fileBuffer else { return }
-
-        // 파일 내용중 '학생'을 검색해서 커서를 이동시키는데
-        // 어떨 때는 정상으로 이동하다가
-        // 파일 뒤에 내용이 별로 없으면 커서가 학생으로 가지 않고 화일 끝으로 가는 현상이 있었다.
-        // 원인은 모르겠다.
-
-        // Swift String 과 NSString 차이 때문에 발생하는 것 같진 않았다.
-        // 이리저리 테스트하다가 테스트 코드는 일단 다 삭제.
-
-        // 검색 단어로 커서를 옮기는 아래 기능은
-        // 될 때가 있고 안 될 때가 있어서 일단 사용중지.
-
-        // let range = fileBuffer.text.range(of: searchText)
-        // if let range {
-        //     fileBuffer.selection = TextSelection(insertionPoint: range.lowerBound)
-        //     log("range: \(range)")
-        // }
     }
 
     func reloadAll() {
@@ -417,15 +413,10 @@ final class FileBrowserState {
         if hasAlertMessage { return }
 
         if let fileURL {
-            updateAll(from: fileURL)
+            updateAll(fromFileURL: fileURL)
         }
 
         log("reload all:")
-    }
-
-    func saveFile() {
-        guard let fileBuffer else { return }
-        fileBuffer.saveTextView()
     }
 
     // MARK: - New File
@@ -461,7 +452,7 @@ final class FileBrowserState {
                     try "".write(to: newFileURL, atomically: true, encoding: .utf8)
                     log("new file: \(path)")
                 }
-                updateAll(from: newFileURL)
+                updateAll(fromFileURL: newFileURL)
             }
         } catch {
             let message = error.localizedDescription

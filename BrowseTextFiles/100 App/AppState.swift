@@ -127,31 +127,52 @@ class AppState {
 
     // MARK: - Browser Window
 
-    func openNewBrowserWindow(from currentState: FileBrowserState?, openWindow: OpenWindowAction) {
-        if let state = currentState {
-            let initParam = FileBrowserWindow.InitParam(rootURL: state.rootURL, fileURL: state.selectedFile?.url)
-            openWindow(id: "browser", value: initParam)
-        } else {
-            openWindow(id: "browser")
-        }
+    func openNewBrowserWindow(from rootURL: URL?, fileURL: URL?, openWindow: OpenWindowAction) {
+        let initParam = FileBrowserInitParam(rootURL: rootURL, fileURL: fileURL)
+        openWindow(id: "browser", value: initParam)
+    }
+
+    func openNewBrowserWindow(from state: FileBrowserState?, openWindow: OpenWindowAction) {
+        openNewBrowserWindow(from: state?.rootURL, fileURL: state?.selectedFile?.url, openWindow: openWindow)
+    }
+
+    func openNewBrowserWindow(openWindow: OpenWindowAction) {
+        openWindow(id: "browser")
     }
 
     func openNewBrowserWindowFromDialog(openWindow: OpenWindowAction) {
+        showFolderOpenPanel { url in
+            self.addRecentDocumentURL(url)
+            self.openNewBrowserWindow(from: url, fileURL: nil, openWindow: openWindow)
+        }
+    }
+
+    func showFolderOpenPanel(completion: @escaping (URL) -> Void) {
         let panel = NSOpenPanel()
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = true
         panel.canChooseFiles = false
-        if panel.runModal() == .OK {
-            if let url = panel.url {
-                let initParam = FileBrowserWindow.InitParam(rootURL: url)
-                openWindow(id: "browser", value: initParam)
+        panel.begin { response in
+            if response == .OK, let url = panel.url {
+                completion(url)
+            }
+        }
+    }
+
+    func showFolderOpenPanelFor(_ window: NSWindow, completion: @escaping (URL) -> Void) {
+        let panel = NSOpenPanel()
+        panel.allowsMultipleSelection = false
+        panel.canChooseDirectories = true
+        panel.canChooseFiles = false
+        panel.beginSheetModal(for: window) { response in
+            if response == .OK, let url = panel.url {
+                completion(url)
             }
         }
     }
 
     // MARK: - RecentDocuments
 
-    @ObservationIgnored
     var recentDocumentURLs: [URL]
 
     func addRecentDocumentURL(_ url: URL) {

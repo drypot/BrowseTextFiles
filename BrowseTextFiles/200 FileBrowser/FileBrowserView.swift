@@ -9,30 +9,27 @@ import SwiftUI
 import MyLibrary
 
 struct FileBrowserView: View {
-    @Environment(\.openWindow) private var openWindow
     @Environment(AppState.self) var appState
+    @Environment(\.openWindow) private var openWindow
 
     @SceneStorage("rootURLData") private var sceneRootURLData: Data?
     @SceneStorage("fileURLData") private var sceneFileURLData: Data?
 
     @State private var state = FileBrowserState()
     @State private var window: NSWindow?
+    @State private var isShowBlank = false
 
-    private var initParam: FileBrowserWindow.InitParam?
+    private var initParam: FileBrowserInitParam?
 
     private let log = LogStore.shared.log
 
-    init(_ initParam: FileBrowserWindow.InitParam?) {
+    init(_ initParam: FileBrowserInitParam?) {
         self.initParam = initParam
     }
 
     var body: some View {
         VStack {
-            if !state.isRootReady {
-                Button("Open Folder") {
-                    openFolderFromBlank()
-                }
-            } else {
+            if state.isRootReady {
                 HSplitView {
                     // List(state.foldersForList, children: \.folders, selection: state.selectedFolderBinding()) { folder in
                     //     NavigationLink(folder.name, value: folder)
@@ -52,14 +49,20 @@ struct FileBrowserView: View {
 
                     TextBufferView()
                 }
+            } else if isShowBlank {
+                Button("Open Folder") {
+                    initViewFromOpenPanel()
+                }
+            } else {
+                Text("Loading...")
             }
         }
         .background(WindowAccessor { window in self.window = window })
         .navigationTitle(state.rootName ?? "Browser")
         .environment(state)
         .focusedSceneValue(\.currentFileBrowserState, state)
-        .onChange(of: state.selectedFile) { _, newValue in
-            saveSceneData(fileURL: newValue?.url)
+        .task {
+            initView()
         }
         .sheet(
             isPresented: $state.isShowNewFileView,
@@ -77,8 +80,8 @@ struct FileBrowserView: View {
             actions: { Button("OK") { } },
             message: { Text(state.fileBuffer?.alertMessage ?? "Unknown error.") }
         )
-        .task {
-            initView()
+        .onChange(of: state.selectedFile) { _, newValue in
+            saveSceneData(fileURL: newValue?.url)
         }
         // scenePhase 로는 먼가 감지가 잘 안돼서 Notification 을 쓰도록 한다.
         // .onReceive(NotificationCenter.default.publisher(for: NSWindow.didBecomeMainNotification)) { notification in
@@ -107,9 +110,8 @@ struct FileBrowserView: View {
 
         .toolbarBackground(.background, for: .windowToolbar)
         .toolbarBackgroundVisibility(.automatic, for: .windowToolbar)
-//        .toolbar(removing: .title)
+        //.toolbar(removing: .title)
         .toolbar {
-
             ToolbarItemGroup(placement: .navigation) {
                 // Button("Prev", systemName: "chevron.left")  {
                 // }
@@ -124,7 +126,6 @@ struct FileBrowserView: View {
                 }
                 .help("Reload")
             }
-
             ToolbarSpacer()
 
             ToolbarItemGroup(placement: .primaryAction) {
@@ -137,54 +138,26 @@ struct FileBrowserView: View {
     }
 
     func initView() {
+        // SwiftUI가 Scene을 자동복구하는 경우. initParm 전에 이를 최우선으로 처리한다.
         if let rootURL = loadSceneRootURL() {
-            log("restore folder: \(rootURL.lastPathComponent)")
-
-            state.updateFolderTree(from: rootURL)
-            if !state.isRootReady { return }
-
-            if let fileURL = loadSceneFileURL() {
-                state.updateAll(from: fileURL)
-            } else {
-                state.updateSelectedFolderToRoot()
-                state.updateFileListFromSelectedFolder()
-            }
+            state.updateAll(fromRootURL: rootURL, fileURL: loadSceneFileURL())
             return
         }
-
         if let rootURL = initParam?.rootURL {
-            log("open folder: \(rootURL.lastPathComponent)")
-
-            state.updateFolderTree(from: rootURL)
-            if !state.isRootReady { return }
-
-            if let fileURL = initParam?.fileURL {
-                state.updateAll(from: fileURL)
-            } else {
-                state.updateSelectedFolderToRoot()
-                state.updateFileListFromSelectedFolder()
-            }
-
+            state.updateAll(fromRootURL: rootURL, fileURL: initParam?.fileURL)
             saveSceneData(rootURL: rootURL)
             appState.addRecentDocumentURL(rootURL)
             return
         }
-
-        log("open folder: blank")
+        isShowBlank = true
     }
 
-    func openFolderFromBlank() {
-        let panel = NSOpenPanel()
-        panel.allowsMultipleSelection = false
-        panel.canChooseDirectories = true
-        panel.canChooseFiles = false
-        if panel.runModal() == .OK, let rootURL = panel.url {
-            log("open folder: \(rootURL.lastPathComponent)")
-            state.updateFolderTree(from: rootURL)
-            state.updateSelectedFolderToRoot()
-            state.updateFileListFromSelectedFolder()
-            saveSceneData(rootURL: rootURL)
-            appState.addRecentDocumentURL(rootURL)
+    private func initViewFromOpenPanel() {
+        guard let window else { return }
+        appState.showFolderOpenPanelFor(window) { url in
+            state.updateAll(fromRootURL: url, fileURL: nil)
+            saveSceneData(rootURL: url)
+            appState.addRecentDocumentURL(url)
         }
     }
 

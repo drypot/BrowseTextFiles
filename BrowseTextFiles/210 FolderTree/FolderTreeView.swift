@@ -9,8 +9,9 @@ import SwiftUI
 import MyLibrary
 
 struct FolderTreeView: View {
-    @Environment(\.controlActiveState) var controlActiveState
+    //@Environment(AppState.self) var appState
     @Environment(FileBrowserState.self) var state
+    @Environment(\.controlActiveState) var controlActiveState
     @FocusState private var isFocused: Bool
 
     var body: some View {
@@ -115,8 +116,8 @@ fileprivate struct RowView: View {
             state.updateFileListFromSelectedFolder()
         }
         .contextMenu {
-            Button("Open in New Tab") {
-                let initParam = FileBrowserWindow.InitParam(rootURL: item.url, fileURL: nil)
+            Button("Open in New Window") {
+                let initParam = FileBrowserInitParam(rootURL: item.url, fileURL: nil)
                 openWindow(id: "browser", value: initParam)
             }
             Divider()

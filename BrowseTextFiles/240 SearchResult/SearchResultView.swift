@@ -11,7 +11,6 @@ struct SearchResultView: View {
     @Environment(AppState.self) var appState
 
     @Bindable var state: FileBrowserState
-
     @FocusState var isFocused: Bool
 
     var body: some View {
@@ -48,7 +47,7 @@ struct SearchResultView: View {
                     ForEach(results) { result in
                         Group {
                             Button(result.title) {
-                                state.updateAll(from: result.url)
+                                state.updateAll(fromFileURL: result.url)
                             }
                             .buttonStyle(.plain)
                             .fontWeight(.bold)

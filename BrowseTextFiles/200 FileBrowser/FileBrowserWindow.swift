@@ -7,31 +7,28 @@
 
 import SwiftUI
 
-extension FocusedValues {
-    @Entry var currentFileBrowserState: FileBrowserState? = nil
+struct FileBrowserInitParam: Hashable, Codable {
+    // 동일 폴더를 두 창에서 열려면 id 로 구분되어야 한다.
+    let id: UUID
+    let rootURL: URL?
+    let fileURL: URL?
+
+    // Codable 해야 해서 init 를 번잡스럽게 만들어 준다.
+    init(id: UUID = UUID(), rootURL: URL? = nil, fileURL: URL? = nil) {
+        self.id = id
+        self.rootURL = rootURL
+        self.fileURL = fileURL
+    }
 }
 
 struct FileBrowserWindow: Scene {
-    @Environment(\.openWindow) private var openWindow
     @Environment(AppState.self) var appState
+    @Environment(\.openWindow) private var openWindow
 
     @FocusedValue(\.currentFileBrowserState) var currentState: FileBrowserState?
 
-    public struct InitParam: Hashable, Codable {
-        let id: UUID
-        let rootURL: URL?
-        let fileURL: URL?
-
-        // Codable 해야 해서 init 를 번잡스럽게 만들어 준다.
-        init(id: UUID = UUID(), rootURL: URL? = nil, fileURL: URL? = nil) {
-            self.id = id
-            self.rootURL = rootURL
-            self.fileURL = fileURL
-        }
-    }
-
     var body: some Scene {
-        WindowGroup("Browser", id: "browser", for: InitParam.self) { $initParam in
+        WindowGroup("Browser", id: "browser", for: FileBrowserInitParam.self) { $initParam in
             FileBrowserView(initParam)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
 
@@ -50,7 +47,7 @@ struct FileBrowserWindow: Scene {
         .commands {
             CommandGroup(replacing: .newItem) {
                 Button("New Window", systemImage: "macwindow") {
-                    appState.openNewBrowserWindow(from: currentState, openWindow: openWindow)
+                    appState.openNewBrowserWindow(openWindow: openWindow)
                 }
                 .keyboardShortcut("n", modifiers: .command)
 
@@ -71,8 +68,7 @@ struct FileBrowserWindow: Scene {
                     } else {
                         ForEach(urls, id: \.self) { url in
                             Button(url.lastPathComponent) {
-                                let initParam = InitParam(rootURL: url)
-                                openWindow(id: "browser", value: initParam)
+                                appState.openNewBrowserWindow(from: url, fileURL: nil, openWindow: openWindow)
                             }
                         }
                         Divider()
