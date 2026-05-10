@@ -127,13 +127,13 @@ class AppState {
 
     // MARK: - Browser Window
 
-    func openNewBrowserWindow(from rootURL: URL?, fileURL: URL?, openWindow: OpenWindowAction) {
+    func openNewBrowserWindow(fromRootURL rootURL: URL?, fileURL: URL?, openWindow: OpenWindowAction) {
         let initParam = FileBrowserInitParam(rootURL: rootURL, fileURL: fileURL)
         openWindow(id: "browser", value: initParam)
     }
 
-    func openNewBrowserWindow(from state: FileBrowserState?, openWindow: OpenWindowAction) {
-        openNewBrowserWindow(from: state?.rootURL, fileURL: state?.selectedFile?.url, openWindow: openWindow)
+    func openNewBrowserWindow(fromState state: FileBrowserState?, openWindow: OpenWindowAction) {
+        openNewBrowserWindow(fromRootURL: state?.rootURL, fileURL: state?.selectedFile?.url, openWindow: openWindow)
     }
 
     func openNewBrowserWindow(openWindow: OpenWindowAction) {
@@ -143,18 +143,18 @@ class AppState {
     func openNewBrowserWindowFromDialog(openWindow: OpenWindowAction) {
         showFolderOpenPanel { url in
             self.addRecentDocumentURL(url)
-            self.openNewBrowserWindow(from: url, fileURL: nil, openWindow: openWindow)
+            self.openNewBrowserWindow(fromRootURL: url, fileURL: nil, openWindow: openWindow)
         }
     }
 
-    func showFolderOpenPanel(completion: @escaping (URL) -> Void) {
+    func showFolderOpenPanel(onComplete: @escaping (URL) -> Void) {
         let panel = NSOpenPanel()
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = true
         panel.canChooseFiles = false
         panel.begin { response in
             if response == .OK, let url = panel.url {
-                completion(url)
+                onComplete(url)
             }
         }
     }

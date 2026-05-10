@@ -9,9 +9,10 @@ import SwiftUI
 import MyLibrary
 
 struct FolderTreeView: View {
-    //@Environment(AppState.self) var appState
+    @Environment(AppState.self) var appState
     @Environment(FileBrowserState.self) var state
     @Environment(\.controlActiveState) var controlActiveState
+
     @FocusState private var isFocused: Bool
 
     var body: some View {
@@ -19,7 +20,7 @@ struct FolderTreeView: View {
         
         List {
             if let rootFolder = state.rootFolder {
-                RowView(item: rootFolder, level: 0, isActive: isActive, state: state, )
+                RowView(item: rootFolder, level: 0, isActive: isActive, state: state, appState: appState)
             }
         }
         .focused($isFocused)
@@ -55,34 +56,7 @@ fileprivate struct RowView: View {
     let level: Int
     let isActive: Bool
     let state: FileBrowserState
-
-    var isSelected: Bool {
-        item == state.selectedFolder
-    }
-
-    var foregroundStyle: Color {
-        if isSelected {
-            if isActive {
-                Color(nsColor: .selectedMenuItemTextColor)
-            } else {
-                Color(nsColor: .secondaryLabelColor)
-            }
-        } else {
-            Color(nsColor: .secondaryLabelColor)
-        }
-    }
-
-    var backgroundStyle: Color {
-        if isSelected {
-            if isActive {
-                Color(nsColor: .selectedContentBackgroundColor)
-            } else {
-                Color(nsColor: .unemphasizedSelectedContentBackgroundColor)
-            }
-        } else {
-            Color(nsColor: .clear)
-        }
-    }
+    let appState: AppState
 
     var body: some View {
         let isExpanded = item.hasChildren && state.isFolderExpanded(for: item.url)
@@ -117,8 +91,7 @@ fileprivate struct RowView: View {
         }
         .contextMenu {
             Button("Open in New Window") {
-                let initParam = FileBrowserInitParam(rootURL: item.url, fileURL: nil)
-                openWindow(id: "browser", value: initParam)
+                appState.openNewBrowserWindow(fromRootURL: item.url, fileURL: nil, openWindow: openWindow)
             }
             Divider()
             Button("Show in Finder") {
@@ -128,8 +101,36 @@ fileprivate struct RowView: View {
 
         if let children = item.children, isExpanded {
             ForEach(children) { child in
-                RowView(item: child, level: level + 1, isActive: isActive, state: state)
+                RowView(item: child, level: level + 1, isActive: isActive, state: state, appState: appState)
             }
+        }
+    }
+
+    var isSelected: Bool {
+        item == state.selectedFolder
+    }
+
+    var foregroundStyle: Color {
+        if isSelected {
+            if isActive {
+                Color(nsColor: .selectedMenuItemTextColor)
+            } else {
+                Color(nsColor: .secondaryLabelColor)
+            }
+        } else {
+            Color(nsColor: .secondaryLabelColor)
+        }
+    }
+
+    var backgroundStyle: Color {
+        if isSelected {
+            if isActive {
+                Color(nsColor: .selectedContentBackgroundColor)
+            } else {
+                Color(nsColor: .unemphasizedSelectedContentBackgroundColor)
+            }
+        } else {
+            Color(nsColor: .clear)
         }
     }
 }

@@ -68,7 +68,7 @@ struct FileBrowserWindow: Scene {
                     } else {
                         ForEach(urls, id: \.self) { url in
                             Button(url.lastPathComponent) {
-                                appState.openNewBrowserWindow(from: url, fileURL: nil, openWindow: openWindow)
+                                appState.openNewBrowserWindow(fromRootURL: url, fileURL: nil, openWindow: openWindow)
                             }
                         }
                         Divider()
