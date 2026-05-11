@@ -8,6 +8,8 @@
 
 import SwiftUI
 
+// https://developer.apple.com/library/archive/documentation/TextFonts/Conceptual/CocoaTextArchitecture/TextEditing/TextEditing.html#//apple_ref/doc/uid/TP40009459-CH3-SW16
+
 struct TextBufferEditor: NSViewRepresentable {
     @Environment(AppState.self) var appState
     @Environment(FileBrowserState.self) var state
@@ -161,78 +163,92 @@ struct TextBufferEditor: NSViewRepresentable {
         }
 
         private func indentSelection(_ textView: NSTextView) {
+            guard let undoManager = textView.undoManager else { return }
             guard let textStorage = textView.textStorage else { return }
-            guard let undo = textView.undoManager else { return }
             let selectedRange = textView.selectedRange()
+            var newRange = selectedRange
             let nsString = textStorage.string as NSString
             let fullLineRange = nsString.lineRange(for: selectedRange)
-
             let indentSize = appState.indentSize
             let spaces = String(repeating: " ", count: indentSize)
 
-            var offset = 0
-
-            undo.beginUndoGrouping()
+            undoManager.beginUndoGrouping()
+            undoManager.registerUndo(withTarget: textView) { target in
+                target.setSelectedRange(selectedRange)
+            }
             if textView.shouldChangeText(in: fullLineRange, replacementString: nil) {
                 textStorage.beginEditing()
-
-                nsString.enumerateSubstrings(in: fullLineRange, options: [.byLines, .substringNotRequired]) { _, substringRange, _, _ in
-                    let insertionPoint = substringRange.location /* + offset */ // offset 처리 자동으로 되는 것 같다.
-                    textStorage.replaceCharacters(in: NSMakeRange(insertionPoint, 0), with: spaces)
-                    offset += indentSize
+                nsString.enumerateSubstrings(in: fullLineRange, options: [.byLines, .substringNotRequired]) { _, lineRange, _, _ in
+                    let insertRange = NSRange(location: lineRange.location, length: 0)
+                    textStorage.replaceCharacters(in: insertRange, with: spaces)
+                    undoManager.registerUndo(withTarget: textView) { target in
+                        let removeRange = NSRange(location: lineRange.location, length: indentSize)
+                        target.textStorage?.replaceCharacters(in: removeRange, with: "")
+                    }
+                    if lineRange.location < newRange.location {
+                        newRange.location += indentSize
+                    } else if lineRange.location < newRange.location + newRange.length {
+                        newRange.length += indentSize
+                    }
                 }
-
                 textStorage.endEditing()
                 textView.didChangeText()
             }
-            undo.endUndoGrouping()
-            undo.setActionName("Indent")
-
-            if selectedRange.length > 0 {
-                let newRange = NSRange(location: selectedRange.location + indentSize, length: selectedRange.length + offset - indentSize)
-                textView.setSelectedRange(newRange)
-            }
+            textView.setSelectedRange(newRange)
+            undoManager.endUndoGrouping()
+            undoManager.setActionName("Indent")
         }
 
         private func outdentSelection(_ textView: NSTextView) {
+            guard let undoManager = textView.undoManager else { return }
             guard let textStorage = textView.textStorage else { return }
             let selectedRange = textView.selectedRange()
+            var newRange = selectedRange
             let nsString = textStorage.string as NSString
             let fullLineRange = nsString.lineRange(for: selectedRange)
-
             let indentSize = appState.indentSize
 
-            textStorage.beginEditing()
-
-            var totalRemoved = 0
-            nsString.enumerateSubstrings(in: fullLineRange, options: .byLines) { substring, substringRange, _, _ in
-                guard let line = substring else { return }
-
-                var spaceCount = 0
-                for char in line {
-                    if char == " " && spaceCount < indentSize {
-                        spaceCount += 1
-                    } else {
-                        break
+            undoManager.beginUndoGrouping()
+            undoManager.registerUndo(withTarget: textView) { target in
+                target.setSelectedRange(selectedRange)
+            }
+            if textView.shouldChangeText(in: fullLineRange, replacementString: nil) {
+                textStorage.beginEditing()
+                nsString.enumerateSubstrings(in: fullLineRange, options: [.byLines, .substringNotRequired]) { _, lineRange, _, _ in
+                    var spaceCount = 0
+                    for i in 0..<indentSize {
+                        let char = nsString.character(at: lineRange.location + i)
+                        if char == 32 {
+                            spaceCount += 1
+                        } else {
+                            break
+                        }
+                    }
+                    if spaceCount > 0 {
+                        let removeRange = NSRange(location: lineRange.location, length: spaceCount)
+                        textStorage.replaceCharacters(in: removeRange, with: "")
+                        undoManager.registerUndo(withTarget: textView) { target in
+                            let insertRange = NSRange(location: lineRange.location, length: 0)
+                            let spaces = String(repeating: " ", count: spaceCount)
+                            target.textStorage?.replaceCharacters(in: insertRange, with: spaces)
+                        }
+                    }
+                    if lineRange.location + spaceCount < newRange.location {
+                        newRange.location -= spaceCount
+                    } else if lineRange.location < newRange.location {
+                        newRange.length -= newRange.location - lineRange.location
+                        newRange.location = lineRange.location
+                    } else if lineRange.location < newRange.location + newRange.length {
+                        newRange.length -= spaceCount
                     }
                 }
-
-                if spaceCount > 0 {
-                    let removalRange = NSMakeRange(substringRange.location /*- totalRemoved*/, spaceCount)
-                    textStorage.replaceCharacters(in: removalRange, with: "")
-                    totalRemoved += spaceCount
-                }
+                textStorage.endEditing()
+                textView.didChangeText()
             }
-
-            textStorage.endEditing()
-            textView.didChangeText()
-
-            if selectedRange.length > 0 {
-                let newRange = NSMakeRange(fullLineRange.location, fullLineRange.length - totalRemoved)
-                textView.setSelectedRange(newRange)
-            }
+            textView.setSelectedRange(newRange)
+            undoManager.endUndoGrouping()
+            undoManager.setActionName("Unindent")
         }
-
     }
 
 }
