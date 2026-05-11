@@ -185,7 +185,7 @@ struct TextBufferEditor: NSViewRepresentable {
                         let removeRange = NSRange(location: lineRange.location, length: indentSize)
                         target.textStorage?.replaceCharacters(in: removeRange, with: "")
                     }
-                    if lineRange.location < newRange.location {
+                    if lineRange.location <= newRange.location {
                         newRange.location += indentSize
                     } else if lineRange.location < newRange.location + newRange.length {
                         newRange.length += indentSize
@@ -233,11 +233,14 @@ struct TextBufferEditor: NSViewRepresentable {
                             target.textStorage?.replaceCharacters(in: insertRange, with: spaces)
                         }
                     }
-                    if lineRange.location + spaceCount < newRange.location {
+                    if lineRange.location + spaceCount <= newRange.location {
                         newRange.location -= spaceCount
-                    } else if lineRange.location < newRange.location {
-                        newRange.length -= newRange.location - lineRange.location
+                    } else if lineRange.location <= newRange.location, newRange.location < lineRange.location + spaceCount  {
+                        newRange.length -= lineRange.location + spaceCount - newRange.location
                         newRange.location = lineRange.location
+                        if newRange.length < 0 {
+                            newRange.length = 0
+                        }
                     } else if lineRange.location < newRange.location + newRange.length {
                         newRange.length -= spaceCount
                     }
