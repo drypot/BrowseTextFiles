@@ -55,13 +55,13 @@ struct SearchResultView: View {
                                 .frame(height: 8)
                         }
                     }
-                    .font(.custom(appState.fontName, size: appState.fontSize))
+                    .font(appState.makeFontForText())
                     .lineSpacing(appState.lineSpacing)
                     .listRowSeparator(.hidden)
                     .padding(.horizontal, 10)
                 } else {
                     Text("No results")
-                        .font(.custom(appState.fontName, size: appState.fontSize))
+                        .font(appState.makeFontForText())
                         .lineSpacing(appState.lineSpacing)
                         .padding(.horizontal, 12)
                 }

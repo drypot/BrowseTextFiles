@@ -17,7 +17,7 @@ struct TextBufferView: View {
         Group {
             if let loadError = state.fileBuffer?.loadingError {
                 Text(loadError)
-                    .font(.custom(appState.fontName, size: appState.fontSize))
+                    .font(appState.makeFontForText())
                     .lineSpacing(appState.lineSpacing)
                     .textSelection(.enabled)
                     .padding(.horizontal, 16)
@@ -30,7 +30,7 @@ struct TextBufferView: View {
                 //     text: fileBuffer.textBinding(),
                 //     // selection: $state.fileBuffer!.selection
                 // )
-                // .font(.custom(appState.fontName, size: appState.fontSize))
+                // .font(appState.makeTextEditorFont())
                 // .lineSpacing(appState.lineSpacing)
 
                 // TextEditor source of truth 동기화 비효율이 심해서

@@ -10,20 +10,21 @@ import SwiftUI
 struct SettingsView: View {
     @Environment(AppState.self) private var appState
 
-    let fontFamilies = NSFontManager.shared.availableFontFamilies.sorted()
     let sliderWidth: CGFloat = 320
-
+    
     var body: some View {
         @Bindable var appState = appState
         VStack(alignment: .leading, spacing: 24) {
             SettingsSection(title: "Font") {
+
                 SettingsRow {
-                    Text("Font")
+                    Text("Font: \(appState.fontName)")
                     Spacer()
-                    Picker("", selection: $appState.fontName) {
-                        ForEach(fontFamilies, id: \.self) { family in
-                            Text(family)
-                                .font(.custom(family, size: 13))
+                    Button("Change Font") {
+                        let initFont = appState.makeNSFontForText()
+                        appState.fontManager.showFontPanel(initialFont: initFont) { newFont in
+                            appState.fontName = newFont.fontName
+                            appState.fontSize = newFont.pointSize
                         }
                     }
                 }

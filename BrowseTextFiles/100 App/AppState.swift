@@ -69,6 +69,8 @@ class AppState {
 
     // MARK: - Font
 
+    var fontManager = FontManager()
+    
     var fontName: String {
         didSet {
             UserDefaults.standard.set(fontName, forKey: "fontName")
@@ -89,6 +91,14 @@ class AppState {
 
     var lineSpacing: Double {
         (lineHeightMultiple - 1) * fontSize
+    }
+
+    func makeNSFontForText() -> NSFont {
+        NSFont(name: fontName, size: fontSize) ?? .systemFont(ofSize: 13)
+    }
+
+    func makeFontForText() -> Font {
+        .custom(fontName, size: fontSize)
     }
 
     // MARK: - New File Templates

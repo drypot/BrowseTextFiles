@@ -343,7 +343,7 @@ final class FileBrowserState {
         guard autoSaveFileBuffer() else { return }
         fileBuffer?.invalidate()
         fileBuffer = nil
-        log("reset fileBuffer:")
+        log("reset buffer:")
     }
 
     func updateFileBuffer(from url: URL) {
@@ -353,7 +353,7 @@ final class FileBrowserState {
         fileBuffer = TextBuffer(from: url, rootURL: rootURL)
         guard let fileBuffer else { return }
 
-        log("create filebuffer: \(fileBuffer.name)")
+        log("create buffer: \(fileBuffer.name)")
         fileBuffer.loadOriginalText()
     }
 

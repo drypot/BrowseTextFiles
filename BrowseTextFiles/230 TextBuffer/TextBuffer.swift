@@ -20,6 +20,8 @@ final class TextBuffer: Identifiable, Hashable {
     private(set) var originalText: String = ""
     var shouldTextViewCopyOriginalText = false
 
+    // Data 에서 NSTextView 링크를 갖는 것이 이상하지만;
+    // 효율을 위해 NSTextView.string 을 Source of truth 로 쓴다;
     @ObservationIgnored
     weak var textView: NSTextView?
 
@@ -152,15 +154,13 @@ final class TextBuffer: Identifiable, Hashable {
     func updateTextViewStyle(appState: AppState) {
         guard let textView else { return }
 
-        guard let font = NSFont(name: appState.fontName, size: appState.fontSize) else { return }
-
         let paragraphStyle = NSMutableParagraphStyle()
         // lineSpacing 쓰면 엔터 입력시 커서가 사라진다; macOS 26
         // paragraphStyle.lineSpacing = appState.lineSpacing
         paragraphStyle.lineHeightMultiple = appState.lineHeightMultiple
 
         let attributes: [NSAttributedString.Key: Any] = [
-            .font: font,
+            .font: appState.makeNSFontForText(),
             .paragraphStyle: paragraphStyle
         ]
 
