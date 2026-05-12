@@ -11,12 +11,12 @@ import MyLibrary
 struct FileListView: View {
     @Environment(AppState.self) var appState
     @Environment(FileBrowserState.self) var state
-    @Environment(\.controlActiveState) var controlActiveState
+    @Environment(\.appearsActive) var appearsActive
 
     @FocusState private var isFocused: Bool
 
     var body: some View {
-        let isActive = controlActiveState != .inactive && isFocused
+        let isActive = appearsActive && isFocused
 
         List {
             if let fileList = state.fileList {

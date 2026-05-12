@@ -11,13 +11,13 @@ import MyLibrary
 struct FolderTreeView: View {
     @Environment(AppState.self) var appState
     @Environment(FileBrowserState.self) var state
-    @Environment(\.controlActiveState) var controlActiveState
+    @Environment(\.appearsActive) var appearsActive
 
     @FocusState private var isFocused: Bool
 
     var body: some View {
-        let isActive = controlActiveState != .inactive && isFocused
-        
+        let isActive = appearsActive && isFocused
+
         List {
             if let rootFolder = state.rootFolder {
                 RowView(item: rootFolder, level: 0, isActive: isActive, state: state, appState: appState)
