@@ -233,16 +233,18 @@ struct TextBufferEditor: NSViewRepresentable {
                             target.textStorage?.replaceCharacters(in: insertRange, with: spaces)
                         }
                     }
-                    if lineRange.location + spaceCount <= newRange.location {
+                    if lineRange.location <= newRange.location - spaceCount {
                         newRange.location -= spaceCount
-                    } else if lineRange.location <= newRange.location, newRange.location < lineRange.location + spaceCount  {
+                    } else if lineRange.location <= newRange.location {
                         newRange.length -= lineRange.location + spaceCount - newRange.location
                         newRange.location = lineRange.location
                         if newRange.length < 0 {
                             newRange.length = 0
                         }
-                    } else if lineRange.location < newRange.location + newRange.length {
+                    } else if lineRange.location <= newRange.location + newRange.length - spaceCount{
                         newRange.length -= spaceCount
+                    } else if lineRange.location <= newRange.location + newRange.length {
+                        newRange.length = lineRange.location - newRange.location
                     }
                 }
                 textStorage.endEditing()
