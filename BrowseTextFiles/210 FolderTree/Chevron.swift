@@ -10,7 +10,7 @@ import SwiftUI
 struct Chevron: View {
     let hasChildren: Bool
     let isExpaned: Bool
-    let onTap: () -> Void
+    let action: () -> Void
 
     var body: some View {
         if hasChildren {
@@ -27,7 +27,7 @@ struct Chevron: View {
             }
             .bold()
             .frame(width: 9, height: 9)
-            .onTapGesture(perform: onTap)
+            .onTapGesture(perform: action)
         } else {
             Spacer()
                 .frame(width: 9)
