@@ -126,7 +126,7 @@ struct NewFileSheet: View {
         let second = components.second ?? 0
         let weekday = components.weekday ?? 0
         let rootPath = state.rootURL?.path ?? ""
-        let folderPath = state.selectedFolder?.url.path ?? ""
+        let folderPath = state.findSelectedFolder()?.url.path ?? ""
         let relativeFolderPath = rootPath == folderPath ? "." : String(folderPath.dropFirst(rootPath.count + 1))
         return template
             .replacingOccurrences(of: "{year}", with: year.formatted(.number.grouping(.never).precision(.integerLength(4))))

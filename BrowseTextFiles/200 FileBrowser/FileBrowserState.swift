@@ -18,11 +18,11 @@ final class FileBrowserState {
     let id = UUID()
 
     private(set) var rootFolder: FolderItem?
-    private(set) var selectedFolder: FolderItem?
+    var selectedFolderID: FolderItem.ID?
     private(set) var expandedFolders: Set<URL> = []
 
     private(set) var fileList: [FileItem]?
-    private(set) var selectedFile: FileItem?
+    var selectedFileID: FileItem.ID?
 
     private(set) var fileBuffer: TextBuffer?
 
@@ -55,14 +55,15 @@ final class FileBrowserState {
         rootName ?? "nil"
     }
 
-    var hasFileBufferAlertMessage: Bool {
-        get { fileBuffer?.hasAlertMessage ?? false }
-        set { fileBuffer?.hasAlertMessage = newValue }
+    func findSelectedFolder() -> FolderItem? {
+        guard let rootFolder else { return nil }
+        guard let selectedFolderID else { return nil }
+        return rootFolder.findFolder(with: selectedFolderID)
     }
 
     func resetFolderTree() {
         rootFolder = nil
-        selectedFolder = nil
+        selectedFolderID = nil
         //expandedFolders.removeAll()
     }
 
@@ -70,9 +71,10 @@ final class FileBrowserState {
         resetFolderTree()
         do {
             try withSecurityScope(url) {
-                rootFolder = try FolderTreeBuilder().buildTree(from: url)
-                selectedFolder = rootFolder
-                expandFolder(for: url)
+                let folder = try FolderTreeBuilder().buildTree(from: url)
+                rootFolder = folder
+                selectedFolderID = folder.id
+                expandFolder(for: folder.url)
             }
             log("load root: \(url.lastPathComponent)")
         } catch {
@@ -89,7 +91,7 @@ final class FileBrowserState {
             return
         }
 
-        let selectedFolderURL = selectedFolder?.url
+        let selectedFolderURL = findSelectedFolder()?.url
 
         updateFolderTree(from: rootURL)
         if let selectedFolderURL {
@@ -99,36 +101,33 @@ final class FileBrowserState {
 
     // MARK: - Selected Folder
 
-    func selectedFolderBinding() -> Binding<FolderItem?> {
-        Binding<FolderItem?>(
-            get: { self.selectedFolder },
-            set: {
-                self.updateSelectedFolder(to: $0)
-                self.updateFileListFromSelectedFolder()
-            }
-        )
-    }
-
-    func updateSelectedFolder(to folder: FolderItem?) {
-        selectedFolder = folder
-    }
+    //func selectedFolderIDBinding() -> Binding<FolderItem.ID?> {
+    //    Binding<FolderItem.ID?>(
+    //        get: { self.selectedFolderID },
+    //        set: {
+    //            self.updateSelectedFolderID(to: $0)
+    //            self.updateFileListFromSelectedFolder()
+    //        }
+    //    )
+    //}
 
     func updateSelectedFolder(from url: URL) {
         if let folder = rootFolder?.findFolder(with: url) {
-            updateSelectedFolder(to: folder)
+            selectedFolderID = folder.id
         }
     }
 
     func updateSelectedFolderToRoot() {
-        updateSelectedFolder(to: rootFolder)
+        selectedFolderID = rootFolder?.id
     }
 
     func moveSelectedFolderDown() -> Bool {
         guard let rootFolder else { return false }
+        guard let selectedFolderID else { return false }
         var previous: FolderItem?
 
         func findNext(from current: FolderItem) -> FolderItem? {
-            if previous == selectedFolder {
+            if previous?.id == selectedFolderID {
                 return current
             }
             previous = current
@@ -144,17 +143,18 @@ final class FileBrowserState {
             return nil
         }
 
-        guard let result = findNext(from: rootFolder) else { return false }
-        updateSelectedFolder(to: result)
+        guard let found = findNext(from: rootFolder) else { return false }
+        self.selectedFolderID = found.id
         return true
     }
 
     func moveSelectedFolderUp() -> Bool {
         guard let rootFolder else { return false }
+        guard let selectedFolderID else { return false }
         var previous: FolderItem?
 
         func findPrevious(from current: FolderItem) -> FolderItem? {
-            if current == selectedFolder {
+            if current.id == selectedFolderID {
                 return previous
             }
             previous = current
@@ -170,17 +170,17 @@ final class FileBrowserState {
             return nil
         }
 
-        guard let result = findPrevious(from: rootFolder) else { return false }
-        updateSelectedFolder(to: result)
+        guard let found = findPrevious(from: rootFolder) else { return false }
+        self.selectedFolderID = found.id
         return true
     }
 
     func moveSelectedFolderToParent() -> Bool {
         guard let rootFolder else { return false }
-        guard let selectedFolder else { return false }
+        guard let selectedFolderID else { return false }
 
         func findParent(from current: FolderItem, parent: FolderItem?) -> FolderItem? {
-            if current == selectedFolder {
+            if current.id == selectedFolderID {
                 return parent
             }
 
@@ -195,8 +195,8 @@ final class FileBrowserState {
             return nil
         }
 
-        guard let result = findParent(from: rootFolder, parent: nil) else { return false }
-        updateSelectedFolder(to: result)
+        guard let found = findParent(from: rootFolder, parent: nil) else { return false }
+        self.selectedFolderID = found.id
         return true
     }
 
@@ -223,14 +223,14 @@ final class FileBrowserState {
     }
 
     func expandSelectedFolder() {
-        guard let selectedFolder else { return }
+        guard let selectedFolder = findSelectedFolder() else { return }
         if selectedFolder.hasChildren {
             expandFolder(for: selectedFolder.url)
         }
     }
 
     func collapseSelectedFolder() -> Bool {
-        guard let selectedFolder else { return false }
+        guard let selectedFolder = findSelectedFolder() else { return false }
         if selectedFolder.hasChildren, isFolderExpanded(for: selectedFolder.url) {
             collapseFolder(for: selectedFolder.url)
         } else {
@@ -254,9 +254,15 @@ final class FileBrowserState {
 
     // MARK: - File List
 
+    func findSelectedFile() -> FileItem? {
+        guard let fileList else { return nil }
+        guard let selectedFileID else { return nil }
+        return fileList.first { $0.id ==  selectedFileID }
+    }
+
     func resetFileList() {
         fileList = nil
-        selectedFile = nil
+        selectedFileID = nil
     }
 
     func updateFileList(from url: URL) {
@@ -281,38 +287,36 @@ final class FileBrowserState {
     }
 
     func updateFileListFromSelectedFolder() {
-        if let folder = selectedFolder {
+        if let folder = findSelectedFolder() {
             updateFileList(from: folder.url)
         } else {
             resetFileList()
         }
     }
 
-    func selectedFileBinding() -> Binding<FileItem?> {
-        return Binding<FileItem?>(
-            get: { self.selectedFile },
-            set: {
-                self.updateSelectedFile(to: $0)
-                self.updateFileBufferFromSelectedFile()
-            }
-        )
-    }
-
-    func updateSelectedFile(to fileItem: FileItem?) {
-        selectedFile = fileItem
-    }
+    //func selectedFileBinding() -> Binding<FileItem?> {
+    //    return Binding<FileItem?>(
+    //        get: { self.selectedFile },
+    //        set: {
+    //            self.updateSelectedFile(to: $0)
+    //            self.updateFileBufferFromSelectedFile()
+    //        }
+    //    )
+    //}
 
     func updateSelectedFile(from url: URL) {
-        selectedFile = fileList?.first { $0.url == url }
+        let first = fileList?.first { $0.url == url }
+        selectedFileID = first?.id
     }
 
     func moveSelectedFileDown() -> Bool {
         guard let fileList else { return false }
+        guard let selectedFileID else { return false }
         var previous: FileItem?
 
         for item in fileList {
-            if previous == selectedFile {
-                updateSelectedFile(to: item)
+            if previous?.id == selectedFileID {
+                self.selectedFileID = item.id
                 return true
             }
             previous = item
@@ -323,12 +327,13 @@ final class FileBrowserState {
 
     func moveSelectedFileUp() -> Bool {
         guard let fileList else { return false }
+        guard let selectedFileID else { return false }
         var previous: FileItem?
 
         for item in fileList {
-            if item == selectedFile {
+            if item.id == selectedFileID {
                 guard let previous else { return false }
-                updateSelectedFile(to: previous)
+                self.selectedFileID = previous.id
                 return true
             }
             previous = item
@@ -338,6 +343,11 @@ final class FileBrowserState {
     }
 
     // MARK: - TextBuffer
+
+    var hasFileBufferAlertMessage: Bool {
+        get { fileBuffer?.hasAlertMessage ?? false }
+        set { fileBuffer?.hasAlertMessage = newValue }
+    }
 
     func resetFileBuffer() {
         guard autoSaveFileBuffer() else { return }
@@ -358,7 +368,7 @@ final class FileBrowserState {
     }
 
     func updateFileBufferFromSelectedFile() {
-        if let fileItem = selectedFile {
+        if let fileItem = findSelectedFile() {
             updateFileBuffer(from: fileItem.url)
         } else {
             resetFileBuffer()
@@ -424,7 +434,7 @@ final class FileBrowserState {
     func showNewFileView() {
         guard autoSaveFileBuffer() else { return }
 
-        if selectedFolder == nil {
+        if selectedFolderID == nil {
             alertMessage = "Select folder first."
             hasAlertMessage = true
         } else {

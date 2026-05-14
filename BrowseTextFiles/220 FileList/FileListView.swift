@@ -68,7 +68,7 @@ fileprivate struct RowView: View {
         .focusEffectDisabled() // 포커스 테두리 표시 안 함
         .contentShape(Rectangle()) // 빈공간도 클릭되게 한다.
         .onTapGesture {
-            state.updateSelectedFile(to: item)
+            state.selectedFileID = item.id
             state.updateFileBufferFromSelectedFile()
         }
         .contextMenu {
@@ -83,7 +83,7 @@ fileprivate struct RowView: View {
     }
 
     var isSelected: Bool {
-        item == state.selectedFile
+        item.id == state.selectedFileID
     }
 
     var foregroundStyle: Color {
