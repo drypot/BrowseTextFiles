@@ -38,6 +38,11 @@ struct FileListView: View {
             }
             return .handled
         }
+        .onKeyPress(.return) {
+            guard let selectedFile = state.findSelectedFile() else { return .ignored }
+            state.showRenameFile(id: selectedFile.id)
+            return .handled
+        }
     }
 }
 
@@ -74,6 +79,9 @@ fileprivate struct RowView: View {
         .contextMenu {
             Button("Open in New Window") {
                 appState.openNewBrowserWindow(fromFileURL: item.url, openWindow: openWindow)
+            }
+            Button("Rename") {
+                state.showRenameFile(id: item.id)
             }
             Divider()
             Button("Show in Finder") {

@@ -24,6 +24,9 @@ final class FileBrowserState {
     private(set) var fileList: [FileItem]?
     var selectedFileID: FileItem.ID?
 
+    private(set) var renameFileID: FileItem.ID?
+    var isShowRenameFileView = false
+
     private(set) var fileBuffer: TextBuffer?
 
     var isShowNewFileView = false
@@ -340,6 +343,15 @@ final class FileBrowserState {
         }
 
         return false
+    }
+
+    func showRenameFile(id: FileItem.ID) {
+        renameFileID = id
+        isShowRenameFileView = true
+    }
+
+    func renameFile(at url: URL, to newURL: URL) {
+        print("rename file: from \(url) to \(newURL)")
     }
 
     // MARK: - TextBuffer

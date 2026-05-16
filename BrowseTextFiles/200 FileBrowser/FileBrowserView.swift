@@ -68,6 +68,10 @@ struct FileBrowserView: View {
             isPresented: $state.isShowNewFileView,
             content: { NewFileSheet(state: state) }
         )
+        .sheet(
+            isPresented: $state.isShowRenameFileView,
+            content: { RenameFileSheet(state: state) }
+        )
         .alert(
             "",
             isPresented: $state.hasAlertMessage,
