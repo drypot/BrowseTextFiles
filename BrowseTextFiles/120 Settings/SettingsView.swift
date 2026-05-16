@@ -10,14 +10,13 @@ import SwiftUI
 struct SettingsView: View {
     @Environment(AppState.self) private var appState
 
-    let sliderWidth: CGFloat = 320
-    
+    let sliderWidth: CGFloat = 240
+
     var body: some View {
         @Bindable var appState = appState
-        VStack(alignment: .leading, spacing: 24) {
-            SettingsSection(title: "Font") {
-
-                SettingsRow {
+        Form {
+            Section(header: Text("Font")) {
+                HStack {
                     Text("Font: \(appState.fontName)")
                     Spacer()
                     Button("Change Font") {
@@ -28,26 +27,22 @@ struct SettingsView: View {
                         }
                     }
                 }
-                Divider()
-
-                SettingsRow {
+                HStack {
                     Text("Font size: \(appState.fontSize.formatted()) pt")
-                    Spacer()
+                        .frame(width: 180, alignment: .leading)
                     Slider(value: $appState.fontSize, in: 8...36, step: 1)
-                        .frame(width: sliderWidth)
+                        .controlSize(.mini)
                 }
-                Divider()
-
-                SettingsRow {
+                HStack {
                     Text("Line height: \(appState.lineHeightMultiple.formatted())x")
-                    Spacer()
+                        .frame(width: 180, alignment: .leading)
                     Slider(value: $appState.lineHeightMultiple, in: 1.0...3.0, step: 0.1)
-                        .frame(maxWidth: sliderWidth)
+                        .controlSize(.mini)
                 }
             }
 
-            SettingsSection(title: "Auto Save") {
-                SettingsRow {
+            Section(header: Text("Auto Save")) {
+                HStack {
                     Text("Auto save enabled")
                     Spacer()
                     Toggle("", isOn: $appState.isAutoSaveEnabled)
@@ -55,26 +50,22 @@ struct SettingsView: View {
                         .controlSize(.mini)
                         .toggleStyle(.switch)
                 }
-                Divider()
-
-
-                SettingsRow {
+                HStack {
                     Text("Auto save after \(appState.autoSaveDelay.formatted()) seconds")
-                    Spacer()
+                        .frame(width: 180, alignment: .leading)
                     let binding = Binding<Double>(
                         get: { Double(appState.autoSaveDelay) },
                         set: { appState.autoSaveDelay = Int($0) }
                     )
                     Slider(value: binding, in: 2.0...60.0, step: 2)
                         .disabled(!appState.isAutoSaveEnabled)
-                        .frame(maxWidth: sliderWidth)
+                        .controlSize(.mini)
                 }
             }
 
-            SettingsSection(title: "Tab Key") {
-                SettingsRow {
+            Section(header: Text("Tab Key")) {
+                HStack {
                     Text("Tab key action")
-                    Spacer()
                     let binding = Binding<Int>(
                         get: { appState.tabKeyAction.rawValue },
                         set: { appState.tabKeyAction = AppState.TabKeyAction(rawValue: $0) ?? .default }
@@ -84,58 +75,22 @@ struct SettingsView: View {
                         Text("Indent with Space").tag(AppState.TabKeyAction.indentWithSpace.rawValue)
                     }
                 }
-                Divider()
-
-                SettingsRow {
+                HStack {
                     Text("Indent with \(appState.indentSize.formatted()) spaces")
-                    Spacer()
+                        .frame(width: 180, alignment: .leading)
                     let binding = Binding<Double>(
                         get: { Double(appState.indentSize) },
                         set: { appState.indentSize = Int($0) }
                     )
                     Slider(value: binding, in: 2.0...16.0, step: 1)
                         .disabled(appState.tabKeyAction != .indentWithSpace)
-                        .frame(maxWidth: sliderWidth)
+                        .controlSize(.mini)
                 }
             }
         }
+        .formStyle(.grouped)
         .navigationTitle("Settings")
-        .padding()
-        .frame(width: 600)
-    }
-}
-
-fileprivate struct SettingsSection<Content: View>: View {
-    let title: String
-
-    @ViewBuilder
-    var content: Content
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text(title)
-                .font(.headline)
-                .padding(.horizontal, 12)
-
-            VStack(spacing: 0) {
-                content
-            }
-            .background(Color(nsColor: .tertiarySystemFill))
-            .clipShape(RoundedRectangle(cornerRadius: 10))
-        }
-    }
-}
-
-fileprivate struct SettingsRow<Content: View>: View {
-    @ViewBuilder
-    let content: Content
-
-    var body: some View {
-        HStack {
-            content
-        }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 12)
+        .frame(width: 600, height: 500)
     }
 }
 
