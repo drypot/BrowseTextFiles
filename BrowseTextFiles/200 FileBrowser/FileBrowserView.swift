@@ -84,9 +84,9 @@ struct FileBrowserView: View {
             actions: { Button("OK") { } },
             message: { Text(state.fileBuffer?.alertMessage ?? "Unknown error.") }
         )
-        .onChange(of: state.selectedFileID) { _, newValue in
-            guard let selectedFile = state.findSelectedFile() else { return }
-            saveSceneData(fileURL: selectedFile.url)
+        .onChange(of: state.selectedFile) { _, newValue in
+            guard let newValue else { return }
+            saveSceneData(fileURL: newValue.url)
         }
         // scenePhase 로는 먼가 감지가 잘 안돼서 Notification 을 쓰도록 한다.
         // .onReceive(NotificationCenter.default.publisher(for: NSWindow.didBecomeMainNotification)) { notification in

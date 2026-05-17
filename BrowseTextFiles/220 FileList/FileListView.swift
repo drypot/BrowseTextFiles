@@ -39,8 +39,8 @@ struct FileListView: View {
             return .handled
         }
         .onKeyPress(.return) {
-            guard let selectedFile = state.findSelectedFile() else { return .ignored }
-            state.showRenameFile(id: selectedFile.id)
+            guard let selectedFileID = state.selectedFileID else { return .ignored }
+            state.showRenameFile(id: selectedFileID)
             return .handled
         }
     }
@@ -73,7 +73,7 @@ fileprivate struct RowView: View {
         .focusEffectDisabled() // 포커스 테두리 표시 안 함
         .contentShape(Rectangle()) // 빈공간도 클릭되게 한다.
         .onTapGesture {
-            state.selectedFileID = item.id
+            state.updateSelectedFile(withID: item.id)
             state.updateFileBufferFromSelectedFile()
         }
         .contextMenu {

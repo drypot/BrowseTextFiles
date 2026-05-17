@@ -56,6 +56,11 @@ final class TextBuffer: Identifiable, Hashable {
         savingError != nil
     }
 
+    func showAlert(_ message: String) {
+        alertMessage = message
+        hasAlertMessage = true
+    }
+
     // 애초에 수작업 invalidate 필요없게 만든다고 신경은 썼는네,
     // 혹시나 모르니 확실히 하자.
     func invalidate() {
@@ -144,9 +149,7 @@ final class TextBuffer: Identifiable, Hashable {
         } catch {
             let message = error.localizedDescription
             savingError = message
-
-            alertMessage = message
-            hasAlertMessage = true
+            showAlert(message)
             log("save text: \(message)")
         }
     }

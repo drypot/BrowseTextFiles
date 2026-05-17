@@ -86,7 +86,7 @@ fileprivate struct RowView: View {
         .focusEffectDisabled() // 포커스 테두리 표시 안 함
         .contentShape(Rectangle()) // 빈공간도 클릭되게 한다.
         .onTapGesture {
-            state.selectedFolderID = item.id
+            state.updateSelectedFolder(withID: item.id)
             state.updateFileListFromSelectedFolder()
         }
         .contextMenu {

@@ -11,11 +11,13 @@ struct RenameFileSheet: View {
     @Environment(AppState.self) var appState
     @Environment(\.dismiss) private var dismiss
 
-    @State private var originalURL: URL?
-    @State private var originalFilePath = ""
-    @State private var newFilePath = ""
+    @State private var orgURL: URL?
+    @State private var orgRelativePath = ""
+    @State private var newRelativePath = ""
 
     var state: FileBrowserState
+
+    private let log = LogStore.shared.log
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -27,12 +29,12 @@ struct RenameFileSheet: View {
                     HStack {
                         Text("from")
                             .frame(width: 60, alignment: .leading)
-                        Text(originalFilePath)
+                        Text(orgRelativePath)
                     }
                     HStack {
                         Text("to")
                             .frame(width: 60, alignment: .leading)
-                        TextField("", text: $newFilePath)
+                        TextField("", text: $newRelativePath)
                             .labelsHidden()
                             .textFieldStyle(.roundedBorder)
                             .frame(maxWidth: .infinity)
@@ -58,7 +60,7 @@ struct RenameFileSheet: View {
             }
             .padding()
         }
-        .frame(width: 700, height: 250)
+        .frame(width: 500, height: 250)
         .onAppear {
             loadSheet()
         }
@@ -68,19 +70,21 @@ struct RenameFileSheet: View {
         guard let rootURL = state.rootURL else { return }
         let rootPath = rootURL.path
 
-        let fileItem = state.fileList?.first { $0.id == state.renameFileID }
-        guard let fileItem else { return }
+        guard let fileItem = state.findFile(with: state.renameFileID) else { return }
 
-        originalURL = fileItem.url
-        let originalFilePath = String(fileItem.url.path.dropFirst(rootPath.count + 1))
-        self.originalFilePath = originalFilePath
+        orgURL = fileItem.url
+        let orgRelativePath = String(fileItem.url.path.dropFirst(rootPath.count + 1))
+        self.orgRelativePath = orgRelativePath
 
-        newFilePath = originalFilePath
+        newRelativePath = orgRelativePath
     }
 
     func renameFile() {
         Task {
-            //state.makeNewFile(path: newFilePath)
+            guard let rootURL = state.rootURL else { return }
+            guard let orgURL else { return }
+            let newURL = rootURL.appending(path: newRelativePath)
+            state.renameFile(from: orgURL, to: newURL)
         }
     }
 }

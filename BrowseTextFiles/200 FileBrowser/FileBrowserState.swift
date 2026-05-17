@@ -18,11 +18,15 @@ final class FileBrowserState {
     let id = UUID()
 
     private(set) var rootFolder: FolderItem?
-    var selectedFolderID: FolderItem.ID?
     private(set) var expandedFolders: Set<URL> = []
 
+    private(set) var selectedFolderID: FolderItem.ID?
+    private(set) var selectedFolder: FolderItem?
+
     private(set) var fileList: [FileItem]?
-    var selectedFileID: FileItem.ID?
+
+    private(set) var selectedFileID: FileItem.ID?
+    private(set) var selectedFile: FileItem?
 
     private(set) var renameFileID: FileItem.ID?
     var isShowRenameFileView = false
@@ -58,15 +62,9 @@ final class FileBrowserState {
         rootName ?? "nil"
     }
 
-    func findSelectedFolder() -> FolderItem? {
-        guard let rootFolder else { return nil }
-        guard let selectedFolderID else { return nil }
-        return rootFolder.findFolder(with: selectedFolderID)
-    }
-
     func resetFolderTree() {
         rootFolder = nil
-        selectedFolderID = nil
+        resetSelectedFolder()
         //expandedFolders.removeAll()
     }
 
@@ -76,14 +74,13 @@ final class FileBrowserState {
             try withSecurityScope(url) {
                 let folder = try FolderTreeBuilder().buildTree(from: url)
                 rootFolder = folder
-                selectedFolderID = folder.id
+                updateSelectedFolder(to: folder)
                 expandFolder(for: folder.url)
             }
             log("load root: \(url.lastPathComponent)")
         } catch {
             let message = error.localizedDescription
-            alertMessage = message
-            hasAlertMessage = true
+            showAlert(message)
             log("load root: \(message)")
         }
     }
@@ -94,11 +91,11 @@ final class FileBrowserState {
             return
         }
 
-        let selectedFolderURL = findSelectedFolder()?.url
+        let selectedFolderURL = selectedFolder?.url
 
         updateFolderTree(from: rootURL)
         if let selectedFolderURL {
-            updateSelectedFolder(from: selectedFolderURL)
+            updateSelectedFolder(withURL: selectedFolderURL)
         }
     }
 
@@ -114,14 +111,38 @@ final class FileBrowserState {
     //    )
     //}
 
-    func updateSelectedFolder(from url: URL) {
-        if let folder = rootFolder?.findFolder(with: url) {
+    func resetSelectedFolder() {
+        selectedFolderID = nil
+        selectedFolder = nil
+    }
+
+    func updateSelectedFolder(to folder: FolderItem?) {
+        if let folder {
             selectedFolderID = folder.id
+            selectedFolder = folder
+        } else {
+            resetSelectedFolder()
+        }
+    }
+
+    func updateSelectedFolder(withID id: FolderItem.ID?) {
+        if let rootFolder, let id, let folder = rootFolder.findFolder(with: id) {
+            updateSelectedFolder(to: folder)
+        } else {
+            resetSelectedFolder()
+        }
+    }
+
+    func updateSelectedFolder(withURL url: URL) {
+        if let rootFolder, let folder = rootFolder.findFolder(with: url) {
+            updateSelectedFolder(to: folder)
+        } else {
+            resetSelectedFolder()
         }
     }
 
     func updateSelectedFolderToRoot() {
-        selectedFolderID = rootFolder?.id
+        updateSelectedFolder(to: rootFolder)
     }
 
     func moveSelectedFolderDown() -> Bool {
@@ -147,7 +168,7 @@ final class FileBrowserState {
         }
 
         guard let found = findNext(from: rootFolder) else { return false }
-        self.selectedFolderID = found.id
+        updateSelectedFolder(to: found)
         return true
     }
 
@@ -174,7 +195,7 @@ final class FileBrowserState {
         }
 
         guard let found = findPrevious(from: rootFolder) else { return false }
-        self.selectedFolderID = found.id
+        updateSelectedFolder(to: found)
         return true
     }
 
@@ -199,7 +220,7 @@ final class FileBrowserState {
         }
 
         guard let found = findParent(from: rootFolder, parent: nil) else { return false }
-        self.selectedFolderID = found.id
+        updateSelectedFolder(to: found)
         return true
     }
 
@@ -226,14 +247,14 @@ final class FileBrowserState {
     }
 
     func expandSelectedFolder() {
-        guard let selectedFolder = findSelectedFolder() else { return }
+        guard let selectedFolder else { return }
         if selectedFolder.hasChildren {
             expandFolder(for: selectedFolder.url)
         }
     }
 
     func collapseSelectedFolder() -> Bool {
-        guard let selectedFolder = findSelectedFolder() else { return false }
+        guard let selectedFolder else { return false }
         if selectedFolder.hasChildren, isFolderExpanded(for: selectedFolder.url) {
             collapseFolder(for: selectedFolder.url)
         } else {
@@ -257,15 +278,9 @@ final class FileBrowserState {
 
     // MARK: - File List
 
-    func findSelectedFile() -> FileItem? {
-        guard let fileList else { return nil }
-        guard let selectedFileID else { return nil }
-        return fileList.first { $0.id ==  selectedFileID }
-    }
-
     func resetFileList() {
         fileList = nil
-        selectedFileID = nil
+        updateSelectedFile(withID: nil)
     }
 
     func updateFileList(from url: URL) {
@@ -283,19 +298,20 @@ final class FileBrowserState {
             log("load list: \(url.lastPathComponent)")
         } catch {
             let message = error.localizedDescription
-            alertMessage = message
-            hasAlertMessage = true
+            showAlert(message)
             log("load list: \(message)")
         }
     }
 
     func updateFileListFromSelectedFolder() {
-        if let folder = findSelectedFolder() {
-            updateFileList(from: folder.url)
+        if let selectedFolder {
+            updateFileList(from: selectedFolder.url)
         } else {
             resetFileList()
         }
     }
+
+    // MARK: - Selected File
 
     //func selectedFileBinding() -> Binding<FileItem?> {
     //    return Binding<FileItem?>(
@@ -307,9 +323,42 @@ final class FileBrowserState {
     //    )
     //}
 
-    func updateSelectedFile(from url: URL) {
-        let first = fileList?.first { $0.url == url }
-        selectedFileID = first?.id
+    func resetSelectedFile() {
+        selectedFileID = nil
+        selectedFile = nil
+    }
+
+    func findFile(with id: FileItem.ID?) -> FileItem? {
+        guard let fileList else { return nil }
+        guard let id else { return nil }
+        return fileList.first { $0.id ==  id }
+    }
+
+    func updateSelectedFile(to fileItem: FileItem?) {
+        if let fileItem {
+            selectedFileID = fileItem.id
+            selectedFile = fileItem
+        } else {
+            resetSelectedFile()
+        }
+    }
+
+    func updateSelectedFile(withID id: FileItem.ID?) {
+        if let fileList, let file = fileList.first(where: { $0.id ==  id }) {
+            selectedFileID = file.id
+            selectedFile = file
+        } else {
+            resetSelectedFile()
+        }
+    }
+
+    func updateSelectedFile(withURL url: URL) {
+        if let fileList, let file = fileList.first(where: { $0.url ==  url }) {
+            selectedFileID = file.id
+            selectedFile = file
+        } else {
+            resetSelectedFile()
+        }
     }
 
     func moveSelectedFileDown() -> Bool {
@@ -319,7 +368,7 @@ final class FileBrowserState {
 
         for item in fileList {
             if previous?.id == selectedFileID {
-                self.selectedFileID = item.id
+                updateSelectedFile(to: item)
                 return true
             }
             previous = item
@@ -336,22 +385,13 @@ final class FileBrowserState {
         for item in fileList {
             if item.id == selectedFileID {
                 guard let previous else { return false }
-                self.selectedFileID = previous.id
+                updateSelectedFile(to: previous)
                 return true
             }
             previous = item
         }
 
         return false
-    }
-
-    func showRenameFile(id: FileItem.ID) {
-        renameFileID = id
-        isShowRenameFileView = true
-    }
-
-    func renameFile(at url: URL, to newURL: URL) {
-        print("rename file: from \(url) to \(newURL)")
     }
 
     // MARK: - TextBuffer
@@ -380,8 +420,8 @@ final class FileBrowserState {
     }
 
     func updateFileBufferFromSelectedFile() {
-        if let fileItem = findSelectedFile() {
-            updateFileBuffer(from: fileItem.url)
+        if let selectedFile {
+            updateFileBuffer(from: selectedFile.url)
         } else {
             resetFileBuffer()
         }
@@ -415,12 +455,12 @@ final class FileBrowserState {
     func updateAll(fromFileURL fileURL: URL) {
         let folderURL = fileURL.deletingLastPathComponent()
 
-        updateSelectedFolder(from: folderURL)
+        updateSelectedFolder(withURL: folderURL)
         updateFileList(from: folderURL)
         if hasAlertMessage { return }
 
         if fileList != nil {
-            updateSelectedFile(from: fileURL)
+            updateSelectedFile(withURL: fileURL)
             updateFileBuffer(from: fileURL)
             expandFolders(for: folderURL)
         }
@@ -447,18 +487,16 @@ final class FileBrowserState {
         guard autoSaveFileBuffer() else { return }
 
         if selectedFolderID == nil {
-            alertMessage = "Select folder first."
-            hasAlertMessage = true
+            showAlert("Select folder first.")
         } else {
             isShowNewFileView = true
         }
     }
     
     func makeNewFile(path: String) {
-        let fileManager = FileManager.default
-        guard let rootURL else { return }
-
         do {
+            guard let rootURL else { return }
+            let fileManager = FileManager.default
             let newFileURL = rootURL.appending(component: path)
             try withSecurityScope(rootURL) {
                 if fileManager.fileExists(atPath: newFileURL.path) {
@@ -478,9 +516,42 @@ final class FileBrowserState {
             }
         } catch {
             let message = error.localizedDescription
-            alertMessage = message
-            hasAlertMessage = true
+            showAlert(message)
             log("new file: \(message)")
+        }
+    }
+
+    // MARK: - Rename File
+
+    func showRenameFile(id: FileItem.ID) {
+        renameFileID = id
+        isShowRenameFileView = true
+    }
+
+    func renameFile(from orgURL: URL, to newURL: URL) {
+        do {
+            guard let rootURL else { return }
+            let fileManager = FileManager.default
+            let selectedFileURL = selectedFile?.url
+            if selectedFileURL == orgURL {
+                resetFileBuffer()
+            }
+            try withSecurityScope(rootURL) {
+                try fileManager.moveItem(at: orgURL, to: newURL)
+            }
+            updateFileListFromSelectedFolder()
+            if selectedFileURL == orgURL {
+                updateSelectedFile(withURL: newURL)
+                updateFileBufferFromSelectedFile()
+            } else if let selectedFileURL {
+                updateSelectedFile(withURL: selectedFileURL)
+            }
+            log("rename from: \(orgURL.relativePath)")
+            log("rename to: \(newURL.relativePath)")
+        } catch {
+            let message = error.localizedDescription
+            showAlert(message)
+            log("rename file: \(message)")
         }
     }
 
@@ -511,8 +582,7 @@ final class FileBrowserState {
                 log("start search: found \(searchResults?.count ?? 0) files")
             } catch {
                 let message = error.localizedDescription
-                alertMessage = message
-                hasAlertMessage = true
+                showAlert(message)
                 log("start search: \(message)")
             }
         }
@@ -585,5 +655,12 @@ final class FileBrowserState {
     func clearSearchResult() {
         searchResults = nil
         searchText = ""
+    }
+
+    // MARK: - Alert
+
+    func showAlert(_ message: String) {
+        alertMessage = message
+        hasAlertMessage = true
     }
 }
