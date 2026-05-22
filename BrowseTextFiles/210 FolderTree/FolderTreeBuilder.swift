@@ -22,8 +22,7 @@ struct FolderTreeBuilder {
 
         func buildSubtree(from folderURL: URL) throws -> FolderForView {
             let fileManager = FileManager.default
-            let folderItem = FolderForView(from: folderURL)
-
+            let folder = FolderForView(from: folderURL)
             let urls = try fileManager.contentsOfDirectory(at: folderURL,
                                                             includingPropertiesForKeys: keys,
                                                             options: options)
@@ -32,17 +31,17 @@ struct FolderTreeBuilder {
                     let values = try url.resourceValues(forKeys: keySet)
                     if values.isDirectory == true {
                         let childItem = try buildSubtree(from: url)
-                        if folderItem.children == nil {
-                            folderItem.children = [childItem]
+                        if folder.children == nil {
+                            folder.children = [childItem]
                         } else {
-                            folderItem.children!.append(childItem)
+                            folder.children!.append(childItem)
                         }
                     }
                 }
             }
-            folderItem.children?.sort()
+            folder.children?.sort()
 
-            return folderItem
+            return folder
         }
 
         return try buildSubtree(from: rootURL)

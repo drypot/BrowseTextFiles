@@ -69,6 +69,10 @@ struct FileBrowserView: View {
             content: { NewFileSheet(state: state) }
         )
         .sheet(
+            isPresented: $state.isShowRenameFolderView,
+            content: { RenameFolderSheet(state: state) }
+        )
+        .sheet(
             isPresented: $state.isShowRenameFileView,
             content: { RenameFileSheet(state: state) }
         )

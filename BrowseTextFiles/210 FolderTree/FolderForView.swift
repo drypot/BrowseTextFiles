@@ -34,11 +34,11 @@ final class FolderForView: Identifiable, Comparable, Hashable {
         hasher.combine(id)
     }
 
-    func findFolder(with url: URL) -> FolderForView? {
-        if self.url == url { return self }
+    func findFolder(withPath path: String) -> FolderForView? {
+        if self.url.path == path { return self }
         if let children {
             for child in children {
-                if let found = child.findFolder(with: url) {
+                if let found = child.findFolder(withPath: path) {
                     return found
                 }
             }
@@ -46,11 +46,11 @@ final class FolderForView: Identifiable, Comparable, Hashable {
         return nil
     }
 
-    func findFolder(with id: ID) -> FolderForView? {
+    func findFolder(withID id: ID) -> FolderForView? {
         if self.id == id { return self }
         if let children {
             for child in children {
-                if let found = child.findFolder(with: id) {
+                if let found = child.findFolder(withID: id) {
                     return found
                 }
             }

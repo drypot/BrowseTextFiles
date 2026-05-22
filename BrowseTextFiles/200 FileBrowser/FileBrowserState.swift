@@ -119,6 +119,18 @@ final class FileBrowserState {
         selectedFolder = nil
     }
 
+    func findFolder(withID id: FolderForView.ID) -> FolderForView? {
+        guard let rootFolder else { return nil }
+        return rootFolder.findFolder(withID: id)
+    }
+
+    // URL 로 비교하면 패스 마지막에 "/" 이 붙으면서 비교가 귀찮아진다.
+    // path 로 비교하면 마지막에 "/" 이 붙지 않는다;
+    func findFolder(withPath path: String) -> FolderForView? {
+        guard let rootFolder else { return nil }
+        return rootFolder.findFolder(withPath: path)
+    }
+
     func updateSelectedFolder(to folder: FolderForView?) {
         if let folder {
             selectedFolderID = folder.id
@@ -129,7 +141,7 @@ final class FileBrowserState {
     }
 
     func updateSelectedFolder(withID id: FolderForView.ID?) {
-        if let rootFolder, let id, let folder = rootFolder.findFolder(with: id) {
+        if let id, let folder = findFolder(withID: id) {
             updateSelectedFolder(to: folder)
         } else {
             resetSelectedFolder()
@@ -137,7 +149,7 @@ final class FileBrowserState {
     }
 
     func updateSelectedFolder(withURL url: URL) {
-        if let rootFolder, let folder = rootFolder.findFolder(with: url) {
+        if let folder = findFolder(withPath: url.path) {
             updateSelectedFolder(to: folder)
         } else {
             resetSelectedFolder()
@@ -524,7 +536,7 @@ final class FileBrowserState {
         }
     }
 
-    // MARK: - Rename File
+    // MARK: - Rename
 
     func showRenameFile(id: FileForView.ID) {
         renameFileID = id
@@ -536,14 +548,15 @@ final class FileBrowserState {
             guard let rootURL else { return }
             let fileManager = FileManager.default
             let selectedFileURL = selectedFile?.url
-            if selectedFileURL == orgURL {
+            let shouldUpdateFileBuffer = selectedFileURL == orgURL
+            if shouldUpdateFileBuffer {
                 resetFileBuffer()
             }
             try withSecurityScope(rootURL) {
                 try fileManager.moveItem(at: orgURL, to: newURL)
             }
             updateFileListFromSelectedFolder()
-            if selectedFileURL == orgURL {
+            if shouldUpdateFileBuffer {
                 updateSelectedFile(withURL: newURL)
                 updateFileBufferFromSelectedFile()
             } else if let selectedFileURL {
@@ -555,6 +568,55 @@ final class FileBrowserState {
             let message = error.localizedDescription
             showAlert(message)
             log("rename file: \(message)")
+        }
+    }
+
+    func showRenameFolder(id: FolderForView.ID) {
+        renameFolderID = id
+        isShowRenameFolderView = true
+    }
+
+    func renameFolder(from orgURL: URL, to newURL: URL) {
+        do {
+            guard let rootURL else { return }
+            let fileManager = FileManager.default
+
+            let selectedFolderURL = selectedFolder?.url
+            let shouldUpdateSelectedFolder = if let selectedFolderURL {
+                selectedFolderURL.isChildOrEqual(to: orgURL)
+            } else {
+                false
+            }
+
+            // selectedFile 이 nil 이지만,
+            // fileBuffer 가 nil 이 아닌 경우가 있다;
+            let fileBufferURL = fileBuffer?.url
+            let shouldUpdateFileBuffer = if let fileBufferURL {
+                fileBufferURL.isChild(of: orgURL)
+            } else {
+                false
+            }
+
+            if shouldUpdateFileBuffer {
+                resetFileBuffer()
+            }
+            try withSecurityScope(rootURL) {
+                try fileManager.moveItem(at: orgURL, to: newURL)
+            }
+            if shouldUpdateSelectedFolder {
+                updateFolderTree(from: rootURL)
+                updateSelectedFolder(withURL: newURL)
+                expandFolders(for: newURL)
+                updateFileListFromSelectedFolder()
+            } else {
+                reloadFolderTree()
+            }
+            log("rename from: \(orgURL.relativePath)")
+            log("rename to: \(newURL.relativePath)")
+        } catch {
+            let message = error.localizedDescription
+            showAlert(message)
+            log("rename folder: \(message)")
         }
     }
 

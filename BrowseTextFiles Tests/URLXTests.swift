@@ -1,5 +1,5 @@
 //
-//  URLUtilityTests.swift
+//  URLXTests.swift
 //  Browse Text Files Tests
 //
 //  Created by Kyuhyun Park on 5/22/26.
@@ -8,7 +8,7 @@
 import Foundation
 import Testing
 
-struct URLUtilityTests {
+struct URLXTests {
 
     @Test func testIsChild() throws {
         do {

@@ -46,6 +46,12 @@ struct FolderTreeView: View {
             }
             return .handled
         }
+        .onKeyPress(.return) {
+            guard let selectedFolder = state.selectedFolder else { return .ignored }
+            guard selectedFolder != state.rootFolder else { return .ignored }
+            state.showRenameFolder(id: selectedFolder.id)
+            return .handled
+        }
     }
 }
 
@@ -92,6 +98,11 @@ fileprivate struct RowView: View {
         .contextMenu {
             Button("Open in New Window") {
                 appState.openNewBrowserWindow(fromRootURL: item.url, fileURL: nil, openWindow: openWindow)
+            }
+            if item != state.rootFolder {
+                Button("Rename") {
+                    state.showRenameFolder(id: item.id)
+                }
             }
             Divider()
             Button("Show in Finder") {
