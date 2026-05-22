@@ -1,5 +1,5 @@
 //
-//  FolderItem.swift
+//  FolderForView.swift
 //  MyLibrary
 //
 //  Created by Kyuhyun Park on 3/1/26.
@@ -7,13 +7,13 @@
 
 import Foundation
 
-final class FolderItem: Identifiable, Comparable, Hashable {
+final class FolderForView: Identifiable, Comparable, Hashable {
     // URL 대신 UUID id 를 사용하면 reload 된 Item 의 URL 이 같아도 item 이 변경되었음을 알릴 수 있다.
     let id = UUID()
     
     var url: URL
     var name: String
-    var children: [FolderItem]?
+    var children: [FolderForView]?
 
     var hasChildren: Bool { children != nil }
 
@@ -22,11 +22,11 @@ final class FolderItem: Identifiable, Comparable, Hashable {
         self.name = url.lastPathComponent
     }
 
-    static func == (lhs: FolderItem, rhs: FolderItem) -> Bool {
+    static func == (lhs: FolderForView, rhs: FolderForView) -> Bool {
         lhs.id == rhs.id
     }
 
-    static func < (lhs: FolderItem, rhs: FolderItem) -> Bool {
+    static func < (lhs: FolderForView, rhs: FolderForView) -> Bool {
         return lhs.name < rhs.name
     }
 
@@ -34,7 +34,7 @@ final class FolderItem: Identifiable, Comparable, Hashable {
         hasher.combine(id)
     }
 
-    func findFolder(with url: URL) -> FolderItem? {
+    func findFolder(with url: URL) -> FolderForView? {
         if self.url == url { return self }
         if let children {
             for child in children {
@@ -46,7 +46,7 @@ final class FolderItem: Identifiable, Comparable, Hashable {
         return nil
     }
 
-    func findFolder(with id: ID) -> FolderItem? {
+    func findFolder(with id: ID) -> FolderForView? {
         if self.id == id { return self }
         if let children {
             for child in children {

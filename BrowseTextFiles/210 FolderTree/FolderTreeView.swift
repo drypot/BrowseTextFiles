@@ -52,7 +52,7 @@ struct FolderTreeView: View {
 fileprivate struct RowView: View {
     @Environment(\.openWindow) private var openWindow
     
-    let item: FolderItem
+    let item: FolderForView
     let level: Int
     let isActive: Bool
     let state: FileBrowserState

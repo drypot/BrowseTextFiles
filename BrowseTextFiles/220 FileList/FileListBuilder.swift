@@ -11,7 +11,7 @@ import UniformTypeIdentifiers
 nonisolated struct FileListBuilder {
     init() {}
 
-    func collectShallowly(from folderURL: URL, filter: (UTType) -> Bool) throws -> [FileItem] {
+    func collectShallowly(from folderURL: URL, filter: (UTType) -> Bool) throws -> [FileForView] {
         let fileManager = FileManager.default
         let keys: [URLResourceKey] = [.isRegularFileKey, .contentTypeKey]
         let keySet = Set(keys)
@@ -23,14 +23,14 @@ nonisolated struct FileListBuilder {
             options: options
         )
 
-        var results: [FileItem] = []
+        var results: [FileForView] = []
         for url in urls {
             try autoreleasepool {
                 let values = try url.resourceValues(forKeys: keySet)
                 if values.isRegularFile == true {
                     if let contentType = values.contentType {
                         if filter(contentType) {
-                            results.append(FileItem(from: url))
+                            results.append(FileForView(from: url))
                         }
                     }
                 }
@@ -40,7 +40,7 @@ nonisolated struct FileListBuilder {
         return results
     }
 
-    func collectRecursively(from rootURL: URL) throws -> [FileItem] {
+    func collectRecursively(from rootURL: URL) throws -> [FileForView] {
         let fileManager = FileManager.default
         let keys: [URLResourceKey] = [.isRegularFileKey, .isDirectoryKey]
         let keySet = Set(keys)
@@ -49,18 +49,18 @@ nonisolated struct FileListBuilder {
         let values = try rootURL.resourceValues(forKeys: keySet)
 
         if values.isRegularFile == true {
-            return [FileItem(from: rootURL)]
+            return [FileForView(from: rootURL)]
         }
         if values.isDirectory == true {
             guard let enumerator = fileManager.enumerator(at: rootURL,
                                                           includingPropertiesForKeys: keys,
                                                           options: options) else { return [] }
-            var results: [FileItem] = []
+            var results: [FileForView] = []
             for case let url as URL in enumerator {
                 try autoreleasepool {
                     let values = try url.resourceValues(forKeys: keySet)
                     if values.isRegularFile == true {
-                        results.append(FileItem(from: url))
+                        results.append(FileForView(from: url))
                     }
                 }
             }

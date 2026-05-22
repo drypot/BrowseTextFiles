@@ -17,18 +17,21 @@ extension FocusedValues {
 final class FileBrowserState {
     let id = UUID()
 
-    private(set) var rootFolder: FolderItem?
+    private(set) var rootFolder: FolderForView?
     private(set) var expandedFolders: Set<URL> = []
 
-    private(set) var selectedFolderID: FolderItem.ID?
-    private(set) var selectedFolder: FolderItem?
+    private(set) var selectedFolderID: FolderForView.ID?
+    private(set) var selectedFolder: FolderForView?
 
-    private(set) var fileList: [FileItem]?
+    private(set) var renameFolderID: FolderForView.ID?
+    var isShowRenameFolderView = false
 
-    private(set) var selectedFileID: FileItem.ID?
-    private(set) var selectedFile: FileItem?
+    private(set) var fileList: [FileForView]?
 
-    private(set) var renameFileID: FileItem.ID?
+    private(set) var selectedFileID: FileForView.ID?
+    private(set) var selectedFile: FileForView?
+
+    private(set) var renameFileID: FileForView.ID?
     var isShowRenameFileView = false
 
     private(set) var fileBuffer: TextBuffer?
@@ -116,7 +119,7 @@ final class FileBrowserState {
         selectedFolder = nil
     }
 
-    func updateSelectedFolder(to folder: FolderItem?) {
+    func updateSelectedFolder(to folder: FolderForView?) {
         if let folder {
             selectedFolderID = folder.id
             selectedFolder = folder
@@ -125,7 +128,7 @@ final class FileBrowserState {
         }
     }
 
-    func updateSelectedFolder(withID id: FolderItem.ID?) {
+    func updateSelectedFolder(withID id: FolderForView.ID?) {
         if let rootFolder, let id, let folder = rootFolder.findFolder(with: id) {
             updateSelectedFolder(to: folder)
         } else {
@@ -148,9 +151,9 @@ final class FileBrowserState {
     func moveSelectedFolderDown() -> Bool {
         guard let rootFolder else { return false }
         guard let selectedFolderID else { return false }
-        var previous: FolderItem?
+        var previous: FolderForView?
 
-        func findNext(from current: FolderItem) -> FolderItem? {
+        func findNext(from current: FolderForView) -> FolderForView? {
             if previous?.id == selectedFolderID {
                 return current
             }
@@ -175,9 +178,9 @@ final class FileBrowserState {
     func moveSelectedFolderUp() -> Bool {
         guard let rootFolder else { return false }
         guard let selectedFolderID else { return false }
-        var previous: FolderItem?
+        var previous: FolderForView?
 
-        func findPrevious(from current: FolderItem) -> FolderItem? {
+        func findPrevious(from current: FolderForView) -> FolderForView? {
             if current.id == selectedFolderID {
                 return previous
             }
@@ -203,7 +206,7 @@ final class FileBrowserState {
         guard let rootFolder else { return false }
         guard let selectedFolderID else { return false }
 
-        func findParent(from current: FolderItem, parent: FolderItem?) -> FolderItem? {
+        func findParent(from current: FolderForView, parent: FolderForView?) -> FolderForView? {
             if current.id == selectedFolderID {
                 return parent
             }
@@ -328,13 +331,13 @@ final class FileBrowserState {
         selectedFile = nil
     }
 
-    func findFile(with id: FileItem.ID?) -> FileItem? {
+    func findFile(with id: FileForView.ID?) -> FileForView? {
         guard let fileList else { return nil }
         guard let id else { return nil }
         return fileList.first { $0.id ==  id }
     }
 
-    func updateSelectedFile(to fileItem: FileItem?) {
+    func updateSelectedFile(to fileItem: FileForView?) {
         if let fileItem {
             selectedFileID = fileItem.id
             selectedFile = fileItem
@@ -343,7 +346,7 @@ final class FileBrowserState {
         }
     }
 
-    func updateSelectedFile(withID id: FileItem.ID?) {
+    func updateSelectedFile(withID id: FileForView.ID?) {
         if let fileList, let file = fileList.first(where: { $0.id ==  id }) {
             selectedFileID = file.id
             selectedFile = file
@@ -364,7 +367,7 @@ final class FileBrowserState {
     func moveSelectedFileDown() -> Bool {
         guard let fileList else { return false }
         guard let selectedFileID else { return false }
-        var previous: FileItem?
+        var previous: FileForView?
 
         for item in fileList {
             if previous?.id == selectedFileID {
@@ -380,7 +383,7 @@ final class FileBrowserState {
     func moveSelectedFileUp() -> Bool {
         guard let fileList else { return false }
         guard let selectedFileID else { return false }
-        var previous: FileItem?
+        var previous: FileForView?
 
         for item in fileList {
             if item.id == selectedFileID {
@@ -523,7 +526,7 @@ final class FileBrowserState {
 
     // MARK: - Rename File
 
-    func showRenameFile(id: FileItem.ID) {
+    func showRenameFile(id: FileForView.ID) {
         renameFileID = id
         isShowRenameFileView = true
     }

@@ -49,7 +49,7 @@ struct FileListView: View {
 fileprivate struct RowView: View {
     @Environment(\.openWindow) private var openWindow
 
-    let item: FileItem
+    let item: FileForView
     let isActive: Bool
     let state: FileBrowserState
     let appState: AppState
