@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import MyLibrary
 
 @main
 struct BrowseTextFilesApp: App {

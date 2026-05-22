@@ -7,7 +7,6 @@
 
 import Foundation
 import AppKit
-import MyLibrary
 
 struct TestSecurityScopedBookmark {
     private let log = LogStore.shared.log

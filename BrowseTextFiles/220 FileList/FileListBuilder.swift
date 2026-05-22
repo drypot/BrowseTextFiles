@@ -1,6 +1,6 @@
 //
 //  FileListBuilder.swift
-//  MyLibrary
+//  BrowseTextFiles
 //
 //  Created by Kyuhyun Park on 2/28/26.
 //

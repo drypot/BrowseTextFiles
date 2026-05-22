@@ -1,6 +1,6 @@
 //
 //  FileMonitor.swift
-//  MyLibrary
+//  BrowseTextFiles
 //
 //  Created by Kyuhyun Park on 4/5/26.
 //

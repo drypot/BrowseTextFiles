@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import MyLibrary
 
 struct ConsoleWindow: Scene {
     @Environment(\.openWindow) private var openWindow

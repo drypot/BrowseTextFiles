@@ -1,12 +1,11 @@
 //
 //  BookmarkManager.swift
-//  MyLibrary
+//  BrowseTextFiles
 //
 //  Created by Kyuhyun Park on 2/26/26.
 //
 
 import Foundation
-import MyLibrary
 
 public class BookmarkManager {
     @MainActor public private(set) static var shared = BookmarkManager()

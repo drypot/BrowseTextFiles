@@ -7,11 +7,6 @@
 
 import SwiftUI
 import UniformTypeIdentifiers
-import MyLibrary
-
-extension FocusedValues {
-    @Entry var currentFileBrowserState: FileBrowserState? = nil
-}
 
 @Observable
 final class FileBrowserState {
@@ -343,9 +338,8 @@ final class FileBrowserState {
         selectedFile = nil
     }
 
-    func findFile(with id: FileForView.ID?) -> FileForView? {
+    func findFile(with id: FileForView.ID) -> FileForView? {
         guard let fileList else { return nil }
-        guard let id else { return nil }
         return fileList.first { $0.id ==  id }
     }
 

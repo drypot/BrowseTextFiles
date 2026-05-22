@@ -7,7 +7,6 @@
 
 import SwiftUI
 import UniformTypeIdentifiers
-import MyLibrary
 
 @Observable
 final class TextBuffer: Identifiable, Hashable {
