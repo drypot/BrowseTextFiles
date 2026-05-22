@@ -68,8 +68,8 @@ struct RenameFileSheet: View {
 
     func loadSheet() {
         guard let rootURL = state.rootURL else { return }
-        guard let renameFolderID = state.renameFolderID else { return }
-        guard let file = state.findFile(with: state.renameFileID) else { return }
+        guard let renameFileID = state.renameFileID else { return }
+        guard let file = state.findFile(with: renameFileID) else { return }
         guard let relativePath = file.url.relativePath(from: rootURL) else { return }
         orgURL = file.url
         orgRelativePath = relativePath
