@@ -25,15 +25,28 @@
 		00A47E702F6EB198000A7673 /* PRIVACY.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = PRIVACY.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		00265A722FB71E64009AA3E0 /* Browse Text Files Tests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "Browse Text Files Tests";
-			sourceTree = "<group>";
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		0062C5142FC014BA00E37649 /* Exceptions for "BrowseTextFiles" folder in "Browse Text Files Tests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Utility/URLUtility.swift,
+			);
+			target = 00265A702FB71E64009AA3E0 /* Browse Text Files Tests */;
 		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
 		00517B502E1A1AAB00AED7F2 /* BrowseTextFiles */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				0062C5142FC014BA00E37649 /* Exceptions for "BrowseTextFiles" folder in "Browse Text Files Tests" target */,
+			);
 			path = BrowseTextFiles;
+			sourceTree = "<group>";
+		};
+		0062C5102FC013C000E37649 /* BrowseTextFiles Tests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "BrowseTextFiles Tests";
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -56,13 +69,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		001A02B42F532CC6004009B6 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
 		00517B452E1A1AAA00AED7F2 = {
 			isa = PBXGroup;
 			children = (
@@ -71,8 +77,7 @@
 				00A47E672F6EB05B000A7673 /* README.md */,
 				007B06B92F840FAC0074DE95 /* Browse-Text-Files-Info.plist */,
 				00517B502E1A1AAB00AED7F2 /* BrowseTextFiles */,
-				00265A722FB71E64009AA3E0 /* Browse Text Files Tests */,
-				001A02B42F532CC6004009B6 /* Frameworks */,
+				0062C5102FC013C000E37649 /* BrowseTextFiles Tests */,
 				00517B4F2E1A1AAB00AED7F2 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -103,7 +108,7 @@
 				00265A762FB71E64009AA3E0 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				00265A722FB71E64009AA3E0 /* Browse Text Files Tests */,
+				0062C5102FC013C000E37649 /* BrowseTextFiles Tests */,
 			);
 			name = "Browse Text Files Tests";
 			packageProductDependencies = (
