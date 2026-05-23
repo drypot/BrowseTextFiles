@@ -7,20 +7,6 @@
 
 import SwiftUI
 
-struct FileBrowserInitParam: Hashable, Codable {
-    // 동일 폴더를 두 창에서 열려면 id 로 구분되어야 한다.
-    let id: UUID
-    let rootURL: URL?
-    let fileURL: URL?
-
-    // Codable 해야 해서 init 를 번잡스럽게 만들어 준다.
-    init(id: UUID = UUID(), rootURL: URL? = nil, fileURL: URL? = nil) {
-        self.id = id
-        self.rootURL = rootURL
-        self.fileURL = fileURL
-    }
-}
-
 struct FileBrowserWindow: Scene {
     @Environment(AppState.self) private var appState
     @Environment(\.openWindow) private var openWindow
@@ -29,7 +15,8 @@ struct FileBrowserWindow: Scene {
 
     var body: some Scene {
         WindowGroup("Browser", id: "browser", for: FileBrowserInitParam.self) { $initParam in
-            FileBrowserDebuggingView(initParam)
+            FileBrowserView(initParam)
+            // FileBrowserDebuggingView(param)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             // 외부에서 file url 을 받았을 경우 folder 에 대한 권한이 없어서 원만히 작동하기가 힘들다.
@@ -43,6 +30,8 @@ struct FileBrowserWindow: Scene {
             // .dropDestination(for: URL.self) { urls, _ in
             //     openURLsFromDragDrop(urls)
             // }
+        } defaultValue: {
+            FileBrowserInitParam()
         }
         .defaultWindowPlacement { proxy, context in
             let displayBounds = context.defaultDisplay.visibleRect

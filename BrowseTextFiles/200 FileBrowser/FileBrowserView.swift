@@ -21,6 +21,20 @@ extension EnvironmentValues {
     @Entry var focusedBinding: FocusState<FocusTarget?>.Binding?
 }
 
+struct FileBrowserInitParam: Hashable, Codable {
+    // 동일 폴더를 두 창에서 열려면 id 로 구분해야 한다.
+    let id: UUID
+    let rootURL: URL?
+    let fileURL: URL?
+
+    // Codable 해야 해서 init 를 번잡스럽게 만들어 준다.
+    init(id: UUID = UUID(), rootURL: URL? = nil, fileURL: URL? = nil) {
+        self.id = id
+        self.rootURL = rootURL
+        self.fileURL = fileURL
+    }
+}
+
 struct FileBrowserView: View {
     @Environment(AppState.self) var appState
     @Environment(\.openWindow) private var openWindow
@@ -32,11 +46,15 @@ struct FileBrowserView: View {
     @State private var window: NSWindow?
     @State private var isShowBlank = false
 
-    @State var initParam: FileBrowserInitParam
-
     @FocusState private var focused: FocusTarget?
 
+    private let initParam: FileBrowserInitParam
     private let log = LogStore.shared.log
+
+    init(_ initParam: FileBrowserInitParam) {
+        self.initParam = initParam
+        printInitParamID("init")
+    }
 
     var body: some View {
         VStack {
@@ -73,8 +91,8 @@ struct FileBrowserView: View {
         .environment(state)
         .environment(\.focusedBinding, $focused)
         .focusedSceneValue(\.currentFileBrowserState, state)
-        .task {
-            initView()
+        .task(id: initParam) {
+            processInitParam()
         }
         .sheet(
             isPresented: $state.isShowNewFileView,
@@ -158,30 +176,42 @@ struct FileBrowserView: View {
         }
     }
 
-    func initView() {
-        dumpInitParam()
+    func processInitParam() {
+        printInitParamID("task")
+        printInitParam("task")
 
-        // SwiftUI가 Scene을 자동복구하는 경우. initParm 전에 이를 최우선으로 처리한다.
-        if let rootURL = loadSceneRootURL() {
+        // view 는 생각보다 자주 생성된다;
+        // initParam nil 로도 3번 이상 생성된다;
+        // 초기화 로딩 조건을 잘 설정해둬야 한다;
+
+        // Scene 복구가 먼저다, 사용자의 마지막 파일로 돌아간다.
+        if !state.isRootReady, let rootURL = loadSceneRootURL() {
+            print("task: init from scene data, \(rootURL.lastPathComponent)")
             state.updateAll(fromRootURL: rootURL, fileURL: loadSceneFileURL())
             return
         }
+
+        // initParam 으로 URL 전달받은 경우.
         if let rootURL = initParam.rootURL {
+            print("task: init from initParam, \(rootURL.lastPathComponent)")
             state.updateAll(fromRootURL: rootURL, fileURL: initParam.fileURL)
             saveSceneData(rootURL: rootURL)
             appState.addRecentDocumentURL(rootURL)
             return
         }
+
+        print("task: show blank")
         isShowBlank = true
     }
 
-    func dumpInitParam() {
-        let scenePath = loadSceneRootURL()?.path ?? "nil"
-        print("---")
-        print("id: \(initParam.id)")
-        print("rootURL: \(initParam.rootURL?.path ?? "nil")")
-        print("fileURL: \(initParam.fileURL?.path ?? "nil")")
-        print("scenePath: \(scenePath)")
+    func printInitParamID(_ part: String) {
+        print("\(part): id, \(self.initParam.id.uuidString)")
+    }
+
+    func printInitParam(_ part: String) {
+        print("\(part): rootURL, \(initParam.rootURL?.path ?? "nil")")
+        print("\(part): fileURL, \(initParam.fileURL?.path ?? "nil")")
+        print("\(part): sceneData, \(loadSceneRootURL()?.path ?? "nil")")
     }
 
     private func initViewFromOpenPanel() {
