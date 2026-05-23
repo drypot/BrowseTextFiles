@@ -141,6 +141,13 @@ class AppState {
 
     // MARK: - Browser Window
 
+    var lastBrowserWindowSize: CGSize?
+
+    func saveBrowserWindowSize(_ size: CGSize) {
+        lastBrowserWindowSize = size
+        //print("save browser window size: \(size)")
+    }
+
     func openNewBrowserWindow(fromRootURL rootURL: URL?, fileURL: URL?, openWindow: OpenWindowAction) {
         let initParam = FileBrowserInitParam(rootURL: rootURL, fileURL: fileURL)
         openWindow(id: "browser", value: initParam)
@@ -214,6 +221,16 @@ class AppState {
         guard let state else { return }
         currentFileBrowserState = state
         openWindow(id: "search", value: state.id)
+    }
+
+    var lastSearchWindowSize: CGSize?
+    var lastSearchWindowPosition: CGPoint?
+
+    func saveSearchWindowSize(_ size: CGSize, position: CGPoint) {
+        lastSearchWindowSize = size
+        lastSearchWindowPosition = position
+        //print("save search window size: \(size)")
+        //print("save search window position: \(position)")
     }
 
     // MARK: - Tab Key

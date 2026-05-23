@@ -16,28 +16,29 @@ struct FileBrowserDebuggingView: View {
     // initParam 을 State에 저장하면 안 될 듯.
     // @State var initParam: FileBrowserInitParam?
 
-    let initParam: FileBrowserInitParam?
+    let initParam: FileBrowserInitParam
 
-    init(_ initParam: FileBrowserInitParam?) {
+    init(_ initParam: FileBrowserInitParam) {
         // init 에서 state 변수를 수정하는 것은 잘 되지 않는다; 쓰면 안 된다;
         // guard let initParam else { return }
         // self.id  = initParam.id
 
         self.initParam = initParam
-
         printInitParamID("init")
     }
 
     var body: some View {
         let _ = printInitParamID("body")
-        VStack {
+        VStack(alignment: .leading, spacing: 16) {
             Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
             TextField("SceneValue", text: $sceneValue)
             Button("Open window") {
                 openWindow(id: "browser", value: FileBrowserInitParam())
             }
+            Spacer()
         }
         .padding()
+        .frame(alignment: .topLeading)
         // init 에서 state 에 값을 넣을 수 없으므로,
         // init 에서 임시 프로퍼티에 initParam 을 넣어두고,
         // task 에서 id 로 변경을 감지한 후, 후작업을 해야 한다.
@@ -47,7 +48,7 @@ struct FileBrowserDebuggingView: View {
     }
 
     func printInitParamID(_ part: String) {
-        print("\(part): id, \(self.initParam?.id.uuidString ?? "nil")")
+        print("\(part): id, \(self.initParam.id.uuidString)")
     }
 }
 

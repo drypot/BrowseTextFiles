@@ -16,7 +16,7 @@ struct FileBrowserWindow: Scene {
     var body: some Scene {
         WindowGroup("Browser", id: "browser", for: FileBrowserInitParam.self) { $initParam in
             FileBrowserView(initParam)
-            // FileBrowserDebuggingView(param)
+            //FileBrowserDebuggingView(initParam)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             // 외부에서 file url 을 받았을 경우 folder 에 대한 권한이 없어서 원만히 작동하기가 힘들다.
@@ -34,13 +34,13 @@ struct FileBrowserWindow: Scene {
             FileBrowserInitParam()
         }
         .defaultWindowPlacement { proxy, context in
-            let displayBounds = context.defaultDisplay.visibleRect
-            let size = CGSize(width: displayBounds.width * 2 / 4, height: displayBounds.height * 2 / 3)
-
-            let position = CGPoint(
-                x: displayBounds.midX - (size.width / 2),
-                y: displayBounds.maxY - size.height - 140)
-            return WindowPlacement(position, size: size)
+            //let displayBounds = context.defaultDisplay.visibleRect
+            //let position = CGPoint(
+            //    x: displayBounds.midX - (size.width / 2),
+            //    y: displayBounds.maxY - size.height - 140)
+            //let size = CGSize(width: displayBounds.width * 2 / 4, height: displayBounds.height * 2 / 3)
+            let size = appState.lastBrowserWindowSize
+            return WindowPlacement(size: size)
         }
         .commands {
             CommandGroup(replacing: .newItem) {

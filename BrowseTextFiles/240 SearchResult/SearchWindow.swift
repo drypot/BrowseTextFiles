@@ -19,8 +19,19 @@ struct SearchWindow: Scene {
             }
         }
         .restorationBehavior(.disabled)
-        .defaultSize(width: 820, height: 460)
-        .defaultPosition(.center)
+        .defaultWindowPlacement { proxy, context in
+            let size = appState.lastSearchWindowSize ?? CGSize(width: 250, height: 600)
+            let position: CGPoint?
+            if let lastPosition = appState.lastSearchWindowPosition {
+                let displayBounds = context.defaultDisplay.visibleRect
+                position = CGPoint(
+                    x: lastPosition.x,
+                    y: displayBounds.maxY - lastPosition.y - size.height)
+            } else {
+                position = nil
+            }
+            return WindowPlacement(position, size: size)
+        }
     }
 }
 

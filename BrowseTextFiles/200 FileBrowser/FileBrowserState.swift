@@ -630,9 +630,11 @@ final class FileBrowserState {
         pasteboard.setString(searchText, forType: .string)
 
         // textView 에 FindBar 를 띄운다.
-        let dummyItem = NSMenuItem()
-        dummyItem.tag = Int(NSFindPanelAction.showFindPanel.rawValue)
-        fileBuffer?.textView?.performTextFinderAction(dummyItem)
+        // 오바 같아서 comment out;
+        
+        // let dummyItem = NSMenuItem()
+        // dummyItem.tag = Int(NSFindPanelAction.showFindPanel.rawValue)
+        // fileBuffer?.textView?.performTextFinderAction(dummyItem)
 
         Task {
             do {

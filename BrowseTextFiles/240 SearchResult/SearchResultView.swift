@@ -6,11 +6,16 @@
 //
 
 import SwiftUI
+import Combine
 
 struct SearchResultView: View {
     @Environment(AppState.self) var appState
 
+    @State private var window: NSWindow?
+    @State private var cancellables = Set<AnyCancellable>()
+
     @Bindable var state: FileBrowserState
+
     @FocusState var isFocused: Bool
 
     var body: some View {
@@ -67,9 +72,41 @@ struct SearchResultView: View {
                 }
             }
         }
+        .background(WindowReader(onResolve: handleWindow))
         .frame(minWidth: 440)
     }
 
+    func handleWindow(_ window: NSWindow?) {
+        guard let window else { return }
+        self.window = window
+
+        appState.saveSearchWindowSize(window.frame.size, position: window.frame.origin)
+
+        NotificationCenter.default
+            .publisher(for: NSWindow.didBecomeMainNotification, object: window)
+            .sink { notification in
+                guard let window = notification.object as? NSWindow else { return }
+                appState.saveSearchWindowSize(window.frame.size, position: window.frame.origin)
+            }
+            .store(in: &cancellables)
+
+        NotificationCenter.default
+            .publisher(for: NSWindow.didResizeNotification, object: window)
+            .sink { notification in
+                guard let window = notification.object as? NSWindow else { return }
+                appState.saveSearchWindowSize(window.frame.size, position: window.frame.origin)
+            }
+            .store(in: &cancellables)
+
+        NotificationCenter.default
+            .publisher(for: NSWindow.didMoveNotification, object: window)
+            .sink { notification in
+                guard let window = notification.object as? NSWindow else { return }
+                appState.saveSearchWindowSize(window.frame.size, position: window.frame.origin)
+            }
+            .store(in: &cancellables)
+
+    }
 }
 
 #Preview {

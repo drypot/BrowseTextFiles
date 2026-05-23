@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 
 enum FocusTarget {
     case folderTree
@@ -45,6 +46,7 @@ struct FileBrowserView: View {
     @State private var state = FileBrowserState()
     @State private var window: NSWindow?
     @State private var isShowBlank = false
+    @State private var cancellables = Set<AnyCancellable>()
 
     @FocusState private var focused: FocusTarget?
 
@@ -86,7 +88,7 @@ struct FileBrowserView: View {
                 Text("Loading...")
             }
         }
-        .background(WindowAccessor { window in self.window = window })
+        .background(WindowReader(onResolve: handleWindow))
         .navigationTitle(state.rootName ?? "Browser")
         .environment(state)
         .environment(\.focusedBinding, $focused)
@@ -122,31 +124,6 @@ struct FileBrowserView: View {
             guard let newValue else { return }
             saveSceneData(fileURL: newValue.url)
         }
-        // scenePhase 로는 먼가 감지가 잘 안돼서 Notification 을 쓰도록 한다.
-        // .onReceive(NotificationCenter.default.publisher(for: NSWindow.didBecomeMainNotification)) { notification in
-        //     guard self.window == notification.object as? NSWindow else { return }
-        //     log("noti: become main window, \(state.debuggingName)")
-
-        // }
-        .onReceive(NotificationCenter.default.publisher(for: NSWindow.didResignMainNotification)) { notification in
-            guard self.window == notification.object as? NSWindow else { return }
-            log("noti: resign main window, \(state.debuggingName)")
-            state.fileBuffer?.autoSaveTextView()
-        }
-
-        // 프로그램 전환할 때 ResignMain 신호가 와서 ResignActive 까지 받진 않아도 될 것 같다.
-        // .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { notification in
-        //     log("noti: become active app, \(state.debuggingName)")
-        // }
-        // .onReceive(NotificationCenter.default.publisher(for: NSApplication.didResignActiveNotification)) { notification in
-        //     log("noti: resign active app, \(state.debuggingName)")
-        // }
-
-        // 프로그램 종료할 때 ResignMain 신호가 와서 Terminate 까지 받진 않아도 될 것 같다.
-        // .onReceive(NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification)) { notification in
-        //     log("noti: will terminate")
-        // }
-
         .toolbarBackground(.background, for: .windowToolbar)
         .toolbarBackgroundVisibility(.automatic, for: .windowToolbar)
         //.toolbar(removing: .title)
@@ -249,6 +226,41 @@ struct FileBrowserView: View {
                         options: .withSecurityScope,
                         relativeTo: nil,
                         bookmarkDataIsStale: &isStale)
+    }
+
+    func handleWindow(_ window: NSWindow?) {
+        guard let window else { return }
+        self.window = window
+
+        // scenePhase 로는 먼가 감지가 잘 안돼서 Notification 을 쓰도록 한다.
+
+        appState.saveBrowserWindowSize(window.frame.size)
+
+        NotificationCenter.default
+            .publisher(for: NSWindow.didResignMainNotification, object: window)
+            .sink { _ in
+                print("resign main window: \(state.debuggingName)")
+                state.fileBuffer?.autoSaveTextView()
+            }
+            .store(in: &cancellables)
+
+        NotificationCenter.default
+            .publisher(for: NSWindow.didBecomeMainNotification, object: window)
+            .sink { notification in
+                guard let window = notification.object as? NSWindow else { return }
+                appState.saveBrowserWindowSize(window.frame.size)
+            }
+            .store(in: &cancellables)
+
+        NotificationCenter.default
+            .publisher(for: NSWindow.didResizeNotification, object: window)
+            .sink { notification in
+                guard let window = notification.object as? NSWindow else { return }
+                appState.saveBrowserWindowSize(window.frame.size)
+                //print("resize window: \(window.frame.size)")
+            }
+            .store(in: &cancellables)
+
     }
 }
 
