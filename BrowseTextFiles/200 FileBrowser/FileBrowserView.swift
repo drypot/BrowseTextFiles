@@ -32,15 +32,11 @@ struct FileBrowserView: View {
     @State private var window: NSWindow?
     @State private var isShowBlank = false
 
-    private var initParam: FileBrowserInitParam?
+    @State var initParam: FileBrowserInitParam
 
     @FocusState private var focused: FocusTarget?
 
     private let log = LogStore.shared.log
-
-    init(_ initParam: FileBrowserInitParam?) {
-        self.initParam = initParam
-    }
 
     var body: some View {
         VStack {
@@ -163,18 +159,29 @@ struct FileBrowserView: View {
     }
 
     func initView() {
+        dumpInitParam()
+
         // SwiftUI가 Scene을 자동복구하는 경우. initParm 전에 이를 최우선으로 처리한다.
         if let rootURL = loadSceneRootURL() {
             state.updateAll(fromRootURL: rootURL, fileURL: loadSceneFileURL())
             return
         }
-        if let rootURL = initParam?.rootURL {
-            state.updateAll(fromRootURL: rootURL, fileURL: initParam?.fileURL)
+        if let rootURL = initParam.rootURL {
+            state.updateAll(fromRootURL: rootURL, fileURL: initParam.fileURL)
             saveSceneData(rootURL: rootURL)
             appState.addRecentDocumentURL(rootURL)
             return
         }
         isShowBlank = true
+    }
+
+    func dumpInitParam() {
+        let scenePath = loadSceneRootURL()?.path ?? "nil"
+        print("---")
+        print("id: \(initParam.id)")
+        print("rootURL: \(initParam.rootURL?.path ?? "nil")")
+        print("fileURL: \(initParam.fileURL?.path ?? "nil")")
+        print("scenePath: \(scenePath)")
     }
 
     private func initViewFromOpenPanel() {

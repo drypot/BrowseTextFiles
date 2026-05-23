@@ -22,14 +22,14 @@ struct FileBrowserInitParam: Hashable, Codable {
 }
 
 struct FileBrowserWindow: Scene {
-    @Environment(AppState.self) var appState
+    @Environment(AppState.self) private var appState
     @Environment(\.openWindow) private var openWindow
 
-    @FocusedValue(\.currentFileBrowserState) var currentState: FileBrowserState?
+    @FocusedValue(\.currentFileBrowserState) private var currentState: FileBrowserState?
 
     var body: some Scene {
         WindowGroup("Browser", id: "browser", for: FileBrowserInitParam.self) { $initParam in
-            FileBrowserView(initParam)
+            FileBrowserDebuggingView(initParam)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             // 외부에서 file url 을 받았을 경우 folder 에 대한 권한이 없어서 원만히 작동하기가 힘들다.
@@ -43,6 +43,15 @@ struct FileBrowserWindow: Scene {
             // .dropDestination(for: URL.self) { urls, _ in
             //     openURLsFromDragDrop(urls)
             // }
+        }
+        .defaultWindowPlacement { proxy, context in
+            let displayBounds = context.defaultDisplay.visibleRect
+            let size = CGSize(width: displayBounds.width * 2 / 4, height: displayBounds.height * 2 / 3)
+
+            let position = CGPoint(
+                x: displayBounds.midX - (size.width / 2),
+                y: displayBounds.maxY - size.height - 140)
+            return WindowPlacement(position, size: size)
         }
         .commands {
             CommandGroup(replacing: .newItem) {
@@ -117,15 +126,6 @@ struct FileBrowserWindow: Scene {
                 }
                 .keyboardShortcut("f", modifiers: [.command, .shift])
             }
-        }
-        .defaultWindowPlacement { proxy, context in
-            let displayBounds = context.defaultDisplay.visibleRect
-            let size = CGSize(width: displayBounds.width * 2 / 4, height: displayBounds.height * 2 / 3)
-            
-            let position = CGPoint(
-                x: displayBounds.midX - (size.width / 2),
-                y: displayBounds.maxY - size.height - 140)
-            return WindowPlacement(position, size: size)
         }
     }
 }
