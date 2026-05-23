@@ -6,26 +6,34 @@
 //
 
 import SwiftUI
-import MyLibrary
 
 struct FileListView: View {
     @Environment(AppState.self) var appState
     @Environment(FileBrowserState.self) var state
     @Environment(\.appearsActive) var appearsActive
-
-    @FocusState private var isFocused: Bool
+    @Environment(\.focusedBinding) var focusedBinding
 
     var body: some View {
-        let isActive = appearsActive && isFocused
+        let isActive = appearsActive && (focusedBinding?.wrappedValue == .fileList)
 
         List {
             if let fileList = state.fileList {
                 ForEach(fileList) { fileItem in
-                    RowView(item: fileItem, isActive: isActive, state: state, appState: appState)
+                    RowView(item: fileItem, isActive: isActive)
                 }
             }
         }
-        .focused($isFocused)
+        .focusable()
+        .focusEffectDisabled()
+        .focused(focusedBinding!, equals: .fileList)
+        .onKeyPress(.tab, phases: .down) { event in
+            if event.modifiers.contains(.shift) {
+                focusedBinding?.wrappedValue = .folderTree
+            } else {
+                focusedBinding?.wrappedValue = .textEditor
+            }
+            return .handled
+        }
         .onKeyPress(.downArrow) {
             if state.moveSelectedFileDown() {
                 state.updateFileBufferFromSelectedFile()
@@ -47,12 +55,13 @@ struct FileListView: View {
 }
 
 fileprivate struct RowView: View {
+    @Environment(AppState.self) var appState
+    @Environment(FileBrowserState.self) var state
     @Environment(\.openWindow) private var openWindow
+    @Environment(\.focusedBinding) var focusedBinding
 
     let item: FileForView
     let isActive: Bool
-    let state: FileBrowserState
-    let appState: AppState
 
     var body: some View {
         HStack {
@@ -69,10 +78,10 @@ fileprivate struct RowView: View {
                 .padding(.horizontal, 10)
         )
         .frame(maxWidth: .infinity)
-        .focusable()
-        .focusEffectDisabled() // 포커스 테두리 표시 안 함
         .contentShape(Rectangle()) // 빈공간도 클릭되게 한다.
         .onTapGesture {
+            focusedBinding?.wrappedValue = .fileList
+            guard state.selectedFileID != item.id else { return }
             state.updateSelectedFile(withID: item.id)
             state.updateFileBufferFromSelectedFile()
         }
@@ -88,6 +97,7 @@ fileprivate struct RowView: View {
                 Finder.shared.open(url: item.url)
             }
         }
+        //.focusEffectDisabled() // 포커스 테두리 표시 안 함
     }
 
     var isSelected: Bool {

@@ -6,7 +6,20 @@
 //
 
 import SwiftUI
-import MyLibrary
+
+enum FocusTarget {
+    case folderTree
+    case fileList
+    case textEditor
+}
+
+extension FocusedValues {
+    @Entry var currentFileBrowserState: FileBrowserState? = nil
+}
+
+extension EnvironmentValues {
+    @Entry var focusedBinding: FocusState<FocusTarget?>.Binding?
+}
 
 struct FileBrowserView: View {
     @Environment(AppState.self) var appState
@@ -20,6 +33,8 @@ struct FileBrowserView: View {
     @State private var isShowBlank = false
 
     private var initParam: FileBrowserInitParam?
+
+    @FocusState private var focused: FocusTarget?
 
     private let log = LogStore.shared.log
 
@@ -60,6 +75,7 @@ struct FileBrowserView: View {
         .background(WindowAccessor { window in self.window = window })
         .navigationTitle(state.rootName ?? "Browser")
         .environment(state)
+        .environment(\.focusedBinding, $focused)
         .focusedSceneValue(\.currentFileBrowserState, state)
         .task {
             initView()

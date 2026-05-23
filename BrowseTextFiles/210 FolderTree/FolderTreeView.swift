@@ -6,63 +6,79 @@
 //
 
 import SwiftUI
-import MyLibrary
 
 struct FolderTreeView: View {
     @Environment(AppState.self) var appState
     @Environment(FileBrowserState.self) var state
     @Environment(\.appearsActive) var appearsActive
-
-    @FocusState private var isFocused: Bool
+    @Environment(\.focusedBinding) var focusedBinding
 
     var body: some View {
-        let isActive = appearsActive && isFocused
+        let isActive = appearsActive && (focusedBinding?.wrappedValue == .folderTree)
 
         List {
             if let rootFolder = state.rootFolder {
-                RowView(item: rootFolder, level: 0, isActive: isActive, state: state, appState: appState)
+                RowView(item: rootFolder, level: 0, isActive: isActive)
             }
         }
-        .focused($isFocused)
-        .onKeyPress(.downArrow) {
+        .focusable()
+        .focusEffectDisabled()
+        .focused(focusedBinding!, equals: .folderTree)
+        .onKeyPress(phases: .down, action: handleKeyPress)
+    }
+
+    func handleKeyPress(_ press: KeyPress) -> KeyPress.Result {
+        //let isShiftPressed = press.modifiers.contains(.shift)
+        //let isCommandPressed = press.modifiers.contains(.command)
+        //print("key: \(press.key)")
+
+        switch press.key {
+        case .tab:
+            guard let fileList = state.fileList else { return .handled }
+            focusedBinding?.wrappedValue = .fileList
+            if state.selectedFileID == nil {
+                if let first = fileList.first {
+                    state.updateSelectedFile(to: first)
+                    state.updateFileBufferFromSelectedFile()
+                }
+            }
+        case "\u{19}": // shift tab
+            break
+        case .downArrow:
             if state.moveSelectedFolderDown() {
                 state.updateFileListFromSelectedFolder()
             }
-            return .handled
-        }
-        .onKeyPress(.upArrow) {
+        case .upArrow:
             if state.moveSelectedFolderUp() {
                 state.updateFileListFromSelectedFolder()
             }
-            return .handled
-        }
-        .onKeyPress(.rightArrow) {
+        case .rightArrow:
             state.expandSelectedFolder()
-            return .handled
-        }
-        .onKeyPress(.leftArrow) {
+        case .leftArrow:
             if state.collapseSelectedFolder() {
                 state.updateFileListFromSelectedFolder()
             }
-            return .handled
-        }
-        .onKeyPress(.return) {
+        case .return:
             guard let selectedFolder = state.selectedFolder else { return .ignored }
             guard selectedFolder != state.rootFolder else { return .ignored }
             state.showRenameFolder(id: selectedFolder.id)
-            return .handled
+        default:
+            return .ignored
         }
+
+        return .handled
     }
 }
 
 fileprivate struct RowView: View {
+    @Environment(AppState.self) var appState
+    @Environment(FileBrowserState.self) var state
     @Environment(\.openWindow) private var openWindow
-    
+    @Environment(\.focusedBinding) var focusedBinding
+
     let item: FolderForView
     let level: Int
     let isActive: Bool
-    let state: FileBrowserState
-    let appState: AppState
 
     var body: some View {
         let isExpanded = item.hasChildren && state.isFolderExpanded(for: item.url)
@@ -77,7 +93,7 @@ fileprivate struct RowView: View {
 
             Text(item.name)
                 .lineLimit(1)
-            
+
             Spacer()
         }
         .foregroundStyle(foregroundStyle)
@@ -88,10 +104,10 @@ fileprivate struct RowView: View {
                 .padding(.horizontal, 10)
         )
         .frame(maxWidth: .infinity)
-        .focusable()
-        .focusEffectDisabled() // 포커스 테두리 표시 안 함
         .contentShape(Rectangle()) // 빈공간도 클릭되게 한다.
         .onTapGesture {
+            focusedBinding?.wrappedValue = .folderTree
+            guard state.selectedFolderID != item.id else { return }
             state.updateSelectedFolder(withID: item.id)
             state.updateFileListFromSelectedFolder()
         }
@@ -109,10 +125,11 @@ fileprivate struct RowView: View {
                 Finder.shared.open(url: item.url)
             }
         }
+        //.focusEffectDisabled() // 포커스 테두리 표시 안 함
 
         if let children = item.children, isExpanded {
             ForEach(children) { child in
-                RowView(item: child, level: level + 1, isActive: isActive, state: state, appState: appState)
+                RowView(item: child, level: level + 1, isActive: isActive)
             }
         }
     }
@@ -147,5 +164,5 @@ fileprivate struct RowView: View {
 }
 
 #Preview {
-//    FolderTreeView()
+    //    FolderTreeView()
 }

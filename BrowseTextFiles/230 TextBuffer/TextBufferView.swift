@@ -10,9 +10,10 @@ import SwiftUI
 struct TextBufferView: View {
     @Environment(AppState.self) var appState
     @Environment(FileBrowserState.self) var state
+    @Environment(\.focusedBinding) var focusedBinding
 
 //    private let debugID = UUID()
-
+    
     var body: some View {
         Group {
             if let loadError = state.fileBuffer?.loadingError {
@@ -37,10 +38,11 @@ struct TextBufferView: View {
                 // TextBufferEditor 를 만들었다. NSTextView.string 을 source 로 쓴다.
 
                 TextBufferEditor()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .onAppear {
-                    fileBuffer.updateTextViewStyle(appState: appState)
-                }
+                    .focused(focusedBinding!, equals: .textEditor)
+                    .onAppear {
+                        fileBuffer.updateTextViewStyle(appState: appState)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
 
                 // TextBufferEditor.updateNSView 에서 스타일까지 업데이트하면 비효율이 심해진다.
                 // 여기로 따로 빼놨다.
