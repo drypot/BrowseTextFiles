@@ -39,6 +39,7 @@ struct BrowserInitParam: Hashable, Codable {
 struct BrowserView: View {
     @Environment(AppState.self) var appState
     @Environment(\.openWindow) private var openWindow
+    @Environment(\.dismissWindow) private var dismissWindow
 
     @SceneStorage("rootURLData") private var sceneRootURLData: Data?
     @SceneStorage("fileURLData") private var sceneFileURLData: Data?
@@ -258,6 +259,13 @@ struct BrowserView: View {
                 guard let window = notification.object as? NSWindow else { return }
                 appState.saveBrowserWindowSize(window.frame.size)
                 //print("resize window: \(window.frame.size)")
+            }
+            .store(in: &cancellables)
+
+        NotificationCenter.default
+            .publisher(for: NSWindow.willCloseNotification, object: window)
+            .sink { notification in
+                dismissWindow(id: "search", value: state.id)
             }
             .store(in: &cancellables)
 

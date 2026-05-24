@@ -73,6 +73,7 @@ struct SearchView: View {
             }
         }
         .background(WindowReader(onResolve: handleWindow))
+        .navigationTitle("Search \(state.rootName ?? "")")
         .frame(minWidth: 440)
     }
 
