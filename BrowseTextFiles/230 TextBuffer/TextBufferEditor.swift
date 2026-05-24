@@ -5,7 +5,6 @@
 //  Created by Kyuhyun Park on 7/26/25.
 //
 
-
 import SwiftUI
 
 // https://developer.apple.com/library/archive/documentation/TextFonts/Conceptual/CocoaTextArchitecture/TextEditing/TextEditing.html#//apple_ref/doc/uid/TP40009459-CH3-SW16
