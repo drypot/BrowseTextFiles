@@ -35,13 +35,13 @@ struct FileListView: View {
             return .handled
         }
         .onKeyPress(.downArrow) {
-            if state.moveSelectedFileDown() {
+            if state.selecteNextFile() {
                 state.updateFileBufferFromSelectedFile()
             }
             return .handled
         }
         .onKeyPress(.upArrow) {
-            if state.moveSelectedFileUp() {
+            if state.selectePreviousFile() {
                 state.updateFileBufferFromSelectedFile()
             }
             return .handled
@@ -82,7 +82,7 @@ fileprivate struct RowView: View {
         .onTapGesture {
             focusedBinding?.wrappedValue = .fileList
             guard state.selectedFileID != item.id else { return }
-            state.updateSelectedFile(withID: item.id)
+            state.selecteFile(withID: item.id)
             state.updateFileBufferFromSelectedFile()
         }
         .contextMenu {

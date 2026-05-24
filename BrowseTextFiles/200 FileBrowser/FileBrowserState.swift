@@ -62,7 +62,7 @@ final class FileBrowserState {
 
     func resetFolderTree() {
         rootFolder = nil
-        resetSelectedFolder()
+        deselectFolder()
         //expandedFolders.removeAll()
     }
 
@@ -72,7 +72,7 @@ final class FileBrowserState {
             try withSecurityScope(url) {
                 let folder = try FolderTreeBuilder().buildTree(from: url)
                 rootFolder = folder
-                updateSelectedFolder(to: folder)
+                selectFolder(folder)
                 expandFolder(for: folder.url)
             }
             log("load root: \(url.lastPathComponent)")
@@ -83,7 +83,7 @@ final class FileBrowserState {
         }
     }
 
-    func reloadFolderTree() {
+    func updateFolderTree() {
         guard let rootURL else {
             resetFolderTree()
             return
@@ -93,7 +93,7 @@ final class FileBrowserState {
 
         updateFolderTree(from: rootURL)
         if let selectedFolderURL {
-            updateSelectedFolder(withURL: selectedFolderURL)
+            selecteFolder(withURL: selectedFolderURL)
         }
     }
 
@@ -109,11 +109,6 @@ final class FileBrowserState {
     //    )
     //}
 
-    func resetSelectedFolder() {
-        selectedFolderID = nil
-        selectedFolder = nil
-    }
-
     func findFolder(withID id: FolderForView.ID) -> FolderForView? {
         guard let rootFolder else { return nil }
         return rootFolder.findFolder(withID: id)
@@ -126,36 +121,41 @@ final class FileBrowserState {
         return rootFolder.findFolder(withPath: path)
     }
 
-    func updateSelectedFolder(to folder: FolderForView?) {
+    func deselectFolder() {
+        selectedFolderID = nil
+        selectedFolder = nil
+    }
+
+    func selectFolder(_ folder: FolderForView?) {
         if let folder {
             selectedFolderID = folder.id
             selectedFolder = folder
         } else {
-            resetSelectedFolder()
+            deselectFolder()
         }
     }
 
-    func updateSelectedFolder(withID id: FolderForView.ID?) {
+    func selecteFolder(withID id: FolderForView.ID?) {
         if let id, let folder = findFolder(withID: id) {
-            updateSelectedFolder(to: folder)
+            selectFolder(folder)
         } else {
-            resetSelectedFolder()
+            deselectFolder()
         }
     }
 
-    func updateSelectedFolder(withURL url: URL) {
+    func selecteFolder(withURL url: URL) {
         if let folder = findFolder(withPath: url.path) {
-            updateSelectedFolder(to: folder)
+            selectFolder(folder)
         } else {
-            resetSelectedFolder()
+            deselectFolder()
         }
     }
 
-    func updateSelectedFolderToRoot() {
-        updateSelectedFolder(to: rootFolder)
+    func selectedRootFolder() {
+        selectFolder(rootFolder)
     }
 
-    func moveSelectedFolderDown() -> Bool {
+    func selecteNextFolder() -> Bool {
         guard let rootFolder else { return false }
         guard let selectedFolderID else { return false }
         var previous: FolderForView?
@@ -178,11 +178,11 @@ final class FileBrowserState {
         }
 
         guard let found = findNext(from: rootFolder) else { return false }
-        updateSelectedFolder(to: found)
+        selectFolder(found)
         return true
     }
 
-    func moveSelectedFolderUp() -> Bool {
+    func selectePreviousFolder() -> Bool {
         guard let rootFolder else { return false }
         guard let selectedFolderID else { return false }
         var previous: FolderForView?
@@ -205,11 +205,11 @@ final class FileBrowserState {
         }
 
         guard let found = findPrevious(from: rootFolder) else { return false }
-        updateSelectedFolder(to: found)
+        selectFolder(found)
         return true
     }
 
-    func moveSelectedFolderToParent() -> Bool {
+    func selecteParentFolder() -> Bool {
         guard let rootFolder else { return false }
         guard let selectedFolderID else { return false }
 
@@ -230,7 +230,7 @@ final class FileBrowserState {
         }
 
         guard let found = findParent(from: rootFolder, parent: nil) else { return false }
-        updateSelectedFolder(to: found)
+        selectFolder(found)
         return true
     }
 
@@ -268,7 +268,7 @@ final class FileBrowserState {
         if selectedFolder.hasChildren, isFolderExpanded(for: selectedFolder.url) {
             collapseFolder(for: selectedFolder.url)
         } else {
-            return moveSelectedFolderToParent()
+            return selecteParentFolder()
         }
         return false
     }
@@ -290,7 +290,7 @@ final class FileBrowserState {
 
     func resetFileList() {
         fileList = nil
-        updateSelectedFile(withID: nil)
+        selecteFile(withID: nil)
     }
 
     func updateFileList(from url: URL) {
@@ -323,61 +323,51 @@ final class FileBrowserState {
 
     // MARK: - Selected File
 
-    //func selectedFileBinding() -> Binding<FileItem?> {
-    //    return Binding<FileItem?>(
-    //        get: { self.selectedFile },
-    //        set: {
-    //            self.updateSelectedFile(to: $0)
-    //            self.updateFileBufferFromSelectedFile()
-    //        }
-    //    )
-    //}
-
-    func resetSelectedFile() {
-        selectedFileID = nil
-        selectedFile = nil
-    }
-
     func findFile(with id: FileForView.ID) -> FileForView? {
         guard let fileList else { return nil }
         return fileList.first { $0.id ==  id }
     }
 
-    func updateSelectedFile(to fileItem: FileForView?) {
+    func deselecteFile() {
+        selectedFileID = nil
+        selectedFile = nil
+    }
+
+    func selecteFile(_ fileItem: FileForView?) {
         if let fileItem {
             selectedFileID = fileItem.id
             selectedFile = fileItem
         } else {
-            resetSelectedFile()
+            deselecteFile()
         }
     }
 
-    func updateSelectedFile(withID id: FileForView.ID?) {
+    func selecteFile(withID id: FileForView.ID?) {
         if let fileList, let file = fileList.first(where: { $0.id ==  id }) {
             selectedFileID = file.id
             selectedFile = file
         } else {
-            resetSelectedFile()
+            deselecteFile()
         }
     }
 
-    func updateSelectedFile(withURL url: URL) {
+    func selecteFile(withURL url: URL) {
         if let fileList, let file = fileList.first(where: { $0.url ==  url }) {
             selectedFileID = file.id
             selectedFile = file
         } else {
-            resetSelectedFile()
+            deselecteFile()
         }
     }
 
-    func moveSelectedFileDown() -> Bool {
+    func selecteNextFile() -> Bool {
         guard let fileList else { return false }
         guard let selectedFileID else { return false }
         var previous: FileForView?
 
         for item in fileList {
             if previous?.id == selectedFileID {
-                updateSelectedFile(to: item)
+                selecteFile(item)
                 return true
             }
             previous = item
@@ -386,7 +376,7 @@ final class FileBrowserState {
         return false
     }
 
-    func moveSelectedFileUp() -> Bool {
+    func selectePreviousFile() -> Bool {
         guard let fileList else { return false }
         guard let selectedFileID else { return false }
         var previous: FileForView?
@@ -394,7 +384,7 @@ final class FileBrowserState {
         for item in fileList {
             if item.id == selectedFileID {
                 guard let previous else { return false }
-                updateSelectedFile(to: previous)
+                selecteFile(previous)
                 return true
             }
             previous = item
@@ -456,7 +446,7 @@ final class FileBrowserState {
         if let fileURL {
             updateAll(fromFileURL: fileURL)
         } else {
-            updateSelectedFolderToRoot()
+            selectedRootFolder()
             updateFileListFromSelectedFolder()
         }
     }
@@ -464,12 +454,12 @@ final class FileBrowserState {
     func updateAll(fromFileURL fileURL: URL) {
         let folderURL = fileURL.deletingLastPathComponent()
 
-        updateSelectedFolder(withURL: folderURL)
+        selecteFolder(withURL: folderURL)
         updateFileList(from: folderURL)
         if hasAlertMessage { return }
 
         if fileList != nil {
-            updateSelectedFile(withURL: fileURL)
+            selecteFile(withURL: fileURL)
             updateFileBuffer(from: fileURL)
             expandFolders(for: folderURL)
         }
@@ -480,7 +470,7 @@ final class FileBrowserState {
 
         let fileURL = fileBuffer?.url
 
-        reloadFolderTree()
+        updateFolderTree()
         if hasAlertMessage { return }
 
         if let fileURL {
@@ -516,7 +506,7 @@ final class FileBrowserState {
                         // do nothing
                     } else {
                         try fileManager.createDirectory(at: folderURL, withIntermediateDirectories: true, attributes: nil)
-                        reloadFolderTree()
+                        updateFolderTree()
                     }
                     try "".write(to: newFileURL, atomically: true, encoding: .utf8)
                     log("new file: \(path)")
@@ -551,10 +541,10 @@ final class FileBrowserState {
             }
             updateFileListFromSelectedFolder()
             if shouldUpdateFileBuffer {
-                updateSelectedFile(withURL: newURL)
+                selecteFile(withURL: newURL)
                 updateFileBufferFromSelectedFile()
             } else if let selectedFileURL {
-                updateSelectedFile(withURL: selectedFileURL)
+                selecteFile(withURL: selectedFileURL)
             }
             log("rename from: \(orgURL.relativePath)")
             log("rename to: \(newURL.relativePath)")
@@ -599,11 +589,11 @@ final class FileBrowserState {
             }
             if shouldUpdateSelectedFolder {
                 updateFolderTree(from: rootURL)
-                updateSelectedFolder(withURL: newURL)
+                selecteFolder(withURL: newURL)
                 expandFolders(for: newURL)
                 updateFileListFromSelectedFolder()
             } else {
-                reloadFolderTree()
+                updateFolderTree()
             }
             log("rename from: \(orgURL.relativePath)")
             log("rename to: \(newURL.relativePath)")

@@ -38,18 +38,18 @@ struct FolderTreeView: View {
             focusedBinding?.wrappedValue = .fileList
             if state.selectedFileID == nil {
                 if let first = fileList.first {
-                    state.updateSelectedFile(to: first)
+                    state.selecteFile(first)
                     state.updateFileBufferFromSelectedFile()
                 }
             }
         case "\u{19}": // shift tab
             break
         case .downArrow:
-            if state.moveSelectedFolderDown() {
+            if state.selecteNextFolder() {
                 state.updateFileListFromSelectedFolder()
             }
         case .upArrow:
-            if state.moveSelectedFolderUp() {
+            if state.selectePreviousFolder() {
                 state.updateFileListFromSelectedFolder()
             }
         case .rightArrow:
@@ -108,7 +108,7 @@ fileprivate struct RowView: View {
         .onTapGesture {
             focusedBinding?.wrappedValue = .folderTree
             guard state.selectedFolderID != item.id else { return }
-            state.updateSelectedFolder(withID: item.id)
+            state.selecteFolder(withID: item.id)
             state.updateFileListFromSelectedFolder()
         }
         .contextMenu {
