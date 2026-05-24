@@ -161,39 +161,63 @@ struct TextBufferEditor: NSViewRepresentable {
             return false
         }
 
+        func updateTextView(_ textView: NSTextView,
+                            in oldRange: NSRange,
+                            with newText: String,
+                            newSelectedRange: NSRange) {
+            guard let undoManager = textView.undoManager else { return }
+            guard let textStorage = textView.textStorage else { return }
+            let oldText = textStorage.attributedSubstring(from: oldRange).string
+            let oldSelectedRange = textView.selectedRange()
+            let newNSText = newText as NSString
+            let newRange = NSRange(location: oldRange.location, length: newNSText.length)
+
+            undoManager.registerUndo(withTarget: self) { target in
+                target.updateTextView(textView,
+                                      in: newRange,
+                                      with: oldText,
+                                      newSelectedRange: oldSelectedRange)
+            }
+
+            textStorage.beginEditing()
+            textStorage.replaceCharacters(in: oldRange, with: newText)
+            textStorage.endEditing()
+
+            textView.setSelectedRange(newSelectedRange)
+        }
+
         private func indentSelection(_ textView: NSTextView) {
             guard let undoManager = textView.undoManager else { return }
             guard let textStorage = textView.textStorage else { return }
             let selectedRange = textView.selectedRange()
-            var newRange = selectedRange
+            var newSelectedRange = selectedRange
             let nsString = textStorage.string as NSString
-            let fullLineRange = nsString.lineRange(for: selectedRange)
+            let fullLinesRange = nsString.lineRange(for: selectedRange)
             let indentSize = appState.indentSize
             let spaces = String(repeating: " ", count: indentSize)
 
+            var resultLines: [String] = []
+            var delta = 0
+            nsString.enumerateSubstrings(in: fullLinesRange, options: [.byLines, .substringNotRequired]) {
+                (_, substringRange, enclosingRange, stop) in
+                let line = spaces + nsString.substring(with: enclosingRange)
+                resultLines.append(line)
+                delta += indentSize
+            }
+            let replacement = resultLines.joined()
+
+            if fullLinesRange.location == newSelectedRange.location {
+                newSelectedRange.length += delta
+            } else {
+                newSelectedRange.location += indentSize
+                newSelectedRange.length += delta - indentSize
+            }
+
             undoManager.beginUndoGrouping()
-            undoManager.registerUndo(withTarget: textView) { target in
-                target.setSelectedRange(selectedRange)
-            }
-            if textView.shouldChangeText(in: fullLineRange, replacementString: nil) {
-                textStorage.beginEditing()
-                nsString.enumerateSubstrings(in: fullLineRange, options: [.byLines, .substringNotRequired]) { _, lineRange, _, _ in
-                    let insertRange = NSRange(location: lineRange.location, length: 0)
-                    textStorage.replaceCharacters(in: insertRange, with: spaces)
-                    undoManager.registerUndo(withTarget: textView) { target in
-                        let removeRange = NSRange(location: lineRange.location, length: indentSize)
-                        target.textStorage?.replaceCharacters(in: removeRange, with: "")
-                    }
-                    if lineRange.location <= newRange.location {
-                        newRange.location += indentSize
-                    } else if lineRange.location < newRange.location + newRange.length {
-                        newRange.length += indentSize
-                    }
-                }
-                textStorage.endEditing()
-                textView.didChangeText()
-            }
-            textView.setSelectedRange(newRange)
+            //if textView.shouldChangeText(in: fullLinesRange, replacementString: replacement) {
+            //    textView.didChangeText()
+            //}
+            updateTextView(textView, in: fullLinesRange, with: replacement, newSelectedRange: newSelectedRange)
             undoManager.endUndoGrouping()
             undoManager.setActionName("Indent")
         }
