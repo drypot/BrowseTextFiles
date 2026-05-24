@@ -9,7 +9,7 @@ import SwiftUI
 
 struct FolderTreeView: View {
     @Environment(AppState.self) var appState
-    @Environment(FileBrowserState.self) var state
+    @Environment(BrowserState.self) var state
     @Environment(\.appearsActive) var appearsActive
     @Environment(\.focusedBinding) var focusedBinding
 
@@ -72,7 +72,7 @@ struct FolderTreeView: View {
 
 fileprivate struct RowView: View {
     @Environment(AppState.self) var appState
-    @Environment(FileBrowserState.self) var state
+    @Environment(BrowserState.self) var state
     @Environment(\.openWindow) private var openWindow
     @Environment(\.focusedBinding) var focusedBinding
 

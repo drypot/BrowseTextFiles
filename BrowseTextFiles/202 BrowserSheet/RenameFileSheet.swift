@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct RenameFolderSheet: View {
+struct RenameFileSheet: View {
     @Environment(AppState.self) var appState
     @Environment(\.dismiss) private var dismiss
 
@@ -15,13 +15,13 @@ struct RenameFolderSheet: View {
     @State private var orgRelativePath = ""
     @State private var newRelativePath = ""
 
-    var state: FileBrowserState
+    var state: BrowserState
 
     private let log = LogStore.shared.log
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("Rename/Move Folder")
+            Text("Rename/Move File")
                 .font(.headline)
                 .padding()
             Form {
@@ -68,10 +68,10 @@ struct RenameFolderSheet: View {
 
     func loadSheet() {
         guard let rootURL = state.rootURL else { return }
-        guard let renameFolderID = state.renameFolderID else { return }
-        guard let folder = state.findFolder(withID: renameFolderID) else { return }
-        guard let relativePath = folder.url.relativePath(from: rootURL) else { return }
-        orgURL = folder.url
+        guard let renameFileID = state.renameFileID else { return }
+        guard let file = state.findFile(with: renameFileID) else { return }
+        guard let relativePath = file.url.relativePath(from: rootURL) else { return }
+        orgURL = file.url
         orgRelativePath = relativePath
         newRelativePath = relativePath
     }
@@ -81,7 +81,7 @@ struct RenameFolderSheet: View {
             guard let rootURL = state.rootURL else { return }
             guard let orgURL else { return }
             let newURL = rootURL.appending(path: newRelativePath)
-            state.renameFolder(from: orgURL, to: newURL)
+            state.renameFile(from: orgURL, to: newURL)
         }
     }
 }

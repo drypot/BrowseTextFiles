@@ -9,7 +9,7 @@ import SwiftUI
 
 struct TextBufferView: View {
     @Environment(AppState.self) var appState
-    @Environment(FileBrowserState.self) var state
+    @Environment(BrowserState.self) var state
     @Environment(\.focusedBinding) var focusedBinding
 
 //    private let debugID = UUID()

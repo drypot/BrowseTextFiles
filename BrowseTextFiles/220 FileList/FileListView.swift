@@ -9,7 +9,7 @@ import SwiftUI
 
 struct FileListView: View {
     @Environment(AppState.self) var appState
-    @Environment(FileBrowserState.self) var state
+    @Environment(BrowserState.self) var state
     @Environment(\.appearsActive) var appearsActive
     @Environment(\.focusedBinding) var focusedBinding
 
@@ -56,7 +56,7 @@ struct FileListView: View {
 
 fileprivate struct RowView: View {
     @Environment(AppState.self) var appState
-    @Environment(FileBrowserState.self) var state
+    @Environment(BrowserState.self) var state
     @Environment(\.openWindow) private var openWindow
     @Environment(\.focusedBinding) var focusedBinding
 

@@ -10,7 +10,7 @@ import Combine
 
 struct SearchView: View {
     @Environment(AppState.self) var appState
-    @Environment(FileBrowserState.self) var state
+    @Environment(BrowserState.self) var state
 
     @State private var window: NSWindow?
     @State private var cancellables = Set<AnyCancellable>()

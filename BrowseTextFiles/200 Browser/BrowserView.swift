@@ -1,5 +1,5 @@
 //
-//  FileBrowserView.swift
+//  BrowserView.swift
 //  BrowseTextFiles
 //
 //  Created by Kyuhyun Park on 7/6/25.
@@ -15,14 +15,14 @@ enum FocusTarget {
 }
 
 extension FocusedValues {
-    @Entry var currentFileBrowserState: FileBrowserState? = nil
+    @Entry var currentFileBrowserState: BrowserState? = nil
 }
 
 extension EnvironmentValues {
     @Entry var focusedBinding: FocusState<FocusTarget?>.Binding?
 }
 
-struct FileBrowserInitParam: Hashable, Codable {
+struct BrowserInitParam: Hashable, Codable {
     // 동일 폴더를 두 창에서 열려면 id 로 구분해야 한다.
     let id: UUID
     let rootURL: URL?
@@ -36,24 +36,24 @@ struct FileBrowserInitParam: Hashable, Codable {
     }
 }
 
-struct FileBrowserView: View {
+struct BrowserView: View {
     @Environment(AppState.self) var appState
     @Environment(\.openWindow) private var openWindow
 
     @SceneStorage("rootURLData") private var sceneRootURLData: Data?
     @SceneStorage("fileURLData") private var sceneFileURLData: Data?
 
-    @State private var state = FileBrowserState()
+    @State private var state = BrowserState()
     @State private var window: NSWindow?
     @State private var isShowBlank = false
     @State private var cancellables = Set<AnyCancellable>()
 
     @FocusState private var focused: FocusTarget?
 
-    private let initParam: FileBrowserInitParam
+    private let initParam: BrowserInitParam
     private let log = LogStore.shared.log
 
-    init(_ initParam: FileBrowserInitParam) {
+    init(_ initParam: BrowserInitParam) {
         self.initParam = initParam
         printInitParamID("init")
     }
@@ -267,7 +267,7 @@ struct FileBrowserView: View {
 
 #Preview {
 //    let appState = AppState()
-//    FileBrowserView()
+//    BrowserView()
 //        .frame(maxWidth: .infinity, maxHeight: .infinity)
 //        .environment(appState)
 }

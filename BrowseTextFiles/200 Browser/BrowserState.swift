@@ -1,5 +1,5 @@
 //
-//  FileBrowserState.swift
+//  BrowserState.swift
 //  BrowseTextFiles
 //
 //  Created by Kyuhyun Park on 3/1/26.
@@ -9,7 +9,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 @Observable
-final class FileBrowserState {
+final class BrowserState {
     let id = UUID()
 
     private(set) var rootFolder: FolderForView?

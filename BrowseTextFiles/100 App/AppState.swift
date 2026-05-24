@@ -149,17 +149,17 @@ class AppState {
     }
 
     func openNewBrowserWindow(fromRootURL rootURL: URL?, fileURL: URL?, openWindow: OpenWindowAction) {
-        let initParam = FileBrowserInitParam(rootURL: rootURL, fileURL: fileURL)
+        let initParam = BrowserInitParam(rootURL: rootURL, fileURL: fileURL)
         openWindow(id: "browser", value: initParam)
     }
 
     func openNewBrowserWindow(fromFileURL fileURL: URL, openWindow: OpenWindowAction) {
         let rootURL = fileURL.deletingLastPathComponent()
-        let initParam = FileBrowserInitParam(rootURL: rootURL, fileURL: fileURL)
+        let initParam = BrowserInitParam(rootURL: rootURL, fileURL: fileURL)
         openWindow(id: "browser", value: initParam)
     }
 
-    func openNewBrowserWindow(fromState state: FileBrowserState?, openWindow: OpenWindowAction) {
+    func openNewBrowserWindow(fromState state: BrowserState?, openWindow: OpenWindowAction) {
         openNewBrowserWindow(fromRootURL: state?.rootURL, fileURL: state?.selectedFile?.url, openWindow: openWindow)
     }
 
@@ -215,9 +215,9 @@ class AppState {
     // MARK: - Search Window
 
     @ObservationIgnored
-    weak var currentFileBrowserState: FileBrowserState? = nil
+    weak var currentFileBrowserState: BrowserState? = nil
 
-    func openSearchWindow(for state: FileBrowserState?, openWindow: OpenWindowAction) {
+    func openSearchWindow(for state: BrowserState?, openWindow: OpenWindowAction) {
         guard let state else { return }
         currentFileBrowserState = state
         openWindow(id: "search", value: state.id)

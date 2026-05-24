@@ -21,7 +21,7 @@ nonisolated struct SearchResult: Identifiable {
 
 @Observable
 final class SearchState {
-    weak var browserState: FileBrowserState?
+    weak var browserState: BrowserState?
 
     var searchText = ""
     private(set) var isSearching = false

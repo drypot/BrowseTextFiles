@@ -1,5 +1,5 @@
 //
-//  FileBrowserWindow.swift
+//  BrowserWindow.swift
 //  Browse Text Files
 //
 //  Created by Kyuhyun Park on 5/7/26.
@@ -7,16 +7,16 @@
 
 import SwiftUI
 
-struct FileBrowserWindow: Scene {
+struct BrowserWindow: Scene {
     @Environment(AppState.self) private var appState
     @Environment(\.openWindow) private var openWindow
 
-    @FocusedValue(\.currentFileBrowserState) private var currentState: FileBrowserState?
+    @FocusedValue(\.currentFileBrowserState) private var currentState: BrowserState?
 
     var body: some Scene {
-        WindowGroup("Browser", id: "browser", for: FileBrowserInitParam.self) { $initParam in
-            FileBrowserView(initParam)
-            //FileBrowserDebuggingView(initParam)
+        WindowGroup("Browser", id: "browser", for: BrowserInitParam.self) { $initParam in
+            BrowserView(initParam)
+            //BrowserDebuggingView(initParam)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             // 외부에서 file url 을 받았을 경우 folder 에 대한 권한이 없어서 원만히 작동하기가 힘들다.
@@ -31,7 +31,7 @@ struct FileBrowserWindow: Scene {
             //     openURLsFromDragDrop(urls)
             // }
         } defaultValue: {
-            FileBrowserInitParam()
+            BrowserInitParam()
         }
         .defaultWindowPlacement { proxy, context in
             //let displayBounds = context.defaultDisplay.visibleRect

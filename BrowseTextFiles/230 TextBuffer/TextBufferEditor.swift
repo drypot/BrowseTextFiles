@@ -12,7 +12,7 @@ import SwiftUI
 
 struct TextBufferEditor: NSViewRepresentable {
     @Environment(AppState.self) var appState
-    @Environment(FileBrowserState.self) var state
+    @Environment(BrowserState.self) var state
 
     func makeCoordinator() -> Coordinator {
         return Coordinator(self)
@@ -126,7 +126,7 @@ struct TextBufferEditor: NSViewRepresentable {
 
     final class Coordinator: NSObject, NSTextViewDelegate {
         let appState: AppState
-        let state: FileBrowserState
+        let state: BrowserState
 
         init(_ view: TextBufferEditor) {
             //print("coordinator created: \(view.state.id), TextBufferEditor.Coordinator")

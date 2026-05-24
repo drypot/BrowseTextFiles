@@ -13,7 +13,7 @@ struct BrowseTextFilesApp: App {
     @State private var appState = AppState()
 
     var body: some Scene {
-        FileBrowserWindow()
+        BrowserWindow()
             .environment(appState)
 
         SearchWindow()
