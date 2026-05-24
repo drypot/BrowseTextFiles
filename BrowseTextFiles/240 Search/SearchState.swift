@@ -27,8 +27,6 @@ final class SearchState {
     private(set) var isSearching = false
     private(set) var searchResults: [SearchResult]?
 
-    private let log = LogStore.shared.log
-
     func startSearch() {
         guard let rootURL = browserState?.rootURL else { return }
         if isSearching { return }
@@ -36,7 +34,7 @@ final class SearchState {
 
         searchResults = []
         isSearching = true
-        log("start search: \"\(searchText)\"")
+        LogStore.shared.log("start search: \"\(searchText)\"")
 
         let pasteboard = NSPasteboard(name: .find)
         pasteboard.declareTypes([.string], owner: nil)
@@ -53,11 +51,11 @@ final class SearchState {
             do {
                 searchResults = try await searchParallel(rootURL: rootURL, searchText: searchText)
                 isSearching = false
-                log("start search: found \(searchResults?.count ?? 0) files")
+                LogStore.shared.log("start search: found \(searchResults?.count ?? 0) files")
             } catch {
                 let message = error.localizedDescription
                 browserState?.showAlert(message)
-                log("start search: \(message)")
+                LogStore.shared.log("start search: \(message)")
             }
         }
     }

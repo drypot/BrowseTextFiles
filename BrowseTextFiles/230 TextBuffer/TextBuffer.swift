@@ -39,8 +39,6 @@ final class TextBuffer: Identifiable, Hashable {
     private(set) var alertMessage: String?
     var hasAlertMessage: Bool = false
 
-    private let log = LogStore.shared.log
-
     init(from url: URL, rootURL: URL) {
         self.rootURL = rootURL
         self.url = url
@@ -86,11 +84,11 @@ final class TextBuffer: Identifiable, Hashable {
             }
             loadingError = nil
             shouldTextViewCopyOriginalText = true
-            log("load text: \(name)")
+            LogStore.shared.log("load text: \(name)")
         } catch {
             let message = error.localizedDescription
             loadingError = message
-            log("load text: \(message)")
+            LogStore.shared.log("load text: \(message)")
         }
     }
 
@@ -144,12 +142,12 @@ final class TextBuffer: Identifiable, Hashable {
             try fileHandle.close()
             savingError = nil
             isTextViewEdited = false
-            log("save text: \(name)")
+            LogStore.shared.log("save text: \(name)")
         } catch {
             let message = error.localizedDescription
             savingError = message
             showAlert(message)
-            log("save text: \(message)")
+            LogStore.shared.log("save text: \(message)")
         }
     }
 

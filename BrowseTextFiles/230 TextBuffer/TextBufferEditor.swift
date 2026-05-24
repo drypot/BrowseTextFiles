@@ -36,7 +36,6 @@ struct TextBufferEditor: NSViewRepresentable {
         //print("nsview updated: \(fileBuffer.name), TextBufferEditor, updateNSView")
 
         // LogStore @Observable 이라; 여기서 쓰면 View 삭제될 때 무한 루프 생긴다;
-        // let log = LogStore.shared.log
 
         if fileBuffer.shouldTextViewCopyOriginalText {
             guard let textView = nsView.documentView as? NSTextView else { return }

@@ -17,8 +17,6 @@ struct RenameFileSheet: View {
 
     var state: BrowserState
 
-    private let log = LogStore.shared.log
-
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text("Rename/Move File")

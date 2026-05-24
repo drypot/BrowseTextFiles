@@ -7,9 +7,6 @@
 
 import Foundation
 
-// use,
-// private let log = LogStore.shared.log
-
 struct LogEntry: Identifiable {
     private static let style = Date.ISO8601FormatStyle(timeZone: TimeZone.current)
         .time(includingFractionalSeconds: false)

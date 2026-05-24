@@ -51,7 +51,6 @@ struct BrowserView: View {
     @FocusState private var focused: FocusTarget?
 
     private let initParam: BrowserInitParam
-    private let log = LogStore.shared.log
 
     init(_ initParam: BrowserInitParam) {
         self.initParam = initParam

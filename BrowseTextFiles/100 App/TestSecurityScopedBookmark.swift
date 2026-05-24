@@ -9,8 +9,6 @@ import Foundation
 import AppKit
 
 struct TestSecurityScopedBookmark {
-    private let log = LogStore.shared.log
-
     func testASS() {
         let panel = NSOpenPanel()
         panel.allowsMultipleSelection = false
@@ -60,7 +58,7 @@ struct TestSecurityScopedBookmark {
 
                 do {
                     // 다이얼로그에서 파일 하나 찍어서 북마크 만들고,
-                    log("data: try 6")
+                    LogStore.shared.log("data: try 6")
 
                     // NSOpenPanel 에서 받은 url 에서 bookmarkData 생성할 때는 sASS 하지 않아도 된다.
                     // 하지만 bookmarkData 생성한 url 에서 다시 bookmarkData 생성할 경우도 있으니 하긴 해야할 듯.
@@ -76,9 +74,9 @@ struct TestSecurityScopedBookmark {
                     UserDefaults.standard.set(bookmarkData, forKey: "SecurityScopedTest")
                 }
 
-                log("testSecurityScoped: all succeed")
+                LogStore.shared.log("testSecurityScoped: all succeed")
             } catch {
-                log("testSecurityScoped: fail, \(error.localizedDescription)")
+                LogStore.shared.log("testSecurityScoped: fail, \(error.localizedDescription)")
             }
         }
     }
@@ -93,7 +91,7 @@ struct TestSecurityScopedBookmark {
                               relativeTo: nil,
                               bookmarkDataIsStale: &isStale)
 
-            log("testSecurityScopedBookmark: isStale == \(isStale)")
+            LogStore.shared.log("testSecurityScopedBookmark: isStale == \(isStale)")
 
             do {
                 // 앱을 재 실행하고 BookmarkData 에서 URL을 새로 만들어 접근하려고 하면 퍼미션 에러가 난다.
@@ -132,9 +130,9 @@ struct TestSecurityScopedBookmark {
                 }
             }
 
-            log("testSecurityScopedBookmark: all succeed")
+            LogStore.shared.log("testSecurityScopedBookmark: all succeed")
         } catch {
-            log("testSecurityScopedBookmark: fail, \(error.localizedDescription)")
+            LogStore.shared.log("testSecurityScopedBookmark: fail, \(error.localizedDescription)")
         }
     }
 
@@ -160,9 +158,9 @@ struct TestSecurityScopedBookmark {
 
             _ = try Data(contentsOf: url)
 
-            log("testSecurityScopedBookmark2: all succeed")
+            LogStore.shared.log("testSecurityScopedBookmark2: all succeed")
         } catch {
-            log("testSecurityScopedBookmark2: fail, \(error.localizedDescription)")
+            LogStore.shared.log("testSecurityScopedBookmark2: fail, \(error.localizedDescription)")
         }
     }
 }
