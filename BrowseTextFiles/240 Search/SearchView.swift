@@ -1,5 +1,5 @@
 //
-//  SearchResultView.swift
+//  SearchView.swift
 //  Browse Text Files
 //
 //  Created by Kyuhyun Park on 5/5/26.
@@ -8,33 +8,33 @@
 import SwiftUI
 import Combine
 
-struct SearchResultView: View {
+struct SearchView: View {
     @Environment(AppState.self) var appState
+    @Environment(FileBrowserState.self) var state
 
     @State private var window: NSWindow?
     @State private var cancellables = Set<AnyCancellable>()
-
-    @Bindable var state: FileBrowserState
 
     @FocusState var isFocused: Bool
 
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                TextField("Search", text: $state.searchText)
+                @Bindable var searchState = state.search
+                TextField("Search", text: $searchState.searchText)
                     .frame(minWidth: 180)
                     .onSubmit {
-                        state.startSearch()
+                        state.search.startSearch()
                     }
                     .focused($isFocused)
                     .task {
                         isFocused = true
                     }
                 Button("Search") {
-                    state.startSearch()
+                    state.search.startSearch()
                 }
                 Button("Reset") {
-                    state.clearSearchResult()
+                    state.search.clearSearchResult()
                 }
             }
             .padding(.vertical, 24)
@@ -42,7 +42,7 @@ struct SearchResultView: View {
             Divider()
 
             List {
-                if let results = state.searchResults, !results.isEmpty {
+                if let results = state.search.searchResults, !results.isEmpty {
                     ForEach(results) { result in
                         Group {
                             Button(result.title) {
@@ -110,5 +110,5 @@ struct SearchResultView: View {
 }
 
 #Preview {
-//    SearchResultView()
+//    SearchView()
 }

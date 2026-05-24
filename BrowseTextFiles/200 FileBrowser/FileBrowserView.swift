@@ -146,6 +146,7 @@ struct FileBrowserView: View {
 
             ToolbarItemGroup(placement: .primaryAction) {
                 Button("Search", systemImage: "magnifyingglass") {
+                    guard state.isRootReady else { return }
                     appState.openSearchWindow(for: state, openWindow: openWindow)
                 }
                 .help("Search")

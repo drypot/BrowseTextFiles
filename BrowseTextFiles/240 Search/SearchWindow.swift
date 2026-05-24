@@ -14,7 +14,8 @@ struct SearchWindow: Scene {
         WindowGroup("Search", id: "search", for: UUID.self) { _ in
             Group {
                 if let state = appState.currentFileBrowserState {
-                    SearchResultView(state: state)
+                    SearchView()
+                        .environment(state)
                 }
             }
         }
