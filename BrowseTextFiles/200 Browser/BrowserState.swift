@@ -34,15 +34,13 @@ final class BrowserState {
 
     var isShowNewFileView = false
 
-    var search = SearchState()
+    var searchText = ""
+    var isSearching = false
+    var searchResults: [SearchResult]?
 
     var alertMessage: String?
     var hasAlertMessage = false
 
-    init() {
-        search.browserState = self
-    }
-    
     // MARK: - Root
 
     var isRootReady: Bool {

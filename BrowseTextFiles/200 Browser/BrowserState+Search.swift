@@ -1,34 +1,16 @@
 //
-//  SearchState.swift
+//  BrowserState+Search.swift
 //  Browse Text Files
 //
-//  Created by Kyuhyun Park on 5/5/26.
+//  Created by Kyuhyun Park on 5/24/26.
 //
 
 import SwiftUI
 
-nonisolated struct SearchResult: Identifiable {
-    struct Line: Identifiable {
-        let id = UUID()
-        let text: String
-    }
-    
-    let id = UUID()
-    let url: URL
-    let title: String
-    let lines: [Line]
-}
-
-@Observable
-final class SearchState {
-    weak var browserState: BrowserState?
-
-    var searchText = ""
-    private(set) var isSearching = false
-    private(set) var searchResults: [SearchResult]?
+extension BrowserState {
 
     func startSearch() {
-        guard let rootURL = browserState?.rootURL else { return }
+        guard let rootURL else { return }
         if isSearching { return }
         if searchText.isEmpty { return }
 
@@ -54,7 +36,7 @@ final class SearchState {
                 LogStore.shared.log("start search: found \(searchResults?.count ?? 0) files")
             } catch {
                 let message = error.localizedDescription
-                browserState?.showAlert(message)
+                showAlert(message)
                 LogStore.shared.log("start search: \(message)")
             }
         }
@@ -107,10 +89,10 @@ final class SearchState {
                 let text = String(data: lineData, encoding: .utf8)
                 if let text, text.contains(searchText) {
                     result.append(SearchResult.Line(text: text))
-                    //                    count += 1
-                    //                    if count >= 5 {
-                    //                        return result
-                    //                    }
+                    //count += 1
+                    //if count >= 5 {
+                    //    return result
+                    //}
                 }
             }
         }

@@ -20,21 +20,21 @@ struct SearchView: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                @Bindable var searchState = state.search
-                TextField("Search", text: $searchState.searchText)
+                @Bindable var state = state
+                TextField("Search", text: $state.searchText)
                     .frame(minWidth: 180)
                     .onSubmit {
-                        state.search.startSearch()
+                        state.startSearch()
                     }
                     .focused($isFocused)
                     .task {
                         isFocused = true
                     }
                 Button("Search") {
-                    state.search.startSearch()
+                    state.startSearch()
                 }
                 Button("Reset") {
-                    state.search.clearSearchResult()
+                    state.clearSearchResult()
                 }
             }
             .padding(.vertical, 24)
@@ -42,7 +42,7 @@ struct SearchView: View {
             Divider()
 
             List {
-                if let results = state.search.searchResults, !results.isEmpty {
+                if let results = state.searchResults, !results.isEmpty {
                     ForEach(results) { result in
                         Group {
                             Button(result.title) {
