@@ -20,10 +20,12 @@ struct BrowseTextFilesApp: App {
             .environment(appState)
 
         AboutWindow()
+            //.environment(appState)
 
         SettingsWindow()
             .environment(appState)
 
         ConsoleWindow()
+            //.environment(appState)
     }
 }

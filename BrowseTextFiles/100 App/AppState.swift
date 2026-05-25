@@ -212,14 +212,24 @@ class AppState {
         recentDocumentURLs = NSDocumentController.shared.recentDocumentURLs
     }
 
-    // MARK: - Search Window
+    // MARK: - BrowserState Push/Pop
 
     @ObservationIgnored
-    weak var currentFileBrowserState: BrowserState? = nil
+    private weak var lastBrowserState: BrowserState? = nil
 
-    func openSearchWindow(for state: BrowserState?, openWindow: OpenWindowAction) {
-        guard let state else { return }
-        currentFileBrowserState = state
+    func pushBrowserState(_ state: BrowserState) {
+        lastBrowserState = state
+    }
+
+    func popBrowserState(_ id: BrowserState.ID?) -> BrowserState? {
+        guard lastBrowserState?.id == id else { return nil }
+        return lastBrowserState
+    }
+
+    // MARK: - Search Window
+
+    func openSearchWindow(for state: BrowserState, openWindow: OpenWindowAction) {
+        pushBrowserState(state)
         openWindow(id: "search", value: state.id)
     }
 

@@ -11,7 +11,7 @@ struct BrowserWindow: Scene {
     @Environment(AppState.self) private var appState
     @Environment(\.openWindow) private var openWindow
 
-    @FocusedValue(\.currentFileBrowserState) private var currentState: BrowserState?
+    @FocusedValue(\.focusedBrowserState) private var state: BrowserState?
 
     var body: some Scene {
         WindowGroup("Browser", id: "browser", for: BrowserInitParam.self) { $initParam in
@@ -50,7 +50,7 @@ struct BrowserWindow: Scene {
                 .keyboardShortcut("n", modifiers: .command)
 
                 Button("New File", systemImage: "text.document") {
-                    currentState?.showNewFileView()
+                    state?.showNewFileView()
                 }
                 .keyboardShortcut("n", modifiers: [.command, .shift])
 
@@ -78,14 +78,14 @@ struct BrowserWindow: Scene {
                 Divider()
 
                 Button("Save File", systemImage: "square.and.arrow.down") {
-                    currentState?.saveFile()
+                    state?.saveFile()
                 }
                 .keyboardShortcut("s", modifiers: .command)
             }
             
             CommandGroup(after: .toolbar) {
                 Button("Reload", systemImage: "arrow.clockwise") {
-                     currentState?.reloadAll()
+                     state?.reloadAll()
                 }
                 .keyboardShortcut("r", modifiers: .command)
                 Divider()
@@ -111,7 +111,8 @@ struct BrowserWindow: Scene {
             CommandGroup(after: .textEditing) {
                 Divider()
                 Button("Find in Files", systemImage: "magnifyingglass") {
-                    appState.openSearchWindow(for: currentState, openWindow: openWindow)
+                    guard let state else { return }
+                    appState.openSearchWindow(for: state, openWindow: openWindow)
                 }
                 .keyboardShortcut("f", modifiers: [.command, .shift])
             }

@@ -9,7 +9,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 @Observable
-final class BrowserState {
+final class BrowserState: Identifiable {
     let id = UUID()
 
     var rootFolder: FolderForView?

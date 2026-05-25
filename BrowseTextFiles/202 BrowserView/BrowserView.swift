@@ -15,7 +15,7 @@ enum FocusTarget {
 }
 
 extension FocusedValues {
-    @Entry var currentFileBrowserState: BrowserState? = nil
+    @Entry var focusedBrowserState: BrowserState? = nil
 }
 
 extension EnvironmentValues {
@@ -92,7 +92,7 @@ struct BrowserView: View {
         .navigationTitle(state.rootName ?? "Browser")
         .environment(state)
         .environment(\.focusedBinding, $focused)
-        .focusedSceneValue(\.currentFileBrowserState, state)
+        .focusedSceneValue(\.focusedBrowserState, state)
         .task(id: initParam) {
             processInitParam()
         }

@@ -11,9 +11,9 @@ struct SearchWindow: Scene {
     @Environment(AppState.self) var appState
 
     var body: some Scene {
-        WindowGroup("Search", id: "search", for: UUID.self) { _ in
+        WindowGroup("Search", id: "search", for: UUID.self) { $id in
             Group {
-                if let state = appState.currentFileBrowserState {
+                if let state = appState.popBrowserState(id) {
                     SearchView()
                         .environment(state)
                 }
