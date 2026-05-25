@@ -31,6 +31,9 @@ extension BrowserState {
 
         LogStore.shared.log("create buffer: \(fileBuffer.name)")
         fileBuffer.loadOriginalText()
+        if !fileBuffer.hasLoadingError {
+            addToHistory(url)
+        }
     }
 
     func updateFileBufferFromSelectedFile() {

@@ -25,7 +25,9 @@ extension BrowserState {
                     // contentType.conforms(to: .text)
                     return true
                 }
-                fileList?.sort { $0.name < $1.name }
+                fileList?.sort {
+                    $0.name.localizedStandardCompare($1.name) == .orderedAscending
+                }
             }
             LogStore.shared.log("load list: \(url.lastPathComponent)")
         } catch {

@@ -13,6 +13,7 @@ final class BrowserState: Identifiable {
     let id = UUID()
 
     var rootFolder: FolderForView?
+    var rootPathComponents: [String]?
 
     var expandedFolders: Set<URL> = []
 
@@ -37,6 +38,8 @@ final class BrowserState: Identifiable {
     var searchText = ""
     var isSearching = false
     var searchResults: [SearchResult]?
+
+    var history: [URLForView] = []
 
     var alertMessage: String?
     var hasAlertMessage = false

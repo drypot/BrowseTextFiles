@@ -39,7 +39,9 @@ struct FolderTreeBuilder {
                     }
                 }
             }
-            folder.children?.sort()
+            folder.children?.sort {
+                $0.name.localizedStandardCompare($1.name) == .orderedAscending
+            }
 
             return folder
         }

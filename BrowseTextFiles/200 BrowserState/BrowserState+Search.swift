@@ -69,7 +69,9 @@ extension BrowserState {
                 guard let result else { continue }
                 results.append(result)
             }
-            return results.sorted { $0.title < $1.title }
+            return results.sorted {
+                $0.title.localizedStandardCompare($1.title) == .orderedAscending
+            }
         }
     }
 

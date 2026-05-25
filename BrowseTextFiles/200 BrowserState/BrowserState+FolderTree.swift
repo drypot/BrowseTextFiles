@@ -12,6 +12,7 @@ extension BrowserState {
 
     func resetFolderTree() {
         rootFolder = nil
+        rootPathComponents = nil
         deselectFolder()
         //expandedFolders.removeAll()
     }
@@ -22,6 +23,7 @@ extension BrowserState {
             try withSecurityScope(url) {
                 let folder = try FolderTreeBuilder().buildTree(from: url)
                 rootFolder = folder
+                rootPathComponents = folder.url.pathComponents
                 selectFolder(folder)
                 expandFolder(for: folder.url)
             }

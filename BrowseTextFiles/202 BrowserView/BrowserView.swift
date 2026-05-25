@@ -263,6 +263,7 @@ struct BrowserView: View {
             .publisher(for: NSWindow.willCloseNotification, object: window)
             .sink { notification in
                 dismissWindow(id: "search", value: state.id)
+                dismissWindow(id: "history", value: state.id)
             }
             .store(in: &cancellables)
 

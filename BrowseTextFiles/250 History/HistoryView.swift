@@ -19,7 +19,7 @@ struct HistoryView: View {
             HStack {
                 Spacer()
                 Button("Clear") {
-                    //
+                    state.clearHistory()
                 }
             }
             .padding(.horizontal)
@@ -27,40 +27,31 @@ struct HistoryView: View {
 
             Divider()
 
-            if let results = state.searchResults, !results.isEmpty {
+            if !state.history.isEmpty, let rootComponents = state.rootPathComponents {
                 ScrollView {
-                    LazyVStack(alignment: .leading, spacing: 16) {
-                        ForEach(results) { result in
-                            VStack(alignment: .leading) {
-                                Button(result.title) {
-                                    state.updateAll(fromFileURL: result.url)
-                                }
-                                .buttonStyle(.plain)
-                                .foregroundStyle(.link)
-                                .pointerStyle(.link)
-
-                                VStack(alignment: .leading) {
-                                    ForEach(result.lines) { line in
-                                        Text(line.text)
-                                    }
-                                }
+                    LazyVStack(alignment: .leading, spacing: 8) {
+                        ForEach(state.history) { urlForView in
+                            let path = urlForView.relativePath(from: rootComponents)
+                            Button(path) {
+                                state.updateAll(fromFileURL: urlForView.url)
                             }
                         }
+                        .buttonStyle(.plain)
+                        .foregroundStyle(.link)
+                        .pointerStyle(.link)
                         .padding(.horizontal)
                     }
                     .padding(.vertical, 16)
                 }
             } else {
-                Text("No results")
-                    .padding()
                 Spacer()
             }
         }
         .background(WindowReader(onResolve: setupWindow))
         .navigationTitle("History: \(state.rootName ?? "")")
-        .frame(minWidth: 440)
+        .frame(minWidth: 220)
     }
-
+    
     func setupWindow(_ window: NSWindow?) {
         guard let window else { return }
 
