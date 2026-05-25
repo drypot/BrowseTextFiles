@@ -19,13 +19,16 @@ struct BrowseTextFilesApp: App {
         SearchWindow()
             .environment(appState)
 
-        AboutWindow()
-            //.environment(appState)
+        HistoryWindow()
+            .environment(appState)
 
         SettingsWindow()
             .environment(appState)
 
         ConsoleWindow()
+            //.environment(appState)
+
+        AboutWindow()
             //.environment(appState)
     }
 }

@@ -44,5 +44,11 @@ struct LogStoreView: View {
                 }
             }
         }
+        .background(WindowReader(onResolve: setupWindow))
+    }
+
+    func setupWindow(_ window: NSWindow?) {
+        guard let window else { return }
+        window.collectionBehavior.insert(.ignoresCycle)
     }
 }

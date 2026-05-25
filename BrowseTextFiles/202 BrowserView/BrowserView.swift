@@ -88,7 +88,7 @@ struct BrowserView: View {
                 Text("Loading...")
             }
         }
-        .background(WindowReader(onResolve: handleWindow))
+        .background(WindowReader(onResolve: setupWindow))
         .navigationTitle(state.rootName ?? "Browser")
         .environment(state)
         .environment(\.focusedBinding, $focused)
@@ -229,7 +229,7 @@ struct BrowserView: View {
                         bookmarkDataIsStale: &isStale)
     }
 
-    func handleWindow(_ window: NSWindow?) {
+    func setupWindow(_ window: NSWindow?) {
         guard let window else { return }
         self.window = window
 

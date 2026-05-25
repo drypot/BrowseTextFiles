@@ -9,7 +9,7 @@ import SwiftUI
 
 struct HistoryWindow: Scene {
     var body: some Scene {
-        WindowGroup("History", id: "history") {
+        WindowGroup("History", id: "history", for: UUID.self) { $id in
 
         }
     }

@@ -12,7 +12,6 @@ struct SearchView: View {
     @Environment(AppState.self) var appState
     @Environment(BrowserState.self) var state
 
-    @State private var window: NSWindow?
     @State private var cancellables = Set<AnyCancellable>()
 
     @FocusState var isFocused: Bool
@@ -71,15 +70,15 @@ struct SearchView: View {
                 Spacer()
             }
         }
-        .background(WindowReader(onResolve: handleWindow))
+        .background(WindowReader(onResolve: setupWindow))
         .navigationTitle("Search: \(state.rootName ?? "")")
         .frame(minWidth: 440)
     }
 
-    func handleWindow(_ window: NSWindow?) {
+    func setupWindow(_ window: NSWindow?) {
         guard let window else { return }
-        self.window = window
 
+        window.collectionBehavior.insert(.ignoresCycle)
         appState.saveSearchWindowSize(window.frame.size, position: window.frame.origin)
 
         NotificationCenter.default

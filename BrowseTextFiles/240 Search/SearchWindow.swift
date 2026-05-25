@@ -12,11 +12,9 @@ struct SearchWindow: Scene {
 
     var body: some Scene {
         WindowGroup("Search", id: "search", for: UUID.self) { $id in
-            Group {
-                if let state = appState.popBrowserState(id) {
-                    SearchView()
-                        .environment(state)
-                }
+            if let state = appState.popBrowserState(id) {
+                SearchView()
+                    .environment(state)
             }
         }
         .restorationBehavior(.disabled)
