@@ -34,13 +34,12 @@ struct BrowserWindow: Scene {
             BrowserInitParam()
         }
         .defaultWindowPlacement { proxy, context in
-            //let displayBounds = context.defaultDisplay.visibleRect
-            //let position = CGPoint(
-            //    x: displayBounds.midX - (size.width / 2),
-            //    y: displayBounds.maxY - size.height - 140)
-            //let size = CGSize(width: displayBounds.width * 2 / 4, height: displayBounds.height * 2 / 3)
-            let size = appState.lastBrowserWindowSize
-            return WindowPlacement(size: size)
+            appState.makeWindowPlacement(
+                for: "browser",
+                uuid: nil,
+                visibleRect: context.defaultDisplay.visibleRect,
+                defaultSize: CGSize(width: 960, height: 600)
+            )
         }
         .commands {
             CommandGroup(replacing: .newItem) {

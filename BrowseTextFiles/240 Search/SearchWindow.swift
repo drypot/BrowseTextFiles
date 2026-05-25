@@ -12,24 +12,20 @@ struct SearchWindow: Scene {
 
     var body: some Scene {
         WindowGroup("Search", id: "search", for: UUID.self) { $id in
-            if let state = appState.popBrowserState(id) {
+            if let state = appState.lastBrowserState {
                 SearchView()
+                    .frame(minWidth: 320, minHeight: 200)
                     .environment(state)
             }
         }
         .restorationBehavior(.disabled)
         .defaultWindowPlacement { proxy, context in
-            let size = appState.lastSearchWindowSize ?? CGSize(width: 250, height: 600)
-            let position: CGPoint? = nil
-            // if let lastPosition = appState.lastSearchWindowPosition {
-            //     let displayBounds = context.defaultDisplay.visibleRect
-            //     position = CGPoint(
-            //         x: lastPosition.x,
-            //         y: displayBounds.maxY - lastPosition.y - size.height)
-            // } else {
-            //     position = nil
-            // }
-            return WindowPlacement(position, size: size)
+            appState.makeWindowPlacement(
+                for: "search",
+                uuid: appState.lastBrowserState?.id,
+                visibleRect: context.defaultDisplay.visibleRect,
+                defaultSize: CGSize(width: 400, height: 600)
+            )
         }
     }
 }

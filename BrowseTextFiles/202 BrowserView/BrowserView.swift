@@ -277,13 +277,6 @@ struct BrowserView: View {
     }
 
     func saveWindowSize(_ window: NSWindow) {
-        appState.saveBrowserWindowSize(window.frame.size)
+        appState.saveWindowRect(window.frame, for: "browser", uuid: state.id)
     }
-}
-
-#Preview {
-//    let appState = AppState()
-//    BrowserView()
-//        .frame(maxWidth: .infinity, maxHeight: .infinity)
-//        .environment(appState)
 }

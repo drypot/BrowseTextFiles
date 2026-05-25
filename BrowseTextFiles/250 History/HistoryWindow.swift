@@ -12,15 +12,20 @@ struct HistoryWindow: Scene {
 
     var body: some Scene {
         WindowGroup("History", id: "history", for: UUID.self) { $id in
-            if let state = appState.popBrowserState(id) {
+            if let state = appState.lastBrowserState {
                 HistoryView()
+                    .frame(minWidth: 320, minHeight: 200)
                     .environment(state)
             }
         }
         .restorationBehavior(.disabled)
         .defaultWindowPlacement { proxy, context in
-            let size = appState.lastHistoryWindowSize ?? CGSize(width: 250, height: 600)
-            return WindowPlacement(size: size)
+            appState.makeWindowPlacement(
+                for: "history",
+                uuid: appState.lastBrowserState?.id,
+                visibleRect: context.defaultDisplay.visibleRect,
+                defaultSize: CGSize(width: 400, height: 600)
+            )
         }
     }
 }

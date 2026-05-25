@@ -49,7 +49,6 @@ struct HistoryView: View {
         }
         .background(WindowReader(onResolve: setupWindow))
         .navigationTitle("History: \(state.rootName ?? "")")
-        .frame(minWidth: 220)
     }
     
     func setupWindow(_ window: NSWindow?) {
@@ -73,9 +72,17 @@ struct HistoryView: View {
                 saveWindowSize(window)
             }
             .store(in: &cancellables)
+
+        NotificationCenter.default
+            .publisher(for: NSWindow.didMoveNotification, object: window)
+            .sink { notification in
+                guard let window = notification.object as? NSWindow else { return }
+                saveWindowSize(window)
+            }
+            .store(in: &cancellables)
     }
 
     func saveWindowSize(_ window: NSWindow) {
-        appState.saveHistoryWindowSize(window.frame.size)
+        appState.saveWindowRect(window.frame, for: "history", uuid: state.id)
     }
 }

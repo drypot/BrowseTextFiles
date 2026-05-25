@@ -21,7 +21,7 @@ struct SearchView: View {
             HStack {
                 @Bindable var state = state
                 TextField("Search", text: $state.searchText)
-                    .frame(minWidth: 180)
+                    .frame(minWidth: 100)
                     .focused($isFocused)
                     .task {
                         isFocused = true
@@ -72,13 +72,13 @@ struct SearchView: View {
         }
         .background(WindowReader(onResolve: setupWindow))
         .navigationTitle("Search: \(state.rootName ?? "")")
-        .frame(minWidth: 440)
     }
 
     func setupWindow(_ window: NSWindow?) {
         guard let window else { return }
 
         window.collectionBehavior.insert(.ignoresCycle)
+
         saveWindowSize(window)
 
         NotificationCenter.default
@@ -96,10 +96,18 @@ struct SearchView: View {
                 saveWindowSize(window)
             }
             .store(in: &cancellables)
+
+        NotificationCenter.default
+            .publisher(for: NSWindow.didMoveNotification, object: window)
+            .sink { notification in
+                guard let window = notification.object as? NSWindow else { return }
+                saveWindowSize(window)
+            }
+            .store(in: &cancellables)
     }
 
     func saveWindowSize(_ window: NSWindow) {
-        appState.saveSearchWindowSize(window.frame.size)
+        appState.saveWindowRect(window.frame, for: "search", uuid: state.id)
     }
 }
 

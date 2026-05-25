@@ -233,42 +233,53 @@ class AppState {
 
     // MARK: - BrowserState Push/Pop
 
-    @ObservationIgnored private weak var lastBrowserState: BrowserState? = nil
+    @ObservationIgnored weak var lastBrowserState: BrowserState?
 
-    func pushBrowserState(_ state: BrowserState) {
-        lastBrowserState = state
+    // MARK: - Window Position
+
+    @ObservationIgnored private var windowRectStoreForStringUUID: [StringAndUUID: CGRect] = [:]
+    @ObservationIgnored private var windowRectStoreForString: [String: CGRect] = [:]
+
+    func saveWindowRect(_ rect: CGRect, for string: String, uuid: UUID) {
+        windowRectStoreForStringUUID[StringAndUUID(string: string, uuid: uuid)] = rect
+        windowRectStoreForString[string] = rect
+        print("save window rect: \(rect)")
     }
 
-    func popBrowserState(_ id: BrowserState.ID?) -> BrowserState? {
-        guard lastBrowserState?.id == id else { return nil }
-        return lastBrowserState
+    func makeWindowPlacement(for string: String, uuid: UUID?, visibleRect: CGRect, defaultSize: CGSize? = nil) -> WindowPlacement {
+        var invertedPosition: CGPoint? = nil
+        var position: CGPoint? = nil
+        var size: CGSize? = nil
+
+        if let uuid, let rect = windowRectStoreForStringUUID[StringAndUUID(string: string, uuid: uuid)] {
+            invertedPosition = rect.origin
+            size = rect.size
+        } else if let rect = windowRectStoreForString[string] {
+            size = rect.size
+        }
+
+        if let invertedPosition, let size {
+            position = CGPoint(x: invertedPosition.x,
+                               y: visibleRect.maxY - invertedPosition.y - size.height)
+        }
+
+        print("restore window rect: \(position ?? .zero), \(size ?? .zero)")
+        return WindowPlacement(position, size: size ?? defaultSize)
     }
 
     // MARK: - Search Window
 
-    @ObservationIgnored var lastSearchWindowSize: CGSize?
-
     func openSearchWindow(for state: BrowserState, openWindow: OpenWindowAction) {
-        pushBrowserState(state)
+        lastBrowserState = state
         openWindow(id: "search", value: state.id)
-    }
-
-    func saveSearchWindowSize(_ size: CGSize) {
-        lastSearchWindowSize = size
-        //print("save search window size: \(size)")
     }
 
     // MARK: - History Window
 
-    @ObservationIgnored var lastHistoryWindowSize: CGSize?
-
     func openHistoryWindow(for state: BrowserState, openWindow: OpenWindowAction) {
-        pushBrowserState(state)
+        lastBrowserState = state
         openWindow(id: "history", value: state.id)
     }
 
-    func saveHistoryWindowSize(_ size: CGSize) {
-        lastHistoryWindowSize = size
-    }
 }
 
