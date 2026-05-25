@@ -136,13 +136,19 @@ struct BrowserView: View {
                 // Button("Next", systemName: "chevron.right") {
                 // }
                 // .help("다음 항목으로 이동")
-
-                Button("Reload", systemImage: "arrow.clockwise") {
-                    state.reloadAll()
-                }
-                .help("Reload")
             }
             ToolbarSpacer()
+
+            ToolbarItemGroup(placement: .secondaryAction) {
+            //    Button("Reload", systemImage: "arrow.clockwise") {
+            //        state.reloadAll()
+            //    }
+            //    .help("Reload")
+            //    Button("Show History", systemImage: "clock") {
+            //        appState.openHistoryWindow(for: state, openWindow: openWindow)
+            //    }
+            //    .help("Show History")
+            }
 
             ToolbarItemGroup(placement: .primaryAction) {
                 Button("Search", systemImage: "magnifyingglass") {
@@ -235,21 +241,13 @@ struct BrowserView: View {
 
         // scenePhase 로는 먼가 감지가 잘 안돼서 Notification 을 쓰도록 한다.
 
-        appState.saveBrowserWindowSize(window.frame.size)
-
-        NotificationCenter.default
-            .publisher(for: NSWindow.didResignMainNotification, object: window)
-            .sink { _ in
-                print("resign main window: \(state.debuggingName)")
-                state.fileBuffer?.autoSaveTextView()
-            }
-            .store(in: &cancellables)
+        saveWindowSize(window)
 
         NotificationCenter.default
             .publisher(for: NSWindow.didBecomeMainNotification, object: window)
             .sink { notification in
                 guard let window = notification.object as? NSWindow else { return }
-                appState.saveBrowserWindowSize(window.frame.size)
+                saveWindowSize(window)
             }
             .store(in: &cancellables)
 
@@ -257,8 +255,7 @@ struct BrowserView: View {
             .publisher(for: NSWindow.didResizeNotification, object: window)
             .sink { notification in
                 guard let window = notification.object as? NSWindow else { return }
-                appState.saveBrowserWindowSize(window.frame.size)
-                //print("resize window: \(window.frame.size)")
+                saveWindowSize(window)
             }
             .store(in: &cancellables)
 
@@ -269,6 +266,17 @@ struct BrowserView: View {
             }
             .store(in: &cancellables)
 
+        NotificationCenter.default
+            .publisher(for: NSWindow.didResignMainNotification, object: window)
+            .sink { _ in
+                print("resign main window: \(state.debuggingName)")
+                state.fileBuffer?.autoSaveTextView()
+            }
+            .store(in: &cancellables)
+    }
+
+    func saveWindowSize(_ window: NSWindow) {
+        appState.saveBrowserWindowSize(window.frame.size)
     }
 }
 

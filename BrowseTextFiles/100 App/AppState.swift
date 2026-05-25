@@ -69,8 +69,8 @@ class AppState {
 
     // MARK: - Font
 
-    var fontManager = FontManager()
-    
+    @ObservationIgnored var fontManager = FontManager()
+
     var fontName: String {
         didSet {
             UserDefaults.standard.set(fontName, forKey: "fontName")
@@ -141,7 +141,7 @@ class AppState {
 
     // MARK: - Browser Window
 
-    var lastBrowserWindowSize: CGSize?
+    @ObservationIgnored var lastBrowserWindowSize: CGSize?
 
     func saveBrowserWindowSize(_ size: CGSize) {
         lastBrowserWindowSize = size
@@ -212,37 +212,6 @@ class AppState {
         recentDocumentURLs = NSDocumentController.shared.recentDocumentURLs
     }
 
-    // MARK: - BrowserState Push/Pop
-
-    @ObservationIgnored
-    private weak var lastBrowserState: BrowserState? = nil
-
-    func pushBrowserState(_ state: BrowserState) {
-        lastBrowserState = state
-    }
-
-    func popBrowserState(_ id: BrowserState.ID?) -> BrowserState? {
-        guard lastBrowserState?.id == id else { return nil }
-        return lastBrowserState
-    }
-
-    // MARK: - Search Window
-
-    func openSearchWindow(for state: BrowserState, openWindow: OpenWindowAction) {
-        pushBrowserState(state)
-        openWindow(id: "search", value: state.id)
-    }
-
-    var lastSearchWindowSize: CGSize?
-    var lastSearchWindowPosition: CGPoint?
-
-    func saveSearchWindowSize(_ size: CGSize, position: CGPoint) {
-        lastSearchWindowSize = size
-        lastSearchWindowPosition = position
-        //print("save search window size: \(size)")
-        //print("save search window position: \(position)")
-    }
-
     // MARK: - Tab Key
 
     enum TabKeyAction: Int {
@@ -260,6 +229,46 @@ class AppState {
         didSet {
             UserDefaults.standard.set(indentSize, forKey: "indentSize")
         }
+    }
+
+    // MARK: - BrowserState Push/Pop
+
+    @ObservationIgnored private weak var lastBrowserState: BrowserState? = nil
+
+    func pushBrowserState(_ state: BrowserState) {
+        lastBrowserState = state
+    }
+
+    func popBrowserState(_ id: BrowserState.ID?) -> BrowserState? {
+        guard lastBrowserState?.id == id else { return nil }
+        return lastBrowserState
+    }
+
+    // MARK: - Search Window
+
+    @ObservationIgnored var lastSearchWindowSize: CGSize?
+
+    func openSearchWindow(for state: BrowserState, openWindow: OpenWindowAction) {
+        pushBrowserState(state)
+        openWindow(id: "search", value: state.id)
+    }
+
+    func saveSearchWindowSize(_ size: CGSize) {
+        lastSearchWindowSize = size
+        //print("save search window size: \(size)")
+    }
+
+    // MARK: - History Window
+
+    @ObservationIgnored var lastHistoryWindowSize: CGSize?
+
+    func openHistoryWindow(for state: BrowserState, openWindow: OpenWindowAction) {
+        pushBrowserState(state)
+        openWindow(id: "history", value: state.id)
+    }
+
+    func saveHistoryWindowSize(_ size: CGSize) {
+        lastHistoryWindowSize = size
     }
 }
 

@@ -79,13 +79,13 @@ struct SearchView: View {
         guard let window else { return }
 
         window.collectionBehavior.insert(.ignoresCycle)
-        appState.saveSearchWindowSize(window.frame.size, position: window.frame.origin)
+        saveWindowSize(window)
 
         NotificationCenter.default
             .publisher(for: NSWindow.didBecomeMainNotification, object: window)
             .sink { notification in
                 guard let window = notification.object as? NSWindow else { return }
-                appState.saveSearchWindowSize(window.frame.size, position: window.frame.origin)
+                saveWindowSize(window)
             }
             .store(in: &cancellables)
 
@@ -93,18 +93,13 @@ struct SearchView: View {
             .publisher(for: NSWindow.didResizeNotification, object: window)
             .sink { notification in
                 guard let window = notification.object as? NSWindow else { return }
-                appState.saveSearchWindowSize(window.frame.size, position: window.frame.origin)
+                saveWindowSize(window)
             }
             .store(in: &cancellables)
+    }
 
-        NotificationCenter.default
-            .publisher(for: NSWindow.didMoveNotification, object: window)
-            .sink { notification in
-                guard let window = notification.object as? NSWindow else { return }
-                appState.saveSearchWindowSize(window.frame.size, position: window.frame.origin)
-            }
-            .store(in: &cancellables)
-
+    func saveWindowSize(_ window: NSWindow) {
+        appState.saveSearchWindowSize(window.frame.size)
     }
 }
 

@@ -88,6 +88,14 @@ struct BrowserWindow: Scene {
                      state?.reloadAll()
                 }
                 .keyboardShortcut("r", modifiers: .command)
+
+                Button("Show History", systemImage: "clock") {
+                    guard let state else { return }
+                    appState.openHistoryWindow(for: state, openWindow: openWindow)
+                }
+                .keyboardShortcut("y", modifiers: .command)
+
+
                 Divider()
                 
                 // Button("Test SecurityScoped") {
