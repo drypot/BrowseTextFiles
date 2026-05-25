@@ -23,13 +23,12 @@ struct SearchView: View {
                 @Bindable var state = state
                 TextField("Search", text: $state.searchText)
                     .frame(minWidth: 180)
-                    .onSubmit {
-                        state.startSearch()
-                    }
                     .focused($isFocused)
                     .task {
                         isFocused = true
-                        state.searchText = "quick" // *****
+                    }
+                    .onSubmit {
+                        state.startSearch()
                     }
                 Button("Search") {
                     state.startSearch()
@@ -38,7 +37,9 @@ struct SearchView: View {
                     state.clearSearchResult()
                 }
             }
-            .padding()
+            .padding(.horizontal)
+            .padding(.vertical, 8)
+
             Divider()
 
             if let results = state.searchResults, !results.isEmpty {

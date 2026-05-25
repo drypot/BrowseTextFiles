@@ -13,8 +13,6 @@ struct ConsoleWindow: Scene {
     var body: some Scene {
         Window("Debugging Console", id: "console") {
             LogStoreView()
-                .padding()
-                .frame(minWidth: 150, minHeight: 150)
         }
         .commands {
             CommandGroup(after: .help) {
