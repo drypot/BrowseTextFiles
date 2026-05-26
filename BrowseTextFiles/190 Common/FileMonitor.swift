@@ -69,14 +69,4 @@ nonisolated final class FileMonitor {
         source.cancel()
         self.source = nil
     }
-
-    func disableMonitoringWhile<T>(block: () throws -> T) throws -> T {
-        // print("FileMonitor: ignoreEvent <- true")
-        ignoreEvent = true
-        defer {
-            // print("FileMonitor: ignoreEvent <- false")
-            ignoreEvent = false
-        }
-        return try block()
-    }
 }

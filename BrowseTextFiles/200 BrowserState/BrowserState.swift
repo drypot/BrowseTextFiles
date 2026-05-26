@@ -17,6 +17,8 @@ final class BrowserState: Identifiable {
     var rootPathComponents: [String]?
     var shouldReleaseSecurityScopedResource = false
 
+    //var rootWatcher: FolderWatcher?
+
     var rootFolder: FolderForView?
 
     var expandedFolders: Set<URL> = []
@@ -51,10 +53,12 @@ final class BrowserState: Identifiable {
     // MARK: - Root
 
     func releaseResource() {
-        if let rootURL, shouldReleaseSecurityScopedResource {
+        guard let rootURL else { return }
+        if shouldReleaseSecurityScopedResource {
             rootURL.stopAccessingSecurityScopedResource()
             shouldReleaseSecurityScopedResource = false
         }
+        //rootWatcher?.stopWatching()
     }
 
     func initRoot(with url: URL) {
@@ -62,6 +66,10 @@ final class BrowserState: Identifiable {
         rootName = url.lastPathComponent
         rootPathComponents = url.pathComponents
         shouldReleaseSecurityScopedResource = url.startAccessingSecurityScopedResource()
+        //rootWatcher = FolderWatcher()
+        //rootWatcher?.startWatching(url) {
+        //    print("root watcher: changed")
+        //}
     }
 
     var isRootReady: Bool {
