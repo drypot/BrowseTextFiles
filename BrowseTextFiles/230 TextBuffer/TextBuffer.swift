@@ -36,7 +36,7 @@ final class TextBuffer: Identifiable, Hashable {
     private(set) var loadingError: String?
     private(set) var savingError: String?
 
-    private(set) var alertMessage: String?
+    private(set) var alertMessage: String = ""
     var hasAlertMessage: Bool = false
 
     init(from url: URL, rootURL: URL) {

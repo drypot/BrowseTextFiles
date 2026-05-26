@@ -45,7 +45,7 @@ final class BrowserState: Identifiable {
 
     var history: [URLForView] = []
 
-    var alertMessage: String?
+    var alertMessage: String = ""
     var hasAlertMessage = false
 
     // MARK: - Root

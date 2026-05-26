@@ -112,13 +112,13 @@ struct BrowserView: View {
             "",
             isPresented: $state.hasAlertMessage,
             actions: { Button("OK") { } },
-            message: { Text(state.alertMessage ?? "Unknown error.") }
+            message: { Text(state.alertMessage) }
         )
         .alert(
             "",
             isPresented: $state.hasFileBufferAlertMessage,
             actions: { Button("OK") { } },
-            message: { Text(state.fileBuffer?.alertMessage ?? "Unknown error.") }
+            message: { Text(state.fileBuffer?.alertMessage ?? "nil") }
         )
         .onChange(of: state.selectedFile) { _, newValue in
             guard let newValue else { return }
