@@ -16,16 +16,13 @@ extension BrowserState {
 
     func renameFile(from orgURL: URL, to newURL: URL) {
         do {
-            guard let rootURL else { return }
             let fileManager = FileManager.default
             let selectedFileURL = selectedFile?.url
             let shouldUpdateFileBuffer = selectedFileURL == orgURL
             if shouldUpdateFileBuffer {
                 resetFileBuffer()
             }
-            try withSecurityScope(rootURL) {
-                try fileManager.moveItem(at: orgURL, to: newURL)
-            }
+            try fileManager.moveItem(at: orgURL, to: newURL)
             updateFileListFromSelectedFolder()
             if shouldUpdateFileBuffer {
                 selecteFile(withURL: newURL)

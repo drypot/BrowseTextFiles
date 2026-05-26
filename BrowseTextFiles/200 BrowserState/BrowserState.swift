@@ -15,7 +15,7 @@ final class BrowserState: Identifiable {
     var rootURL: URL?
     var rootName: String?
     var rootPathComponents: [String]?
-    var shouldStopAccessingSecurityScopedResource = false
+    var shouldReleaseSecurityScopedResource = false
 
     var rootFolder: FolderForView?
 
@@ -51,9 +51,9 @@ final class BrowserState: Identifiable {
     // MARK: - Root
 
     func releaseResource() {
-        if let rootURL, shouldStopAccessingSecurityScopedResource {
+        if let rootURL, shouldReleaseSecurityScopedResource {
             rootURL.stopAccessingSecurityScopedResource()
-            shouldStopAccessingSecurityScopedResource = false
+            shouldReleaseSecurityScopedResource = false
         }
     }
 
@@ -61,7 +61,7 @@ final class BrowserState: Identifiable {
         rootURL = url
         rootName = url.lastPathComponent
         rootPathComponents = url.pathComponents
-        shouldStopAccessingSecurityScopedResource = url.startAccessingSecurityScopedResource()
+        shouldReleaseSecurityScopedResource = url.startAccessingSecurityScopedResource()
     }
 
     var isRootReady: Bool {

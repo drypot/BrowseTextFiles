@@ -16,18 +16,14 @@ extension BrowserState {
     }
 
     func updateFileList(from url: URL) {
-        guard let rootURL else { return }
-
         resetFileList()
         do {
-            try withSecurityScope(rootURL) {
-                fileList = try FileListBuilder().collectShallowly(from: url) { contentType in
-                    // contentType.conforms(to: .text)
-                    return true
-                }
-                fileList?.sort {
-                    $0.name.localizedStandardCompare($1.name) == .orderedAscending
-                }
+            fileList = try FileListBuilder().collectShallowly(from: url) { contentType in
+                // contentType.conforms(to: .text)
+                return true
+            }
+            fileList?.sort {
+                $0.name.localizedStandardCompare($1.name) == .orderedAscending
             }
             LogStore.shared.log("load list: \(url.lastPathComponent)")
         } catch {

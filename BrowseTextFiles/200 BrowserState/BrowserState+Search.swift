@@ -44,11 +44,6 @@ extension BrowserState {
 
     @concurrent
     public func searchParallel(rootURL: URL, searchText: String) async throws -> [SearchResult] {
-        let isAccessing = rootURL.startAccessingSecurityScopedResource()
-        defer {
-            if isAccessing { rootURL.stopAccessingSecurityScopedResource() }
-        }
-
         let basePath = rootURL.path(percentEncoded: false)
         let basePathLength = basePath.count
 

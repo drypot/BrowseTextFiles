@@ -16,9 +16,8 @@ extension BrowserState {
 
     func renameFolder(from orgURL: URL, to newURL: URL) {
         do {
-            guard let rootURL else { return }
             let fileManager = FileManager.default
-
+            
             let selectedFolderURL = selectedFolder?.url
             let shouldUpdateSelectedFolder = if let selectedFolderURL {
                 selectedFolderURL.isChildOrEqual(to: orgURL)
@@ -38,9 +37,7 @@ extension BrowserState {
             if shouldUpdateFileBuffer {
                 resetFileBuffer()
             }
-            try withSecurityScope(rootURL) {
-                try fileManager.moveItem(at: orgURL, to: newURL)
-            }
+            try fileManager.moveItem(at: orgURL, to: newURL)
             if shouldUpdateSelectedFolder {
                 updateFolderTree(preserveSelection: false)
                 selecteFolder(withURL: newURL)

@@ -78,10 +78,8 @@ final class TextBuffer: Identifiable, Hashable {
 
     func loadOriginalText() {
         do {
-            try withSecurityScope(rootURL) {
-                originalText = try String(contentsOf: url, encoding: .utf8)
-                startFileMonitoring()
-            }
+            originalText = try String(contentsOf: url, encoding: .utf8)
+            startFileMonitoring()
             loadingError = nil
             shouldTextViewCopyOriginalText = true
             LogStore.shared.log("load text: \(name)")
