@@ -7,12 +7,12 @@
 
 import Foundation
 
-public class BookmarkManager {
-    @MainActor public private(set) static var shared = BookmarkManager()
+class BookmarkManager {
+    static let shared = BookmarkManager()
 
     private init() {}
 
-    public func save(_ url: URL, forKey key: String) {
+    func save(_ url: URL, forKey key: String) {
         do {
             let securityScoped = url.startAccessingSecurityScopedResource()
             defer { if securityScoped { url.stopAccessingSecurityScopedResource() } }
@@ -26,7 +26,7 @@ public class BookmarkManager {
         }
     }
 
-    public func load(forKey key: String) -> URL? {
+    func load(forKey key: String) -> URL? {
         var url: URL? = nil
         do {
             guard let bookmarkData = UserDefaults.standard.data(forKey: key) else { return nil }

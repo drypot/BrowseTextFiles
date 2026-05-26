@@ -21,8 +21,8 @@ struct LogEntry: Identifiable {
     }
 }
 
-@MainActor @Observable
-class LogStore {
+@Observable
+final class LogStore {
     static let shared = LogStore()
 
     private(set) var logs: [LogEntry] = []
