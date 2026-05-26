@@ -10,41 +10,28 @@ import SwiftUI
 extension BrowserState {
     // MARK: - Folder Tree
 
-    func resetFolderTree() {
-        rootFolder = nil
-        rootPathComponents = nil
-        deselectFolder()
-        //expandedFolders.removeAll()
-    }
-
-    func updateFolderTree(from url: URL) {
-        resetFolderTree()
-        do {
-            try withSecurityScope(url) {
-                let folder = try FolderTreeBuilder().buildTree(from: url)
-                rootFolder = folder
-                rootPathComponents = folder.url.pathComponents
-                selectFolder(folder)
-                expandFolder(for: folder.url)
-            }
-            LogStore.shared.log("load root: \(url.lastPathComponent)")
-        } catch {
-            let message = error.localizedDescription
-            showAlert(message)
-            LogStore.shared.log("load root: \(message)")
-        }
-    }
-
-    func updateFolderTree() {
-        guard let rootURL else {
-            resetFolderTree()
-            return
-        }
+    func updateFolderTree(preserveSelection: Bool = true) {
+        guard let rootURL else { return }
 
         let selectedFolderURL = selectedFolder?.url
 
-        updateFolderTree(from: rootURL)
-        if let selectedFolderURL {
+        rootFolder = nil
+        selectedFolderID = nil
+        selectedFolder = nil
+
+        do {
+            let folder = try FolderTreeBuilder().buildTree(from: rootURL)
+            rootFolder = folder
+            selectFolder(folder)
+            expandFolder(for: folder.url)
+            LogStore.shared.log("load tree: \(rootName ?? "nil")")
+        } catch {
+            let message = error.localizedDescription
+            showAlert(message)
+            LogStore.shared.log("load tree: \(message)")
+        }
+
+        if preserveSelection, let selectedFolderURL {
             selecteFolder(withURL: selectedFolderURL)
         }
     }

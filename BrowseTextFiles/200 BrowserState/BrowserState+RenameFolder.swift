@@ -42,7 +42,7 @@ extension BrowserState {
                 try fileManager.moveItem(at: orgURL, to: newURL)
             }
             if shouldUpdateSelectedFolder {
-                updateFolderTree(from: rootURL)
+                updateFolderTree(preserveSelection: false)
                 selecteFolder(withURL: newURL)
                 expandFolders(for: newURL)
                 updateFileListFromSelectedFolder()

@@ -171,14 +171,16 @@ struct BrowserView: View {
         // Scene 복구가 먼저다, 사용자의 마지막 파일로 돌아간다.
         if !state.isRootReady, let rootURL = loadSceneRootURL() {
             print("task: init from scene data, \(rootURL.lastPathComponent)")
-            state.updateAll(fromRootURL: rootURL, fileURL: loadSceneFileURL())
+            state.initRoot(with: rootURL)
+            state.updateAll(fileURL: loadSceneFileURL())
             return
         }
 
         // initParam 으로 URL 전달받은 경우.
         if let rootURL = initParam.rootURL {
             print("task: init from initParam, \(rootURL.lastPathComponent)")
-            state.updateAll(fromRootURL: rootURL, fileURL: initParam.fileURL)
+            state.initRoot(with: rootURL)
+            state.updateAll(fileURL: initParam.fileURL)
             saveSceneData(rootURL: rootURL)
             appState.addRecentDocumentURL(rootURL)
             return
@@ -201,7 +203,8 @@ struct BrowserView: View {
     private func initViewFromOpenPanel() {
         guard let window else { return }
         appState.showFolderOpenPanelFor(window) { url in
-            state.updateAll(fromRootURL: url, fileURL: nil)
+            state.initRoot(with: url)
+            state.updateAll(fileURL: nil)
             saveSceneData(rootURL: url)
             appState.addRecentDocumentURL(url)
         }
@@ -264,13 +267,14 @@ struct BrowserView: View {
             .sink { notification in
                 dismissWindow(id: "search", value: state.id)
                 dismissWindow(id: "history", value: state.id)
+                state.releaseResource()
             }
             .store(in: &cancellables)
 
         NotificationCenter.default
             .publisher(for: NSWindow.didResignMainNotification, object: window)
             .sink { _ in
-                print("resign main window: \(state.debuggingName)")
+                print("resign main window: \(state.rootName ?? "nil")")
                 state.fileBuffer?.autoSaveTextView()
             }
             .store(in: &cancellables)

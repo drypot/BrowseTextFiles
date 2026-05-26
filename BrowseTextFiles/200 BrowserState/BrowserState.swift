@@ -12,8 +12,12 @@ import UniformTypeIdentifiers
 final class BrowserState: Identifiable {
     let id = UUID()
 
-    var rootFolder: FolderForView?
+    var rootURL: URL?
+    var rootName: String?
     var rootPathComponents: [String]?
+    var shouldStopAccessingSecurityScopedResource = false
+
+    var rootFolder: FolderForView?
 
     var expandedFolders: Set<URL> = []
 
@@ -46,20 +50,22 @@ final class BrowserState: Identifiable {
 
     // MARK: - Root
 
+    func releaseResource() {
+        if let rootURL, shouldStopAccessingSecurityScopedResource {
+            rootURL.stopAccessingSecurityScopedResource()
+            shouldStopAccessingSecurityScopedResource = false
+        }
+    }
+
+    func initRoot(with url: URL) {
+        rootURL = url
+        rootName = url.lastPathComponent
+        rootPathComponents = url.pathComponents
+        shouldStopAccessingSecurityScopedResource = url.startAccessingSecurityScopedResource()
+    }
+
     var isRootReady: Bool {
         rootFolder != nil
-    }
-
-    var rootURL: URL? {
-        rootFolder?.url
-    }
-
-    var rootName: String? {
-        rootFolder?.name
-    }
-
-    var debuggingName: String {
-        rootFolder?.name ?? "nil"
     }
 
     // MARK: - Alert
@@ -71,8 +77,8 @@ final class BrowserState: Identifiable {
 
     // MARK: - Update All
 
-    func updateAll(fromRootURL rootURL: URL, fileURL: URL?) {
-        updateFolderTree(from: rootURL)
+    func updateAll(fileURL: URL?) {
+        updateFolderTree()
         if !isRootReady { return }
 
         if let fileURL {
