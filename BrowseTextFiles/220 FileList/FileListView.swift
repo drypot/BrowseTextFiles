@@ -11,10 +11,10 @@ struct FileListView: View {
     @Environment(AppState.self) var appState
     @Environment(BrowserState.self) var state
     @Environment(\.appearsActive) var appearsActive
-    @Environment(\.focusedTargetBinding) var focusedTargetBinding
+    @Environment(\.focusedViewBinding) var focusedViewBinding
 
     var body: some View {
-        let isActive = appearsActive && (focusedTargetBinding?.wrappedValue == .fileList)
+        let isActive = appearsActive && (focusedViewBinding?.wrappedValue == .fileList)
 
         List {
             if let fileList = state.fileList {
@@ -25,32 +25,31 @@ struct FileListView: View {
         }
         .focusable()
         .focusEffectDisabled()
-        .focused(focusedTargetBinding!, equals: .fileList)
-        .onKeyPress(.tab, phases: .down) { event in
-            if event.modifiers.contains(.shift) {
-                focusedTargetBinding?.wrappedValue = .folderTree
-            } else {
-                focusedTargetBinding?.wrappedValue = .textEditor
-            }
-            return .handled
-        }
-        .onKeyPress(.downArrow) {
+        .focused(focusedViewBinding!, equals: .fileList)
+        .onKeyPress(phases: .down, action: handleKeyPress)
+    }
+
+    func handleKeyPress(_ press: KeyPress) -> KeyPress.Result {
+        switch press.key {
+        case .tab:
+            focusedViewBinding?.wrappedValue = .textEditor
+        case "\u{19}": // shift tab
+            focusedViewBinding?.wrappedValue = .folderTree
+        case .downArrow:
             if state.selecteNextFile() {
                 state.updateFileBufferFromSelectedFile()
             }
-            return .handled
-        }
-        .onKeyPress(.upArrow) {
+        case .upArrow:
             if state.selectePreviousFile() {
                 state.updateFileBufferFromSelectedFile()
             }
-            return .handled
-        }
-        .onKeyPress(.return) {
+        case .return:
             guard let selectedFileID = state.selectedFileID else { return .ignored }
             state.showRenameFile(id: selectedFileID)
-            return .handled
+        default:
+            return .ignored
         }
+        return .handled
     }
 }
 
@@ -58,7 +57,7 @@ fileprivate struct RowView: View {
     @Environment(AppState.self) var appState
     @Environment(BrowserState.self) var state
     @Environment(\.openWindow) private var openWindow
-    @Environment(\.focusedTargetBinding) var focusedTargetBinding
+    @Environment(\.focusedViewBinding) var focusedViewBinding
 
     let item: FileForView
     let isActive: Bool
@@ -80,7 +79,7 @@ fileprivate struct RowView: View {
         .frame(maxWidth: .infinity)
         .contentShape(Rectangle()) // 빈공간도 클릭되게 한다.
         .onTapGesture {
-            focusedTargetBinding?.wrappedValue = .fileList
+            focusedViewBinding?.wrappedValue = .fileList
             guard state.selectedFileID != item.id else { return }
             state.selecteFile(withID: item.id)
             state.updateFileBufferFromSelectedFile()
