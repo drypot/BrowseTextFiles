@@ -11,10 +11,10 @@ struct FileListView: View {
     @Environment(AppState.self) var appState
     @Environment(BrowserState.self) var state
     @Environment(\.appearsActive) var appearsActive
-    @Environment(\.focusedBinding) var focusedBinding
+    @Environment(\.focusedTargetBinding) var focusedTargetBinding
 
     var body: some View {
-        let isActive = appearsActive && (focusedBinding?.wrappedValue == .fileList)
+        let isActive = appearsActive && (focusedTargetBinding?.wrappedValue == .fileList)
 
         List {
             if let fileList = state.fileList {
@@ -25,12 +25,12 @@ struct FileListView: View {
         }
         .focusable()
         .focusEffectDisabled()
-        .focused(focusedBinding!, equals: .fileList)
+        .focused(focusedTargetBinding!, equals: .fileList)
         .onKeyPress(.tab, phases: .down) { event in
             if event.modifiers.contains(.shift) {
-                focusedBinding?.wrappedValue = .folderTree
+                focusedTargetBinding?.wrappedValue = .folderTree
             } else {
-                focusedBinding?.wrappedValue = .textEditor
+                focusedTargetBinding?.wrappedValue = .textEditor
             }
             return .handled
         }
@@ -58,7 +58,7 @@ fileprivate struct RowView: View {
     @Environment(AppState.self) var appState
     @Environment(BrowserState.self) var state
     @Environment(\.openWindow) private var openWindow
-    @Environment(\.focusedBinding) var focusedBinding
+    @Environment(\.focusedTargetBinding) var focusedTargetBinding
 
     let item: FileForView
     let isActive: Bool
@@ -80,7 +80,7 @@ fileprivate struct RowView: View {
         .frame(maxWidth: .infinity)
         .contentShape(Rectangle()) // 빈공간도 클릭되게 한다.
         .onTapGesture {
-            focusedBinding?.wrappedValue = .fileList
+            focusedTargetBinding?.wrappedValue = .fileList
             guard state.selectedFileID != item.id else { return }
             state.selecteFile(withID: item.id)
             state.updateFileBufferFromSelectedFile()
