@@ -10,7 +10,7 @@ import SwiftUI
 struct TextBufferView: View {
     @Environment(AppState.self) var appState
     @Environment(BrowserState.self) var state
-    @Environment(\.focusedTargetBinding) var focusedTargetBinding
+    @Environment(\.focusedViewBinding) var focusedViewBinding
 
 //    private let debugID = UUID()
     
@@ -38,7 +38,7 @@ struct TextBufferView: View {
                 // TextBufferEditor 를 만들었다. NSTextView.string 을 source 로 쓴다.
 
                 TextBufferEditor()
-                    .focused(focusedTargetBinding!, equals: .textEditor)
+                    .focused(focusedViewBinding!, equals: .textEditor)
                     .onAppear {
                         fileBuffer.updateTextViewStyle(appState: appState)
                     }

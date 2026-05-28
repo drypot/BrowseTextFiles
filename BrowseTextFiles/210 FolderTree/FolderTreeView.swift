@@ -11,10 +11,10 @@ struct FolderTreeView: View {
     @Environment(AppState.self) var appState
     @Environment(BrowserState.self) var state
     @Environment(\.appearsActive) var appearsActive
-    @Environment(\.focusedTargetBinding) var focusedTargetBinding
+    @Environment(\.focusedViewBinding) var focusedViewBinding
 
     var body: some View {
-        let isActive = appearsActive && (focusedTargetBinding?.wrappedValue == .folderTree)
+        let isActive = appearsActive && (focusedViewBinding?.wrappedValue == .folderTree)
 
         List {
             if let rootFolder = state.rootFolder {
@@ -23,7 +23,7 @@ struct FolderTreeView: View {
         }
         .focusable()
         .focusEffectDisabled()
-        .focused(focusedTargetBinding!, equals: .folderTree)
+        .focused(focusedViewBinding!, equals: .folderTree)
         .onKeyPress(phases: .down, action: handleKeyPress)
     }
 
@@ -35,7 +35,7 @@ struct FolderTreeView: View {
         switch press.key {
         case .tab:
             guard let fileList = state.fileList else { return .handled }
-            focusedTargetBinding?.wrappedValue = .fileList
+            focusedViewBinding?.wrappedValue = .fileList
             if state.selectedFileID == nil {
                 if let first = fileList.first {
                     state.selecteFile(first)
@@ -74,7 +74,7 @@ fileprivate struct RowView: View {
     @Environment(AppState.self) var appState
     @Environment(BrowserState.self) var state
     @Environment(\.openWindow) private var openWindow
-    @Environment(\.focusedTargetBinding) var focusedTargetBinding
+    @Environment(\.focusedViewBinding) var focusedViewBinding
 
     let item: FolderForView
     let level: Int
@@ -106,7 +106,7 @@ fileprivate struct RowView: View {
         .frame(maxWidth: .infinity)
         .contentShape(Rectangle()) // 빈공간도 클릭되게 한다.
         .onTapGesture {
-            focusedTargetBinding?.wrappedValue = .folderTree
+            focusedViewBinding?.wrappedValue = .folderTree
             guard state.selectedFolderID != item.id else { return }
             state.selecteFolder(withID: item.id)
             state.updateFileListFromSelectedFolder()

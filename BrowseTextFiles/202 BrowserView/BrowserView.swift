@@ -8,7 +8,7 @@
 import SwiftUI
 import Combine
 
-enum FocusedTarget {
+enum FocusedView {
     case folderTree
     case fileList
     case textEditor
@@ -19,7 +19,7 @@ extension FocusedValues {
 }
 
 extension EnvironmentValues {
-    @Entry var focusedTargetBinding: FocusState<FocusedTarget?>.Binding?
+    @Entry var focusedViewBinding: FocusState<FocusedView?>.Binding?
 }
 
 struct BrowserInitParam: Hashable, Codable {
@@ -49,7 +49,7 @@ struct BrowserView: View {
     @State private var isShowBlank = false
     @State private var cancellables = Set<AnyCancellable>()
 
-    @FocusState private var focusedTarget: FocusedTarget?
+    @FocusState private var focusedView: FocusedView?
 
     private let initParam: BrowserInitParam
 
@@ -91,7 +91,7 @@ struct BrowserView: View {
         .background(WindowReader(onResolve: setupWindow))
         .navigationTitle(state.rootName ?? "Browser")
         .environment(state)
-        .environment(\.focusedTargetBinding, $focusedTarget)
+        .environment(\.focusedViewBinding, $focusedView)
         .focusedSceneValue(\.focusedBrowserState, state)
         .task(id: initParam) {
             processInitParam()
