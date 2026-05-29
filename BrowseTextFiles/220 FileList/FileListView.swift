@@ -89,15 +89,15 @@ fileprivate struct RowView: View {
             state.updateFileBufferFromSelectedFile()
         }
         .contextMenu {
+            Button("Show in Finder") {
+                Finder.shared.open(url: item.url)
+            }
             Button("Open in New Window") {
                 appState.openNewBrowserWindow(fromFileURL: item.url, openWindow: openWindow)
             }
+            Divider()
             Button("Rename") {
                 state.showRenameFile(id: item.id)
-            }
-            Divider()
-            Button("Show in Finder") {
-                Finder.shared.open(url: item.url)
             }
         }
         //.focusEffectDisabled() // 포커스 테두리 표시 안 함

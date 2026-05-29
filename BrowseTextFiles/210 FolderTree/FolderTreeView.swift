@@ -116,17 +116,17 @@ fileprivate struct RowView: View {
             state.updateFileListFromSelectedFolder()
         }
         .contextMenu {
+            Button("Show in Finder") {
+                Finder.shared.open(url: item.url)
+            }
             Button("Open in New Window") {
                 appState.openNewBrowserWindow(fromRootURL: item.url, fileURL: nil, openWindow: openWindow)
             }
+            Divider()
             if item != state.rootFolder {
                 Button("Rename") {
                     state.showRenameFolder(id: item.id)
                 }
-            }
-            Divider()
-            Button("Show in Finder") {
-                Finder.shared.open(url: item.url)
             }
         }
         //.focusEffectDisabled() // 포커스 테두리 표시 안 함
