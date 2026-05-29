@@ -82,6 +82,10 @@ fileprivate struct RowView: View {
 
     var body: some View {
         let isExpanded = item.hasChildren && state.isFolderExpanded(for: item.url)
+        let isSelected = item.id == state.selectedFolderID
+        let styler = Styler.shared
+        let foregroundStyle = styler.foregroundStyleWhen(selected: isSelected, active: isActive)
+        let backgroundStyle = styler.backgroundStyleWhen(selected: isSelected, active: isActive)
 
         HStack(spacing: 2) {
             Spacer()
@@ -134,33 +138,6 @@ fileprivate struct RowView: View {
         }
     }
 
-    var isSelected: Bool {
-        item.id == state.selectedFolderID
-    }
-
-    var foregroundStyle: Color {
-        if isSelected {
-            if isActive {
-                Color(nsColor: .selectedMenuItemTextColor)
-            } else {
-                Color(nsColor: .secondaryLabelColor)
-            }
-        } else {
-            Color(nsColor: .secondaryLabelColor)
-        }
-    }
-
-    var backgroundStyle: Color {
-        if isSelected {
-            if isActive {
-                Color(nsColor: .selectedContentBackgroundColor)
-            } else {
-                Color(nsColor: .unemphasizedSelectedContentBackgroundColor)
-            }
-        } else {
-            Color(nsColor: .clear)
-        }
-    }
 }
 
 #Preview {

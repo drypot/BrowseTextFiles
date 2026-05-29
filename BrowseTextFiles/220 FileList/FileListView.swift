@@ -63,6 +63,10 @@ fileprivate struct RowView: View {
     let isActive: Bool
 
     var body: some View {
+        let isSelected = item.id == state.selectedFileID
+        let styler = Styler.shared
+        let foregroundStyle = styler.foregroundStyleWhen(selected: isSelected, active: isActive)
+        let backgroundStyle = styler.backgroundStyleWhen(selected: isSelected, active: isActive)
         HStack {
             Text(item.name)
                 .lineLimit(1)
@@ -99,33 +103,6 @@ fileprivate struct RowView: View {
         //.focusEffectDisabled() // 포커스 테두리 표시 안 함
     }
 
-    var isSelected: Bool {
-        item.id == state.selectedFileID
-    }
-
-    var foregroundStyle: Color {
-        if isSelected {
-            if isActive {
-                Color(nsColor: .selectedMenuItemTextColor)
-            } else {
-                Color(nsColor: .secondaryLabelColor)
-            }
-        } else {
-            Color(nsColor: .secondaryLabelColor)
-        }
-    }
-
-    var backgroundStyle: Color {
-        if isSelected {
-            if isActive {
-                Color(nsColor: .selectedContentBackgroundColor)
-            } else {
-                Color(nsColor: .unemphasizedSelectedContentBackgroundColor)
-            }
-        } else {
-            Color(nsColor: .clear)
-        }
-    }
 }
 
 #Preview {

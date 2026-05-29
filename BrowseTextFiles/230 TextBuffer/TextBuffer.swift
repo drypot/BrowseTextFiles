@@ -149,32 +149,6 @@ final class TextBuffer: Identifiable, Hashable {
         }
     }
 
-    func updateTextViewStyle(appState: AppState) {
-        guard let textView else { return }
-
-        let paragraphStyle = NSMutableParagraphStyle()
-        // lineSpacing 쓰면 엔터 입력시 커서가 사라진다; macOS 26
-        // paragraphStyle.lineSpacing = appState.lineSpacing
-        paragraphStyle.lineHeightMultiple = appState.lineHeightMultiple
-
-        let attributes: [NSAttributedString.Key: Any] = [
-            .font: appState.makeNSFontForText(),
-            .paragraphStyle: paragraphStyle
-        ]
-
-        textView.typingAttributes = attributes
-
-        guard let storage = textView.textStorage else { return }
-        let range = NSRange(
-            location: 0,
-            length: storage.length
-            // length: textView.string.utf16.count
-        )
-        storage.beginEditing()
-        storage.setAttributes(attributes, range: range)
-        storage.endEditing()
-    }
-
     static func == (lhs: TextBuffer, rhs: TextBuffer) -> Bool {
         return lhs.id == rhs.id
     }

@@ -15,6 +15,7 @@ struct TextBufferView: View {
 //    private let debugID = UUID()
     
     var body: some View {
+        let styler = Styler.shared
         Group {
             if let loadError = state.fileBuffer?.loadingError {
                 Text(loadError)
@@ -40,20 +41,20 @@ struct TextBufferView: View {
                 TextBufferEditor()
                     .focused(focusedViewBinding!, equals: .textEditor)
                     .onAppear {
-                        fileBuffer.updateTextViewStyle(appState: appState)
+                        styler.updateTextViewStyle(fileBuffer.textView, appState)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
 
                 // TextBufferEditor.updateNSView 에서 스타일까지 업데이트하면 비효율이 심해진다.
                 // 여기로 따로 빼놨다.
                 .onChange(of: appState.fontName) {
-                    fileBuffer.updateTextViewStyle(appState: appState)
+                    styler.updateTextViewStyle(fileBuffer.textView, appState)
                 }
                 .onChange(of: appState.fontSize) {
-                    fileBuffer.updateTextViewStyle(appState: appState)
+                    styler.updateTextViewStyle(fileBuffer.textView, appState)
                 }
                 .onChange(of: appState.lineSpacing) {
-                    fileBuffer.updateTextViewStyle(appState: appState)
+                    styler.updateTextViewStyle(fileBuffer.textView, appState)
                 }
 
                 // .overlay(
