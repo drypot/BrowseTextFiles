@@ -15,7 +15,6 @@ struct TextBufferView: View {
 //    private let debugID = UUID()
     
     var body: some View {
-        let styler = Styler.shared
         Group {
             if let loadError = state.fileBuffer?.loadingError {
                 Text(loadError)
@@ -25,7 +24,7 @@ struct TextBufferView: View {
                     .padding(.horizontal, 16)
                     .padding(.top, 16)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            } else if let fileBuffer = state.fileBuffer {
+            } else if let _ = state.fileBuffer {
                 // let _ = Self._printChanges()
 
                 // TextEditor(
@@ -41,20 +40,20 @@ struct TextBufferView: View {
                 TextBufferEditor()
                     .focused(focusedViewBinding!, equals: .textEditor)
                     .onAppear {
-                        styler.updateTextViewStyle(fileBuffer.textView, appState)
+                        updateTextViewStyle()
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
 
                 // TextBufferEditor.updateNSView 에서 스타일까지 업데이트하면 비효율이 심해진다.
                 // 여기로 따로 빼놨다.
                 .onChange(of: appState.fontName) {
-                    styler.updateTextViewStyle(fileBuffer.textView, appState)
+                    updateTextViewStyle()
                 }
                 .onChange(of: appState.fontSize) {
-                    styler.updateTextViewStyle(fileBuffer.textView, appState)
+                    updateTextViewStyle()
                 }
                 .onChange(of: appState.lineSpacing) {
-                    styler.updateTextViewStyle(fileBuffer.textView, appState)
+                    updateTextViewStyle()
                 }
 
                 // .overlay(
@@ -69,6 +68,32 @@ struct TextBufferView: View {
         }
         .frame(minWidth: 300, maxWidth: .infinity, maxHeight: .infinity)
         .layoutPriority(1)
+    }
+
+    func updateTextViewStyle() {
+        guard let textView = state.fileBuffer?.textView else { return }
+
+        let paragraphStyle = NSMutableParagraphStyle()
+        // lineSpacing 쓰면 엔터 입력시 커서가 사라진다; macOS 26
+        // paragraphStyle.lineSpacing = appState.lineSpacing
+        paragraphStyle.lineHeightMultiple = appState.lineHeightMultiple
+
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: appState.makeNSFontForText(),
+            .paragraphStyle: paragraphStyle
+        ]
+
+        textView.typingAttributes = attributes
+
+        guard let storage = textView.textStorage else { return }
+        let range = NSRange(
+            location: 0,
+            length: storage.length
+            // length: textView.string.utf16.count
+        )
+        storage.beginEditing()
+        storage.setAttributes(attributes, range: range)
+        storage.endEditing()
     }
 }
 
