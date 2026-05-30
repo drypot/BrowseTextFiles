@@ -11,7 +11,6 @@ struct RenameFolderSheet: View {
     @Environment(AppState.self) var appState
     @Environment(\.dismiss) private var dismiss
 
-    @State private var orgURL: URL?
     @State private var orgRelativePath = ""
     @State private var newRelativePath = ""
 
@@ -50,7 +49,7 @@ struct RenameFolderSheet: View {
                 .keyboardShortcut(.escape)
 
                 Button("OK") {
-                    rename()
+                    submit()
                     dismiss()
                 }
                 .buttonStyle(.borderedProminent)
@@ -65,22 +64,13 @@ struct RenameFolderSheet: View {
     }
 
     func loadSheet() {
-        guard let rootURL = state.rootURL else { return }
-        guard let renameFolderID = state.renameFolderID else { return }
-        guard let folder = state.findFolder(withID: renameFolderID) else { return }
-        guard let relativePath = folder.url.relativePath(from: rootURL) else { return }
-        orgURL = folder.url
+        guard let relativePath = state.workingRelativePath else { return }
         orgRelativePath = relativePath
         newRelativePath = relativePath
     }
 
-    func rename() {
-        Task {
-            guard let rootURL = state.rootURL else { return }
-            guard let orgURL else { return }
-            let newURL = rootURL.appending(path: newRelativePath)
-            state.renameFolder(from: orgURL, to: newURL)
-        }
+    func submit() {
+        state.renameWorkingFolder(with: newRelativePath)
     }
 }
 

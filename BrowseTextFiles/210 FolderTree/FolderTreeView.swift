@@ -61,7 +61,7 @@ struct FolderTreeView: View {
         case .return:
             guard let selectedFolder = state.selectedFolder else { return .ignored }
             guard selectedFolder != state.rootFolder else { return .ignored }
-            state.showRenameFolder(id: selectedFolder.id)
+            state.showRenameFolderSheet(for: selectedFolder)
         default:
             return .ignored
         }
@@ -112,7 +112,7 @@ fileprivate struct RowView: View {
         .onTapGesture {
             focusedViewBinding?.wrappedValue = .folderTree
             guard state.selectedFolderID != item.id else { return }
-            state.selecteFolder(withID: item.id)
+            state.selecteFolder(with: item.id)
             state.updateFileListFromSelectedFolder()
         }
         .contextMenu {
@@ -125,7 +125,7 @@ fileprivate struct RowView: View {
             Divider()
             if item != state.rootFolder {
                 Button("Rename") {
-                    state.showRenameFolder(id: item.id)
+                    state.showRenameFolderSheet(for: item)
                 }
             }
         }

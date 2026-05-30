@@ -137,7 +137,7 @@ struct NewFileSheet: View {
             .replacingOccurrences(of: "{second}", with: second.formatted(.number.precision(.integerLength(2))))
             .replacingOccurrences(of: "{weekday}", with: calendar.standaloneWeekdaySymbols[weekday - 1])
             .replacingOccurrences(of: "{weekday-short}", with: calendar.shortWeekdaySymbols[weekday - 1])
-            .replacingOccurrences(of: "{current-folder}", with: relativeFolderPath)
+            .replacingOccurrences(of: "{selected-folder}", with: relativeFolderPath)
     }
 }
 

@@ -9,13 +9,13 @@ import SwiftUI
 
 extension BrowserState {
 
-    func showNewFileView() {
+    func showNewFileSheet() {
         guard autoSaveFileBuffer() else { return }
 
         if selectedFolderID == nil {
             showAlert("Select folder first.")
         } else {
-            isShowNewFileView = true
+            isShowNewFileSheet = true
         }
     }
 

@@ -116,7 +116,7 @@ class AppState {
     }
 
     private let newFileTemplateDefaults = [
-        "{current-folder}/Untitled.txt",
+        "{selected-folder}/Untitled.txt",
         "{year}/{month}/{year}-{month}-{day}-{weekday-short}.txt",
     ]
 

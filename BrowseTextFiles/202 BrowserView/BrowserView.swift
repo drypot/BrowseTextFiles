@@ -97,15 +97,15 @@ struct BrowserView: View {
             processInitParam()
         }
         .sheet(
-            isPresented: $state.isShowNewFileView,
+            isPresented: $state.isShowNewFileSheet,
             content: { NewFileSheet(state: state) }
         )
         .sheet(
-            isPresented: $state.isShowRenameFolderView,
+            isPresented: $state.isShowRenameFolderSheet,
             content: { RenameFolderSheet(state: state) }
         )
         .sheet(
-            isPresented: $state.isShowRenameFileView,
+            isPresented: $state.isShowRenameFileSheet,
             content: { RenameFileSheet(state: state) }
         )
         .alert(

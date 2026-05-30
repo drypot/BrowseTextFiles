@@ -44,8 +44,8 @@ struct FileListView: View {
                 state.updateFileBufferFromSelectedFile()
             }
         case .return:
-            guard let selectedFileID = state.selectedFileID else { return .ignored }
-            state.showRenameFile(id: selectedFileID)
+            guard let file = state.selectedFile else { return .ignored }
+            state.showRenameFileSheet(for: file)
         default:
             return .ignored
         }
@@ -97,7 +97,7 @@ fileprivate struct RowView: View {
             }
             Divider()
             Button("Rename") {
-                state.showRenameFile(id: item.id)
+                state.showRenameFileSheet(for: item)
             }
         }
         //.focusEffectDisabled() // 포커스 테두리 표시 안 함

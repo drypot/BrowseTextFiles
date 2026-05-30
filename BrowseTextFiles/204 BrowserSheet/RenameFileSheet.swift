@@ -50,7 +50,7 @@ struct RenameFileSheet: View {
                 .keyboardShortcut(.escape)
 
                 Button("OK") {
-                    rename()
+                    submit()
                     dismiss()
                 }
                 .buttonStyle(.borderedProminent)
@@ -65,22 +65,13 @@ struct RenameFileSheet: View {
     }
 
     func loadSheet() {
-        guard let rootURL = state.rootURL else { return }
-        guard let renameFileID = state.renameFileID else { return }
-        guard let file = state.findFile(with: renameFileID) else { return }
-        guard let relativePath = file.url.relativePath(from: rootURL) else { return }
-        orgURL = file.url
+        guard let relativePath = state.workingRelativePath else { return }
         orgRelativePath = relativePath
         newRelativePath = relativePath
     }
 
-    func rename() {
-        Task {
-            guard let rootURL = state.rootURL else { return }
-            guard let orgURL else { return }
-            let newURL = rootURL.appending(path: newRelativePath)
-            state.renameFile(from: orgURL, to: newURL)
-        }
+    func submit() {
+        state.renameWorkingFile(with: newRelativePath)
     }
 }
 

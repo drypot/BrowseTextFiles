@@ -12,7 +12,7 @@ extension BrowserState {
 
     func resetFileList() {
         fileList = nil
-        selecteFile(withID: nil)
+        deselecteFile()
     }
 
     func updateFileList(from url: URL) {

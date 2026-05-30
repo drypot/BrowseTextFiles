@@ -32,22 +32,22 @@ extension BrowserState {
         }
 
         if preserveSelection, let selectedFolderURL {
-            selecteFolder(withURL: selectedFolderURL)
+            selecteFolder(with: selectedFolderURL)
         }
     }
 
     // MARK: - Selected Folder
 
-    func findFolder(withID id: FolderForView.ID) -> FolderForView? {
+    func findFolder(with id: FolderForView.ID) -> FolderForView? {
         guard let rootFolder else { return nil }
-        return rootFolder.findFolder(withID: id)
+        return rootFolder.findFolder(with: id)
     }
 
     // URL 로 비교하면 패스 마지막에 "/" 이 붙으면서 비교가 귀찮아진다.
     // path 로 비교하면 마지막에 "/" 이 붙지 않는다;
-    func findFolder(withPath path: String) -> FolderForView? {
+    func findFolder(with path: String) -> FolderForView? {
         guard let rootFolder else { return nil }
-        return rootFolder.findFolder(withPath: path)
+        return rootFolder.findFolder(with: path)
     }
 
     func deselectFolder() {
@@ -64,16 +64,16 @@ extension BrowserState {
         }
     }
 
-    func selecteFolder(withID id: FolderForView.ID?) {
-        if let id, let folder = findFolder(withID: id) {
+    func selecteFolder(with id: FolderForView.ID?) {
+        if let id, let folder = findFolder(with: id) {
             selectFolder(folder)
         } else {
             deselectFolder()
         }
     }
 
-    func selecteFolder(withURL url: URL) {
-        if let folder = findFolder(withPath: url.path) {
+    func selecteFolder(with url: URL) {
+        if let folder = findFolder(with: url.path) {
             selectFolder(folder)
         } else {
             deselectFolder()

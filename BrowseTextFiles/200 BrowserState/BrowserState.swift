@@ -26,20 +26,25 @@ final class BrowserState: Identifiable {
     var selectedFolderID: FolderForView.ID?
     var selectedFolder: FolderForView?
 
-    var renameFolderID: FolderForView.ID?
-    var isShowRenameFolderView = false
-
     var fileList: [FileForView]?
 
     var selectedFileID: FileForView.ID?
     var selectedFile: FileForView?
 
-    var renameFileID: FileForView.ID?
-    var isShowRenameFileView = false
-
     var fileBuffer: TextBuffer?
 
-    var isShowNewFileView = false
+    var workingFolderID: FolderForView.ID?
+    var workingFolder: FolderForView?
+
+    var workingFileID: FileForView.ID?
+    var workingFile: FileForView?
+
+    var workingRelativePath: String?
+
+    var isShowNewFolderSheet = false
+    var isShowNewFileSheet = false
+    var isShowRenameFolderSheet = false
+    var isShowRenameFileSheet = false
 
     var searchText = ""
     var isSearching = false
@@ -100,7 +105,7 @@ final class BrowserState: Identifiable {
     func updateAll(fromFileURL fileURL: URL) {
         let folderURL = fileURL.deletingLastPathComponent()
 
-        selecteFolder(withURL: folderURL)
+        selecteFolder(with: folderURL)
         updateFileList(from: folderURL)
         if hasAlertMessage { return }
 
