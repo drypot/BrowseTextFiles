@@ -47,7 +47,7 @@ struct SearchView: View {
                         ForEach(results) { result in
                             VStack(alignment: .leading) {
                                 Button(result.title) {
-                                    state.updateAll(fromFileURL: result.url)
+                                    state.locateFile(with: result.url)
                                 }
                                 .buttonStyle(.plain)
                                 .foregroundStyle(.link)

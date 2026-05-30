@@ -33,7 +33,7 @@ struct HistoryView: View {
                         ForEach(state.history) { urlForView in
                             let path = urlForView.relativePath(from: rootComponents)
                             Button(path) {
-                                state.updateAll(fromFileURL: urlForView.url)
+                                state.locateFile(with: urlForView.url)
                             }
                         }
                         .buttonStyle(.plain)

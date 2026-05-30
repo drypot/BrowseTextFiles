@@ -9,17 +9,15 @@ import SwiftUI
 
 extension BrowserState {
 
-    func showNewFileSheet() {
+    func showNewFileSheet(for folder: FolderForView?) {
+        guard let folder else { return }
         guard autoSaveFileBuffer() else { return }
-
-        if selectedFolderID == nil {
-            showAlert("Select folder first.")
-        } else {
-            isShowNewFileSheet = true
-        }
+        setupWorkingFolder(with: folder)
+        isShowNewFileSheet = true
     }
 
-    func makeNewFile(path: String) {
+    func makeNewFile(with path: String) {
+        LogStore.shared.log("new file: \(path)")
         do {
             guard let rootURL else { return }
             let fileManager = FileManager.default
@@ -35,9 +33,8 @@ extension BrowserState {
                     loadFolderTree()
                 }
                 try "".write(to: newFileURL, atomically: true, encoding: .utf8)
-                LogStore.shared.log("new file: \(path)")
             }
-            updateAll(fromFileURL: newFileURL)
+            locateFile(with: newFileURL)
         } catch {
             let message = error.localizedDescription
             showAlert(message)

@@ -55,7 +55,7 @@ struct BrowserView: View {
 
     init(_ initParam: BrowserInitParam) {
         self.initParam = initParam
-        printInitParamID("init")
+        //printInitParamID("init")
     }
 
     var body: some View {
@@ -82,7 +82,7 @@ struct BrowserView: View {
                 }
             } else if isShowBlank {
                 Button("Open Folder") {
-                    initViewFromOpenPanel()
+                    showOpenPanel()
                 }
             } else {
                 Text("Loading...")
@@ -94,7 +94,7 @@ struct BrowserView: View {
         .environment(\.focusedViewBinding, $focusedView)
         .focusedSceneValue(\.focusedBrowserState, state)
         .task(id: initParam) {
-            processInitParam()
+            initView()
         }
         .sheet(
             isPresented: $state.isShowNewFileSheet,
@@ -122,7 +122,7 @@ struct BrowserView: View {
         )
         .onChange(of: state.selectedFile) { _, newValue in
             guard let newValue else { return }
-            saveSceneData(fileURL: newValue.url)
+            saveFileURL(newValue.url)
         }
         .toolbarBackground(.background, for: .windowToolbar)
         .toolbarBackgroundVisibility(.automatic, for: .windowToolbar)
@@ -160,36 +160,6 @@ struct BrowserView: View {
         }
     }
 
-    func processInitParam() {
-        printInitParamID("task")
-        printInitParam("task")
-
-        // view 는 생각보다 자주 생성된다;
-        // initParam nil 로도 3번 이상 생성된다;
-        // 초기화 로딩 조건을 잘 설정해둬야 한다;
-
-        // Scene 복구가 먼저다, 사용자의 마지막 파일로 돌아간다.
-        if !state.isRootReady, let rootURL = loadSceneRootURL() {
-            print("task: init from scene data, \(rootURL.lastPathComponent)")
-            state.initRoot(with: rootURL)
-            state.updateAll(fileURL: loadSceneFileURL())
-            return
-        }
-
-        // initParam 으로 URL 전달받은 경우.
-        if let rootURL = initParam.rootURL {
-            print("task: init from initParam, \(rootURL.lastPathComponent)")
-            state.initRoot(with: rootURL)
-            state.updateAll(fileURL: initParam.fileURL)
-            saveSceneData(rootURL: rootURL)
-            appState.addRecentDocumentURL(rootURL)
-            return
-        }
-
-        print("task: show blank")
-        isShowBlank = true
-    }
-
     func printInitParamID(_ part: String) {
         print("\(part): id, \(self.initParam.id.uuidString)")
     }
@@ -197,24 +167,48 @@ struct BrowserView: View {
     func printInitParam(_ part: String) {
         print("\(part): rootURL, \(initParam.rootURL?.path ?? "nil")")
         print("\(part): fileURL, \(initParam.fileURL?.path ?? "nil")")
-        print("\(part): sceneData, \(loadSceneRootURL()?.path ?? "nil")")
+        print("\(part): sceneData, \(loadRootURL()?.path ?? "nil")")
     }
 
-    private func initViewFromOpenPanel() {
+    func initView() {
+        //printInitParamID("task")
+        //printInitParam("task")
+
+        // view 는 생각보다 자주 생성된다;
+        // initParam nil 로도 3번 이상 생성된다;
+        // 초기화 로딩 조건을 잘 설정해둬야 한다;
+
+        // Scene 복구가 먼저다, 사용자의 마지막 파일로 돌아간다.
+        if !state.isRootReady, let rootURL = loadRootURL() {
+            state.initState(with: rootURL, fileURL: loadFileURL())
+            return
+        }
+
+        // initParam 으로 URL 전달받은 경우.
+        if let rootURL = initParam.rootURL {
+            state.initState(with: rootURL, fileURL: initParam.fileURL)
+            saveRootURL(rootURL)
+            appState.addRecentDocumentURL(rootURL)
+            return
+        }
+
+        isShowBlank = true
+    }
+
+    private func showOpenPanel() {
         guard let window else { return }
         appState.showFolderOpenPanelFor(window) { url in
-            state.initRoot(with: url)
-            state.updateAll(fileURL: nil)
-            saveSceneData(rootURL: url)
+            state.initState(with: url, fileURL: nil)
+            saveRootURL(url)
             appState.addRecentDocumentURL(url)
         }
     }
 
-    func saveSceneData(rootURL: URL) {
+    func saveRootURL(_ rootURL: URL) {
         sceneRootURLData = try? rootURL.bookmarkData(options: .withSecurityScope)
     }
 
-    func loadSceneRootURL() ->URL? {
+    func loadRootURL() ->URL? {
         guard let data = sceneRootURLData else { return nil }
         var isStale = false
         return try? URL(resolvingBookmarkData: data,
@@ -223,13 +217,13 @@ struct BrowserView: View {
                         bookmarkDataIsStale: &isStale)
     }
 
-    func saveSceneData(fileURL url: URL?) {
+    func saveFileURL(_ url: URL?) {
         if let url {
             sceneFileURLData = try? url.bookmarkData(options: .withSecurityScope)
         }
     }
 
-    func loadSceneFileURL() -> URL? {
+    func loadFileURL() -> URL? {
         guard let data = sceneFileURLData else { return nil }
         var isStale = false
         return try? URL(resolvingBookmarkData: data,

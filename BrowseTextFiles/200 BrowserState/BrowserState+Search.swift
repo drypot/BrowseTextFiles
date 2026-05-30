@@ -10,13 +10,14 @@ import SwiftUI
 extension BrowserState {
 
     func startSearch() {
+        LogStore.shared.log("search: \"\(searchText)\"")
+
         guard let rootURL else { return }
         if isSearching { return }
         if searchText.isEmpty { return }
 
         searchResults = []
         isSearching = true
-        LogStore.shared.log("start search: \"\(searchText)\"")
 
         let pasteboard = NSPasteboard(name: .find)
         pasteboard.declareTypes([.string], owner: nil)
@@ -33,11 +34,11 @@ extension BrowserState {
             do {
                 searchResults = try await searchParallel(rootURL: rootURL, searchText: searchText)
                 isSearching = false
-                LogStore.shared.log("start search: found \(searchResults?.count ?? 0) files")
+                LogStore.shared.log("search: found \(searchResults?.count ?? 0) files")
             } catch {
                 let message = error.localizedDescription
                 showAlert(message)
-                LogStore.shared.log("start search: \(message)")
+                LogStore.shared.log("search: \(message)")
             }
         }
     }

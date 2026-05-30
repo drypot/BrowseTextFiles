@@ -75,16 +75,16 @@ final class TextBuffer: Identifiable, Hashable {
 //    }
 
     func loadOriginalText() {
+        //LogStore.shared.log("load: \(name)")
         do {
             originalText = try String(contentsOf: url, encoding: .utf8)
             startFileMonitoring()
             loadingError = nil
             shouldTextViewCopyOriginalText = true
-            LogStore.shared.log("load text: \(name)")
         } catch {
             let message = error.localizedDescription
             loadingError = message
-            LogStore.shared.log("load text: \(message)")
+            LogStore.shared.log("load: \(message)")
         }
     }
 
@@ -123,6 +123,7 @@ final class TextBuffer: Identifiable, Hashable {
         guard let text = textView?.string else { return }
         guard let data = text.data(using: .utf8) else { return }
 
+        LogStore.shared.log("save: \(name)")
         do {
             // 이렇게 하면 먼저 붙였던 fileMonitor 가 떨어져 나간다. 하지 말 것.
             // try text.write(to: url, atomically: true, encoding: .utf8)
@@ -138,12 +139,11 @@ final class TextBuffer: Identifiable, Hashable {
             try fileHandle.close()
             savingError = nil
             isTextViewEdited = false
-            LogStore.shared.log("save text: \(name)")
         } catch {
             let message = error.localizedDescription
             savingError = message
             showAlert(message)
-            LogStore.shared.log("save text: \(message)")
+            LogStore.shared.log("save: \(message)")
         }
     }
 

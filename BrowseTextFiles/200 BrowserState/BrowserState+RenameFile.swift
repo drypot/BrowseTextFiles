@@ -18,17 +18,19 @@ extension BrowserState {
         guard let rootURL = rootURL else { return }
         guard let orgURL = workingFolder?.url else { return }
         let newURL = rootURL.appending(path: newRelativePath)
+        LogStore.shared.log("renaming: \(orgURL.relativePath)")
         do {
             let fileManager = FileManager.default
 
-            let shouldUpdateSelectedFolder = selectedFolder?.url.isChildOrEqual(to: orgURL) ?? false
-            let shouldUpdateFileBuffer = fileBuffer?.url.isChild(of: orgURL) ?? false
+            let renamingSelectedFolder = selectedFolder?.url.isChildOrEqual(to: orgURL) ?? false
+            let renamingFileBuffer = fileBuffer?.url.isChild(of: orgURL) ?? false
 
-            if shouldUpdateFileBuffer {
+            if renamingFileBuffer {
                 guard closeFileBuffer() else { return }
             }
+            LogStore.shared.log("renaming to: \(newURL.relativePath)")
             try fileManager.moveItem(at: orgURL, to: newURL)
-            if shouldUpdateSelectedFolder {
+            if renamingSelectedFolder {
                 loadFolderTree(preserveSelection: false)
                 selecteFolder(with: newURL)
                 expandFolders(for: newURL)
@@ -36,8 +38,6 @@ extension BrowserState {
             } else {
                 loadFolderTree()
             }
-            LogStore.shared.log("rename from: \(orgURL.relativePath)")
-            LogStore.shared.log("rename to: \(newURL.relativePath)")
         } catch {
             let message = error.localizedDescription
             showAlert(message)
@@ -54,6 +54,7 @@ extension BrowserState {
         guard let rootURL = rootURL else { return }
         guard let orgURL = workingFile?.url else { return }
         let newURL = rootURL.appending(path: newRelativePath)
+        LogStore.shared.log("renaming: \(orgURL.relativePath)")
         do {
             let fileManager = FileManager.default
 
@@ -62,6 +63,7 @@ extension BrowserState {
             if renamingSelectedFile {
                 guard closeFileBuffer() else { return }
             }
+            LogStore.shared.log("renaming to: \(newURL.relativePath)")
             try fileManager.moveItem(at: orgURL, to: newURL)
             if renamingSelectedFile {
                 loadFileList(preserveSelection: false)
@@ -70,8 +72,6 @@ extension BrowserState {
             } else {
                 loadFileList()
             }
-            LogStore.shared.log("rename from: \(orgURL.relativePath)")
-            LogStore.shared.log("rename to: \(newURL.relativePath)")
         } catch {
             let message = error.localizedDescription
             showAlert(message)

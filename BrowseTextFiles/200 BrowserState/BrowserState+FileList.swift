@@ -11,6 +11,8 @@ extension BrowserState {
     // MARK: - File List
 
     func loadFileList(preserveSelection: Bool = true) {
+        LogStore.shared.log("load list: \(selectedFolder?.url.lastPathComponent ?? "nil")")
+
         let selectedFileURL = selectedFile?.url
 
         fileList = nil
@@ -27,7 +29,6 @@ extension BrowserState {
             fileList?.sort {
                 $0.name.localizedStandardCompare($1.name) == .orderedAscending
             }
-            LogStore.shared.log("load list: \(url.lastPathComponent)")
         } catch {
             let message = error.localizedDescription
             showAlert(message)

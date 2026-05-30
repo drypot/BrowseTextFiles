@@ -17,7 +17,9 @@ extension BrowserState {
 
     func closeFileBuffer() -> Bool {
         guard autoSaveFileBuffer() else { return false }
+
         LogStore.shared.log("close buffer: \(fileBuffer?.name ?? "nil")")
+
         fileBuffer?.invalidate()
         fileBuffer = nil
         return true
@@ -26,9 +28,11 @@ extension BrowserState {
     func loadFileBuffer() {
         guard closeFileBuffer() else { return }
 
-        guard let url = selectedFile?.url else { return }
+        let url = selectedFile?.url
+        LogStore.shared.log("create buffer: \(url?.lastPathComponent ?? "nil")")
 
-        LogStore.shared.log("create buffer: \(url.lastPathComponent)")
+        guard let url else { return }
+
         let fileBuffer = TextBuffer(from: url)
         fileBuffer.loadOriginalText()
         if !fileBuffer.hasLoadingError {

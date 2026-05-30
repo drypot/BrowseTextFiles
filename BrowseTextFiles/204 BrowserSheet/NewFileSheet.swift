@@ -76,7 +76,7 @@ struct NewFileSheet: View {
                 .keyboardShortcut(.escape)
 
                 Button("OK") {
-                    saveSheet()
+                    submit()
                     dismiss()
                 }
                 .buttonStyle(.borderedProminent)
@@ -94,10 +94,8 @@ struct NewFileSheet: View {
         updateNewFilePath()
     }
 
-    func saveSheet() {
-        Task {
-            state.makeNewFile(path: newFilePath)
-        }
+    func submit() {
+        state.makeNewFile(with: newFilePath)
     }
 
     func updateNewFilePath() {

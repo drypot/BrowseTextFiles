@@ -11,6 +11,8 @@ extension BrowserState {
     // MARK: - Folder Tree
 
     func loadFolderTree(preserveSelection: Bool = true) {
+        LogStore.shared.log("load tree: \(rootName ?? "nil")")
+
         guard let rootURL else { return }
 
         let selectedFolderURL = selectedFolder?.url
@@ -24,7 +26,6 @@ extension BrowserState {
             rootFolder = folder
             selectFolder(folder)
             expandFolder(for: folder.url)
-            LogStore.shared.log("load tree: \(rootName ?? "nil")")
         } catch {
             let message = error.localizedDescription
             showAlert(message)
@@ -78,10 +79,6 @@ extension BrowserState {
         } else {
             deselectFolder()
         }
-    }
-
-    func selectedRootFolder() {
-        selectFolder(rootFolder)
     }
 
     func selecteNextFolder() -> Bool {

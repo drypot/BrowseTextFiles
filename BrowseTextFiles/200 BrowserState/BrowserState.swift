@@ -55,9 +55,35 @@ final class BrowserState: Identifiable {
     var alertMessage: String = ""
     var hasAlertMessage = false
 
-    // MARK: - Root
+    // MARK: - Init / Release
+
+    func initState(with rootURL: URL, fileURL: URL?) {
+        LogStore.shared.log("init root: \(rootURL.path(percentEncoded: false))")
+
+        self.rootURL = rootURL
+        rootName = rootURL.lastPathComponent
+        rootPathComponents = rootURL.pathComponents
+        shouldReleaseSecurityScopedResource = rootURL.startAccessingSecurityScopedResource()
+
+        //rootWatcher = FolderWatcher()
+        //rootWatcher?.startWatching(url) {
+        //    print("root watcher: changed")
+        //}
+
+        loadFolderTree(preserveSelection: false)
+        if hasAlertMessage { return }
+
+        if let fileURL {
+            locateFile(with: fileURL)
+        } else {
+            selectFolder(rootFolder)
+            loadFileList(preserveSelection: false)
+        }
+    }
 
     func releaseResource() {
+        print("release resource:")
+
         guard let rootURL else { return }
         if shouldReleaseSecurityScopedResource {
             rootURL.stopAccessingSecurityScopedResource()
@@ -66,16 +92,7 @@ final class BrowserState: Identifiable {
         //rootWatcher?.stopWatching()
     }
 
-    func initRoot(with url: URL) {
-        rootURL = url
-        rootName = url.lastPathComponent
-        rootPathComponents = url.pathComponents
-        shouldReleaseSecurityScopedResource = url.startAccessingSecurityScopedResource()
-        //rootWatcher = FolderWatcher()
-        //rootWatcher?.startWatching(url) {
-        //    print("root watcher: changed")
-        //}
-    }
+    // MARK: - Root
 
     var isRootReady: Bool {
         rootFolder != nil
@@ -90,33 +107,9 @@ final class BrowserState: Identifiable {
 
     // MARK: - Update All
 
-    func updateAll(fileURL: URL?) {
-        loadFolderTree()
-        if !isRootReady { return }
-
-        if let fileURL {
-            updateAll(fromFileURL: fileURL)
-        } else {
-            selectedRootFolder()
-            loadFileList()
-        }
-    }
-
-    func updateAll(fromFileURL fileURL: URL) {
-        let folderURL = fileURL.deletingLastPathComponent()
-
-        selecteFolder(with: folderURL)
-        loadFileList(preserveSelection: false)
-        if hasAlertMessage { return }
-
-        if fileList != nil {
-            selecteFile(withURL: fileURL)
-            loadFileBuffer()
-            expandFolders(for: folderURL)
-        }
-    }
-
     func reloadAll() {
+        LogStore.shared.log("reload all:")
+
         guard autoSaveFileBuffer() else { return }
 
         let fileURL = fileBuffer?.url
@@ -125,10 +118,24 @@ final class BrowserState: Identifiable {
         if hasAlertMessage { return }
 
         if let fileURL {
-            updateAll(fromFileURL: fileURL)
+            locateFile(with: fileURL)
         }
+    }
 
-        LogStore.shared.log("reload all:")
+    func locateFile(with fileURL: URL) {
+        LogStore.shared.log("locate file: \(fileURL.path(percentEncoded: false))")
+
+        let folderURL = fileURL.deletingLastPathComponent()
+
+        selecteFolder(with: folderURL)
+        loadFileList(preserveSelection: false)
+        if hasAlertMessage { return }
+
+        guard fileList != nil else { return }
+
+        expandFolders(for: folderURL)
+        selecteFile(withURL: fileURL)
+        loadFileBuffer()
     }
 
 }

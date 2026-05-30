@@ -49,7 +49,7 @@ struct BrowserWindow: Scene {
                 .keyboardShortcut("n", modifiers: .command)
 
                 Button("New File", systemImage: "text.document") {
-                    state?.showNewFileSheet()
+                    state?.showNewFileSheet(for: state?.selectedFolder)
                 }
                 .keyboardShortcut("n", modifiers: [.command, .shift])
 
