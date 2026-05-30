@@ -116,13 +116,19 @@ fileprivate struct RowView: View {
             state.loadFileList()
         }
         .contextMenu {
+            Button("New File...") {
+                state.showNewFileSheet(for: item)
+            }
             Button("Show in Finder") {
                 Finder.shared.open(url: item.url)
             }
+
             Button("Open in New Window") {
                 appState.openNewBrowserWindow(fromRootURL: item.url, fileURL: nil, openWindow: openWindow)
             }
+
             Divider()
+
             if item != state.rootFolder {
                 Button("Rename") {
                     state.showRenameFolderSheet(for: item)

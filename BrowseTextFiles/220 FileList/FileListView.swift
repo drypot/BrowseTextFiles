@@ -89,6 +89,9 @@ fileprivate struct RowView: View {
             state.loadFileBuffer()
         }
         .contextMenu {
+            Button("New File...") {
+                state.showNewFileSheet()
+            }
             Button("Show in Finder") {
                 Finder.shared.open(url: item.url)
             }
