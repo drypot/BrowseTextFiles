@@ -129,6 +129,11 @@ struct BrowserView: View {
         //.toolbar(removing: .title)
         .toolbar {
             ToolbarItemGroup(placement: .navigation) {
+                Button("Reload", systemImage: "arrow.clockwise") {
+                    state.reloadAll()
+                }
+                .help("Reload")
+
                 // Button("Prev", systemName: "chevron.left")  {
                 // }
                 // .help("이전 항목으로 이동")
@@ -140,19 +145,19 @@ struct BrowserView: View {
             ToolbarSpacer()
 
             ToolbarItemGroup(placement: .secondaryAction) {
-            //    Button("Reload", systemImage: "arrow.clockwise") {
-            //        state.reloadAll()
-            //    }
-            //    .help("Reload")
-            //    Button("Show History", systemImage: "clock") {
-            //        appState.openHistoryWindow(for: state, openWindow: openWindow)
-            //    }
-            //    .help("Show History")
+                Button("New File", systemImage: "square.and.pencil") {
+                    state.showNewFileSheet()
+                }
+                .help("New File")
+
+                Button("Show History", systemImage: "clock") {
+                    appState.openHistoryWindow(for: state, openWindow: openWindow)
+                }
+                .help("Show History")
             }
 
             ToolbarItemGroup(placement: .primaryAction) {
                 Button("Search", systemImage: "magnifyingglass") {
-                    guard state.isRootReady else { return }
                     appState.openSearchWindow(for: state, openWindow: openWindow)
                 }
                 .help("Search")

@@ -270,6 +270,7 @@ class AppState {
     // MARK: - Search Window
 
     func openSearchWindow(for state: BrowserState, openWindow: OpenWindowAction) {
+        guard state.isRootReady else { return }
         lastBrowserState = state
         openWindow(id: "search", value: state.id)
     }
@@ -277,6 +278,7 @@ class AppState {
     // MARK: - History Window
 
     func openHistoryWindow(for state: BrowserState, openWindow: OpenWindowAction) {
+        guard state.isRootReady else { return }
         lastBrowserState = state
         openWindow(id: "history", value: state.id)
     }

@@ -9,19 +9,19 @@ import SwiftUI
 
 extension BrowserState {
 
-    func showNewFileSheet(for folder: FolderForView?) {
-        guard let folder else { return }
+    func showNewFileSheet(for folder: FolderForView? = nil) {
+        guard let folder = folder ?? selectedFolder else { return }
         guard autoSaveFileBuffer() else { return }
         setupWorkingFolder(with: folder)
         isShowNewFileSheet = true
     }
 
-    func makeNewFile(with path: String) {
-        LogStore.shared.log("new file: \(path)")
+    func makeNewFile(with newFilePath: String) {
+        LogStore.shared.log("new file: \(newFilePath)")
         do {
             guard let rootURL else { return }
             let fileManager = FileManager.default
-            let newFileURL = rootURL.appending(component: path)
+            let newFileURL = rootURL.appending(component: newFilePath)
             if fileManager.fileExists(atPath: newFileURL.path) {
                 // do nothing
             } else {

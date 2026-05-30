@@ -104,7 +104,7 @@ struct NewFileSheet: View {
     }
 
     func expressionExamples() -> String {
-        let exps = ["{year}", "{month}", "{day}", "{hour}", "{minute}", "{second}", "{weekday}", "{weekday-short}", "{current-folder}"]
+        let exps = ["{year}", "{month}", "{day}", "{hour}", "{minute}", "{second}", "{weekday}", "{weekday-short}", "{selected-folder}"]
         var result = ""
         for exp in exps {
             result += "\(exp): \(expand(template: exp)), "
