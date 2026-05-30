@@ -17,9 +17,16 @@ struct FolderTreeView: View {
     var body: some View {
         let isActive = appearsActive && (focusedViewBinding?.wrappedValue == .folderTree)
 
-        List {
-            if let rootFolder = state.rootFolder {
-                RowView(item: rootFolder, level: 0, isActive: isActive)
+        ScrollViewReader { proxy in
+            List {
+                if let rootFolder = state.rootFolder {
+                    RowView(item: rootFolder, level: 0, isActive: isActive)
+                        .id(rootFolder.id)
+                }
+            }
+            .onChange(of: state.selectedFolderID) {
+                guard let id = state.selectedFolderID else { return }
+                proxy.scrollTo(id)
             }
         }
         .focusable()
@@ -171,6 +178,7 @@ fileprivate struct RowView: View {
         if let children = item.children, isExpanded {
             ForEach(children) { child in
                 RowView(item: child, level: level + 1, isActive: isActive)
+                    .id(child.id)
             }
         }
     }

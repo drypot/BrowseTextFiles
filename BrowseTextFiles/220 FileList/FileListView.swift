@@ -17,11 +17,18 @@ struct FileListView: View {
     var body: some View {
         let isActive = appearsActive && (focusedViewBinding?.wrappedValue == .fileList)
 
-        List {
-            if let fileList = state.fileList {
-                ForEach(fileList) { fileItem in
-                    RowView(item: fileItem, isActive: isActive)
+        ScrollViewReader { proxy in
+            List {
+                if let fileList = state.fileList {
+                    ForEach(fileList) { fileItem in
+                        RowView(item: fileItem, isActive: isActive)
+                            .id(fileItem.id)
+                    }
                 }
+            }
+            .onChange(of: state.selectedFileID) {
+                guard let id = state.selectedFileID else { return }
+                proxy.scrollTo(id)
             }
         }
         .focusable()
