@@ -16,12 +16,14 @@ extension BrowserState {
     }
 
     func closeFileBuffer() -> Bool {
+        guard let fileBuffer else { return true }
         guard autoSaveFileBuffer() else { return false }
 
-        LogStore.shared.log("close buffer: \(fileBuffer?.name ?? "nil")")
+        LogStore.shared.log("close buffer: \(fileBuffer.name)")
 
-        fileBuffer?.invalidate()
-        fileBuffer = nil
+        fileBuffer.invalidate()
+        self.fileBuffer = nil
+        
         return true
     }
 

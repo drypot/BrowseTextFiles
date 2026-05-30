@@ -75,7 +75,7 @@ final class TextBuffer: Identifiable, Hashable {
 //    }
 
     func loadOriginalText() {
-        //LogStore.shared.log("load: \(name)")
+        LogStore.shared.log("load: \(name)")
         do {
             originalText = try String(contentsOf: url, encoding: .utf8)
             startFileMonitoring()

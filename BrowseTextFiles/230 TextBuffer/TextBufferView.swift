@@ -38,30 +38,30 @@ struct TextBufferView: View {
                 // TextBufferEditor 를 만들었다. NSTextView.string 을 source 로 쓴다.
 
                 TextBufferEditor()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .focused(focusedViewBinding!, equals: .textEditor)
                     .onAppear {
                         updateTextViewStyle()
                     }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-                // TextBufferEditor.updateNSView 에서 스타일까지 업데이트하면 비효율이 심해진다.
-                // 여기로 따로 빼놨다.
-                .onChange(of: appState.fontName) {
-                    updateTextViewStyle()
-                }
-                .onChange(of: appState.fontSize) {
-                    updateTextViewStyle()
-                }
-                .onChange(of: appState.lineSpacing) {
-                    updateTextViewStyle()
-                }
+                    // TextBufferEditor.updateNSView 에서 스타일까지 업데이트하면 비효율이 심해진다.
+                    // 여기로 따로 빼놨다.
+                    .onChange(of: appState.fontName) {
+                        updateTextViewStyle()
+                    }
+                    .onChange(of: appState.fontSize) {
+                        updateTextViewStyle()
+                    }
+                    .onChange(of: appState.lineSpacing) {
+                        updateTextViewStyle()
+                    }
 
-                // .overlay(
-                //     Text(debugID.uuidString.prefix(4))
-                //         .font(.caption)
-                //         .foregroundColor(.red),
-                //     alignment: .topTrailing
-                // )
+                    // .overlay(
+                    //     Text(debugID.uuidString.prefix(4))
+                    //         .font(.caption)
+                    //         .foregroundColor(.red),
+                    //     alignment: .topTrailing
+                    // )
             } else {
                 Spacer()
             }

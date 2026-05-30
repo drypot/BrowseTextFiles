@@ -18,7 +18,7 @@ struct TextBufferEditor: NSViewRepresentable {
     }
 
     func makeNSView(context: Context) -> NSScrollView {
-        //print("nsview created: \(state.id), TextBufferEditor.makeNSView")
+        LogStore.shared.log("make nstextview: \(state.id)")
 
         let textView = makeTextView()
         let scrollView = makeScrollView(for: textView)
