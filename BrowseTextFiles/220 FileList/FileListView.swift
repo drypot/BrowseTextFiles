@@ -37,11 +37,11 @@ struct FileListView: View {
             focusedViewBinding?.wrappedValue = .folderTree
         case .downArrow:
             if state.selecteNextFile() {
-                state.updateFileBufferFromSelectedFile()
+                state.loadFileBuffer()
             }
         case .upArrow:
             if state.selectePreviousFile() {
-                state.updateFileBufferFromSelectedFile()
+                state.loadFileBuffer()
             }
         case .return:
             guard let file = state.selectedFile else { return .ignored }
@@ -86,7 +86,7 @@ fileprivate struct RowView: View {
             focusedViewBinding?.wrappedValue = .fileList
             guard state.selectedFileID != item.id else { return }
             state.selecteFile(withID: item.id)
-            state.updateFileBufferFromSelectedFile()
+            state.loadFileBuffer()
         }
         .contextMenu {
             Button("Show in Finder") {

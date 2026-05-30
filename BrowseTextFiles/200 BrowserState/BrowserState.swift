@@ -91,14 +91,14 @@ final class BrowserState: Identifiable {
     // MARK: - Update All
 
     func updateAll(fileURL: URL?) {
-        updateFolderTree()
+        loadFolderTree()
         if !isRootReady { return }
 
         if let fileURL {
             updateAll(fromFileURL: fileURL)
         } else {
             selectedRootFolder()
-            updateFileListFromSelectedFolder()
+            loadFileList()
         }
     }
 
@@ -106,12 +106,12 @@ final class BrowserState: Identifiable {
         let folderURL = fileURL.deletingLastPathComponent()
 
         selecteFolder(with: folderURL)
-        updateFileList(from: folderURL)
+        loadFileList(preserveSelection: false)
         if hasAlertMessage { return }
 
         if fileList != nil {
             selecteFile(withURL: fileURL)
-            updateFileBuffer(from: fileURL)
+            loadFileBuffer()
             expandFolders(for: folderURL)
         }
     }
@@ -121,7 +121,7 @@ final class BrowserState: Identifiable {
 
         let fileURL = fileBuffer?.url
 
-        updateFolderTree()
+        loadFolderTree()
         if hasAlertMessage { return }
 
         if let fileURL {

@@ -77,7 +77,7 @@ struct BrowserWindow: Scene {
                 Divider()
 
                 Button("Save File", systemImage: "square.and.arrow.down") {
-                    state?.saveFile()
+                    state?.saveFileBuffer()
                 }
                 .keyboardShortcut("s", modifiers: .command)
             }

@@ -15,33 +15,26 @@ extension BrowserState {
         set { fileBuffer?.hasAlertMessage = newValue }
     }
 
-    func resetFileBuffer() {
-        guard autoSaveFileBuffer() else { return }
+    func closeFileBuffer() -> Bool {
+        guard autoSaveFileBuffer() else { return false }
+        LogStore.shared.log("close buffer: \(fileBuffer?.name ?? "nil")")
         fileBuffer?.invalidate()
         fileBuffer = nil
-        LogStore.shared.log("reset buffer:")
+        return true
     }
 
-    func updateFileBuffer(from url: URL) {
-        guard let rootURL else { return }
-        guard autoSaveFileBuffer() else { return }
+    func loadFileBuffer() {
+        guard closeFileBuffer() else { return }
 
-        fileBuffer = TextBuffer(from: url, rootURL: rootURL)
-        guard let fileBuffer else { return }
+        guard let url = selectedFile?.url else { return }
 
-        LogStore.shared.log("create buffer: \(fileBuffer.name)")
+        LogStore.shared.log("create buffer: \(url.lastPathComponent)")
+        let fileBuffer = TextBuffer(from: url)
         fileBuffer.loadOriginalText()
         if !fileBuffer.hasLoadingError {
             addToHistory(url)
         }
-    }
-
-    func updateFileBufferFromSelectedFile() {
-        if let selectedFile {
-            updateFileBuffer(from: selectedFile.url)
-        } else {
-            resetFileBuffer()
-        }
+        self.fileBuffer = fileBuffer
     }
 
     func autoSaveFileBuffer() -> Bool {
@@ -50,7 +43,7 @@ extension BrowserState {
         return !fileBuffer.hasAlertMessage
     }
 
-    func saveFile() {
+    func saveFileBuffer() {
         guard let fileBuffer else { return }
         fileBuffer.saveTextView()
     }

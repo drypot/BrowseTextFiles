@@ -10,14 +10,16 @@ import SwiftUI
 extension BrowserState {
     // MARK: - File List
 
-    func resetFileList() {
-        fileList = nil
-        deselecteFile()
-    }
+    func loadFileList(preserveSelection: Bool = true) {
+        let selectedFileURL = selectedFile?.url
 
-    func updateFileList(from url: URL) {
-        resetFileList()
+        fileList = nil
+        selectedFileID = nil
+        selectedFile = nil
+
         do {
+            guard let selectedFolder else { return }
+            let url = selectedFolder.url
             fileList = try FileListBuilder().collectShallowly(from: url) { contentType in
                 // contentType.conforms(to: .text)
                 return true
@@ -31,13 +33,9 @@ extension BrowserState {
             showAlert(message)
             LogStore.shared.log("load list: \(message)")
         }
-    }
 
-    func updateFileListFromSelectedFolder() {
-        if let selectedFolder {
-            updateFileList(from: selectedFolder.url)
-        } else {
-            resetFileList()
+        if preserveSelection, let selectedFileURL {
+            selecteFile(withURL: selectedFileURL)
         }
     }
 

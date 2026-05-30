@@ -10,7 +10,7 @@ import SwiftUI
 extension BrowserState {
     // MARK: - Folder Tree
 
-    func updateFolderTree(preserveSelection: Bool = true) {
+    func loadFolderTree(preserveSelection: Bool = true) {
         guard let rootURL else { return }
 
         let selectedFolderURL = selectedFolder?.url

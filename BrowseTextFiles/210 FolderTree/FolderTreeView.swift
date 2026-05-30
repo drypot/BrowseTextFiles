@@ -39,24 +39,24 @@ struct FolderTreeView: View {
             if state.selectedFileID == nil {
                 if let first = fileList.first {
                     state.selecteFile(first)
-                    state.updateFileBufferFromSelectedFile()
+                    state.loadFileBuffer()
                 }
             }
         case "\u{19}": // shift tab
             break
         case .downArrow:
             if state.selecteNextFolder() {
-                state.updateFileListFromSelectedFolder()
+                state.loadFileList()
             }
         case .upArrow:
             if state.selectePreviousFolder() {
-                state.updateFileListFromSelectedFolder()
+                state.loadFileList()
             }
         case .rightArrow:
             state.expandSelectedFolder()
         case .leftArrow:
             if state.collapseSelectedFolder() {
-                state.updateFileListFromSelectedFolder()
+                state.loadFileList()
             }
         case .return:
             guard let selectedFolder = state.selectedFolder else { return .ignored }
@@ -113,7 +113,7 @@ fileprivate struct RowView: View {
             focusedViewBinding?.wrappedValue = .folderTree
             guard state.selectedFolderID != item.id else { return }
             state.selecteFolder(with: item.id)
-            state.updateFileListFromSelectedFolder()
+            state.loadFileList()
         }
         .contextMenu {
             Button("Show in Finder") {

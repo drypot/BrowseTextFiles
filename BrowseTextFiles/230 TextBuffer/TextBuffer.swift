@@ -12,7 +12,6 @@ import UniformTypeIdentifiers
 final class TextBuffer: Identifiable, Hashable {
     let id = UUID()
 
-    private(set) var rootURL: URL
     private(set) var url: URL
     private(set) var name: String
 
@@ -39,8 +38,7 @@ final class TextBuffer: Identifiable, Hashable {
     private(set) var alertMessage: String = ""
     var hasAlertMessage: Bool = false
 
-    init(from url: URL, rootURL: URL) {
-        self.rootURL = rootURL
+    init(from url: URL) {
         self.url = url
         self.name = url.lastPathComponent
     }

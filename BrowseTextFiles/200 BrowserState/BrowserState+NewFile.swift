@@ -32,7 +32,7 @@ extension BrowserState {
                     // do nothing
                 } else {
                     try fileManager.createDirectory(at: folderURL, withIntermediateDirectories: true, attributes: nil)
-                    updateFolderTree()
+                    loadFolderTree()
                 }
                 try "".write(to: newFileURL, atomically: true, encoding: .utf8)
                 LogStore.shared.log("new file: \(path)")

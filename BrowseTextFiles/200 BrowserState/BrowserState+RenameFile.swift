@@ -25,16 +25,16 @@ extension BrowserState {
             let shouldUpdateFileBuffer = fileBuffer?.url.isChild(of: orgURL) ?? false
 
             if shouldUpdateFileBuffer {
-                resetFileBuffer()
+                guard closeFileBuffer() else { return }
             }
             try fileManager.moveItem(at: orgURL, to: newURL)
             if shouldUpdateSelectedFolder {
-                updateFolderTree(preserveSelection: false)
+                loadFolderTree(preserveSelection: false)
                 selecteFolder(with: newURL)
                 expandFolders(for: newURL)
-                updateFileListFromSelectedFolder()
+                loadFileList(preserveSelection: false)
             } else {
-                updateFolderTree()
+                loadFolderTree()
             }
             LogStore.shared.log("rename from: \(orgURL.relativePath)")
             LogStore.shared.log("rename to: \(newURL.relativePath)")
@@ -57,19 +57,18 @@ extension BrowserState {
         do {
             let fileManager = FileManager.default
 
-            let selectedFileURL = selectedFile?.url
-            let shouldUpdateFileBuffer = selectedFileURL == orgURL
+            let renamingSelectedFile = selectedFile?.url == orgURL
 
-            if shouldUpdateFileBuffer {
-                resetFileBuffer()
+            if renamingSelectedFile {
+                guard closeFileBuffer() else { return }
             }
             try fileManager.moveItem(at: orgURL, to: newURL)
-            updateFileListFromSelectedFolder()
-            if shouldUpdateFileBuffer {
+            if renamingSelectedFile {
+                loadFileList(preserveSelection: false)
                 selecteFile(withURL: newURL)
-                updateFileBufferFromSelectedFile()
-            } else if let selectedFileURL {
-                selecteFile(withURL: selectedFileURL)
+                loadFileBuffer()
+            } else {
+                loadFileList()
             }
             LogStore.shared.log("rename from: \(orgURL.relativePath)")
             LogStore.shared.log("rename to: \(newURL.relativePath)")
