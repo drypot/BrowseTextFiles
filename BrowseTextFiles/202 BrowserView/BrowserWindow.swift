@@ -53,6 +53,11 @@ struct BrowserWindow: Scene {
                 }
                 .keyboardShortcut("n", modifiers: [.command, .shift])
 
+                Button("New Folder", systemImage: "folder.badge.plus") {
+                    state?.showNewFolderSheet()
+                }
+                .keyboardShortcut("n", modifiers: [.command, .option])
+
                 Button("Open Folder...", systemImage: "folder") {
                     appState.openNewBrowserWindowFromDialog(openWindow: openWindow)
                 }

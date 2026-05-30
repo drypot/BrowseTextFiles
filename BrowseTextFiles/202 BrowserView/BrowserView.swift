@@ -101,6 +101,10 @@ struct BrowserView: View {
             content: { NewFileSheet(state: state) }
         )
         .sheet(
+            isPresented: $state.isShowNewFolderSheet,
+            content: { NewFolderSheet(state: state) }
+        )
+        .sheet(
             isPresented: $state.isShowRenameFolderSheet,
             content: { RenameFolderSheet(state: state) }
         )
@@ -149,6 +153,11 @@ struct BrowserView: View {
                     state.showNewFileSheet()
                 }
                 .help("New File")
+
+                Button("New Folder", systemImage: "folder.badge.plus") {
+                    state.showNewFolderSheet()
+                }
+                .help("New Folder")
 
                 Button("Show History", systemImage: "clock") {
                     appState.openHistoryWindow(for: state, openWindow: openWindow)

@@ -27,7 +27,7 @@ struct NewFileSheet: View {
                 .font(.headline)
                 .padding()
             Form {
-                Section(header: Text("Relative file path from the root")) {
+                Section(header: Text("Relative path from the root")) {
                     TextField("", text: $newFilePath)
                         .frame(maxWidth: .infinity)
                         .labelsHidden()

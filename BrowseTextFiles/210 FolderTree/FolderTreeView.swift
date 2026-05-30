@@ -10,6 +10,7 @@ import SwiftUI
 struct FolderTreeView: View {
     @Environment(AppState.self) var appState
     @Environment(BrowserState.self) var state
+    @Environment(\.openWindow) private var openWindow
     @Environment(\.appearsActive) var appearsActive
     @Environment(\.focusedViewBinding) var focusedViewBinding
 
@@ -25,6 +26,27 @@ struct FolderTreeView: View {
         .focusEffectDisabled()
         .focused(focusedViewBinding!, equals: .folderTree)
         .onKeyPress(phases: .down, action: handleKeyPress)
+        .contextMenu {
+            Button("New File...") {
+                state.showNewFileSheet()
+            }
+
+            Button("New Folder...") {
+                state.showNewFolderSheet()
+            }
+
+            Button("Show in Finder") {
+                if let rootURL = state.rootURL {
+                    Finder.shared.open(url: rootURL)
+                }
+            }
+
+            Button("Open in New Window") {
+                if let rootURL = state.rootURL {
+                    appState.openNewBrowserWindow(fromRootURL: rootURL, fileURL: nil, openWindow: openWindow)
+                }
+            }
+        }
     }
 
     func handleKeyPress(_ press: KeyPress) -> KeyPress.Result {
@@ -119,6 +141,11 @@ fileprivate struct RowView: View {
             Button("New File...") {
                 state.showNewFileSheet(for: item)
             }
+
+            Button("New Folder...") {
+                state.showNewFolderSheet(for: item)
+            }
+
             Button("Show in Finder") {
                 Finder.shared.open(url: item.url)
             }

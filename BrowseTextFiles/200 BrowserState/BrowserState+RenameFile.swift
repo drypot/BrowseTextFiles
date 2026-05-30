@@ -17,7 +17,7 @@ extension BrowserState {
     func renameWorkingFolder(with newRelativePath: String) {
         guard let rootURL = rootURL else { return }
         guard let orgURL = workingFolder?.url else { return }
-        let newURL = rootURL.appending(path: newRelativePath)
+        let newURL = rootURL.appending(path: newRelativePath).standardized
         LogStore.shared.log("renaming: \(orgURL.relativePath)")
         do {
             let fileManager = FileManager.default
@@ -53,7 +53,7 @@ extension BrowserState {
     func renameWorkingFile(with newRelativePath: String) {
         guard let rootURL = rootURL else { return }
         guard let orgURL = workingFile?.url else { return }
-        let newURL = rootURL.appending(path: newRelativePath)
+        let newURL = rootURL.appending(path: newRelativePath).standardized
         LogStore.shared.log("renaming: \(orgURL.relativePath)")
         do {
             let fileManager = FileManager.default

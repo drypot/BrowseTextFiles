@@ -10,6 +10,7 @@ import SwiftUI
 struct FileListView: View {
     @Environment(AppState.self) var appState
     @Environment(BrowserState.self) var state
+    @Environment(\.openWindow) private var openWindow
     @Environment(\.appearsActive) var appearsActive
     @Environment(\.focusedViewBinding) var focusedViewBinding
 
@@ -27,6 +28,27 @@ struct FileListView: View {
         .focusEffectDisabled()
         .focused(focusedViewBinding!, equals: .fileList)
         .onKeyPress(phases: .down, action: handleKeyPress)
+        .contextMenu {
+            Button("New File...") {
+                state.showNewFileSheet()
+            }
+
+            Button("New Folder...") {
+                state.showNewFolderSheet()
+            }
+
+            Button("Show in Finder") {
+                if let url = state.selectedFolder?.url {
+                    Finder.shared.open(url: url)
+                }
+            }
+
+            Button("Open in New Window") {
+                if let url = state.selectedFolder?.url {
+                    appState.openNewBrowserWindow(fromFileURL: url, openWindow: openWindow)
+                }
+            }
+        }
     }
 
     func handleKeyPress(_ press: KeyPress) -> KeyPress.Result {
@@ -92,13 +114,21 @@ fileprivate struct RowView: View {
             Button("New File...") {
                 state.showNewFileSheet()
             }
+
+            Button("New Folder...") {
+                state.showNewFolderSheet()
+            }
+
             Button("Show in Finder") {
                 Finder.shared.open(url: item.url)
             }
+
             Button("Open in New Window") {
                 appState.openNewBrowserWindow(fromFileURL: item.url, openWindow: openWindow)
             }
+
             Divider()
+
             Button("Rename") {
                 state.showRenameFileSheet(for: item)
             }

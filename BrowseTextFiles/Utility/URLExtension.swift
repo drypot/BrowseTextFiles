@@ -25,7 +25,10 @@ extension URL {
         let childComponents = self.standardized.pathComponents
         let parentComponents = parent.standardized.pathComponents
         guard childComponents.starts(with: parentComponents) else { return nil }
-        let relativeComponents = childComponents.dropFirst(parentComponents.count)
-        return relativeComponents.joined(separator: "/")
+        if childComponents.count == parentComponents.count {
+            return "."
+        } else {
+            return childComponents.dropFirst(parentComponents.count).joined(separator: "/")
+        }
     }
 }
