@@ -36,7 +36,7 @@ extension BrowserState {
         }
 
         if preserveSelection, let selectedFileURL {
-            selecteFile(withURL: selectedFileURL)
+            selectFile(withURL: selectedFileURL)
         }
     }
 
@@ -47,35 +47,35 @@ extension BrowserState {
         return fileList.first { $0.id ==  id }
     }
 
-    func deselecteFile() {
+    func deselectFile() {
         selectedFileID = nil
         selectedFile = nil
     }
 
-    func selecteFile(_ fileItem: FileForView?) {
+    func selectFile(_ fileItem: FileForView?) {
         if let fileItem {
             selectedFileID = fileItem.id
             selectedFile = fileItem
         } else {
-            deselecteFile()
+            deselectFile()
         }
     }
 
-    func selecteFile(withID id: FileForView.ID?) {
+    func selectFile(withID id: FileForView.ID?) {
         if let fileList, let file = fileList.first(where: { $0.id ==  id }) {
             selectedFileID = file.id
             selectedFile = file
         } else {
-            deselecteFile()
+            deselectFile()
         }
     }
 
-    func selecteFile(withURL url: URL) {
+    func selectFile(withURL url: URL) {
         if let fileList, let file = fileList.first(where: { $0.url ==  url }) {
             selectedFileID = file.id
             selectedFile = file
         } else {
-            deselecteFile()
+            deselectFile()
         }
     }
 
@@ -86,7 +86,7 @@ extension BrowserState {
 
         for item in fileList {
             if previous?.id == selectedFileID {
-                selecteFile(item)
+                selectFile(item)
                 return true
             }
             previous = item
@@ -103,7 +103,7 @@ extension BrowserState {
         for item in fileList {
             if item.id == selectedFileID {
                 guard let previous else { return false }
-                selecteFile(previous)
+                selectFile(previous)
                 return true
             }
             previous = item

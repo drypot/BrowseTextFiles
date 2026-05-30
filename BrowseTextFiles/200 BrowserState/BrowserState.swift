@@ -125,16 +125,18 @@ final class BrowserState: Identifiable {
     func locateFile(with fileURL: URL) {
         LogStore.shared.log("locate file: \(fileURL.path(percentEncoded: false))")
 
+        guard closeFileBuffer() else { return }
+
         let folderURL = fileURL.deletingLastPathComponent()
 
-        selecteFolder(with: folderURL)
+        selectFolder(with: folderURL)
         loadFileList(preserveSelection: false)
         if hasAlertMessage { return }
 
         guard fileList != nil else { return }
 
         expandFolders(for: folderURL)
-        selecteFile(withURL: fileURL)
+        selectFile(withURL: fileURL)
         loadFileBuffer()
     }
 

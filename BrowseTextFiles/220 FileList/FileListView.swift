@@ -107,7 +107,7 @@ fileprivate struct RowView: View {
         .onTapGesture {
             focusedViewBinding?.wrappedValue = .fileList
             guard state.selectedFileID != item.id else { return }
-            state.selecteFile(withID: item.id)
+            state.selectFile(withID: item.id)
             state.loadFileBuffer()
         }
         .contextMenu {
@@ -131,6 +131,10 @@ fileprivate struct RowView: View {
 
             Button("Rename") {
                 state.showRenameFileSheet(for: item)
+            }
+
+            Button("Delete") {
+                state.trashFile(at: item.url)
             }
         }
         //.focusEffectDisabled() // 포커스 테두리 표시 안 함

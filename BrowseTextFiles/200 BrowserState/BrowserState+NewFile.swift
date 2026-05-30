@@ -30,7 +30,7 @@ extension BrowserState {
                 try fileManager.createDirectory(at: newFolderURL, withIntermediateDirectories: true, attributes: nil)
                 loadFolderTree(preserveSelection: false)
             }
-            selecteFolder(with: newFolderURL)
+            selectFolder(with: newFolderURL)
             loadFileList(preserveSelection: false)
 
             guard let selectedFolder else { return }

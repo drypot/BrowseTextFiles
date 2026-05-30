@@ -33,7 +33,7 @@ extension BrowserState {
         }
 
         if preserveSelection, let selectedFolderURL {
-            selecteFolder(with: selectedFolderURL)
+            selectFolder(with: selectedFolderURL)
         }
     }
 
@@ -65,7 +65,7 @@ extension BrowserState {
         }
     }
 
-    func selecteFolder(with id: FolderForView.ID?) {
+    func selectFolder(with id: FolderForView.ID?) {
         if let id, let folder = findFolder(with: id) {
             selectFolder(folder)
         } else {
@@ -73,7 +73,7 @@ extension BrowserState {
         }
     }
 
-    func selecteFolder(with url: URL) {
+    func selectFolder(with url: URL) {
         if let folder = findFolder(with: url.path) {
             selectFolder(folder)
         } else {
@@ -81,7 +81,7 @@ extension BrowserState {
         }
     }
 
-    func selecteNextFolder() -> Bool {
+    func selectNextFolder() -> Bool {
         guard let rootFolder else { return false }
         guard let selectedFolderID else { return false }
         var previous: FolderForView?
@@ -108,7 +108,7 @@ extension BrowserState {
         return true
     }
 
-    func selectePreviousFolder() -> Bool {
+    func selectPreviousFolder() -> Bool {
         guard let rootFolder else { return false }
         guard let selectedFolderID else { return false }
         var previous: FolderForView?
@@ -135,7 +135,7 @@ extension BrowserState {
         return true
     }
 
-    func selecteParentFolder() -> Bool {
+    func selectParentFolder() -> Bool {
         guard let rootFolder else { return false }
         guard let selectedFolderID else { return false }
 
@@ -194,7 +194,7 @@ extension BrowserState {
         if selectedFolder.hasChildren, isFolderExpanded(for: selectedFolder.url) {
             collapseFolder(for: selectedFolder.url)
         } else {
-            return selecteParentFolder()
+            return selectParentFolder()
         }
         return false
     }

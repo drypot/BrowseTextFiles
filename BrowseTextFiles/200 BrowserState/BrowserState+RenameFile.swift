@@ -32,7 +32,7 @@ extension BrowserState {
             try fileManager.moveItem(at: orgURL, to: newURL)
             if renamingSelectedFolder {
                 loadFolderTree(preserveSelection: false)
-                selecteFolder(with: newURL)
+                selectFolder(with: newURL)
                 expandFolders(for: newURL)
                 loadFileList(preserveSelection: false)
             } else {
@@ -67,7 +67,7 @@ extension BrowserState {
             try fileManager.moveItem(at: orgURL, to: newURL)
             if renamingSelectedFile {
                 loadFileList(preserveSelection: false)
-                selecteFile(withURL: newURL)
+                selectFile(withURL: newURL)
                 loadFileBuffer()
             } else {
                 loadFileList()

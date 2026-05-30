@@ -60,18 +60,18 @@ struct FolderTreeView: View {
             focusedViewBinding?.wrappedValue = .fileList
             if state.selectedFileID == nil {
                 if let first = fileList.first {
-                    state.selecteFile(first)
+                    state.selectFile(first)
                     state.loadFileBuffer()
                 }
             }
         case "\u{19}": // shift tab
             break
         case .downArrow:
-            if state.selecteNextFolder() {
+            if state.selectNextFolder() {
                 state.loadFileList()
             }
         case .upArrow:
-            if state.selectePreviousFolder() {
+            if state.selectPreviousFolder() {
                 state.loadFileList()
             }
         case .rightArrow:
@@ -134,7 +134,7 @@ fileprivate struct RowView: View {
         .onTapGesture {
             focusedViewBinding?.wrappedValue = .folderTree
             guard state.selectedFolderID != item.id else { return }
-            state.selecteFolder(with: item.id)
+            state.selectFolder(with: item.id)
             state.loadFileList()
         }
         .contextMenu {
@@ -159,6 +159,10 @@ fileprivate struct RowView: View {
             if item != state.rootFolder {
                 Button("Rename") {
                     state.showRenameFolderSheet(for: item)
+                }
+
+                Button("Delete") {
+                    state.trashFolder(at: item.url)
                 }
             }
         }
