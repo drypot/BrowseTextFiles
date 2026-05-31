@@ -178,6 +178,7 @@ class AppState {
         let panel = NSOpenPanel()
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = true
+        panel.canCreateDirectories = true
         panel.canChooseFiles = false
         panel.begin { response in
             if response == .OK, let url = panel.url {
@@ -190,6 +191,7 @@ class AppState {
         let panel = NSOpenPanel()
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = true
+        panel.canCreateDirectories = true
         panel.canChooseFiles = false
         panel.beginSheetModal(for: window) { response in
             if response == .OK, let url = panel.url {
