@@ -18,13 +18,10 @@ struct RenameSheet: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("Rename")
-                .font(.headline)
-                .padding()
             Form {
                 Section {
                     HStack {
-                        Text("from")
+                        Text("Rename")
                             .frame(width: 60, alignment: .leading)
                         Text(orgName)
                     }
@@ -57,7 +54,7 @@ struct RenameSheet: View {
             }
             .padding()
         }
-        .frame(width: 500, height: 250)
+        .frame(width: 500)
         .onAppear {
             loadSheet()
         }
