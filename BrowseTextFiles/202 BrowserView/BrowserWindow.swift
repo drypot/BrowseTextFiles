@@ -63,6 +63,8 @@ struct BrowserWindow: Scene {
                 //}
                 //.keyboardShortcut("n", modifiers: [.command, .control])
 
+                Divider()
+
                 Button("Open Folder...", systemImage: "folder") {
                     appState.openNewBrowserWindowFromDialog(openWindow: openWindow)
                 }
@@ -84,6 +86,7 @@ struct BrowserWindow: Scene {
                         }
                     }
                 }
+                
                 Divider()
 
                 Button("Save File", systemImage: "square.and.arrow.down") {
