@@ -41,7 +41,7 @@ struct FileListView: View {
             }
 
             Button("New Folder...") {
-                state.showNewFolderSheet()
+                state.makeNewFolder()
             }
 
             Button("Show in Finder") {
@@ -123,7 +123,7 @@ fileprivate struct RowView: View {
             }
 
             Button("New Folder...") {
-                state.showNewFolderSheet()
+                state.makeNewFolder()
             }
 
             Button("Show in Finder") {

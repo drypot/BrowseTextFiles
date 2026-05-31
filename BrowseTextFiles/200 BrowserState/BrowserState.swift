@@ -41,7 +41,6 @@ final class BrowserState: Identifiable {
 
     var workingRelativePath: String?
 
-    var isShowNewFolderSheet = false
     var isShowNewFileSheet = false
     var isShowRenameFolderSheet = false
     var isShowRenameFileSheet = false

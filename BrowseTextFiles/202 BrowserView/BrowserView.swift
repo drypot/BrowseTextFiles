@@ -101,10 +101,6 @@ struct BrowserView: View {
             content: { NewFileSheet(state: state) }
         )
         .sheet(
-            isPresented: $state.isShowNewFolderSheet,
-            content: { NewFolderSheet(state: state) }
-        )
-        .sheet(
             isPresented: $state.isShowRenameFolderSheet,
             content: { RenameFolderSheet(state: state) }
         )
@@ -155,7 +151,7 @@ struct BrowserView: View {
                 .help("New File")
 
                 Button("New Folder", systemImage: "folder.badge.plus") {
-                    state.showNewFolderSheet()
+                    state.makeNewFolder()
                 }
                 .help("New Folder")
 

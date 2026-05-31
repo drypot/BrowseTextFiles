@@ -54,7 +54,7 @@ struct BrowserWindow: Scene {
                 .keyboardShortcut("n", modifiers: [.command, .shift])
 
                 Button("New Folder", systemImage: "folder.badge.plus") {
-                    state?.showNewFolderSheet()
+                    state?.makeNewFolder()
                 }
                 .keyboardShortcut("n", modifiers: [.command, .option])
 

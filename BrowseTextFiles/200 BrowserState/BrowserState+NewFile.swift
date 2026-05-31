@@ -9,32 +9,30 @@ import SwiftUI
 
 extension BrowserState {
 
-    func showNewFolderSheet(for folder: FolderForView? = nil) {
+    func makeNewFolder(in folder: FolderForView? = nil) {
         guard let folder = folder ?? selectedFolder else { return }
-        guard autoSaveFileBuffer() else { return }
-        setupWorkingFolder(with: folder)
-        isShowNewFolderSheet = true
-    }
+        //guard let rootURL else { return }
+        let fileManager = FileManager.default
+        let baseURL = folder.url
+        var newFolderURL = baseURL.appending(path: "NewFolder", directoryHint: .isDirectory)
+        var counter = 1
 
-    func makeNewFolder(with newFolderPath: String) {
-        LogStore.shared.log("new folder: \(newFolderPath)")
+        while fileManager.fileExists(atPath: newFolderURL.path), counter < 100 {
+            let newName = "NewFolder \(counter)"
+            newFolderURL = baseURL.appending(path: newName, directoryHint: .isDirectory)
+            counter += 1
+        }
+
         do {
-            guard let rootURL else { return }
             guard closeFileBuffer() else { return }
 
-            let fileManager = FileManager.default
-            let newFolderURL = rootURL.appending(component: newFolderPath).standardized
-            if fileManager.fileExists(atPath: newFolderURL.path) {
-                // do nothing
-            } else {
-                try fileManager.createDirectory(at: newFolderURL, withIntermediateDirectories: true, attributes: nil)
-                loadFolderTree(preserveSelection: false)
-            }
+            LogStore.shared.log("new folder: \(newFolderURL.path)")
+            try fileManager.createDirectory(at: newFolderURL, withIntermediateDirectories: true, attributes: nil)
+            loadFolderTree(preserveSelection: false)
+
             selectFolder(with: newFolderURL)
             loadFileList(preserveSelection: false)
-
-            guard let selectedFolder else { return }
-            expandFolders(for: selectedFolder.url)
+            expandFolders(for: newFolderURL)
         } catch {
             let message = error.localizedDescription
             showAlert(message)
