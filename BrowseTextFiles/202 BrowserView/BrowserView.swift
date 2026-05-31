@@ -142,9 +142,14 @@ struct BrowserView: View {
 
             ToolbarItemGroup(placement: .secondaryAction) {
                 Button("New File", systemImage: "square.and.pencil") {
-                    state.showNewFileSheet()
+                    state.makeNewFile()
                 }
                 .help("New File")
+
+                Button("New File...", systemImage: "bubble.and.pencil") {
+                    state.showNewFileSheet()
+                }
+                .help("New File...")
 
                 Button("New Folder", systemImage: "folder.badge.plus") {
                     state.makeNewFolder()

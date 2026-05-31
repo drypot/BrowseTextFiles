@@ -9,16 +9,16 @@ import SwiftUI
 
 extension BrowserState {
 
-    func makeNewFolder(in folder: FolderForView? = nil) {
-        guard let folder = folder ?? selectedFolder else { return }
+    func makeNewFolder(in folderURL: URL? = nil) {
+        let folderURL = folderURL ?? selectedFolder?.url
+        guard let folderURL else { return }
         let fileManager = FileManager.default
-        let baseURL = folder.url
-        var newFolderURL = baseURL.appending(path: "NewFolder", directoryHint: .isDirectory)
+        var newFolderURL = folderURL.appending(path: "NewFolder", directoryHint: .isDirectory)
         var counter = 1
 
         while fileManager.fileExists(atPath: newFolderURL.path), counter < 100 {
             let newName = "NewFolder \(counter)"
-            newFolderURL = baseURL.appending(path: newName, directoryHint: .isDirectory)
+            newFolderURL = folderURL.appending(path: newName, directoryHint: .isDirectory)
             counter += 1
         }
 

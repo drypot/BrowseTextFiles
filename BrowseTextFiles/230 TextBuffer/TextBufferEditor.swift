@@ -57,7 +57,7 @@ struct TextBufferEditor: NSViewRepresentable {
         let textView = NSTextView(frame: .zero, textContainer: textContainer)
 
         textView.autoresizingMask = [.width, .height] // 필수다.
-        textView.textContainerInset = NSSize(width: 16, height: 0) // 패딩
+        textView.textContainerInset = NSSize(width: 16, height: 8) // 패딩
 
         textView.isEditable = true
         textView.isSelectable = true
@@ -98,6 +98,11 @@ struct TextBufferEditor: NSViewRepresentable {
         scrollView.documentView = textView
         scrollView.hasVerticalScroller = true
         scrollView.hasHorizontalScroller = false
+
+        //textView 에서 줬다.
+        //scrollView.contentInsets = NSEdgeInsets(top: 8, left: 0, bottom: 8, right: 0)
+        //scrollView.automaticallyAdjustsContentInsets = false
+        
         return scrollView
     }
 

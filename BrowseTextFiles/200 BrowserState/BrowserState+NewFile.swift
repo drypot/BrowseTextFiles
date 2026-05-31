@@ -17,21 +17,17 @@ extension BrowserState {
     }
 
     func makeNewFile(with newFilePath: String) {
-        LogStore.shared.log("new file: \(newFilePath)")
         do {
             guard let rootURL else { return }
             let fileManager = FileManager.default
-            let newFileURL = rootURL.appending(component: newFilePath).standardized
-            if fileManager.fileExists(atPath: newFileURL.path) {
-                // do nothing
-            } else {
+            let newFileURL = rootURL.appending(path: newFilePath).standardizedFileURL
+            if !fileManager.fileExists(atPath: newFileURL.path) {
                 let folderURL = newFileURL.deletingLastPathComponent()
-                if fileManager.fileExists(atPath: folderURL.path) {
-                    // do nothing
-                } else {
+                if !fileManager.fileExists(atPath: folderURL.path) {
                     try fileManager.createDirectory(at: folderURL, withIntermediateDirectories: true, attributes: nil)
                     loadFolderTree()
                 }
+                LogStore.shared.log("new file: \(newFileURL.path)")
                 try "".write(to: newFileURL, atomically: true, encoding: .utf8)
             }
             locateFile(with: newFileURL)
@@ -41,5 +37,29 @@ extension BrowserState {
             LogStore.shared.log("new file: \(message)")
         }
     }
-    
+
+    func makeNewFile(in folderURL: URL? = nil) {
+        let folderURL = folderURL ?? selectedFolder?.url
+        guard let folderURL else { return }
+        let fileManager = FileManager.default
+        var newFileURL = folderURL.appending(path: "NewFile", directoryHint: .notDirectory)
+        var counter = 1
+
+        while fileManager.fileExists(atPath: newFileURL.path), counter < 100 {
+            let newName = "NewFile \(counter)"
+            newFileURL = folderURL.appending(path: newName, directoryHint: .notDirectory)
+            counter += 1
+        }
+
+        do {
+            LogStore.shared.log("new file: \(newFileURL.path)")
+            try "".write(to: newFileURL, atomically: true, encoding: .utf8)
+            locateFile(with: newFileURL)
+        } catch {
+            let message = error.localizedDescription
+            showAlert(message)
+            LogStore.shared.log("new file: \(message)")
+        }
+    }
+
 }

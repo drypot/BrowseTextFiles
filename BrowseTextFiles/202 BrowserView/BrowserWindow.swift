@@ -43,20 +43,25 @@ struct BrowserWindow: Scene {
         }
         .commands {
             CommandGroup(replacing: .newItem) {
-                Button("New Window", systemImage: "macwindow") {
-                    appState.openNewBrowserWindow(openWindow: openWindow)
-                }
-                .keyboardShortcut("n", modifiers: .command)
-
                 Button("New File", systemImage: "text.document") {
+                    state?.makeNewFile()
+                }
+                .keyboardShortcut("n", modifiers: [.command])
+
+                Button("New File...", systemImage: "text.document") {
                     state?.showNewFileSheet()
                 }
-                .keyboardShortcut("n", modifiers: [.command, .shift])
+                .keyboardShortcut("n", modifiers: [.command, .option])
 
                 Button("New Folder", systemImage: "folder.badge.plus") {
                     state?.makeNewFolder()
                 }
-                .keyboardShortcut("n", modifiers: [.command, .option])
+                .keyboardShortcut("n", modifiers: [.command, .shift])
+
+                //Button("New Window", systemImage: "macwindow") {
+                //    appState.openNewBrowserWindow(openWindow: openWindow)
+                //}
+                //.keyboardShortcut("n", modifiers: [.command, .control])
 
                 Button("Open Folder...", systemImage: "folder") {
                     appState.openNewBrowserWindowFromDialog(openWindow: openWindow)

@@ -34,11 +34,15 @@ struct FolderTreeView: View {
         .focused(focusedViewBinding!, equals: .folderTree)
         .onKeyPress(phases: .down, action: handleKeyPress)
         .contextMenu {
+            Button("New File") {
+                state.makeNewFile()
+            }
+
             Button("New File...") {
                 state.showNewFileSheet()
             }
 
-            Button("New Folder...") {
+            Button("New Folder") {
                 state.makeNewFolder()
             }
 
@@ -145,12 +149,16 @@ fileprivate struct RowView: View {
             state.loadFileList()
         }
         .contextMenu {
+            Button("New File") {
+                state.makeNewFile()
+            }
+
             Button("New File...") {
                 state.showNewFileSheet(for: item)
             }
 
-            Button("New Folder...") {
-                state.makeNewFolder(in: item)
+            Button("New Folder") {
+                state.makeNewFolder(in: item.url)
             }
 
             Button("Show in Finder") {

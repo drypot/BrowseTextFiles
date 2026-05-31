@@ -36,11 +36,15 @@ struct FileListView: View {
         .focused(focusedViewBinding!, equals: .fileList)
         .onKeyPress(phases: .down, action: handleKeyPress)
         .contextMenu {
+            Button("New File") {
+                state.makeNewFile()
+            }
+
             Button("New File...") {
                 state.showNewFileSheet()
             }
 
-            Button("New Folder...") {
+            Button("New Folder") {
                 state.makeNewFolder()
             }
 
@@ -118,11 +122,15 @@ fileprivate struct RowView: View {
             state.loadFileBuffer()
         }
         .contextMenu {
+            Button("New File") {
+                state.makeNewFile()
+            }
+
             Button("New File...") {
                 state.showNewFileSheet()
             }
 
-            Button("New Folder...") {
+            Button("New Folder") {
                 state.makeNewFolder()
             }
 

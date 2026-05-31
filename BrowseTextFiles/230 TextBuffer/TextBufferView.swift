@@ -17,13 +17,17 @@ struct TextBufferView: View {
     var body: some View {
         Group {
             if let loadError = state.fileBuffer?.loadingError {
-                Text(loadError)
-                    .font(appState.makeFontForText())
-                    .lineSpacing(appState.lineSpacing)
-                    .textSelection(.enabled)
-                    .padding(.horizontal, 16)
-                    .padding(.top, 16)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                VStack(alignment: .leading, spacing: 16) {
+                    Text(loadError)
+                        .textSelection(.enabled)
+                    Button("Reload folder tree") {
+                        state.reloadAll()
+                    }
+                    Spacer()
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 16)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             } else if let _ = state.fileBuffer {
                 // let _ = Self._printChanges()
 
