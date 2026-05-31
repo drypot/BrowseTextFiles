@@ -8,17 +8,25 @@
 import Foundation
 
 extension URL {
-    func isChild(of parent: URL) -> Bool {
-        let childComponents = self.standardized.pathComponents
-        let parentComponents = parent.standardized.pathComponents
-        guard childComponents.count > parentComponents.count else { return false }
+    func isParent(of child: URL) -> Bool {
+        let parentComponents = self.pathComponents
+        let childComponents = child.pathComponents
+        guard parentComponents.count < childComponents.count else { return false }
         return childComponents.starts(with: parentComponents)
     }
 
-    func isChildOrEqual(to parent: URL) -> Bool {
-        let childComponents = self.standardized.pathComponents
-        let parentComponents = parent.standardized.pathComponents
+    func isParentOrEqual(to child: URL) -> Bool {
+        let parentComponents = self.pathComponents
+        let childComponents = child.pathComponents
         return childComponents.starts(with: parentComponents)
+    }
+
+    func isChild(of parent: URL) -> Bool {
+        parent.isParent(of: self)
+    }
+
+    func isChildOrEqual(to parent: URL) -> Bool {
+        parent.isParentOrEqual(to: self)
     }
 
     func relativePath(from parent: URL) -> String? {

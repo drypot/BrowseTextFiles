@@ -101,12 +101,8 @@ struct BrowserView: View {
             content: { NewFileSheet(state: state) }
         )
         .sheet(
-            isPresented: $state.isShowRenameFolderSheet,
-            content: { RenameFolderSheet(state: state) }
-        )
-        .sheet(
-            isPresented: $state.isShowRenameFileSheet,
-            content: { RenameFileSheet(state: state) }
+            isPresented: $state.isShowRenameSheet,
+            content: { RenameSheet(state: state) }
         )
         .alert(
             "",

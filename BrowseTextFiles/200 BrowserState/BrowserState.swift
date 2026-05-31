@@ -41,9 +41,11 @@ final class BrowserState: Identifiable {
 
     var workingRelativePath: String?
 
+    var renamingURL: URL?
+    var isRenamingFolder: Bool = true
+
     var isShowNewFileSheet = false
-    var isShowRenameFolderSheet = false
-    var isShowRenameFileSheet = false
+    var isShowRenameSheet = false
 
     var searchText = ""
     var isSearching = false

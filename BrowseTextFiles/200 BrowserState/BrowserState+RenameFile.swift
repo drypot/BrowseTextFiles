@@ -9,68 +9,41 @@ import SwiftUI
 
 extension BrowserState {
 
-    func showRenameFolderSheet(for folder: FolderForView) {
-        setupWorkingFolder(with: folder)
-        isShowRenameFolderSheet = true
+    func showRenameSheet(for url: URL, isFolder: Bool) {
+        renamingURL = url
+        isRenamingFolder = isFolder
+        isShowRenameSheet = true
     }
 
-    func renameWorkingFolder(with newRelativePath: String) {
-        guard let rootURL = rootURL else { return }
-        guard let orgURL = workingFolder?.url else { return }
-        let newURL = rootURL.appending(path: newRelativePath).standardized
-        LogStore.shared.log("renaming: \(orgURL.relativePath)")
+    func renameRenamingURL(with newName: String) {
+        guard let renamingURL else { return }
+        let newURL = renamingURL.deletingLastPathComponent().appending(path: newName).standardizedFileURL
+        let fileManager = FileManager.default
+        let renamingSelectedFolder = selectedFolder?.url.isChildOrEqual(to: renamingURL) ?? false
+        let renamingSelectedFile = selectedFile?.url.isChildOrEqual(to: renamingURL) ?? false
         do {
-            let fileManager = FileManager.default
-
-            let renamingSelectedFolder = selectedFolder?.url.isChildOrEqual(to: orgURL) ?? false
-            let renamingFileBuffer = fileBuffer?.url.isChild(of: orgURL) ?? false
-
-            if renamingFileBuffer {
-                guard closeFileBuffer() else { return }
-            }
-            LogStore.shared.log("renaming to: \(newURL.relativePath)")
-            try fileManager.moveItem(at: orgURL, to: newURL)
-            if renamingSelectedFolder {
-                loadFolderTree(preserveSelection: false)
-                selectFolder(with: newURL)
-                expandFolders(for: newURL)
-                loadFileList(preserveSelection: false)
-            } else {
-                loadFolderTree()
-            }
-        } catch {
-            let message = error.localizedDescription
-            showAlert(message)
-            LogStore.shared.log("rename folder: \(message)")
-        }
-    }
-    
-    func showRenameFileSheet(for file: FileForView) {
-        setupWorkingFile(with: file)
-        isShowRenameFileSheet = true
-    }
-
-    func renameWorkingFile(with newRelativePath: String) {
-        guard let rootURL = rootURL else { return }
-        guard let orgURL = workingFile?.url else { return }
-        let newURL = rootURL.appending(path: newRelativePath).standardized
-        LogStore.shared.log("renaming: \(orgURL.relativePath)")
-        do {
-            let fileManager = FileManager.default
-
-            let renamingSelectedFile = selectedFile?.url == orgURL
-
             if renamingSelectedFile {
                 guard closeFileBuffer() else { return }
             }
-            LogStore.shared.log("renaming to: \(newURL.relativePath)")
-            try fileManager.moveItem(at: orgURL, to: newURL)
-            if renamingSelectedFile {
-                loadFileList(preserveSelection: false)
-                selectFile(withURL: newURL)
-                loadFileBuffer()
+            LogStore.shared.log("renaming: \(renamingURL.path) to \(newName)")
+            try fileManager.moveItem(at: renamingURL, to: newURL)
+            if isRenamingFolder {
+                if renamingSelectedFolder {
+                    loadFolderTree(preserveSelection: false)
+                    selectFolder(with: newURL)
+                    expandFolders(for: newURL)
+                    loadFileList(preserveSelection: false)
+                } else {
+                    loadFolderTree()
+                }
             } else {
-                loadFileList()
+                if renamingSelectedFile {
+                    loadFileList(preserveSelection: false)
+                    selectFile(withURL: newURL)
+                    loadFileBuffer()
+                } else {
+                    loadFileList()
+                }
             }
         } catch {
             let message = error.localizedDescription

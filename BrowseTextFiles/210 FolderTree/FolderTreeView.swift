@@ -90,7 +90,7 @@ struct FolderTreeView: View {
         case .return:
             guard let selectedFolder = state.selectedFolder else { return .ignored }
             guard selectedFolder != state.rootFolder else { return .ignored }
-            state.showRenameFolderSheet(for: selectedFolder)
+            state.showRenameSheet(for: selectedFolder.url, isFolder: true)
         default:
             return .ignored
         }
@@ -165,7 +165,7 @@ fileprivate struct RowView: View {
 
             if item != state.rootFolder {
                 Button("Rename") {
-                    state.showRenameFolderSheet(for: item)
+                    state.showRenameSheet(for: item.url, isFolder: true)
                 }
 
                 Button("Delete") {

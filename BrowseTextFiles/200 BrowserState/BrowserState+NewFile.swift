@@ -9,37 +9,6 @@ import SwiftUI
 
 extension BrowserState {
 
-    func makeNewFolder(in folder: FolderForView? = nil) {
-        guard let folder = folder ?? selectedFolder else { return }
-        //guard let rootURL else { return }
-        let fileManager = FileManager.default
-        let baseURL = folder.url
-        var newFolderURL = baseURL.appending(path: "NewFolder", directoryHint: .isDirectory)
-        var counter = 1
-
-        while fileManager.fileExists(atPath: newFolderURL.path), counter < 100 {
-            let newName = "NewFolder \(counter)"
-            newFolderURL = baseURL.appending(path: newName, directoryHint: .isDirectory)
-            counter += 1
-        }
-
-        do {
-            guard closeFileBuffer() else { return }
-
-            LogStore.shared.log("new folder: \(newFolderURL.path)")
-            try fileManager.createDirectory(at: newFolderURL, withIntermediateDirectories: true, attributes: nil)
-            loadFolderTree(preserveSelection: false)
-
-            selectFolder(with: newFolderURL)
-            loadFileList(preserveSelection: false)
-            expandFolders(for: newFolderURL)
-        } catch {
-            let message = error.localizedDescription
-            showAlert(message)
-            LogStore.shared.log("new file: \(message)")
-        }
-    }
-
     func showNewFileSheet(for folder: FolderForView? = nil) {
         guard let folder = folder ?? selectedFolder else { return }
         guard autoSaveFileBuffer() else { return }

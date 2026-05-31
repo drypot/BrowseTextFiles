@@ -74,7 +74,7 @@ struct FileListView: View {
             }
         case .return:
             guard let file = state.selectedFile else { return .ignored }
-            state.showRenameFileSheet(for: file)
+            state.showRenameSheet(for: file.url, isFolder: false)
         default:
             return .ignored
         }
@@ -137,7 +137,7 @@ fileprivate struct RowView: View {
             Divider()
 
             Button("Rename") {
-                state.showRenameFileSheet(for: item)
+                state.showRenameSheet(for: item.url, isFolder: false)
             }
 
             Button("Delete") {

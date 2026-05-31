@@ -1,5 +1,5 @@
 //
-//  RenameFileSheet.swift
+//  RenameSheet.swift
 //  Browse Text Files
 //
 //  Created by Kyuhyun Park on 5/16/26.
@@ -7,19 +7,18 @@
 
 import SwiftUI
 
-struct RenameFileSheet: View {
+struct RenameSheet: View {
     @Environment(AppState.self) var appState
     @Environment(\.dismiss) private var dismiss
 
-    @State private var orgURL: URL?
-    @State private var orgRelativePath = ""
-    @State private var newRelativePath = ""
+    @State private var orgName = ""
+    @State private var newName = ""
 
     var state: BrowserState
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("Rename/Move File")
+            Text("Rename")
                 .font(.headline)
                 .padding()
             Form {
@@ -27,12 +26,12 @@ struct RenameFileSheet: View {
                     HStack {
                         Text("from")
                             .frame(width: 60, alignment: .leading)
-                        Text(orgRelativePath)
+                        Text(orgName)
                     }
                     HStack {
                         Text("to")
                             .frame(width: 60, alignment: .leading)
-                        TextField("", text: $newRelativePath)
+                        TextField("", text: $newName)
                             .labelsHidden()
                             .textFieldStyle(.roundedBorder)
                             .frame(maxWidth: .infinity)
@@ -65,13 +64,13 @@ struct RenameFileSheet: View {
     }
 
     func loadSheet() {
-        guard let relativePath = state.workingRelativePath else { return }
-        orgRelativePath = relativePath
-        newRelativePath = relativePath
+        guard let name = state.renamingURL?.lastPathComponent else { return }
+        orgName = name
+        newName = name
     }
 
     func submit() {
-        state.renameWorkingFile(with: newRelativePath)
+        state.renameRenamingURL(with: newName)
     }
 }
 
