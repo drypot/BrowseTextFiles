@@ -142,12 +142,35 @@ fileprivate struct RowView: View {
         )
         .frame(maxWidth: .infinity)
         .contentShape(Rectangle()) // 빈공간도 클릭되게 한다.
-        .onTapGesture {
-            focusedViewBinding?.wrappedValue = .folderTree
-            guard state.selectedFolderID != item.id else { return }
-            state.selectFolder(with: item.id)
-            state.loadFileList()
-        }
+        .gesture(
+            TapGesture(count: 1)
+                .onEnded {
+                    // print("Single Tap")
+                    focusedViewBinding?.wrappedValue = .folderTree
+                    guard state.selectedFolderID != item.id else { return }
+                    state.selectFolder(with: item.id)
+                    state.loadFileList()
+                }
+                .simultaneously(with: TapGesture(count: 2)
+                    .onEnded {
+                        //print("Double tap")
+                        state.toggleFolder(for: item.url)
+                    }
+                )
+        )
+
+        // onTapGesture 를 두 개 쓰면 싱글 클릭시 딜레이가 발생한다;
+        // 위에 처럼 TapGesture 를 두 개 만들고 simultaneously 로 묶는다.
+        //.onTapGesture(count: 1) {
+        //    focusedViewBinding?.wrappedValue = .folderTree
+        //    guard state.selectedFolderID != item.id else { return }
+        //    state.selectFolder(with: item.id)
+        //    state.loadFileList()
+        //}
+        //.onTapGesture(count: 2) {
+        //    state.toggleFolder(for: item.url)
+        //}
+
         .contextMenu {
             Button("New File") {
                 state.makeNewFile()
