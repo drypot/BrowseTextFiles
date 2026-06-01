@@ -74,6 +74,12 @@ struct TextBufferEditor: NSViewRepresentable {
         textView.isRichText = false
         textView.importsGraphics = false
 
+        // textView.appearance = NSApp.effectiveAppearance
+        // textView.wantsLayer = true
+        // textView.textColor = .textColor
+        // textView.backgroundColor = .textBackgroundColor
+        textView.drawsBackground = false // dark mode 대응
+
         // 사용자 입력에 따라 컨트롤이 계속 커지게 만들려면 true.
         textView.isVerticallyResizable = true
         textView.isHorizontallyResizable = false // **

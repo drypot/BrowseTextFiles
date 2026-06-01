@@ -43,6 +43,11 @@ struct BrowserWindow: Scene {
         }
         .commands {
             CommandGroup(replacing: .newItem) {
+                Button("New Window", systemImage: "macwindow") {
+                    appState.openNewBrowserWindow(openWindow: openWindow)
+                }
+                .keyboardShortcut("n", modifiers: [.command, .control])
+
                 Button("New File", systemImage: "text.document") {
                     state?.makeNewFile()
                 }
@@ -57,11 +62,6 @@ struct BrowserWindow: Scene {
                     state?.makeNewFolder()
                 }
                 .keyboardShortcut("n", modifiers: [.command, .shift])
-
-                Button("New Window", systemImage: "macwindow") {
-                    appState.openNewBrowserWindow(openWindow: openWindow)
-                }
-                .keyboardShortcut("n", modifiers: [.command, .control])
 
                 Divider()
 

@@ -84,7 +84,9 @@ struct TextBufferView: View {
 
         let attributes: [NSAttributedString.Key: Any] = [
             .font: appState.makeNSFontForText(),
-            .paragraphStyle: paragraphStyle
+            .paragraphStyle: paragraphStyle,
+            .foregroundColor: NSColor.textColor, // dark mode 대응
+            //.backgroundColor: NSColor.textBackgroundColor // dark mode 대응
         ]
 
         textView.typingAttributes = attributes
