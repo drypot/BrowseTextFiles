@@ -58,10 +58,10 @@ struct BrowserWindow: Scene {
                 }
                 .keyboardShortcut("n", modifiers: [.command, .shift])
 
-                //Button("New Window", systemImage: "macwindow") {
-                //    appState.openNewBrowserWindow(openWindow: openWindow)
-                //}
-                //.keyboardShortcut("n", modifiers: [.command, .control])
+                Button("New Window", systemImage: "macwindow") {
+                    appState.openNewBrowserWindow(openWindow: openWindow)
+                }
+                .keyboardShortcut("n", modifiers: [.command, .control])
 
                 Divider()
 
