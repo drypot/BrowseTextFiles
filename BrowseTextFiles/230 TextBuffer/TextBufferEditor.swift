@@ -45,6 +45,58 @@ struct TextBufferEditor: NSViewRepresentable {
     }
 
     func makeTextView() -> NSTextView {
+        let textView = NSTextView()
+
+        textView.autoresizingMask = [.width, .height] // 필수다.
+        textView.textContainerInset = NSSize(width: 16, height: 8) // 패딩
+
+        textView.isEditable = true
+        textView.isSelectable = true
+
+        textView.allowsUndo = true
+
+        textView.usesFindBar = true
+        //textView.usesFindPanel = true
+
+        // 이 기능은 고장나있다.
+        // 기능하게 하려면 꽤 코딩이 필요할 듯. 일단 쓰지 않는 것으로.
+        textView.isIncrementalSearchingEnabled = false
+
+        textView.isRichText = false
+        textView.importsGraphics = false
+
+        // textView.appearance = NSApp.effectiveAppearance
+        // textView.wantsLayer = true
+        // textView.textColor = .textColor
+        // textView.backgroundColor = .textBackgroundColor
+        textView.drawsBackground = false // dark mode 대응
+
+        // 사용자 입력에 따라 컨트롤이 계속 커지게 만들려면 true.
+        textView.isVerticallyResizable = true
+        textView.isHorizontallyResizable = false // **
+        textView.maxSize = NSSize(
+            width: CGFloat.greatestFiniteMagnitude,
+            height: CGFloat.greatestFiniteMagnitude
+        )
+
+        if let layoutManager = textView.textLayoutManager {
+            if let textContainer = layoutManager.textContainer {
+                // Wrap 모드면 true
+                textContainer.widthTracksTextView = true // **
+                textContainer.size = NSSize(
+                    width: CGFloat.greatestFiniteMagnitude,
+                    height: CGFloat.greatestFiniteMagnitude
+                )
+            }
+        }
+
+        return textView
+    }
+
+    // 전에 쓰던 코드인데 NSTextView 생성을 괜히 일만들어 하는 것 같아서;
+    // 새로운 makeTextView() 로 단순화 했다;
+    // 혹시 다시 필요할까 싶어 그냥 둔다;
+    func makeTextViewV1() -> NSTextView {
         let contentStorage = NSTextContentStorage()
 
         let layoutManager = NSTextLayoutManager()
@@ -96,6 +148,7 @@ struct TextBufferEditor: NSViewRepresentable {
 
         return textView
     }
+
 
     func makeScrollView(for textView: NSView) -> NSScrollView {
         let scrollView = NSScrollView()
