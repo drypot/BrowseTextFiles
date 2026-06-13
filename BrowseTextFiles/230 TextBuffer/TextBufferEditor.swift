@@ -45,14 +45,13 @@ struct TextBufferEditor: NSViewRepresentable {
     }
 
     func makeTextView() -> NSTextView {
+        let contentStorage = NSTextContentStorage()
+
         let layoutManager = NSTextLayoutManager()
+        contentStorage.addTextLayoutManager(layoutManager)
 
         let textContainer = NSTextContainer()
         layoutManager.textContainer = textContainer
-
-        let contentStorage = NSTextContentStorage()
-        contentStorage.addTextLayoutManager(layoutManager)
-        // let textStorage = contentStorage.textStorage!
 
         let textView = NSTextView(frame: .zero, textContainer: textContainer)
 
