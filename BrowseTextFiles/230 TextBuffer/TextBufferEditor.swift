@@ -79,16 +79,16 @@ struct TextBufferEditor: NSViewRepresentable {
             height: CGFloat.greatestFiniteMagnitude
         )
 
-        if let layoutManager = textView.textLayoutManager {
-            if let textContainer = layoutManager.textContainer {
-                // Wrap 모드면 true
-                textContainer.widthTracksTextView = true // **
-                textContainer.size = NSSize(
-                    width: CGFloat.greatestFiniteMagnitude,
-                    height: CGFloat.greatestFiniteMagnitude
-                )
-            }
-        }
+//        if let layoutManager = textView.textLayoutManager {
+//            if let textContainer = layoutManager.textContainer {
+//                // Wrap 모드면 true
+//                textContainer.widthTracksTextView = true // **
+//                textContainer.size = NSSize(
+//                    width: CGFloat.greatestFiniteMagnitude,
+//                    height: CGFloat.greatestFiniteMagnitude
+//                )
+//            }
+//        }
 
         return textView
     }
