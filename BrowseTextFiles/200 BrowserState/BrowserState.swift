@@ -50,8 +50,10 @@ final class BrowserState: Identifiable {
     var searchText = ""
     var isSearching = false
     var searchResults: [SearchResult]?
+    var isShowSearchWindow = false
 
     var history: [URLForView] = []
+    var isShowHistoryWindow = false
 
     var alertMessage: String = ""
     var hasAlertMessage = false

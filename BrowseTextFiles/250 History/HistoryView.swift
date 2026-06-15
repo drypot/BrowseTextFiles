@@ -49,6 +49,7 @@ struct HistoryView: View {
         }
         .background(WindowReader(onResolve: setupWindow))
         .navigationTitle("History: \(state.rootName ?? "")")
+        .focusedSceneValue(\.focusedBrowserState, state)
     }
     
     func setupWindow(_ window: NSWindow?) {
@@ -78,6 +79,13 @@ struct HistoryView: View {
             .sink { notification in
                 guard let window = notification.object as? NSWindow else { return }
                 saveWindowSize(window)
+            }
+            .store(in: &cancellables)
+
+        NotificationCenter.default
+            .publisher(for: NSWindow.willCloseNotification, object: window)
+            .sink { notification in
+                state.isShowHistoryWindow = false
             }
             .store(in: &cancellables)
     }

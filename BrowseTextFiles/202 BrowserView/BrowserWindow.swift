@@ -10,6 +10,7 @@ import SwiftUI
 struct BrowserWindow: Scene {
     @Environment(AppState.self) private var appState
     @Environment(\.openWindow) private var openWindow
+    @Environment(\.dismissWindow) private var dismissWindow
 
     @FocusedValue(\.focusedBrowserState) private var state: BrowserState?
 
@@ -101,9 +102,9 @@ struct BrowserWindow: Scene {
                 }
                 .keyboardShortcut("r", modifiers: .command)
 
-                Button("Show History", systemImage: "clock") {
+                Button("Toggle History", systemImage: "clock") {
                     guard let state else { return }
-                    appState.openHistoryWindow(for: state, openWindow: openWindow)
+                    appState.toggleHistoryWindow(for: state, openWindow: openWindow, dismissWindow: dismissWindow)
                 }
                 .keyboardShortcut("y", modifiers: .command)
 

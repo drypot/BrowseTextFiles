@@ -157,14 +157,14 @@ struct BrowserView: View {
                 .help("New Folder")
 
                 Button("Show History", systemImage: "clock") {
-                    appState.openHistoryWindow(for: state, openWindow: openWindow)
+                    appState.toggleHistoryWindow(for: state, openWindow: openWindow, dismissWindow: dismissWindow)
                 }
                 .help("Show History")
             }
 
             ToolbarItemGroup(placement: .primaryAction) {
                 Button("Search", systemImage: "magnifyingglass") {
-                    appState.openSearchWindow(for: state, openWindow: openWindow)
+                    appState.toggleSearchWindow(for: state, openWindow: openWindow, dismissWindow: dismissWindow)
                 }
                 .help("Search")
             }

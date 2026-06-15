@@ -275,6 +275,17 @@ class AppState {
         guard state.isRootReady else { return }
         lastBrowserState = state
         openWindow(id: "search", value: state.id)
+        state.isShowSearchWindow = true
+    }
+
+    func toggleSearchWindow(for state: BrowserState, openWindow: OpenWindowAction, dismissWindow: DismissWindowAction) {
+        guard state.isRootReady else { return }
+        if state.isShowSearchWindow {
+            dismissWindow(id: "search", value: state.id)
+            state.isShowSearchWindow = false
+        } else {
+            openSearchWindow(for: state, openWindow: openWindow)
+        }
     }
 
     // MARK: - History Window
@@ -283,7 +294,17 @@ class AppState {
         guard state.isRootReady else { return }
         lastBrowserState = state
         openWindow(id: "history", value: state.id)
+        state.isShowHistoryWindow = true
     }
 
+    func toggleHistoryWindow(for state: BrowserState, openWindow: OpenWindowAction, dismissWindow: DismissWindowAction) {
+        guard state.isRootReady else { return }
+        if state.isShowHistoryWindow {
+            dismissWindow(id: "history", value: state.id)
+            state.isShowHistoryWindow = false
+        } else {
+            openHistoryWindow(for: state, openWindow: openWindow)
+        }
+    }
 }
 
