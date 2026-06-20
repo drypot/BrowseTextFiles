@@ -12,59 +12,22 @@ import Observation
 class AppState {
 
     init() {
-        self.fontName = Self.userDefaultsString(forKey: "fontName", defaultValue: "SF Pro")
-        self.fontSize = Self.userDefaultsDouble(forKey: "fontSize", defaultValue: 16)
-        self.lineHeightMultiple = Self.userDefaultsDouble(forKey: "lineHeightMultiple", defaultValue: 1.3)
+        let defaults = UserDefaults.standard
+        self.fontName = defaults.string(forKey: "fontName", defaultValue: "SF Pro")
+        self.fontSize = defaults.double(forKey: "fontSize", defaultValue: 16)
+        self.lineHeightMultiple = defaults.double(forKey: "lineHeightMultiple", defaultValue: 1.3)
 
-        self.isAutoSaveEnabled = Self.userDefaultsBool(forKey: "isAutoSaveEnabled", defaultValue: true)
-        self.autoSaveDelay = Self.userDefaultsInt(forKey: "autoSaveDelay", defaultValue: 2)
+        self.isAutoSaveEnabled = defaults.bool(forKey: "isAutoSaveEnabled", defaultValue: true)
+        self.autoSaveDelay = defaults.integer(forKey: "autoSaveDelay", defaultValue: 2)
 
-        self.newFileTemplates = Self.userDefaultsStringArray(forKey: "newFileTemplates", defaultValue: newFileTemplateDefaults, minSize: 5)
-        self.newFileTemplateIndex = Self.userDefaultsInt(forKey: "newFileTemplateIndex", defaultValue: 0)
+        self.newFileTemplates = defaults.stringArray(forKey: "newFileTemplates", defaultValue: newFileTemplateDefaults, minSize: 5)
+        self.newFileTemplateIndex = defaults.integer(forKey: "newFileTemplateIndex", defaultValue: 0)
 
-        let tabKeyActionRaw = Self.userDefaultsInt(forKey: "tabKeyAction", defaultValue: TabKeyAction.default.rawValue)
+        let tabKeyActionRaw = defaults.integer(forKey: "tabKeyAction", defaultValue: TabKeyAction.default.rawValue)
         self.tabKeyAction =  TabKeyAction(rawValue: tabKeyActionRaw) ?? TabKeyAction.default
-        self.indentSize = Self.userDefaultsInt(forKey: "indentSize", defaultValue: 4)
+        self.indentSize = defaults.integer(forKey: "indentSize", defaultValue: 4)
 
         recentDocumentURLs = NSDocumentController.shared.recentDocumentURLs
-    }
-
-    // MARK: - UserDefaults
-
-    private static func userDefaultsDouble(forKey key: String, defaultValue: Double) -> Double {
-        if UserDefaults.standard.object(forKey: key) == nil {
-            defaultValue
-        } else {
-            UserDefaults.standard.double(forKey: key)
-        }
-    }
-
-    private static func userDefaultsInt(forKey key: String, defaultValue: Int) -> Int {
-        if UserDefaults.standard.object(forKey: key) == nil {
-            defaultValue
-        } else {
-            UserDefaults.standard.integer(forKey: key)
-        }
-    }
-
-    private static func userDefaultsBool(forKey key: String, defaultValue: Bool) -> Bool {
-        if UserDefaults.standard.object(forKey: key) == nil {
-            defaultValue
-        } else {
-            UserDefaults.standard.bool(forKey: key)
-        }
-    }
-
-    private static func userDefaultsString(forKey key: String, defaultValue: String) -> String {
-        UserDefaults.standard.string(forKey: key) ?? defaultValue
-    }
-
-    private static func userDefaultsStringArray(forKey key: String, defaultValue: [String], minSize: Int = 0) -> [String] {
-        var strings = UserDefaults.standard.stringArray(forKey: key) ?? defaultValue
-        while strings.count < minSize {
-            strings.append("")
-        }
-        return strings
     }
 
     // MARK: - Font
@@ -122,7 +85,7 @@ class AppState {
 
     func resetNewFileTemplatesToDefaults() {
         let minSize = self.newFileTemplates.count
-        self.newFileTemplates = Self.userDefaultsStringArray(forKey: "_NoneKey_", defaultValue: newFileTemplateDefaults, minSize: minSize)
+        self.newFileTemplates = UserDefaults.standard.stringArray(forKey: "_NoneKey_", defaultValue: newFileTemplateDefaults, minSize: minSize)
     }
 
     // MARK: - AutoSave
