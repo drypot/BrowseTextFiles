@@ -10,12 +10,14 @@ import SwiftUI
 struct TextBufferView: View {
     @Environment(AppState.self) var appState
     @Environment(BrowserState.self) var state
+    @Environment(\.openWindow) private var openWindow
+    @Environment(\.dismissWindow) private var dismissWindow
     @Environment(\.focusedViewBinding) var focusedViewBinding
 
 //    private let debugID = UUID()
     
     var body: some View {
-        Group {
+        VStack(alignment: .leading) {
             if let loadError = state.textBuffer?.loadingError {
                 VStack(alignment: .leading, spacing: 16) {
                     Text(loadError)
@@ -27,8 +29,7 @@ struct TextBufferView: View {
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 16)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            } else if let _ = state.textBuffer {
+            } else if state.textBuffer != nil {
                 // let _ = Self._printChanges()
 
                 // TextEditor(
@@ -42,9 +43,9 @@ struct TextBufferView: View {
                 // TextBufferEditor 를 만들었다. NSTextView.string 을 source 로 쓴다.
 
                 TextBufferEditor()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    //.frame(maxWidth: .infinity, maxHeight: .infinity)
                     .focused(focusedViewBinding!, equals: .textEditor)
-                    .onAppear {
+                    .task {
                         updateTextViewStyle()
                     }
 
@@ -66,12 +67,48 @@ struct TextBufferView: View {
                     //         .foregroundColor(.red),
                     //     alignment: .topTrailing
                     // )
-            } else {
-                Spacer()
             }
         }
-        .frame(minWidth: 300, maxWidth: .infinity, maxHeight: .infinity)
-        .layoutPriority(1)
+        .toolbar {
+            // ToolbarItemGroup(placement: .navigation) {
+            //     Button("Prev", systemImage: "chevron.left")  {
+            //     }
+            //     .help("이전 항목으로 이동")
+
+            //     Button("Next", systemImage: "chevron.right") {
+            //     }
+            //     .help("다음 항목으로 이동")
+            // }
+
+            ToolbarItemGroup(placement: .secondaryAction) {
+                Button("Reload", systemImage: "arrow.clockwise") {
+                    state.reloadAll()
+                }
+                .help("Reload")
+
+                Button("New File", systemImage: "square.and.pencil") {
+                    state.makeNewFile()
+                }
+                .help("New File")
+
+                Button("New File...", systemImage: "bubble.and.pencil") {
+                    state.showNewFileSheet()
+                }
+                .help("New File...")
+
+                Button("Show History", systemImage: "clock") {
+                    appState.toggleHistoryWindow(for: state, openWindow: openWindow, dismissWindow: dismissWindow)
+                }
+                .help("Show History")
+            }
+
+            ToolbarItem(placement: .primaryAction) {
+                Button("Search", systemImage: "magnifyingglass") {
+                    appState.toggleSearchWindow(for: state, openWindow: openWindow, dismissWindow: dismissWindow)
+                }
+                .help("Search")
+            }
+        }
     }
 
     func updateTextViewStyle() {

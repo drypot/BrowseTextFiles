@@ -62,6 +62,14 @@ struct FolderTreeView: View {
                 }
             }
         }
+        .toolbar {
+            ToolbarItem {
+                Button("New Folder", systemImage: "folder.badge.plus") {
+                    state.makeNewFolder()
+                }
+                .help("New Folder")
+            }
+        }
     }
 
     func handleKeyPress(_ press: KeyPress) -> KeyPress.Result {

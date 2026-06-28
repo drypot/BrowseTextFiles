@@ -64,12 +64,14 @@ struct BrowserView: View {
 
                 NavigationSplitView {
                     FolderTreeView()
-                        .frame(minWidth: 180, idealWidth: 260, maxHeight: .infinity)
+                        .frame(minWidth: 200, maxHeight: .infinity)
                 } content: {
                     FileListView()
-                        .frame(minWidth: 180, idealWidth: 260, maxHeight: .infinity)
+                        .frame(minWidth: 180, maxHeight: .infinity)
                 } detail: {
                     TextBufferView()
+                        .frame(minWidth: 300, maxHeight: .infinity)
+                        //.layoutPriority(1)
                 }
 
 //                HSplitView {
@@ -124,63 +126,6 @@ struct BrowserView: View {
         //.toolbarBackground(.background, for: .windowToolbar)
         //.toolbarBackgroundVisibility(.automatic, for: .windowToolbar)
         //.toolbar(removing: .title)
-        .toolbar {
-            //ToolbarItemGroup(placement: .navigation) {
-                // Button("Prev", systemName: "chevron.left")  {
-                // }
-                // .help("이전 항목으로 이동")
-
-                // Button("Next", systemName: "chevron.right") {
-                // }
-                // .help("다음 항목으로 이동")
-            //}
-
-            ToolbarItem {
-                Button("Reload", systemImage: "arrow.clockwise") {
-                    state.reloadAll()
-                }
-                .help("Reload")
-            }
-
-            ToolbarSpacer(.fixed)
-
-            ToolbarItem {
-                Button("New File", systemImage: "square.and.pencil") {
-                    state.makeNewFile()
-                }
-                .help("New File")
-            }
-
-            ToolbarItem {
-                Button("New File...", systemImage: "bubble.and.pencil") {
-                    state.showNewFileSheet()
-                }
-                .help("New File...")
-            }
-
-            ToolbarItem {
-                Button("New Folder", systemImage: "folder.badge.plus") {
-                    state.makeNewFolder()
-                }
-                .help("New Folder")
-            }
-
-            ToolbarItem {
-                Button("Show History", systemImage: "clock") {
-                    appState.toggleHistoryWindow(for: state, openWindow: openWindow, dismissWindow: dismissWindow)
-                }
-                .help("Show History")
-            }
-
-            ToolbarSpacer(.fixed)
-            
-            ToolbarItem {
-                Button("Search", systemImage: "magnifyingglass") {
-                    appState.toggleSearchWindow(for: state, openWindow: openWindow, dismissWindow: dismissWindow)
-                }
-                .help("Search")
-            }
-        }
     }
 
     func printInitParamID(_ part: String) {
