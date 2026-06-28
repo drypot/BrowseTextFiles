@@ -22,7 +22,7 @@ extension BrowserState {
         do {
             guard let selectedFolder else { return }
             let url = selectedFolder.url
-            fileList = try FileListBuilder().collectShallowly(from: url) { contentType in
+            fileList = try FileState.collectShallowly(from: url) { contentType in
                 // contentType.conforms(to: .text)
                 return true
             }
@@ -42,7 +42,7 @@ extension BrowserState {
 
     // MARK: - Selected File
 
-    func findFile(with id: FileForView.ID) -> FileForView? {
+    func findFile(with id: FileState.ID) -> FileState? {
         guard let fileList else { return nil }
         return fileList.first { $0.id ==  id }
     }
@@ -52,7 +52,7 @@ extension BrowserState {
         selectedFile = nil
     }
 
-    func selectFile(_ fileItem: FileForView?) {
+    func selectFile(_ fileItem: FileState?) {
         if let fileItem {
             selectedFileID = fileItem.id
             selectedFile = fileItem
@@ -61,7 +61,7 @@ extension BrowserState {
         }
     }
 
-    func selectFile(withID id: FileForView.ID?) {
+    func selectFile(withID id: FileState.ID?) {
         if let fileList, let file = fileList.first(where: { $0.id ==  id }) {
             selectedFileID = file.id
             selectedFile = file
@@ -82,7 +82,7 @@ extension BrowserState {
     func selecteNextFile() -> Bool {
         guard let fileList else { return false }
         guard let selectedFileID else { return false }
-        var previous: FileForView?
+        var previous: FileState?
 
         for item in fileList {
             if previous?.id == selectedFileID {
@@ -98,7 +98,7 @@ extension BrowserState {
     func selectePreviousFile() -> Bool {
         guard let fileList else { return false }
         guard let selectedFileID else { return false }
-        var previous: FileForView?
+        var previous: FileState?
 
         for item in fileList {
             if item.id == selectedFileID {

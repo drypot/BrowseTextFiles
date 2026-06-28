@@ -11,18 +11,18 @@ extension BrowserState {
     // MARK: - TextBuffer
 
     var hasFileBufferAlertMessage: Bool {
-        get { fileBuffer?.hasAlertMessage ?? false }
-        set { fileBuffer?.hasAlertMessage = newValue }
+        get { textBuffer?.hasAlertMessage ?? false }
+        set { textBuffer?.hasAlertMessage = newValue }
     }
 
     func closeFileBuffer() -> Bool {
-        guard let fileBuffer else { return true }
+        guard let textBuffer else { return true }
         guard autoSaveFileBuffer() else { return false }
 
-        LogStore.shared.log("close buffer: \(fileBuffer.name)")
+        LogStore.shared.log("close buffer: \(textBuffer.name)")
 
-        fileBuffer.invalidate()
-        self.fileBuffer = nil
+        textBuffer.invalidate()
+        self.textBuffer = nil
         
         return true
     }
@@ -40,17 +40,17 @@ extension BrowserState {
         if !fileBuffer.hasLoadingError {
             addToHistory(url)
         }
-        self.fileBuffer = fileBuffer
+        self.textBuffer = fileBuffer
     }
 
     func autoSaveFileBuffer() -> Bool {
-        guard let fileBuffer else { return true }
-        fileBuffer.autoSaveTextView()
-        return !fileBuffer.hasAlertMessage
+        guard let textBuffer else { return true }
+        textBuffer.autoSaveTextView()
+        return !textBuffer.hasAlertMessage
     }
 
     func saveFileBuffer() {
-        guard let fileBuffer else { return }
-        fileBuffer.saveTextView()
+        guard let textBuffer else { return }
+        textBuffer.saveTextView()
     }
 }

@@ -115,7 +115,7 @@ struct BrowserView: View {
             "",
             isPresented: $state.hasFileBufferAlertMessage,
             actions: { Button("OK") { } },
-            message: { Text(state.fileBuffer?.alertMessage ?? "nil") }
+            message: { Text(state.textBuffer?.alertMessage ?? "nil") }
         )
         .onChange(of: state.selectedFile) { _, newValue in
             guard let newValue else { return }
@@ -292,7 +292,7 @@ struct BrowserView: View {
             .publisher(for: NSWindow.didResignMainNotification, object: window)
             .sink { _ in
                 print("resign main window: \(state.rootName ?? "nil")")
-                state.fileBuffer?.autoSaveTextView()
+                state.textBuffer?.autoSaveTextView()
             }
             .store(in: &cancellables)
     }

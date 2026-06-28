@@ -16,7 +16,7 @@ struct TextBufferView: View {
     
     var body: some View {
         Group {
-            if let loadError = state.fileBuffer?.loadingError {
+            if let loadError = state.textBuffer?.loadingError {
                 VStack(alignment: .leading, spacing: 16) {
                     Text(loadError)
                         .textSelection(.enabled)
@@ -28,7 +28,7 @@ struct TextBufferView: View {
                 .padding(.horizontal, 16)
                 .padding(.vertical, 16)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            } else if let _ = state.fileBuffer {
+            } else if let _ = state.textBuffer {
                 // let _ = Self._printChanges()
 
                 // TextEditor(
@@ -75,7 +75,7 @@ struct TextBufferView: View {
     }
 
     func updateTextViewStyle() {
-        guard let textView = state.fileBuffer?.textView else { return }
+        guard let textView = state.textBuffer?.textView else { return }
 
         let paragraphStyle = NSMutableParagraphStyle()
         // lineSpacing 쓰면 엔터 입력시 커서가 사라진다; macOS 26

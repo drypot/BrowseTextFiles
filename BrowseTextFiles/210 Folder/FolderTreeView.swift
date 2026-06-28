@@ -113,7 +113,7 @@ fileprivate struct RowView: View {
     @Environment(\.openWindow) private var openWindow
     @Environment(\.focusedViewBinding) var focusedViewBinding
 
-    let item: FolderForView
+    let item: FolderState
     let level: Int
     let isActive: Bool
 

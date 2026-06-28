@@ -22,7 +22,7 @@ extension BrowserState {
         selectedFolder = nil
 
         do {
-            let folder = try FolderTreeBuilder().buildTree(from: rootURL)
+            let folder = try FolderState.buildTree(from: rootURL)
             rootFolder = folder
             selectFolder(folder)
             expandFolder(for: folder.url)
@@ -39,14 +39,14 @@ extension BrowserState {
 
     // MARK: - Selected Folder
 
-    func findFolder(with id: FolderForView.ID) -> FolderForView? {
+    func findFolder(with id: FolderState.ID) -> FolderState? {
         guard let rootFolder else { return nil }
         return rootFolder.findFolder(with: id)
     }
 
     // URL 로 비교하면 패스 마지막에 "/" 이 붙으면서 비교가 귀찮아진다.
     // path 로 비교하면 마지막에 "/" 이 붙지 않는다;
-    func findFolder(with path: String) -> FolderForView? {
+    func findFolder(with path: String) -> FolderState? {
         guard let rootFolder else { return nil }
         return rootFolder.findFolder(with: path)
     }
@@ -56,7 +56,7 @@ extension BrowserState {
         selectedFolder = nil
     }
 
-    func selectFolder(_ folder: FolderForView?) {
+    func selectFolder(_ folder: FolderState?) {
         if let folder {
             selectedFolderID = folder.id
             selectedFolder = folder
@@ -65,7 +65,7 @@ extension BrowserState {
         }
     }
 
-    func selectFolder(with id: FolderForView.ID?) {
+    func selectFolder(with id: FolderState.ID?) {
         if let id, let folder = findFolder(with: id) {
             selectFolder(folder)
         } else {
@@ -84,9 +84,9 @@ extension BrowserState {
     func selectNextFolder() -> Bool {
         guard let rootFolder else { return false }
         guard let selectedFolderID else { return false }
-        var previous: FolderForView?
+        var previous: FolderState?
 
-        func findNext(from current: FolderForView) -> FolderForView? {
+        func findNext(from current: FolderState) -> FolderState? {
             if previous?.id == selectedFolderID {
                 return current
             }
@@ -111,9 +111,9 @@ extension BrowserState {
     func selectPreviousFolder() -> Bool {
         guard let rootFolder else { return false }
         guard let selectedFolderID else { return false }
-        var previous: FolderForView?
+        var previous: FolderState?
 
-        func findPrevious(from current: FolderForView) -> FolderForView? {
+        func findPrevious(from current: FolderState) -> FolderState? {
             if current.id == selectedFolderID {
                 return previous
             }
@@ -139,7 +139,7 @@ extension BrowserState {
         guard let rootFolder else { return false }
         guard let selectedFolderID else { return false }
 
-        func findParent(from current: FolderForView, parent: FolderForView?) -> FolderForView? {
+        func findParent(from current: FolderState, parent: FolderState?) -> FolderState? {
             if current.id == selectedFolderID {
                 return parent
             }

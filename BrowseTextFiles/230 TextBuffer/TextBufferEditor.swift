@@ -30,7 +30,7 @@ struct TextBufferEditor: NSViewRepresentable {
     }
 
     func updateNSView(_ nsView: NSScrollView, context: Context) {
-        guard let fileBuffer = state.fileBuffer else { return }
+        guard let fileBuffer = state.textBuffer else { return }
 
         //print("nsview updated: \(fileBuffer.name), TextBufferEditor, updateNSView")
 
@@ -196,7 +196,7 @@ struct TextBufferEditor: NSViewRepresentable {
         }
 
         func textDidChange(_ notification: Notification) {
-            guard let fileBuffer = state.fileBuffer else { return }
+            guard let fileBuffer = state.textBuffer else { return }
 
             //print("text changed: \(fileBuffer.name), TextBufferEditor.Coordinator")
             // guard let textView = notification.object as? NSTextView else { return }

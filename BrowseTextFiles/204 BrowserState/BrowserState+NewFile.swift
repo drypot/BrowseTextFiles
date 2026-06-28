@@ -9,7 +9,7 @@ import SwiftUI
 
 extension BrowserState {
 
-    func showNewFileSheet(for folder: FolderForView? = nil) {
+    func showNewFileSheet(for folder: FolderState? = nil) {
         guard let folder = folder ?? selectedFolder else { return }
         guard autoSaveFileBuffer() else { return }
         setupWorkingFolder(with: folder)

@@ -29,8 +29,8 @@
 		0062C5142FC014BA00E37649 /* Exceptions for "BrowseTextFiles" folder in "Browse Text Files Tests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				"190 Common/URL.swift",
-				"190 Common/UserDefaults.swift",
+				"120 Common/URL.swift",
+				"120 Common/UserDefaults.swift",
 			);
 			target = 00265A702FB71E64009AA3E0 /* Browse Text Files Tests */;
 		};

@@ -19,25 +19,25 @@ final class BrowserState: Identifiable {
 
     //var rootWatcher: FolderWatcher?
 
-    var rootFolder: FolderForView?
+    var rootFolder: FolderState?
 
     var expandedFolders: Set<URL> = []
 
-    var selectedFolderID: FolderForView.ID?
-    var selectedFolder: FolderForView?
+    var selectedFolderID: FolderState.ID?
+    var selectedFolder: FolderState?
 
-    var fileList: [FileForView]?
+    var fileList: [FileState]?
 
-    var selectedFileID: FileForView.ID?
-    var selectedFile: FileForView?
+    var selectedFileID: FileState.ID?
+    var selectedFile: FileState?
 
-    var fileBuffer: TextBuffer?
+    var textBuffer: TextBuffer?
 
-    var workingFolderID: FolderForView.ID?
-    var workingFolder: FolderForView?
+    var workingFolderID: FolderState.ID?
+    var workingFolder: FolderState?
 
-    var workingFileID: FileForView.ID?
-    var workingFile: FileForView?
+    var workingFileID: FileState.ID?
+    var workingFile: FileState?
 
     var workingRelativePath: String?
 
@@ -115,7 +115,7 @@ final class BrowserState: Identifiable {
 
         guard autoSaveFileBuffer() else { return }
 
-        let fileURL = fileBuffer?.url
+        let fileURL = textBuffer?.url
 
         loadFolderTree()
         if hasAlertMessage { return }

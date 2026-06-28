@@ -49,7 +49,7 @@ extension BrowserState {
         let basePathLength = basePath.count
 
         return try await withThrowingTaskGroup(of: SearchResult?.self) { group in
-            for fileItem in try FileListBuilder().collectRecursively(from: rootURL) {
+            for fileItem in try FileState.collectRecursively(from: rootURL) {
                 group.addTask(priority: .userInitiated) {
                     let lines = try Self.filterLines(from: fileItem.url, searchText: searchText)
                     if fileItem.name.contains(searchText) || lines.count > 0 {

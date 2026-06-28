@@ -9,7 +9,7 @@ import SwiftUI
 
 extension BrowserState {
 
-    func setupWorkingFolder(with folder: FolderForView) {
+    func setupWorkingFolder(with folder: FolderState) {
         workingFolderID = nil
         workingFolder = nil
         workingRelativePath = nil
@@ -20,12 +20,12 @@ extension BrowserState {
         workingRelativePath = relativePath
     }
 
-    func setupWorkingFolder(with id: FolderForView.ID) {
+    func setupWorkingFolder(with id: FolderState.ID) {
         guard let folder = findFolder(with: id) else { return }
         setupWorkingFolder(with: folder)
     }
 
-    func setupWorkingFile(with file: FileForView) {
+    func setupWorkingFile(with file: FileState) {
         workingFileID = nil
         workingFile = nil
         workingRelativePath = nil
@@ -36,7 +36,7 @@ extension BrowserState {
         workingRelativePath = relativePath
     }
 
-    func setupWorkingFile(with id: FileForView.ID) {
+    func setupWorkingFile(with id: FileState.ID) {
         guard let file = findFile(with: id) else { return }
         setupWorkingFile(with: file)
     }

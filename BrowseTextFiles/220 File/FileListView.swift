@@ -96,7 +96,7 @@ fileprivate struct RowView: View {
     @Environment(\.openWindow) private var openWindow
     @Environment(\.focusedViewBinding) var focusedViewBinding
 
-    let item: FileForView
+    let item: FileState
     let isActive: Bool
 
     var body: some View {
