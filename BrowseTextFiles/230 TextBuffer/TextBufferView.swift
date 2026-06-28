@@ -18,57 +18,13 @@ struct TextBufferView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            if let loadError = state.textBuffer?.loadingError {
-                VStack(alignment: .leading, spacing: 16) {
-                    Text(loadError)
-                        .textSelection(.enabled)
-                    Button("Reload folder tree") {
-                        state.reloadAll()
-                    }
-                    Spacer()
-                }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 16)
+            if let message = state.textBuffer?.loadingError {
+                errorMessageView(message: message)
             } else if state.textBuffer != nil {
-                // let _ = Self._printChanges()
-
-                // TextEditor(
-                //     text: fileBuffer.textBinding(),
-                //     // selection: $state.fileBuffer!.selection
-                // )
-                // .font(appState.makeTextEditorFont())
-                // .lineSpacing(appState.lineSpacing)
-
-                // TextEditor source of truth 동기화 비효율이 심해서
-                // TextBufferEditor 를 만들었다. NSTextView.string 을 source 로 쓴다.
-
-                TextBufferEditor()
-                    //.frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .focused(focusedViewBinding!, equals: .textEditor)
-                    .task {
-                        updateTextViewStyle()
-                    }
-
-                    // TextBufferEditor.updateNSView 에서 스타일까지 업데이트하면 비효율이 심해진다.
-                    // 여기로 따로 빼놨다.
-                    .onChange(of: appState.fontName) {
-                        updateTextViewStyle()
-                    }
-                    .onChange(of: appState.fontSize) {
-                        updateTextViewStyle()
-                    }
-                    .onChange(of: appState.lineSpacing) {
-                        updateTextViewStyle()
-                    }
-
-                    // .overlay(
-                    //     Text(debugID.uuidString.prefix(4))
-                    //         .font(.caption)
-                    //         .foregroundColor(.red),
-                    //     alignment: .topTrailing
-                    // )
+                textEditorView
             }
         }
+        .ignoresSafeArea()
         .toolbar {
             // ToolbarItemGroup(placement: .navigation) {
             //     Button("Prev", systemImage: "chevron.left")  {
@@ -109,6 +65,59 @@ struct TextBufferView: View {
                 .help("Search")
             }
         }
+    }
+
+    func errorMessageView(message: String) -> some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text(message)
+                .textSelection(.enabled)
+            Button("Reload folder tree") {
+                state.reloadAll()
+            }
+            Spacer()
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 16)
+    }
+
+    var textEditorView: some View {
+        // let _ = Self._printChanges()
+
+        // TextEditor(
+        //     text: fileBuffer.textBinding(),
+        //     // selection: $state.fileBuffer!.selection
+        // )
+        // .font(appState.makeTextEditorFont())
+        // .lineSpacing(appState.lineSpacing)
+
+        // TextEditor source of truth 동기화 비효율이 심해서
+        // TextBufferEditor 를 만들었다. NSTextView.string 을 source 로 쓴다.
+
+        TextBufferEditor()
+        //.frame(maxWidth: .infinity, maxHeight: .infinity)
+            .focused(focusedViewBinding!, equals: .textEditor)
+            .task {
+                updateTextViewStyle()
+            }
+
+        // TextBufferEditor.updateNSView 에서 스타일까지 업데이트하면 비효율이 심해진다.
+        // 여기로 따로 빼놨다.
+            .onChange(of: appState.fontName) {
+                updateTextViewStyle()
+            }
+            .onChange(of: appState.fontSize) {
+                updateTextViewStyle()
+            }
+            .onChange(of: appState.lineSpacing) {
+                updateTextViewStyle()
+            }
+
+        // .overlay(
+        //     Text(debugID.uuidString.prefix(4))
+        //         .font(.caption)
+        //         .foregroundColor(.red),
+        //     alignment: .topTrailing
+        // )
     }
 
     func updateTextViewStyle() {
