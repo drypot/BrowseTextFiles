@@ -17,6 +17,10 @@ struct FileListView: View {
     var body: some View {
         let isActive = appearsActive && (focusedViewBinding?.wrappedValue == .fileList)
 
+        // List(state.fileURLsForList, id: \.self, selection: state.selectedFileBinding()) { file in
+        //     NavigationLink(file.lastPathComponent, value: file)
+        // }
+
         ScrollViewReader { proxy in
             List {
                 if let fileList = state.fileList {

@@ -61,25 +61,26 @@ struct BrowserView: View {
     var body: some View {
         VStack {
             if state.isRootReady {
-                HSplitView {
-                    // List(state.foldersForList, children: \.folders, selection: state.selectedFolderBinding()) { folder in
-                    //     NavigationLink(folder.name, value: folder)
-                    // }
-                    // .frame(minWidth: 180, idealWidth: 260)
 
+                NavigationSplitView {
                     FolderTreeView()
                         .frame(minWidth: 180, idealWidth: 260, maxHeight: .infinity)
-
-                    // List(state.fileURLsForList, id: \.self, selection: state.selectedFileBinding()) { file in
-                    //     NavigationLink(file.lastPathComponent, value: file)
-                    // }
-                    // .frame(minWidth: 180, idealWidth: 260)
-
+                } content: {
                     FileListView()
                         .frame(minWidth: 180, idealWidth: 260, maxHeight: .infinity)
-
+                } detail: {
                     TextBufferView()
                 }
+
+//                HSplitView {
+//                    FolderTreeView()
+//                        .frame(minWidth: 180, idealWidth: 260, maxHeight: .infinity)
+//
+//                    FileListView()
+//                        .frame(minWidth: 180, idealWidth: 260, maxHeight: .infinity)
+//
+//                    TextBufferView()
+//                }
             } else if isShowBlank {
                 Button("Open Folder") {
                     showOpenPanel()
@@ -120,16 +121,11 @@ struct BrowserView: View {
             guard let newValue else { return }
             saveFileURL(newValue.url)
         }
-        .toolbarBackground(.background, for: .windowToolbar)
-        .toolbarBackgroundVisibility(.automatic, for: .windowToolbar)
+        //.toolbarBackground(.background, for: .windowToolbar)
+        //.toolbarBackgroundVisibility(.automatic, for: .windowToolbar)
         //.toolbar(removing: .title)
         .toolbar {
-            ToolbarItemGroup(placement: .navigation) {
-                Button("Reload", systemImage: "arrow.clockwise") {
-                    state.reloadAll()
-                }
-                .help("Reload")
-
+            //ToolbarItemGroup(placement: .navigation) {
                 // Button("Prev", systemName: "chevron.left")  {
                 // }
                 // .help("이전 항목으로 이동")
@@ -137,32 +133,48 @@ struct BrowserView: View {
                 // Button("Next", systemName: "chevron.right") {
                 // }
                 // .help("다음 항목으로 이동")
-            }
-            ToolbarSpacer()
+            //}
 
-            ToolbarItemGroup(placement: .secondaryAction) {
+            ToolbarItem {
+                Button("Reload", systemImage: "arrow.clockwise") {
+                    state.reloadAll()
+                }
+                .help("Reload")
+            }
+
+            ToolbarSpacer(.fixed)
+
+            ToolbarItem {
                 Button("New File", systemImage: "square.and.pencil") {
                     state.makeNewFile()
                 }
                 .help("New File")
+            }
 
+            ToolbarItem {
                 Button("New File...", systemImage: "bubble.and.pencil") {
                     state.showNewFileSheet()
                 }
                 .help("New File...")
+            }
 
+            ToolbarItem {
                 Button("New Folder", systemImage: "folder.badge.plus") {
                     state.makeNewFolder()
                 }
                 .help("New Folder")
+            }
 
+            ToolbarItem {
                 Button("Show History", systemImage: "clock") {
                     appState.toggleHistoryWindow(for: state, openWindow: openWindow, dismissWindow: dismissWindow)
                 }
                 .help("Show History")
             }
 
-            ToolbarItemGroup(placement: .primaryAction) {
+            ToolbarSpacer(.fixed)
+            
+            ToolbarItem {
                 Button("Search", systemImage: "magnifyingglass") {
                     appState.toggleSearchWindow(for: state, openWindow: openWindow, dismissWindow: dismissWindow)
                 }

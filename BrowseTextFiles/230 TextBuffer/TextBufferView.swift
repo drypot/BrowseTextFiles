@@ -83,7 +83,7 @@ struct TextBufferView: View {
         paragraphStyle.lineHeightMultiple = appState.lineHeightMultiple
 
         let attributes: [NSAttributedString.Key: Any] = [
-            .font: appState.makeNSFontForText(),
+            .font: appState.makeNSFont(),
             .paragraphStyle: paragraphStyle,
             .foregroundColor: NSColor.textColor, // dark mode 대응
             //.backgroundColor: NSColor.textBackgroundColor // dark mode 대응

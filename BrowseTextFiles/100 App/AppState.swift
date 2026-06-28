@@ -11,29 +11,6 @@ import Observation
 @Observable
 class AppState {
 
-    init() {
-        let defaults = UserDefaults.standard
-        self.fontName = defaults.string(forKey: "fontName", defaultValue: "SF Pro")
-        self.fontSize = defaults.double(forKey: "fontSize", defaultValue: 16)
-        self.lineHeightMultiple = defaults.double(forKey: "lineHeightMultiple", defaultValue: 1.3)
-
-        self.isAutoSaveEnabled = defaults.bool(forKey: "isAutoSaveEnabled", defaultValue: true)
-        self.autoSaveDelay = defaults.integer(forKey: "autoSaveDelay", defaultValue: 2)
-
-        self.newFileTemplates = defaults.stringArray(forKey: "newFileTemplates", defaultValue: newFileTemplateDefaults, minSize: 5)
-        self.newFileTemplateIndex = defaults.integer(forKey: "newFileTemplateIndex", defaultValue: 0)
-
-        let tabKeyActionRaw = defaults.integer(forKey: "tabKeyAction", defaultValue: TabKeyAction.default.rawValue)
-        self.tabKeyAction =  TabKeyAction(rawValue: tabKeyActionRaw) ?? TabKeyAction.default
-        self.indentSize = defaults.integer(forKey: "indentSize", defaultValue: 4)
-
-        recentDocumentURLs = NSDocumentController.shared.recentDocumentURLs
-    }
-
-    // MARK: - Font
-
-    @ObservationIgnored var fontManager = FontManager()
-
     var fontName: String {
         didSet {
             UserDefaults.standard.set(fontName, forKey: "fontName")
@@ -56,39 +33,7 @@ class AppState {
         (lineHeightMultiple - 1) * fontSize
     }
 
-    func makeNSFontForText() -> NSFont {
-        NSFont(name: fontName, size: fontSize) ?? .systemFont(ofSize: 13)
-    }
-
-    func makeFontForText() -> Font {
-        .custom(fontName, size: fontSize)
-    }
-
-    // MARK: - New File Templates
-
-    var newFileTemplates: [String] {
-        didSet {
-            UserDefaults.standard.set(newFileTemplates, forKey: "newFileTemplates")
-        }
-    }
-
-    var newFileTemplateIndex: Int {
-        didSet {
-            UserDefaults.standard.set(newFileTemplateIndex, forKey: "newFileTemplateIndex")
-        }
-    }
-
-    private let newFileTemplateDefaults = [
-        "{selected-folder}/Untitled.txt",
-        "{year}/{month}/{year}-{month}-{day}-{weekday-short}.txt",
-    ]
-
-    func resetNewFileTemplatesToDefaults() {
-        let minSize = self.newFileTemplates.count
-        self.newFileTemplates = UserDefaults.standard.stringArray(forKey: "_NoneKey_", defaultValue: newFileTemplateDefaults, minSize: minSize)
-    }
-
-    // MARK: - AutoSave
+    private var fontPanelFont: NSFont?
 
     var isAutoSaveEnabled: Bool {
         didSet {
@@ -102,9 +47,109 @@ class AppState {
         }
     }
 
-    // MARK: - Browser Window
+    var newFileTemplates: [String] {
+        didSet {
+            UserDefaults.standard.set(newFileTemplates, forKey: "newFileTemplates")
+        }
+    }
 
+    var newFileTemplateIndex: Int {
+        didSet {
+            UserDefaults.standard.set(newFileTemplateIndex, forKey: "newFileTemplateIndex")
+        }
+    }
+
+    enum TabKeyAction: Int {
+        case `default` = 0
+        case indentWithSpace = 1
+    }
+
+    var tabKeyAction: TabKeyAction {
+        didSet {
+            UserDefaults.standard.set(tabKeyAction.rawValue, forKey: "tabKeyAction")
+        }
+    }
+
+    var indentSize: Int {
+        didSet {
+            UserDefaults.standard.set(indentSize, forKey: "indentSize")
+        }
+    }
+
+    @ObservationIgnored weak var lastBrowserState: BrowserState?
     @ObservationIgnored var lastBrowserWindowSize: CGSize?
+
+    @ObservationIgnored private var windowRectStoreForStringUUID: [StringAndUUID: CGRect] = [:]
+    @ObservationIgnored private var windowRectStoreForString: [String: CGRect] = [:]
+
+    var recentDocumentURLs: [URL]
+
+    init() {
+        let defaults = UserDefaults.standard
+        self.fontName = defaults.string(forKey: "fontName", defaultValue: "SF Pro")
+        self.fontSize = defaults.double(forKey: "fontSize", defaultValue: 16)
+        self.lineHeightMultiple = defaults.double(forKey: "lineHeightMultiple", defaultValue: 1.3)
+
+        self.isAutoSaveEnabled = defaults.bool(forKey: "isAutoSaveEnabled", defaultValue: true)
+        self.autoSaveDelay = defaults.integer(forKey: "autoSaveDelay", defaultValue: 2)
+
+        self.newFileTemplates = defaults.stringArray(forKey: "newFileTemplates", defaultValue: newFileTemplateDefaults, minSize: 5)
+        self.newFileTemplateIndex = defaults.integer(forKey: "newFileTemplateIndex", defaultValue: 0)
+
+        let tabKeyActionRaw = defaults.integer(forKey: "tabKeyAction", defaultValue: TabKeyAction.default.rawValue)
+        self.tabKeyAction =  TabKeyAction(rawValue: tabKeyActionRaw) ?? TabKeyAction.default
+        self.indentSize = defaults.integer(forKey: "indentSize", defaultValue: 4)
+
+        recentDocumentURLs = NSDocumentController.shared.recentDocumentURLs
+    }
+
+    // MARK: - Font
+
+    func makeNSFont() -> NSFont {
+        NSFont(name: fontName, size: fontSize) ?? .systemFont(ofSize: 13)
+    }
+
+    func makeFont() -> Font {
+        .custom(fontName, size: fontSize)
+    }
+
+    func showFontPanel() {
+        self.fontPanelFont = makeNSFont()
+        guard let fontPanelFont else { return }
+
+        let manager = NSFontManager.shared
+        manager.target = self
+        manager.action = #selector(onFontPanelChange(_:))
+
+        NSFontPanel.shared.setPanelFont(fontPanelFont, isMultiple: false)
+        NSFontPanel.shared.makeKeyAndOrderFront(nil)
+    }
+
+    @objc func onFontPanelChange(_ sender: Any?) {
+        print("im here")
+        guard let manager = sender as? NSFontManager else { return }
+        guard let fontPanelFont else { return }
+
+        let newFont = manager.convert(fontPanelFont)
+        self.fontPanelFont = newFont
+
+        fontName = newFont.fontName
+        fontSize = newFont.pointSize
+    }
+
+    // MARK: - New File Templates
+
+    private let newFileTemplateDefaults = [
+        "{selected-folder}/Untitled.txt",
+        "{year}/{month}/{year}-{month}-{day}-{weekday-short}.txt",
+    ]
+
+    func resetNewFileTemplatesToDefaults() {
+        let minSize = self.newFileTemplates.count
+        self.newFileTemplates = UserDefaults.standard.stringArray(forKey: "_NoneKey_", defaultValue: newFileTemplateDefaults, minSize: minSize)
+    }
+
+    // MARK: - Browser Window
 
     func saveBrowserWindowSize(_ size: CGSize) {
         lastBrowserWindowSize = size
@@ -165,8 +210,6 @@ class AppState {
 
     // MARK: - RecentDocuments
 
-    var recentDocumentURLs: [URL]
-
     func addRecentDocumentURL(_ url: URL) {
         NSDocumentController.shared.noteNewRecentDocumentURL(url)
         recentDocumentURLs = NSDocumentController.shared.recentDocumentURLs
@@ -177,33 +220,7 @@ class AppState {
         recentDocumentURLs = NSDocumentController.shared.recentDocumentURLs
     }
 
-    // MARK: - Tab Key
-
-    enum TabKeyAction: Int {
-        case `default` = 0
-        case indentWithSpace = 1
-    }
-
-    var tabKeyAction: TabKeyAction {
-        didSet {
-            UserDefaults.standard.set(tabKeyAction.rawValue, forKey: "tabKeyAction")
-        }
-    }
-
-    var indentSize: Int {
-        didSet {
-            UserDefaults.standard.set(indentSize, forKey: "indentSize")
-        }
-    }
-
-    // MARK: - BrowserState Push/Pop
-
-    @ObservationIgnored weak var lastBrowserState: BrowserState?
-
     // MARK: - Window Position
-
-    @ObservationIgnored private var windowRectStoreForStringUUID: [StringAndUUID: CGRect] = [:]
-    @ObservationIgnored private var windowRectStoreForString: [String: CGRect] = [:]
 
     func saveWindowRect(_ rect: CGRect, for string: String, uuid: UUID) {
         windowRectStoreForStringUUID[StringAndUUID(string: string, uuid: uuid)] = rect

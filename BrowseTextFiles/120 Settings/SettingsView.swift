@@ -19,13 +19,7 @@ struct SettingsView: View {
                 HStack {
                     Text("Font: \(appState.fontName)")
                     Spacer()
-                    Button("Change Font") {
-                        let initFont = appState.makeNSFontForText()
-                        appState.fontManager.showFontPanel(initialFont: initFont) { newFont in
-                            appState.fontName = newFont.fontName
-                            appState.fontSize = newFont.pointSize
-                        }
-                    }
+                    Button("Change Font", action: appState.showFontPanel)
                 }
                 HStack {
                     Text("Font size: \(appState.fontSize.formatted()) pt")

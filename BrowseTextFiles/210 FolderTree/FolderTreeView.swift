@@ -17,6 +17,10 @@ struct FolderTreeView: View {
     var body: some View {
         let isActive = appearsActive && (focusedViewBinding?.wrappedValue == .folderTree)
 
+        // List(state.foldersForList, children: \.folders, selection: state.selectedFolderBinding()) { folder in
+        //     NavigationLink(folder.name, value: folder)
+        // }
+        
         ScrollViewReader { proxy in
             List {
                 if let rootFolder = state.rootFolder {
