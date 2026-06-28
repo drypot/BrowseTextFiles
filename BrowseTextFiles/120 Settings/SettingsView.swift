@@ -15,76 +15,64 @@ struct SettingsView: View {
     var body: some View {
         @Bindable var appState = appState
         Form {
-            Section(header: Text("Font")) {
-                HStack {
-                    Text("Font: \(appState.fontName)")
-                    Spacer()
-                    Button("Change Font", action: appState.showFontPanel)
+            Section("Font") {
+                LabeledContent("Font: \(appState.fontName)") {
+                    Button("Change Font") {
+                        appState.showFontPanel()
+                    }
                 }
-                HStack {
+
+                Slider(value: $appState.fontSize, in: 8...36, step: 1) {
                     Text("Font size: \(appState.fontSize.formatted()) pt")
-                        .frame(width: 180, alignment: .leading)
-                    Slider(value: $appState.fontSize, in: 8...36, step: 1)
-                        .controlSize(.mini)
                 }
-                HStack {
+                .controlSize(.mini)
+
+                Slider(value: $appState.lineHeightMultiple, in: 1.0...3.0, step: 0.1) {
                     Text("Line height: \(appState.lineHeightMultiple.formatted())x")
-                        .frame(width: 180, alignment: .leading)
-                    Slider(value: $appState.lineHeightMultiple, in: 1.0...3.0, step: 0.1)
-                        .controlSize(.mini)
                 }
+                .controlSize(.mini)
             }
 
-            Section(header: Text("Auto Save")) {
-                HStack {
-                    Text("Auto save enabled")
-                    Spacer()
-                    Toggle("", isOn: $appState.isAutoSaveEnabled)
-                        .labelsHidden()
-                        .controlSize(.mini)
-                        .toggleStyle(.switch)
-                }
-                HStack {
+            Section("Auto Save") {
+                Toggle("Auto save enabled", isOn: $appState.isAutoSaveEnabled)
+                    .controlSize(.mini)
+                    .toggleStyle(.switch)
+
+                let autoSaveAfterbinding = Binding<Double>(
+                    get: { Double(appState.autoSaveDelay) },
+                    set: { appState.autoSaveDelay = Int($0) }
+                )
+                Slider(value: autoSaveAfterbinding, in: 2.0...60.0, step: 2) {
                     Text("Auto save after \(appState.autoSaveDelay.formatted()) seconds")
-                        .frame(width: 180, alignment: .leading)
-                    let binding = Binding<Double>(
-                        get: { Double(appState.autoSaveDelay) },
-                        set: { appState.autoSaveDelay = Int($0) }
-                    )
-                    Slider(value: binding, in: 2.0...60.0, step: 2)
-                        .disabled(!appState.isAutoSaveEnabled)
-                        .controlSize(.mini)
                 }
+                .disabled(!appState.isAutoSaveEnabled)
+                .controlSize(.mini)
             }
 
             Section(header: Text("Tab Key")) {
-                HStack {
-                    Text("Tab key action")
-                    let binding = Binding<Int>(
-                        get: { appState.tabKeyAction.rawValue },
-                        set: { appState.tabKeyAction = AppState.TabKeyAction(rawValue: $0) ?? .default }
-                    )
-                    Picker("", selection: binding) {
-                        Text("Insert Tab").tag(AppState.TabKeyAction.default.rawValue)
-                        Text("Indent with Space").tag(AppState.TabKeyAction.indentWithSpace.rawValue)
-                    }
+                let tabKeyActionBinding = Binding<Int>(
+                    get: { appState.tabKeyAction.rawValue },
+                    set: { appState.tabKeyAction = AppState.TabKeyAction(rawValue: $0) ?? .default }
+                )
+                Picker("Tab key action", selection: tabKeyActionBinding) {
+                    Text("Insert Tab").tag(AppState.TabKeyAction.default.rawValue)
+                    Text("Indent with Space").tag(AppState.TabKeyAction.indentWithSpace.rawValue)
                 }
-                HStack {
+
+                let indentSizeBinding = Binding<Double>(
+                    get: { Double(appState.indentSize) },
+                    set: { appState.indentSize = Int($0) }
+                )
+                Slider(value: indentSizeBinding, in: 2.0...16.0, step: 1) {
                     Text("Indent with \(appState.indentSize.formatted()) spaces")
-                        .frame(width: 180, alignment: .leading)
-                    let binding = Binding<Double>(
-                        get: { Double(appState.indentSize) },
-                        set: { appState.indentSize = Int($0) }
-                    )
-                    Slider(value: binding, in: 2.0...16.0, step: 1)
-                        .disabled(appState.tabKeyAction != .indentWithSpace)
-                        .controlSize(.mini)
                 }
+                .disabled(appState.tabKeyAction != .indentWithSpace)
+                .controlSize(.mini)
             }
         }
         .formStyle(.grouped)
         .navigationTitle("Settings")
-        .frame(width: 600, height: 500)
+        .frame(minWidth: 500, minHeight: 500)
     }
 }
 
