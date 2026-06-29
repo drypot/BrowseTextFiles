@@ -8,13 +8,13 @@
 import SwiftUI
 
 struct RenameSheet: View {
-    @Environment(AppState.self) var appState
+    var appState: AppState
+    var state: BrowserState
+
     @Environment(\.dismiss) private var dismiss
 
     @State private var orgName = ""
     @State private var newName = ""
-
-    var state: BrowserState
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {

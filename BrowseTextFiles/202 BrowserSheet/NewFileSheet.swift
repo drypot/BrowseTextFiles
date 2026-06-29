@@ -14,12 +14,11 @@ fileprivate struct OptionItem: Identifiable {
 }
 
 struct NewFileSheet: View {
-    @Environment(AppState.self) var appState
-    @Environment(\.dismiss) private var dismiss
-
-    @State private var newFilePath = ""
-
+    @Bindable var appState: AppState
     var state: BrowserState
+
+    @Environment(\.dismiss) private var dismiss
+    @State private var newFilePath = ""
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -34,7 +33,6 @@ struct NewFileSheet: View {
                         .textFieldStyle(.roundedBorder)
                 }
                 Section(header: Text("Templates")) {
-                    @Bindable var appState = appState
                     let range = 0 ..< appState.newFileTemplates.count
                     ForEach(range, id: \.self) { index in
                         HStack {

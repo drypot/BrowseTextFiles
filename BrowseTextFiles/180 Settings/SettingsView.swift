@@ -8,12 +8,10 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @Environment(AppState.self) private var appState
-
+    @Bindable var appState: AppState
     let sliderWidth: CGFloat = 240
 
     var body: some View {
-        @Bindable var appState = appState
         Form {
             Section("Font") {
                 LabeledContent("Font: \(appState.fontName)") {
@@ -76,8 +74,6 @@ struct SettingsView: View {
     }
 }
 
-#Preview {
-    let appState = AppState()
-    SettingsView()
-        .environment(appState)
-}
+//#Preview {
+//    SettingsView(appState: AppState())
+//}

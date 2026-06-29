@@ -9,8 +9,8 @@ import SwiftUI
 import Combine
 
 struct HistoryView: View {
-    @Environment(AppState.self) var appState
-    @Environment(BrowserState.self) var state
+    var appState: AppState
+    var state: BrowserState
 
     @State private var cancellables = Set<AnyCancellable>()
 

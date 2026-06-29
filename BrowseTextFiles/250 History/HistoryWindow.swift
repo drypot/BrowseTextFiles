@@ -8,14 +8,13 @@
 import SwiftUI
 
 struct HistoryWindow: Scene {
-    @Environment(AppState.self) var appState
+    var appState: AppState
 
     var body: some Scene {
         WindowGroup("History", id: "history", for: UUID.self) { $id in
             if let state = appState.lastBrowserState {
-                HistoryView()
+                HistoryView(appState: appState, state: state)
                     .frame(minWidth: 320, minHeight: 200)
-                    .environment(state)
             }
         }
         .restorationBehavior(.disabled)

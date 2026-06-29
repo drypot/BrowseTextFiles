@@ -8,9 +8,11 @@
 import SwiftUI
 
 struct SettingsWindow: Scene {
+    let appState: AppState
+
     var body: some Scene {
         Settings {
-            SettingsView()
+            SettingsView(appState: appState)
         }
     }
 }

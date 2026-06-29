@@ -10,8 +10,8 @@ import SwiftUI
 // https://developer.apple.com/library/archive/documentation/TextFonts/Conceptual/CocoaTextArchitecture/TextEditing/TextEditing.html#//apple_ref/doc/uid/TP40009459-CH3-SW16
 
 struct TextBufferEditor: NSViewRepresentable {
-    @Environment(AppState.self) var appState
-    @Environment(BrowserState.self) var state
+    var appState: AppState
+    var state: BrowserState
 
     func makeCoordinator() -> Coordinator {
         return Coordinator(self)

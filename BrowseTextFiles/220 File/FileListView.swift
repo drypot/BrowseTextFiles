@@ -8,8 +8,9 @@
 import SwiftUI
 
 struct FileListView: View {
-    @Environment(AppState.self) var appState
-    @Environment(BrowserState.self) var state
+    var appState: AppState
+    var state: BrowserState
+
     @Environment(\.openWindow) private var openWindow
     @Environment(\.appearsActive) var appearsActive
     @Environment(\.focusedViewBinding) var focusedViewBinding
@@ -25,7 +26,7 @@ struct FileListView: View {
             List {
                 if let fileList = state.fileList {
                     ForEach(fileList) { fileItem in
-                        RowView(item: fileItem, isActive: isActive)
+                        RowView(appState: appState, state: state, item: fileItem, isActive: isActive)
                             .id(fileItem.id)
                     }
                 }
@@ -91,8 +92,9 @@ struct FileListView: View {
 }
 
 fileprivate struct RowView: View {
-    @Environment(AppState.self) var appState
-    @Environment(BrowserState.self) var state
+    var appState: AppState
+    var state: BrowserState
+
     @Environment(\.openWindow) private var openWindow
     @Environment(\.focusedViewBinding) var focusedViewBinding
 

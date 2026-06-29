@@ -23,6 +23,7 @@ final class BrowserState: Identifiable {
 
     var expandedFolders: Set<URL> = []
 
+    var selectedFolderIDs: Set<FolderState.ID> = []
     var selectedFolderID: FolderState.ID?
     var selectedFolder: FolderState?
 

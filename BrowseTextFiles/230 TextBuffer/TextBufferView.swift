@@ -8,8 +8,9 @@
 import SwiftUI
 
 struct TextBufferView: View {
-    @Environment(AppState.self) var appState
-    @Environment(BrowserState.self) var state
+    var appState: AppState
+    var state: BrowserState
+    
     @Environment(\.openWindow) private var openWindow
     @Environment(\.dismissWindow) private var dismissWindow
     @Environment(\.focusedViewBinding) var focusedViewBinding
@@ -93,7 +94,7 @@ struct TextBufferView: View {
         // TextEditor source of truth 동기화 비효율이 심해서
         // TextBufferEditor 를 만들었다. NSTextView.string 을 source 로 쓴다.
 
-        TextBufferEditor()
+        TextBufferEditor(appState: appState, state: state)
         //.frame(maxWidth: .infinity, maxHeight: .infinity)
             .focused(focusedViewBinding!, equals: .textEditor)
             .task {

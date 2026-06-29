@@ -8,15 +8,15 @@
 import SwiftUI
 
 struct BrowserWindow: Scene {
-    @Environment(AppState.self) private var appState
+    var appState: AppState
+
     @Environment(\.openWindow) private var openWindow
     @Environment(\.dismissWindow) private var dismissWindow
-
     @FocusedValue(\.focusedBrowserState) private var state: BrowserState?
 
     var body: some Scene {
         WindowGroup("Browser", id: "browser", for: BrowserInitParam.self) { $initParam in
-            BrowserView(initParam)
+            BrowserView(appState: appState, initParam: initParam)
             //BrowserDebuggingView(initParam)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
 

@@ -37,7 +37,9 @@ struct BrowserInitParam: Hashable, Codable {
 }
 
 struct BrowserView: View {
-    @Environment(AppState.self) var appState
+    var appState: AppState
+    var initParam: BrowserInitParam
+
     @Environment(\.openWindow) private var openWindow
     @Environment(\.dismissWindow) private var dismissWindow
 
@@ -51,25 +53,17 @@ struct BrowserView: View {
 
     @FocusState private var focusedView: FocusedView?
 
-    private let initParam: BrowserInitParam
-
-    init(_ initParam: BrowserInitParam) {
-        self.initParam = initParam
-        //printInitParamID("init")
-    }
-
     var body: some View {
         VStack {
             if state.isRootReady {
-
                 NavigationSplitView {
-                    FolderTreeView()
+                    FolderTreeView(appState: appState, state: state)
                         .frame(minWidth: 200, maxHeight: .infinity)
                 } content: {
-                    FileListView()
+                    FileListView(appState: appState, state: state)
                         .frame(minWidth: 180, maxHeight: .infinity)
                 } detail: {
-                    TextBufferView()
+                    TextBufferView(appState: appState, state: state)
                         .frame(minWidth: 300, maxHeight: .infinity)
                         //.layoutPriority(1)
                 }
@@ -101,11 +95,11 @@ struct BrowserView: View {
         }
         .sheet(
             isPresented: $state.isShowNewFileSheet,
-            content: { NewFileSheet(state: state) }
+            content: { NewFileSheet(appState: appState, state: state) }
         )
         .sheet(
             isPresented: $state.isShowRenameSheet,
-            content: { RenameSheet(state: state) }
+            content: { RenameSheet(appState: appState, state: state) }
         )
         .alert(
             "",
