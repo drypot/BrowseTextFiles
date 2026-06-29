@@ -164,15 +164,15 @@ extension BrowserState {
     // MARK: - Folder Folding
 
     func isExpanded(_ folder: FolderState) -> Bool {
-        expandedFolders.contains(folder.id)
+        expandedFolderIDs.contains(folder.id)
     }
 
     func expand(_ folder: FolderState) {
-        expandedFolders.insert(folder.id)
+        expandedFolderIDs.insert(folder.id)
     }
 
     func collapse(_ folder: FolderState) {
-        expandedFolders.remove(folder.id)
+        expandedFolderIDs.remove(folder.id)
     }
 
     func toggleExpanded(_ folder: FolderState) {
@@ -208,7 +208,7 @@ extension BrowserState {
 
         var tmpURL = url
         for _ in 0 ..< count {
-            expandedFolders.insert(tmpURL)
+            expandedFolderIDs.insert(tmpURL)
             tmpURL = tmpURL.deletingLastPathComponent()
         }
     }

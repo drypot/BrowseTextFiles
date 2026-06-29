@@ -22,9 +22,9 @@ final class BrowserState: Identifiable {
     var rootFolder: FolderState?
     var rootFolderRefreshID = UUID()
 
-    var expandedFolders: Set<FolderState.ID> = []
-
+    var expandedFolderIDs: Set<FolderState.ID> = []
     var selectedFolderIDs: Set<FolderState.ID> = []
+
     var selectedFolderID: FolderState.ID?
     var selectedFolder: FolderState?
 

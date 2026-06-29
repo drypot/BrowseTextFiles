@@ -8,12 +8,12 @@
 import SwiftUI
 
 struct FolderTreeView: View {
-    var appState: AppState
-    @Bindable var state: BrowserState
-
     @Environment(\.openWindow) private var openWindow
     @Environment(\.appearsActive) var appearsActive
     @Environment(\.focusedViewBinding) var focusedViewBinding
+
+    var appState: AppState
+    @Bindable var state: BrowserState
 
     var body: some View {
         let isActive = appearsActive && (focusedViewBinding?.wrappedValue == .folderTree)
@@ -25,9 +25,11 @@ struct FolderTreeView: View {
                 }
             }
             .id(state.rootFolderRefreshID)
+            .onAppear {
+                scrollToSelection(proxy)
+            }
             .onChange(of: state.selectedFolderID) {
-                guard let id = state.selectedFolderID else { return }
-                proxy.scrollTo(id)
+                scrollToSelection(proxy)
             }
         }
         .focusable()
@@ -65,6 +67,15 @@ struct FolderTreeView: View {
                     state.makeNewFolder()
                 }
                 .help("New Folder")
+            }
+        }
+    }
+
+    private func scrollToSelection(_ proxy: ScrollViewProxy) {
+        guard let id = state.selectedFolderID else { return }
+        Task {
+            withAnimation {
+                proxy.scrollTo(id)
             }
         }
     }

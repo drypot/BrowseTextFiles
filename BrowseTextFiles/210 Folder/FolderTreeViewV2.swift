@@ -7,22 +7,28 @@
 
 import SwiftUI
 
-//struct FolderTreeView: View {
-//    var appState: AppState
-//    var state: BrowserState
-//    @Environment(\.openWindow) private var openWindow
-//
-//    var body: some View {
-//        List {
-//            if let rootFolder = state.rootFolder {
-//                TreeRow(rootFolder, children: \.children, expanded: $appState.)
-//                    .id(rootFolder.id)
+struct FolderTreeViewV2: View {
+    @Environment(\.openWindow) private var openWindow
+
+    var appState: AppState
+    @Bindable var state: BrowserState
+
+    var body: some View {
+        ScrollViewReader { proxy in
+            List(selection: $state.selectedFolderIDs) {
+                if let rootFolder = state.rootFolder {
+                    TreeRow(rootFolder, children: \.children, expanded: $state.expandedFolderIDs) { folder in
+                        Text(folder.name)
+                            .id(folder.id)
+                    }
+                }
+            }
+            .id(state.rootFolderRefreshID)
+//            .onChange(of: state.focusFolderID) {
+//                guard let id = state.focusFolderID else { return }
+//                proxy.scrollTo(id)
 //            }
-//        }
-//        .onChange(of: state.selectedFolderID) {
-//            guard let id = state.selectedFolderID else { return }
-//            proxy.scrollTo(id)
-//        }
-//    }
-//}
+        }
+    }
+}
 
