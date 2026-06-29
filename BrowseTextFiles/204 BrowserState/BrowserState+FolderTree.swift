@@ -26,7 +26,7 @@ extension BrowserState {
             rootFolder = folder
             selectFolder(folder)
             expand(folder)
-            rootFolderRefreshCount += 1
+            rootFolderRefreshID = UUID()
         } catch {
             let message = error.localizedDescription
             showAlert(message)

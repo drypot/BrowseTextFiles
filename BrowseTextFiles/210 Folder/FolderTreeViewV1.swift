@@ -24,7 +24,7 @@ struct FolderTreeView: View {
                         .id(rootFolder.id)
                 }
             }
-            .id(state.rootFolderRefreshCount)
+            .id(state.rootFolderRefreshID)
             .onChange(of: state.selectedFolderID) {
                 guard let id = state.selectedFolderID else { return }
                 proxy.scrollTo(id)

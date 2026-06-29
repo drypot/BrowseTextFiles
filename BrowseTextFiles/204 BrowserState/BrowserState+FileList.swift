@@ -42,11 +42,6 @@ extension BrowserState {
 
     // MARK: - Selected File
 
-    func findFile(with id: FileState.ID) -> FileState? {
-        guard let fileList else { return nil }
-        return fileList.first { $0.id ==  id }
-    }
-
     func deselectFile() {
         selectedFileID = nil
         selectedFile = nil

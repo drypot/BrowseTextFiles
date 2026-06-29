@@ -35,10 +35,5 @@ extension BrowserState {
         workingFile = file
         workingRelativePath = relativePath
     }
-
-    func setupWorkingFile(with id: FileState.ID) {
-        guard let file = findFile(with: id) else { return }
-        setupWorkingFile(with: file)
-    }
     
 }

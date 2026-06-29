@@ -20,7 +20,7 @@ final class BrowserState: Identifiable {
     //var rootWatcher: FolderWatcher?
 
     var rootFolder: FolderState?
-    var rootFolderRefreshCount = 0
+    var rootFolderRefreshID = UUID()
 
     var expandedFolders: Set<FolderState.ID> = []
 
