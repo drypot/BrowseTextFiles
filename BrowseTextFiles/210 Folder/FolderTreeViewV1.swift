@@ -18,51 +18,13 @@ struct FolderTreeView: View {
     var body: some View {
         let isActive = appearsActive && (focusedViewBinding?.wrappedValue == .folderTree)
         ScrollViewReader { proxy in
-            List(selection: $state.selectedFolderIDs) {
+            List {
                 if let rootFolder = state.rootFolder {
                     RowView(appState: appState, state: state, item: rootFolder, level: 0, isActive: isActive)
                         .id(rootFolder.id)
                 }
             }
-            .contextMenu(forSelectionType: FolderState.self) { selection in
-                Button("\(selection.count) items selected") {
-                    
-                }
-
-                 /*
-             Button("New File") {
-             state.makeNewFile()
-             }
-
-             Button("New File...") {
-             state.showNewFileSheet(for: item)
-             }
-
-             Button("New Folder") {
-             state.makeNewFolder(in: item.url)
-             }
-
-             Button("Show in Finder") {
-             Finder.shared.open(url: item.url)
-             }
-
-             Button("Open in New Window") {
-             appState.openNewBrowserWindow(fromRootURL: item.url, fileURL: nil, openWindow: openWindow)
-             }
-
-             Divider()
-
-             if item != state.rootFolder {
-             Button("Rename") {
-             state.showRenameSheet(for: item.url, isFolder: true)
-             }
-
-             Button("Delete") {
-             state.trashFolder(at: item.url)
-             }
-             }
-                  */
-             }
+            .id(state.rootFolderRefreshCount)
             .onChange(of: state.selectedFolderID) {
                 guard let id = state.selectedFolderID else { return }
                 proxy.scrollTo(id)
@@ -72,7 +34,6 @@ struct FolderTreeView: View {
         .focusEffectDisabled()
         .focused(focusedViewBinding!, equals: .folderTree)
         .onKeyPress(phases: .down, action: handleKeyPress)
-        /*
         .contextMenu {
             Button("New File") {
                 state.makeNewFile()
@@ -98,7 +59,6 @@ struct FolderTreeView: View {
                 }
             }
         }
-         */
         .toolbar {
             ToolbarItem {
                 Button("New Folder", systemImage: "folder.badge.plus") {
@@ -164,7 +124,7 @@ fileprivate struct RowView: View {
     let isActive: Bool
 
     var body: some View {
-        let isExpanded = item.hasChildren && state.isFolderExpanded(for: item.url)
+        let isExpanded = item.hasChildren && state.isExpanded(item)
         let isSelected = item.id == state.selectedFolderID
         let styler = Styler.shared
         let foregroundStyle = styler.foregroundStyleWhen(selected: isSelected, active: isActive)
@@ -175,7 +135,7 @@ fileprivate struct RowView: View {
                 .frame(width: 9 * CGFloat(level))
 
             Chevron(hasChildren: item.hasChildren, isExpaned: isExpanded) {
-                state.toggleFolder(for: item.url)
+                state.toggleExpanded(item)
             }
 
             Text(item.name)
@@ -204,10 +164,43 @@ fileprivate struct RowView: View {
                 .simultaneously(with: TapGesture(count: 2)
                     .onEnded {
                         //print("Double tap")
-                        state.toggleFolder(for: item.url)
+                        state.toggleExpanded(item)
                     }
                 )
         )
+        .contextMenu {
+            Button("New File") {
+                state.makeNewFile()
+            }
+
+            Button("New File...") {
+                state.showNewFileSheet(for: item)
+            }
+
+            Button("New Folder") {
+                state.makeNewFolder(in: item.url)
+            }
+
+            Button("Show in Finder") {
+                Finder.shared.open(url: item.url)
+            }
+
+            Button("Open in New Window") {
+                appState.openNewBrowserWindow(fromRootURL: item.url, fileURL: nil, openWindow: openWindow)
+            }
+
+            Divider()
+
+            if item != state.rootFolder {
+                Button("Rename") {
+                    state.showRenameSheet(for: item.url, isFolder: true)
+                }
+
+                Button("Delete") {
+                    state.trashFolder(at: item.url)
+                }
+            }
+        }
 
         // onTapGesture 를 두 개 쓰면 싱글 클릭시 딜레이가 발생한다;
         // 위에 처럼 TapGesture 를 두 개 만들고 simultaneously 로 묶는다.

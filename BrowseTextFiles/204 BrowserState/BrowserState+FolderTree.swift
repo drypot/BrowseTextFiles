@@ -25,7 +25,8 @@ extension BrowserState {
             let folder = try FolderState.buildTree(from: rootURL)
             rootFolder = folder
             selectFolder(folder)
-            expandFolder(for: folder.url)
+            expand(folder)
+            rootFolderRefreshCount += 1
         } catch {
             let message = error.localizedDescription
             showAlert(message)
@@ -92,7 +93,7 @@ extension BrowserState {
             }
             previous = current
 
-            if let children = current.children, isFolderExpanded(for: current.url) {
+            if let children = current.children, isExpanded(current) {
                 for child in children {
                     if let result = findNext(from: child) {
                         return result
@@ -119,7 +120,7 @@ extension BrowserState {
             }
             previous = current
 
-            if let children = current.children, isFolderExpanded(for: current.url) {
+            if let children = current.children, isExpanded(current) {
                 for child in children {
                     if let result = findPrevious(from: child) {
                         return result
@@ -144,7 +145,7 @@ extension BrowserState {
                 return parent
             }
 
-            if let children = current.children, isFolderExpanded(for: current.url) {
+            if let children = current.children, isExpanded(current) {
                 for child in children {
                     if let result = findParent(from: child, parent: current) {
                         return result
@@ -162,37 +163,37 @@ extension BrowserState {
 
     // MARK: - Folder Folding
 
-    func isFolderExpanded(for url: URL) -> Bool {
-        expandedFolders.contains(url)
+    func isExpanded(_ folder: FolderState) -> Bool {
+        expandedFolders.contains(folder.id)
     }
 
-    func expandFolder(for url: URL) {
-        expandedFolders.insert(url)
+    func expand(_ folder: FolderState) {
+        expandedFolders.insert(folder.id)
     }
 
-    func collapseFolder(for url: URL) {
-        expandedFolders.remove(url)
+    func collapse(_ folder: FolderState) {
+        expandedFolders.remove(folder.id)
     }
 
-    func toggleFolder(for url: URL) {
-        if isFolderExpanded(for: url) {
-            collapseFolder(for: url)
+    func toggleExpanded(_ folder: FolderState) {
+        if isExpanded(folder) {
+            collapse(folder)
         } else {
-            expandFolder(for: url)
+            expand(folder)
         }
     }
 
     func expandSelectedFolder() {
         guard let selectedFolder else { return }
         if selectedFolder.hasChildren {
-            expandFolder(for: selectedFolder.url)
+            expand(selectedFolder)
         }
     }
 
     func collapseSelectedFolder() -> Bool {
         guard let selectedFolder else { return false }
-        if selectedFolder.hasChildren, isFolderExpanded(for: selectedFolder.url) {
-            collapseFolder(for: selectedFolder.url)
+        if selectedFolder.hasChildren, isExpanded(selectedFolder) {
+            collapse(selectedFolder)
         } else {
             return selectParentFolder()
         }
@@ -207,7 +208,7 @@ extension BrowserState {
 
         var tmpURL = url
         for _ in 0 ..< count {
-            expandFolder(for: tmpURL)
+            expandedFolders.insert(tmpURL)
             tmpURL = tmpURL.deletingLastPathComponent()
         }
     }

@@ -8,12 +8,11 @@
 import Foundation
 
 final class FolderState: Identifiable, Hashable {
-    // URL 대신 UUID id 를 사용하면 reload 된 Item 의 URL 이 같아도 item 이 변경되었음을 알릴 수 있다.
-    let id = UUID()
     let url: URL
     let name: String
     var children: [FolderState]?
 
+    var id : URL { url }
     var hasChildren: Bool { children != nil }
 
     init(from url: URL) {

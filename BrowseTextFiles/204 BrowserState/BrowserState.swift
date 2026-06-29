@@ -20,8 +20,9 @@ final class BrowserState: Identifiable {
     //var rootWatcher: FolderWatcher?
 
     var rootFolder: FolderState?
+    var rootFolderRefreshCount = 0
 
-    var expandedFolders: Set<URL> = []
+    var expandedFolders: Set<FolderState.ID> = []
 
     var selectedFolderIDs: Set<FolderState.ID> = []
     var selectedFolderID: FolderState.ID?
