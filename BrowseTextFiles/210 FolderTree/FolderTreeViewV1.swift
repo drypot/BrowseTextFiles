@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct FolderTreeView: View {
+struct FolderTreeViewV1: View {
     @Environment(\.openWindow) private var openWindow
     @Environment(\.appearsActive) var appearsActive
     @Environment(\.focusedViewBinding) var focusedViewBinding
