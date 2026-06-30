@@ -117,9 +117,38 @@ struct BrowserView: View {
             guard let newValue else { return }
             saveFileURL(newValue.url)
         }
-        //.toolbarBackground(.background, for: .windowToolbar)
-        //.toolbarBackgroundVisibility(.automatic, for: .windowToolbar)
         //.toolbar(removing: .title)
+        .task(id: window) {
+            guard let window else { return }
+            let sequence = NotificationCenter.default.notifications(named: NSWindow.didBecomeMainNotification, object: window)
+            for await _ in sequence {
+                saveWindowSize(window)
+            }
+        }
+        .task(id: window) {
+            guard let window else { return }
+            let sequence = NotificationCenter.default.notifications(named: NSWindow.didResizeNotification, object: window)
+            for await _ in sequence {
+                saveWindowSize(window)
+            }
+        }
+        .task(id: window) {
+            guard let window else { return }
+            let sequence = NotificationCenter.default.notifications(named: NSWindow.willCloseNotification, object: window)
+            for await _ in sequence {
+                dismissWindow(id: "search", value: state.id)
+                dismissWindow(id: "history", value: state.id)
+                state.releaseResource()
+            }
+        }
+        .task(id: window) {
+            guard let window else { return }
+            let sequence = NotificationCenter.default.notifications(named: NSWindow.didResignMainNotification, object: window)
+            for await _ in sequence {
+                print("resign main window: \(state.rootName ?? "nil")")
+                state.textBuffer?.autoSaveTextView()
+            }
+        }
     }
 
     func printInitParamID(_ part: String) {
@@ -197,11 +226,9 @@ struct BrowserView: View {
     func setupWindow(_ window: NSWindow?) {
         guard let window else { return }
         self.window = window
-
-        // scenePhase 로는 먼가 감지가 잘 안돼서 Notification 을 쓰도록 한다.
-
         saveWindowSize(window)
 
+        /*
         NotificationCenter.default
             .publisher(for: NSWindow.didBecomeMainNotification, object: window)
             .sink { notification in
@@ -234,6 +261,7 @@ struct BrowserView: View {
                 state.textBuffer?.autoSaveTextView()
             }
             .store(in: &cancellables)
+        */
     }
 
     func saveWindowSize(_ window: NSWindow) {
