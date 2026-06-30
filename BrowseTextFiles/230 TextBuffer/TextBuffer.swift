@@ -9,9 +9,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 @Observable
-final class TextBuffer: Identifiable, Hashable {
-    let id = UUID()
-
+final class TextBuffer {
     private(set) var url: URL
     private(set) var name: String
 
@@ -145,13 +143,5 @@ final class TextBuffer: Identifiable, Hashable {
             showAlert(message)
             LogStore.shared.log("save: \(message)")
         }
-    }
-
-    static func == (lhs: TextBuffer, rhs: TextBuffer) -> Bool {
-        return lhs.id == rhs.id
-    }
-
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
     }
 }
