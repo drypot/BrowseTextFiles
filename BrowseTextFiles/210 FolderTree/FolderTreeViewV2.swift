@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct FolderTreeView: View {
+struct FolderTreeViewV2: View {
     @Environment(\.openWindow) private var openWindow
 
     var appState: AppState

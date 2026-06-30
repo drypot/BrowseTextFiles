@@ -82,16 +82,7 @@ struct TextBufferView: View {
     }
 
     var textEditorView: some View {
-        // let _ = Self._printChanges()
-
-        // TextEditor(
-        //     text: fileBuffer.textBinding(),
-        //     // selection: $state.fileBuffer!.selection
-        // )
-        // .font(appState.makeTextEditorFont())
-        // .lineSpacing(appState.lineSpacing)
-
-        // TextEditor source of truth 동기화 비효율이 심해서
+        // SwiftUI TextEditor source of truth 동기화 비효율이 심해서
         // TextBufferEditor 를 만들었다. NSTextView.string 을 source 로 쓴다.
 
         TextBufferEditor(appState: appState, state: state)
