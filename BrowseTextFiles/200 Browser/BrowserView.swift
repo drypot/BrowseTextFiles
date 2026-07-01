@@ -103,9 +103,9 @@ struct BrowserView: View {
         )
         .alert(
             "",
-            isPresented: $state.hasAlertMessage,
+            isPresented: $state.alertState.hasMessage,
             actions: { Button("OK") { } },
-            message: { Text(state.alertMessage) }
+            message: { Text(state.alertState.message) }
         )
         .alert(
             "",

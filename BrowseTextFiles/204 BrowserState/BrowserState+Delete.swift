@@ -30,7 +30,7 @@ extension BrowserState {
             }
         } catch {
             let message = error.localizedDescription
-            showAlert(message)
+            alertState.showAlert(message)
             LogStore.shared.log("delete folder: \(message)")
         }
     }
@@ -53,7 +53,7 @@ extension BrowserState {
             }
         } catch {
             let message = error.localizedDescription
-            showAlert(message)
+            alertState.showAlert(message)
             LogStore.shared.log("delete file: \(message)")
         }
     }

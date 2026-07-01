@@ -10,28 +10,35 @@ import Combine
 
 struct SearchView: View {
     var appState: AppState
-    @Bindable var state: BrowserState
+    var browserState: BrowserState
+    @Bindable var searchState: SearchState
 
     @State private var cancellables = Set<AnyCancellable>()
     @FocusState var isFocused: Bool
 
+    init(appState: AppState, browserState: BrowserState) {
+        self.appState = appState
+        self.browserState = browserState
+        self.searchState = browserState.searchState
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
-                TextField("Search", text: $state.searchText)
+                TextField("Search", text: $searchState.searchText)
                     .frame(minWidth: 100)
                     .focused($isFocused)
                     .task {
                         isFocused = true
                     }
                     .onSubmit {
-                        state.startSearch()
+                        startSearch()
                     }
                 Button("Search") {
-                    state.startSearch()
+                    startSearch()
                 }
                 Button("Reset") {
-                    state.clearSearchResult()
+                    searchState.clearSearchResult()
                 }
             }
             .padding(.horizontal)
@@ -39,13 +46,13 @@ struct SearchView: View {
 
             Divider()
 
-            if let results = state.searchResults, !results.isEmpty {
+            if let results = searchState.searchResults, !results.isEmpty {
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 16) {
                         ForEach(results) { result in
                             VStack(alignment: .leading) {
                                 Button(result.title) {
-                                    state.locateFile(with: result.url)
+                                    browserState.locateFile(with: result.url)
                                 }
                                 .buttonStyle(.plain)
                                 .foregroundStyle(.link)
@@ -69,8 +76,13 @@ struct SearchView: View {
             }
         }
         .background(WindowReader(onResolve: setupWindow))
-        .navigationTitle("Search: \(state.rootName ?? "")")
-        .focusedSceneValue(\.focusedBrowserState, state)
+        .navigationTitle("Search: \(browserState.rootName ?? "")")
+        .focusedSceneValue(\.focusedBrowserState, browserState)
+    }
+
+    func startSearch() {
+        guard let rootURL = browserState.rootURL else { return }
+        searchState.startSearch(rootURL: rootURL, alertState: browserState.alertState)
     }
 
     func setupWindow(_ window: NSWindow?) {
@@ -107,13 +119,13 @@ struct SearchView: View {
         NotificationCenter.default
             .publisher(for: NSWindow.willCloseNotification, object: window)
             .sink { notification in
-                state.isShowSearchWindow = false
+                searchState.isShowSearchWindow = false
             }
             .store(in: &cancellables)
     }
 
     func saveWindowSize(_ window: NSWindow) {
-        appState.saveWindowRect(window.frame, for: "search", uuid: state.id)
+        appState.saveWindowRect(window.frame, for: "search", uuid: browserState.id)
     }
 }
 

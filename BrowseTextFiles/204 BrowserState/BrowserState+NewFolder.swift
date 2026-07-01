@@ -34,7 +34,7 @@ extension BrowserState {
             expandFolders(for: newFolderURL)
         } catch {
             let message = error.localizedDescription
-            showAlert(message)
+            alertState.showAlert(message)
             LogStore.shared.log("new file: \(message)")
         }
     }

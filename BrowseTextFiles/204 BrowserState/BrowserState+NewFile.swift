@@ -33,7 +33,7 @@ extension BrowserState {
             locateFile(with: newFileURL)
         } catch {
             let message = error.localizedDescription
-            showAlert(message)
+            alertState.showAlert(message)
             LogStore.shared.log("new file: \(message)")
         }
     }
@@ -57,7 +57,7 @@ extension BrowserState {
             locateFile(with: newFileURL)
         } catch {
             let message = error.localizedDescription
-            showAlert(message)
+            alertState.showAlert(message)
             LogStore.shared.log("new file: \(message)")
         }
     }

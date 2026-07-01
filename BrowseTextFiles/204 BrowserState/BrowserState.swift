@@ -49,19 +49,15 @@ final class BrowserState: Identifiable {
     var isShowNewFileSheet = false
     var isShowRenameSheet = false
 
-    var searchText = ""
-    var isSearching = false
-    var searchResults: [SearchResult]?
-    var isShowSearchWindow = false
-
-    var alertMessage: String = ""
-    var hasAlertMessage = false
-
-    let historyState: HistoryState
+    @ObservationIgnored var alertState: AlertState
+    @ObservationIgnored var searchState: SearchState
+    @ObservationIgnored var historyState: HistoryState
 
     // MARK: - Init / Release
 
     init() {
+        self.alertState = AlertState()
+        self.searchState = SearchState()
         self.historyState = HistoryState()
     }
 
@@ -79,7 +75,7 @@ final class BrowserState: Identifiable {
         //}
 
         loadFolderTree(preserveSelection: false)
-        if hasAlertMessage { return }
+        if alertState.hasMessage { return }
 
         if let fileURL {
             locateFile(with: fileURL)
@@ -106,13 +102,6 @@ final class BrowserState: Identifiable {
         rootFolder != nil
     }
 
-    // MARK: - Alert
-
-    func showAlert(_ message: String) {
-        alertMessage = message
-        hasAlertMessage = true
-    }
-
     // MARK: - Update All
 
     func reloadAll() {
@@ -123,7 +112,7 @@ final class BrowserState: Identifiable {
         let fileURL = textBuffer?.url
 
         loadFolderTree()
-        if hasAlertMessage { return }
+        if alertState.hasMessage { return }
 
         if let fileURL {
             locateFile(with: fileURL)
@@ -139,7 +128,7 @@ final class BrowserState: Identifiable {
 
         selectFolder(with: folderURL)
         loadFileList(preserveSelection: false)
-        if hasAlertMessage { return }
+        if alertState.hasMessage { return }
 
         guard fileList != nil else { return }
 

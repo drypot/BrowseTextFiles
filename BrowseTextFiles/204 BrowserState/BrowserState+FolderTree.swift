@@ -29,7 +29,7 @@ extension BrowserState {
             rootFolderRefreshID = UUID()
         } catch {
             let message = error.localizedDescription
-            showAlert(message)
+            alertState.showAlert(message)
             LogStore.shared.log("load tree: \(message)")
         }
 

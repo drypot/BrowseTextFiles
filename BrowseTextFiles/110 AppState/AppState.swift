@@ -255,14 +255,14 @@ class AppState {
         guard state.isRootReady else { return }
         lastBrowserState = state
         openWindow(id: "search", value: state.id)
-        state.isShowSearchWindow = true
+        state.searchState.isShowSearchWindow = true
     }
 
     func toggleSearchWindow(for state: BrowserState, openWindow: OpenWindowAction, dismissWindow: DismissWindowAction) {
         guard state.isRootReady else { return }
-        if state.isShowSearchWindow {
+        if state.searchState.isShowSearchWindow {
             dismissWindow(id: "search", value: state.id)
-            state.isShowSearchWindow = false
+            state.searchState.isShowSearchWindow = false
         } else {
             openSearchWindow(for: state, openWindow: openWindow)
         }
