@@ -12,8 +12,8 @@ extension BrowserState {
     func addToHistory(_ url: URL) {
         let first = history.firstIndex { $0.url == url }
         if first == nil {
-            let urlForView = URLForView(url: url)
-            history.insert(urlForView, at: 0)
+            let historyItem = HistoryItem(url: url)
+            history.insert(historyItem, at: 0)
         }
     }
 

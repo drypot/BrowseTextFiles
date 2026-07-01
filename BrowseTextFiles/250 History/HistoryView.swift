@@ -30,10 +30,10 @@ struct HistoryView: View {
             if !state.history.isEmpty, let rootComponents = state.rootPathComponents {
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 8) {
-                        ForEach(state.history) { urlForView in
-                            let path = urlForView.relativePath(from: rootComponents)
+                        ForEach(state.history) { historyItem in
+                            let path = historyItem.relativePath(from: rootComponents)
                             Button(path) {
-                                state.locateFile(with: urlForView.url)
+                                state.locateFile(with: historyItem.url)
                             }
                         }
                         .buttonStyle(.plain)

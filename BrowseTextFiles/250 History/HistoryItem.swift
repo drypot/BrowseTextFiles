@@ -7,11 +7,12 @@
 
 import Foundation
 
-struct URLForView: Identifiable, Hashable {
-    let id = UUID()
+struct HistoryItem: Identifiable, Hashable {
     let url: URL
     let path: String
     let pathComponents: [String]
+
+    var id: URL { url }
 
     init(url: URL) {
         self.url = url
@@ -19,7 +20,7 @@ struct URLForView: Identifiable, Hashable {
         self.pathComponents = url.pathComponents
     }
 
-    static func == (lhs: URLForView, rhs: URLForView) -> Bool {
+    static func == (lhs: HistoryItem, rhs: HistoryItem) -> Bool {
         lhs.id == rhs.id
     }
 
