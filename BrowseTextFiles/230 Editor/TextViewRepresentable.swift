@@ -11,14 +11,14 @@ import SwiftUI
 
 struct TextViewRepresentable: NSViewRepresentable {
     var appState: AppState
-    var browserState: BrowserState
+    var editorState: EditorState
 
     func makeCoordinator() -> Coordinator {
         return Coordinator(self)
     }
 
     func makeNSView(context: Context) -> NSScrollView {
-        LogStore.shared.log("make nstextview: \(browserState.id)")
+        LogStore.shared.log("make nstextview:")
 
         let textView = makeTextView()
         let scrollView = makeScrollView(for: textView)
@@ -30,17 +30,15 @@ struct TextViewRepresentable: NSViewRepresentable {
     }
 
     func updateNSView(_ nsView: NSScrollView, context: Context) {
-        guard let fileBuffer = browserState.textBuffer else { return }
-
         //print("nsview updated: \(fileBuffer.name), TextBufferEditor, updateNSView")
 
         // LogStore @Observable 이라; 여기서 쓰면 View 삭제될 때 무한 루프 생긴다;
 
-        if fileBuffer.shouldTextViewCopyOriginalText {
+        if editorState.shouldTextViewCopyOriginalText {
             guard let textView = nsView.documentView as? NSTextView else { return }
-            textView.string = fileBuffer.originalText
-            fileBuffer.textView = textView
-            fileBuffer.shouldTextViewCopyOriginalText = false
+            textView.string = editorState.originalText
+            editorState.textView = textView
+            editorState.shouldTextViewCopyOriginalText = false
         }
     }
 
@@ -187,23 +185,21 @@ struct TextViewRepresentable: NSViewRepresentable {
 
     final class Coordinator: NSObject, NSTextViewDelegate {
         let appState: AppState
-        let browserState: BrowserState
+        let editorState: EditorState
 
         init(_ view: TextViewRepresentable) {
             //print("coordinator created: \(view.browserState.id), TextBufferEditor.Coordinator")
             appState = view.appState
-            browserState = view.browserState
+            editorState = view.editorState
         }
 
         func textDidChange(_ notification: Notification) {
-            guard let fileBuffer = browserState.textBuffer else { return }
-
             //print("text changed: \(fileBuffer.name), TextBufferEditor.Coordinator")
-            // guard let textView = notification.object as? NSTextView else { return }
+            //guard let textView = notification.object as? NSTextView else { return }
 
-            fileBuffer.isTextViewEdited = true
+            editorState.isTextViewEdited = true
             if appState.isAutoSaveEnabled {
-                fileBuffer.scheduleAutoSave(after: appState.autoSaveDelay)
+                editorState.scheduleAutoSave(after: appState.autoSaveDelay)
             }
         }
 

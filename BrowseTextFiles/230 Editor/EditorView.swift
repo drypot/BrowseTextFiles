@@ -19,9 +19,9 @@ struct EditorView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            if let message = browserState.textBuffer?.loadingError {
+            if let message = browserState.editorState?.loadingError {
                 errorMessageView(message: message)
-            } else if browserState.textBuffer != nil {
+            } else {
                 textEditorView
             }
         }
@@ -81,39 +81,42 @@ struct EditorView: View {
         .padding(.vertical, 16)
     }
 
+    @ViewBuilder
     var textEditorView: some View {
         // SwiftUI TextEditor source of truth 동기화 비효율이 심해서
         // TextViewRepresentable 를 만들었다. NSTextView.string 을 source 로 쓴다.
 
-        TextViewRepresentable(appState: appState, browserState: browserState)
-        //.frame(maxWidth: .infinity, maxHeight: .infinity)
-            .focused(focusedViewBinding!, equals: .textEditor)
-            .task {
-                updateTextViewStyle()
-            }
+        if let editorState = browserState.editorState {
+            TextViewRepresentable(appState: appState, editorState: editorState)
+            //.frame(maxWidth: .infinity, maxHeight: .infinity)
+                .focused(focusedViewBinding!, equals: .textEditor)
+                .task {
+                    updateTextViewStyle()
+                }
 
-        // TextViewRepresentable.updateNSView 에서 스타일까지 업데이트하면 비효율이 심해진다.
-        // 여기로 따로 빼놨다.
-            .onChange(of: appState.fontName) {
-                updateTextViewStyle()
-            }
-            .onChange(of: appState.fontSize) {
-                updateTextViewStyle()
-            }
-            .onChange(of: appState.lineSpacing) {
-                updateTextViewStyle()
-            }
+            // TextViewRepresentable.updateNSView 에서 스타일까지 업데이트하면 비효율이 심해진다.
+            // 여기로 따로 빼놨다.
+                .onChange(of: appState.fontName) {
+                    updateTextViewStyle()
+                }
+                .onChange(of: appState.fontSize) {
+                    updateTextViewStyle()
+                }
+                .onChange(of: appState.lineSpacing) {
+                    updateTextViewStyle()
+                }
 
-        // .overlay(
-        //     Text(debugID.uuidString.prefix(4))
-        //         .font(.caption)
-        //         .foregroundColor(.red),
-        //     alignment: .topTrailing
-        // )
+            // .overlay(
+            //     Text(debugID.uuidString.prefix(4))
+            //         .font(.caption)
+            //         .foregroundColor(.red),
+            //     alignment: .topTrailing
+            // )
+        }
     }
 
     func updateTextViewStyle() {
-        guard let textView = browserState.textBuffer?.textView else { return }
+        guard let textView = browserState.editorState?.textView else { return }
 
         let paragraphStyle = NSMutableParagraphStyle()
         // lineSpacing 쓰면 엔터 입력시 커서가 사라진다; macOS 26

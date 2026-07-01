@@ -14,7 +14,7 @@ extension BrowserState {
             let fileManager = FileManager.default
 
             let deletingSelectedFolder = selectedFolder?.url.isChildOrEqual(to: url) ?? false
-            let deletingSelectedFile = textBuffer?.url.isChild(of: url) ?? false
+            let deletingSelectedFile = editorState?.url.isChild(of: url) ?? false
 
             if deletingSelectedFile {
                 guard closeFileBuffer() else { return }

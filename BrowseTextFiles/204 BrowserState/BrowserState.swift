@@ -33,7 +33,7 @@ final class BrowserState: Identifiable {
     var selectedFileID: FileState.ID?
     var selectedFile: FileState?
 
-    var textBuffer: EditorState?
+    var editorState: EditorState?
 
     var workingFolderID: FolderState.ID?
     var workingFolder: FolderState?
@@ -109,7 +109,7 @@ final class BrowserState: Identifiable {
 
         guard autoSaveFileBuffer() else { return }
 
-        let fileURL = textBuffer?.url
+        let fileURL = editorState?.url
 
         loadFolderTree()
         if alertState.hasMessage { return }
