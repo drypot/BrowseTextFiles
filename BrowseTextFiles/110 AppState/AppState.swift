@@ -274,14 +274,14 @@ class AppState {
         guard state.isRootReady else { return }
         lastBrowserState = state
         openWindow(id: "history", value: state.id)
-        state.isShowHistoryWindow = true
+        state.historyState.isHistoryWindowShown = true
     }
 
     func toggleHistoryWindow(for state: BrowserState, openWindow: OpenWindowAction, dismissWindow: DismissWindowAction) {
         guard state.isRootReady else { return }
-        if state.isShowHistoryWindow {
+        if state.historyState.isHistoryWindowShown {
             dismissWindow(id: "history", value: state.id)
-            state.isShowHistoryWindow = false
+            state.historyState.isHistoryWindowShown = false
         } else {
             openHistoryWindow(for: state, openWindow: openWindow)
         }

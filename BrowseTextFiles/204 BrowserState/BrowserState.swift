@@ -54,13 +54,16 @@ final class BrowserState: Identifiable {
     var searchResults: [SearchResult]?
     var isShowSearchWindow = false
 
-    var history: [HistoryItem] = []
-    var isShowHistoryWindow = false
-
     var alertMessage: String = ""
     var hasAlertMessage = false
 
+    let historyState: HistoryState
+
     // MARK: - Init / Release
+
+    init() {
+        self.historyState = HistoryState()
+    }
 
     func initState(with rootURL: URL, fileURL: URL?) {
         LogStore.shared.log("init root: \(rootURL.path(percentEncoded: false))")

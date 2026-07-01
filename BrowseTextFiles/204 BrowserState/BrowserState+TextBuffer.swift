@@ -38,7 +38,7 @@ extension BrowserState {
         let fileBuffer = TextBufferState(from: url)
         fileBuffer.loadOriginalText()
         if !fileBuffer.hasLoadingError {
-            addToHistory(url)
+            historyState.addToHistory(url)
         }
         self.textBuffer = fileBuffer
     }

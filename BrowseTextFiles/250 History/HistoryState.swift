@@ -1,13 +1,16 @@
 //
-//  BrowserState+History.swift
+//  HistoryState.swift
 //  Browse Text Files
 //
-//  Created by Kyuhyun Park on 5/25/26.
+//  Created by Kyuhyun Park on 7/1/26.
 //
 
 import SwiftUI
 
-extension BrowserState {
+@Observable
+final class HistoryState {
+    var history: [HistoryItem] = []
+    var isHistoryWindowShown = false
 
     func addToHistory(_ url: URL) {
         let first = history.firstIndex { $0.url == url }
@@ -20,5 +23,4 @@ extension BrowserState {
     func clearHistory() {
         history.removeAll()
     }
-
 }

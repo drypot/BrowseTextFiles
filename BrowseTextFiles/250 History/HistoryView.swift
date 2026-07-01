@@ -10,16 +10,23 @@ import Combine
 
 struct HistoryView: View {
     var appState: AppState
-    var state: BrowserState
+    var browserState: BrowserState
+    var historyState: HistoryState
 
     @State private var cancellables = Set<AnyCancellable>()
 
+    init(appState: AppState, browserState: BrowserState) {
+        self.appState = appState
+        self.browserState = browserState
+        self.historyState = browserState.historyState
+    }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
                 Spacer()
                 Button("Clear") {
-                    state.clearHistory()
+                    historyState.clearHistory()
                 }
             }
             .padding(.horizontal)
@@ -27,13 +34,13 @@ struct HistoryView: View {
 
             Divider()
 
-            if !state.history.isEmpty, let rootComponents = state.rootPathComponents {
+            if !historyState.history.isEmpty, let rootComponents = browserState.rootPathComponents {
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 8) {
-                        ForEach(state.history) { historyItem in
+                        ForEach(historyState.history) { historyItem in
                             let path = historyItem.relativePath(from: rootComponents)
                             Button(path) {
-                                state.locateFile(with: historyItem.url)
+                                browserState.locateFile(with: historyItem.url)
                             }
                         }
                         .buttonStyle(.plain)
@@ -48,8 +55,8 @@ struct HistoryView: View {
             }
         }
         .background(WindowReader(onResolve: setupWindow))
-        .navigationTitle("History: \(state.rootName ?? "")")
-        .focusedSceneValue(\.focusedBrowserState, state)
+        .navigationTitle("History: \(browserState.rootName ?? "")")
+        .focusedSceneValue(\.focusedBrowserState, browserState)
     }
     
     func setupWindow(_ window: NSWindow?) {
@@ -85,12 +92,12 @@ struct HistoryView: View {
         NotificationCenter.default
             .publisher(for: NSWindow.willCloseNotification, object: window)
             .sink { notification in
-                state.isShowHistoryWindow = false
+                historyState.isHistoryWindowShown = false
             }
             .store(in: &cancellables)
     }
 
     func saveWindowSize(_ window: NSWindow) {
-        appState.saveWindowRect(window.frame, for: "history", uuid: state.id)
+        appState.saveWindowRect(window.frame, for: "history", uuid: browserState.id)
     }
 }
