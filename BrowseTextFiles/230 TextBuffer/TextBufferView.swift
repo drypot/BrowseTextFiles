@@ -8,13 +8,13 @@
 import SwiftUI
 
 struct TextBufferView: View {
-    var appState: AppState
-    var state: BrowserState
-    
     @Environment(\.openWindow) private var openWindow
     @Environment(\.dismissWindow) private var dismissWindow
     @Environment(\.focusedViewBinding) var focusedViewBinding
 
+    var appState: AppState
+    var state: BrowserState
+    
 //    private let debugID = UUID()
     
     var body: some View {
