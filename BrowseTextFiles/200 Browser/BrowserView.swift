@@ -107,12 +107,6 @@ struct BrowserView: View {
             actions: { Button("OK") { } },
             message: { Text(browserState.alertState.message) }
         )
-        .alert(
-            "",
-            isPresented: $browserState.hasFileBufferAlertMessage,
-            actions: { Button("OK") { } },
-            message: { Text(browserState.editorState?.alertMessage ?? "nil") }
-        )
         .onChange(of: browserState.selectedFile) { _, newValue in
             guard let newValue else { return }
             saveFileURL(newValue.url)
@@ -150,7 +144,7 @@ struct BrowserView: View {
         //     let sequence = NotificationCenter.default.notifications(named: NSWindow.didResignMainNotification, object: window)
         //     for await _ in sequence {
         //         print("resign main window: \(browserState.rootName ?? "nil")")
-        //         browserState.textBuffer?.autoSaveTextView()
+        //         browserState.textBuffer?.autoSaveFile()
         //     }
         // }
     }
@@ -252,7 +246,6 @@ struct BrowserView: View {
          NotificationCenter.default
             .publisher(for: NSWindow.willCloseNotification, object: window)
             .sink { notification in
-                print("333")
                 dismissWindow(id: "search", value: browserState.id)
                 dismissWindow(id: "history", value: browserState.id)
                 browserState.releaseResource()
@@ -263,7 +256,7 @@ struct BrowserView: View {
             .publisher(for: NSWindow.didResignMainNotification, object: window)
             .sink { _ in
                 print("resign main window: \(browserState.rootName ?? "nil")")
-                browserState.editorState?.autoSaveTextView()
+                _ = browserState.editorState.autoSaveFile()
             }
             .store(in: &cancellables)
     }

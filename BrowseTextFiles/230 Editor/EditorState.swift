@@ -10,11 +10,25 @@ import UniformTypeIdentifiers
 
 @Observable
 final class EditorState {
-    private(set) var url: URL
-    private(set) var name: String
+    private(set) var editingFileURL: URL?
+    private(set) var editingFilename: String?
+
+    private(set) var containsFile: Bool = false
 
     private(set) var originalText: String = ""
-    var shouldTextViewCopyOriginalText = false
+    var shouldCopyOriginalText = false
+    var updateTextViewStyleCount = 0
+
+    private(set) var loadingError: String?
+    private(set) var savingError: String?
+
+    var hasLoadingError: Bool {
+        loadingError != nil
+    }
+
+    var hasSavingError: Bool {
+        savingError != nil
+    }
 
     // Data 에서 NSTextView 링크를 갖는 것이 이상하지만;
     // 효율을 위해 NSTextView.string 을 Source of truth 로 쓴다;
@@ -30,55 +44,58 @@ final class EditorState {
     @ObservationIgnored
     private var autoSaveTask: Task<Void, Never>?
 
-    private(set) var loadingError: String?
-    private(set) var savingError: String?
+    @ObservationIgnored
+    private(set) var alertState: AlertState
 
-    private(set) var alertMessage: String = ""
-    var hasAlertMessage: Bool = false
+    @ObservationIgnored
+    private(set) var historyState: HistoryState
 
-    init(from url: URL) {
-        self.url = url
-        self.name = url.lastPathComponent
+    init(alertState: AlertState, historyState: HistoryState) {
+        self.alertState = alertState
+        self.historyState = historyState
     }
 
-    var hasLoadingError: Bool {
-        loadingError != nil
+    func loadFile(at url: URL?) {
+        guard let url else { return }
+        guard closeFile() else { return }
+
+        reset(with: url)
+        loadFile()
+        if !hasLoadingError {
+            historyState.addToHistory(url)
+        }
     }
 
-    var hasSavingError: Bool {
-        savingError != nil
-    }
-
-    func showAlert(_ message: String) {
-        alertMessage = message
-        hasAlertMessage = true
-    }
-
-    // 애초에 수작업 invalidate 필요없게 만든다고 신경은 썼는네,
-    // 혹시나 모르니 확실히 하자.
-    func invalidate() {
+    func reset() {
+        editingFileURL = nil
+        editingFilename = nil
+        containsFile = false
+        originalText = ""
+        shouldCopyOriginalText = false
+        loadingError = nil
+        savingError = nil
+        isTextViewEdited = false
         fileMonitor = nil
-        textView = nil
         autoSaveTask?.cancel()
     }
 
-//    func textBinding() -> Binding<String> {
-//        Binding<String>(
-//            get: { self.text },
-//            set: {
-//                self.text = $0
-//                self.isEdited = true
-//            }
-//        )
-//    }
+    func reset(with url: URL) {
+        reset()
+        editingFileURL = url
+        editingFilename = url.lastPathComponent
+    }
 
-    func loadOriginalText() {
-        LogStore.shared.log("load: \(name)")
+    func loadFile() {
+        guard let editingFileURL else { return }
+        guard let editingFilename else { return }
+
+        LogStore.shared.log("load: \(editingFilename)")
+
         do {
-            originalText = try String(contentsOf: url, encoding: .utf8)
+            originalText = try String(contentsOf: editingFileURL, encoding: .utf8)
+            shouldCopyOriginalText = true
+            containsFile = true
             startFileMonitoring()
-            loadingError = nil
-            shouldTextViewCopyOriginalText = true
         } catch {
             let message = error.localizedDescription
             loadingError = message
@@ -87,15 +104,23 @@ final class EditorState {
     }
 
     private func startFileMonitoring() {
+        guard let editingFileURL else { return }
         fileMonitor = FileMonitor()
-        fileMonitor!.startMonitoring(url) { [weak self] _ in
+        fileMonitor!.startMonitoring(editingFileURL) { [weak self] _ in
             guard let self else { return }
             self.autoSaveTask?.cancel()
-            self.loadOriginalText()
+            self.loadFile()
             if hasLoadingError {
                 fileMonitor = nil
             }
         }
+    }
+
+    func closeFile() -> Bool {
+        guard autoSaveFile() else { return false }
+        LogStore.shared.log("close: \(editingFilename ?? "")")
+        reset()
+        return true
     }
 
     func scheduleAutoSave(after seconds: Int) {
@@ -105,23 +130,25 @@ final class EditorState {
             try? await Task.sleep(for: .seconds(seconds))
             guard let self else { return }
             guard !Task.isCancelled else { return }
-            self.autoSaveTextView()
+            _ = self.autoSaveFile()
         }
     }
 
-    func autoSaveTextView() {
-        guard isTextViewEdited else { return }
-        guard !hasLoadingError else { return }
-        guard !hasSavingError else { return }
-        saveTextView()
+    func autoSaveFile() -> Bool {
+        guard isTextViewEdited else { return true }
+        guard !hasLoadingError else { return true }
+        guard !hasSavingError else { return true }
+        saveFile()
+        return !alertState.hasMessage
     }
 
-    func saveTextView() {
+    func saveFile() {
+        guard let editingFileURL else { return }
         guard !hasLoadingError else { return }
         guard let text = textView?.string else { return }
         guard let data = text.data(using: .utf8) else { return }
 
-        LogStore.shared.log("save: \(name)")
+        LogStore.shared.log("save: \(editingFilename ?? "")")
         do {
             // 이렇게 하면 먼저 붙였던 fileMonitor 가 떨어져 나간다. 하지 말 것.
             // try text.write(to: url, atomically: true, encoding: .utf8)
@@ -131,7 +158,7 @@ final class EditorState {
                 fileMonitor?.ignoreEvent = false
             }
 
-            let fileHandle = try FileHandle(forWritingTo: url)
+            let fileHandle = try FileHandle(forWritingTo: editingFileURL)
             try fileHandle.truncate(atOffset: 0)
             try fileHandle.write(contentsOf: data)
             try fileHandle.close()
@@ -140,7 +167,7 @@ final class EditorState {
         } catch {
             let message = error.localizedDescription
             savingError = message
-            showAlert(message)
+            alertState.showAlert(message)
             LogStore.shared.log("save: \(message)")
         }
     }

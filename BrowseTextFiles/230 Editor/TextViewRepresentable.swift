@@ -22,23 +22,22 @@ struct TextViewRepresentable: NSViewRepresentable {
 
         let textView = makeTextView()
         let scrollView = makeScrollView(for: textView)
-
         // configureForNoWrap(textView, scrollView)
         textView.delegate = context.coordinator
+        editorState.textView = textView
 
         return scrollView
     }
 
     func updateNSView(_ nsView: NSScrollView, context: Context) {
         //print("nsview updated: \(fileBuffer.name), TextBufferEditor, updateNSView")
-
         // LogStore @Observable 이라; 여기서 쓰면 View 삭제될 때 무한 루프 생긴다;
 
-        if editorState.shouldTextViewCopyOriginalText {
+        if editorState.shouldCopyOriginalText {
             guard let textView = nsView.documentView as? NSTextView else { return }
             textView.string = editorState.originalText
-            editorState.textView = textView
-            editorState.shouldTextViewCopyOriginalText = false
+            editorState.shouldCopyOriginalText = false
+            editorState.updateTextViewStyleCount += 1
         }
     }
 
@@ -194,7 +193,7 @@ struct TextViewRepresentable: NSViewRepresentable {
         }
 
         func textDidChange(_ notification: Notification) {
-            //print("text changed: \(fileBuffer.name), TextBufferEditor.Coordinator")
+            //print("text changed: \(editorState.editingFilename)")
             //guard let textView = notification.object as? NSTextView else { return }
 
             editorState.isTextViewEdited = true

@@ -14,18 +14,25 @@ struct EditorView: View {
 
     var appState: AppState
     var browserState: BrowserState
+    var editorState: EditorState
 
 //    private let debugID = UUID()
-    
+
+    init(appState: AppState, browserState: BrowserState) {
+        self.appState = appState
+        self.browserState = browserState
+        self.editorState = browserState.editorState
+    }
+
     var body: some View {
-        VStack(alignment: .leading) {
-            if let message = browserState.editorState?.loadingError {
-                errorMessageView(message: message)
-            } else {
-                textEditorView
+        VStack {
+            if let loadingError = editorState.loadingError {
+                errorMessageView(message: loadingError)
+            } else if editorState.containsFile {
+                textEditorView()
+                    .ignoresSafeArea()
             }
         }
-        .ignoresSafeArea()
         .toolbar {
             // ToolbarItemGroup(placement: .navigation) {
             //     Button("Prev", systemImage: "chevron.left")  {
@@ -77,34 +84,37 @@ struct EditorView: View {
             }
             Spacer()
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 16)
+        .padding()
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 
     @ViewBuilder
-    var textEditorView: some View {
+    func textEditorView() -> some View {
         // SwiftUI TextEditor source of truth 동기화 비효율이 심해서
         // TextViewRepresentable 를 만들었다. NSTextView.string 을 source 로 쓴다.
-
-        if let editorState = browserState.editorState {
-            TextViewRepresentable(appState: appState, editorState: editorState)
+        TextViewRepresentable(appState: appState, editorState: editorState)
             //.frame(maxWidth: .infinity, maxHeight: .infinity)
-                .focused(focusedViewBinding!, equals: .textEditor)
-                .task {
-                    updateTextViewStyle()
-                }
+            .focused(focusedViewBinding!, equals: .textEditor)
+            .task {
+                updateTextViewStyle()
+            }
 
             // TextViewRepresentable.updateNSView 에서 스타일까지 업데이트하면 비효율이 심해진다.
             // 여기로 따로 빼놨다.
-                .onChange(of: appState.fontName) {
-                    updateTextViewStyle()
-                }
-                .onChange(of: appState.fontSize) {
-                    updateTextViewStyle()
-                }
-                .onChange(of: appState.lineSpacing) {
-                    updateTextViewStyle()
-                }
+            .onChange(of: appState.fontName) {
+                updateTextViewStyle()
+            }
+            .onChange(of: appState.fontSize) {
+                updateTextViewStyle()
+            }
+            .onChange(of: appState.lineSpacing) {
+                updateTextViewStyle()
+            }
+            .onChange(of: editorState.updateTextViewStyleCount) {
+                // 새 파일 로드하면 가끔 스타일이 입혀지지 않아서;
+                // 로드된 후 스타일을 강제로 한번 입히는 것으로;
+                updateTextViewStyle()
+            }
 
             // .overlay(
             //     Text(debugID.uuidString.prefix(4))
@@ -112,11 +122,10 @@ struct EditorView: View {
             //         .foregroundColor(.red),
             //     alignment: .topTrailing
             // )
-        }
     }
 
     func updateTextViewStyle() {
-        guard let textView = browserState.editorState?.textView else { return }
+        guard let textView = editorState.textView else { return }
 
         let paragraphStyle = NSMutableParagraphStyle()
         // lineSpacing 쓰면 엔터 입력시 커서가 사라진다; macOS 26
@@ -142,6 +151,7 @@ struct EditorView: View {
         storage.setAttributes(attributes, range: range)
         storage.endEditing()
     }
+
 }
 
 #Preview {

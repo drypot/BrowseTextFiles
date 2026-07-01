@@ -11,7 +11,7 @@ extension BrowserState {
 
     func showNewFileSheet(for folder: FolderState? = nil) {
         guard let folder = folder ?? selectedFolder else { return }
-        guard autoSaveFileBuffer() else { return }
+        guard editorState.autoSaveFile() else { return }
         setupWorkingFolder(with: folder)
         isShowNewFileSheet = true
     }

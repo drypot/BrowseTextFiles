@@ -33,8 +33,6 @@ final class BrowserState: Identifiable {
     var selectedFileID: FileState.ID?
     var selectedFile: FileState?
 
-    var editorState: EditorState?
-
     var workingFolderID: FolderState.ID?
     var workingFolder: FolderState?
 
@@ -50,6 +48,7 @@ final class BrowserState: Identifiable {
     var isShowRenameSheet = false
 
     @ObservationIgnored var alertState: AlertState
+    @ObservationIgnored var editorState: EditorState
     @ObservationIgnored var searchState: SearchState
     @ObservationIgnored var historyState: HistoryState
 
@@ -59,6 +58,7 @@ final class BrowserState: Identifiable {
         self.alertState = AlertState()
         self.searchState = SearchState()
         self.historyState = HistoryState()
+        self.editorState = EditorState(alertState: alertState, historyState: historyState)
     }
 
     func initState(with rootURL: URL, fileURL: URL?) {
@@ -107,9 +107,9 @@ final class BrowserState: Identifiable {
     func reloadAll() {
         LogStore.shared.log("reload all:")
 
-        guard autoSaveFileBuffer() else { return }
+        guard editorState.autoSaveFile() else { return }
 
-        let fileURL = editorState?.url
+        let fileURL = editorState.editingFileURL
 
         loadFolderTree()
         if alertState.hasMessage { return }
@@ -122,7 +122,7 @@ final class BrowserState: Identifiable {
     func locateFile(with fileURL: URL) {
         LogStore.shared.log("locate file: \(fileURL.path(percentEncoded: false))")
 
-        guard closeFileBuffer() else { return }
+        guard editorState.closeFile() else { return }
 
         let folderURL = fileURL.deletingLastPathComponent()
 
@@ -134,7 +134,7 @@ final class BrowserState: Identifiable {
 
         expandFolders(for: folderURL)
         selectFile(withURL: fileURL)
-        loadFileBuffer()
+        editorState.loadFile(at: fileURL)
     }
 
 }

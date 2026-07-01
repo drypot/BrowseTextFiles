@@ -75,11 +75,11 @@ struct FileListView: View {
             focusedViewBinding?.wrappedValue = .folderTree
         case .downArrow:
             if browserState.selecteNextFile() {
-                browserState.loadFileBuffer()
+                browserState.editorState.loadFile(at: browserState.selectedFile?.url)
             }
         case .upArrow:
             if browserState.selectePreviousFile() {
-                browserState.loadFileBuffer()
+                browserState.editorState.loadFile(at: browserState.selectedFile?.url)
             }
         case .return:
             guard let file = browserState.selectedFile else { return .ignored }
@@ -125,7 +125,7 @@ fileprivate struct RowView: View {
             focusedViewBinding?.wrappedValue = .fileList
             guard browserState.selectedFileID != item.id else { return }
             browserState.selectFile(withID: item.id)
-            browserState.loadFileBuffer()
+            browserState.editorState.loadFile(at: browserState.selectedFile?.url)
         }
         .contextMenu {
             Button("New File") {

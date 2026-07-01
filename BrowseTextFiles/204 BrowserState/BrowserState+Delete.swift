@@ -14,10 +14,10 @@ extension BrowserState {
             let fileManager = FileManager.default
 
             let deletingSelectedFolder = selectedFolder?.url.isChildOrEqual(to: url) ?? false
-            let deletingSelectedFile = editorState?.url.isChild(of: url) ?? false
+            let deletingSelectedFile = editorState.editingFileURL?.isChild(of: url) ?? false
 
             if deletingSelectedFile {
-                guard closeFileBuffer() else { return }
+                guard editorState.closeFile() else { return }
             }
             LogStore.shared.log("deleting folder: \(url.path(percentEncoded: false))")
             try fileManager.trashItem(at: url, resultingItemURL: nil)
@@ -42,7 +42,7 @@ extension BrowserState {
             let deletingSelectedFile = selectedFile?.url == url
 
             if deletingSelectedFile {
-                guard closeFileBuffer() else { return }
+                guard editorState.closeFile() else { return }
             }
             LogStore.shared.log("deleting file: \(url.path(percentEncoded: false))")
             try fileManager.trashItem(at: url, resultingItemURL: nil)

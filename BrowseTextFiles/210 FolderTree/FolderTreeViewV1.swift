@@ -92,7 +92,7 @@ struct FolderTreeView: View {
             if browserState.selectedFileID == nil {
                 if let first = fileList.first {
                     browserState.selectFile(first)
-                    browserState.loadFileBuffer()
+                    browserState.editorState.loadFile(at: first.url)
                 }
             }
         case "\u{19}": // shift tab

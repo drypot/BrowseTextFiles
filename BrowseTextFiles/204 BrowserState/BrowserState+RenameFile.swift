@@ -23,7 +23,7 @@ extension BrowserState {
         let renamingSelectedFile = selectedFile?.url.isChildOrEqual(to: renamingURL) ?? false
         do {
             if renamingSelectedFile {
-                guard closeFileBuffer() else { return }
+                guard editorState.closeFile() else { return }
             }
             LogStore.shared.log("renaming: \(renamingURL.path) to \(newName)")
             try fileManager.moveItem(at: renamingURL, to: newURL)
@@ -40,7 +40,7 @@ extension BrowserState {
                 if renamingSelectedFile {
                     loadFileList(preserveSelection: false)
                     selectFile(withURL: newURL)
-                    loadFileBuffer()
+                    editorState.loadFile(at: newURL)
                 } else {
                     loadFileList()
                 }

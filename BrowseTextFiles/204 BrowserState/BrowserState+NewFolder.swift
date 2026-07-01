@@ -23,7 +23,7 @@ extension BrowserState {
         }
 
         do {
-            guard closeFileBuffer() else { return }
+            guard editorState.closeFile() else { return }
 
             LogStore.shared.log("new folder: \(newFolderURL.path)")
             try fileManager.createDirectory(at: newFolderURL, withIntermediateDirectories: true, attributes: nil)
