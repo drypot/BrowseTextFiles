@@ -46,7 +46,7 @@ struct BrowserView: View {
     @SceneStorage("rootURLData") private var sceneRootURLData: Data?
     @SceneStorage("fileURLData") private var sceneFileURLData: Data?
 
-    @State private var state = BrowserState()
+    @State private var browserState = BrowserState()
     @State private var window: NSWindow?
     @State private var isShowBlank = false
     @State private var cancellables = Set<AnyCancellable>()
@@ -55,15 +55,15 @@ struct BrowserView: View {
 
     var body: some View {
         VStack {
-            if state.isRootReady {
+            if browserState.isRootReady {
                 NavigationSplitView {
-                    FolderTreeView(appState: appState, state: state)
+                    FolderTreeView(appState: appState, browserState: browserState)
                         .frame(minWidth: 200, maxHeight: .infinity)
                 } content: {
-                    FileListView(appState: appState, state: state)
+                    FileListView(appState: appState, browserState: browserState)
                         .frame(minWidth: 180, maxHeight: .infinity)
                 } detail: {
-                    TextBufferView(appState: appState, state: state)
+                    TextBufferView(appState: appState, browserState: browserState)
                         .frame(minWidth: 300, maxHeight: .infinity)
                         //.layoutPriority(1)
                 }
@@ -86,34 +86,34 @@ struct BrowserView: View {
             }
         }
         .background(WindowReader(onResolve: setupWindow))
-        .navigationTitle(state.rootName ?? "Browser")
-        .environment(state)
+        .navigationTitle(browserState.rootName ?? "Browser")
+        .environment(browserState)
         .environment(\.focusedViewBinding, $focusedView)
-        .focusedSceneValue(\.focusedBrowserState, state)
+        .focusedSceneValue(\.focusedBrowserState, browserState)
         .task(id: initParam) {
             initView()
         }
         .sheet(
-            isPresented: $state.isShowNewFileSheet,
-            content: { NewFileSheet(appState: appState, state: state) }
+            isPresented: $browserState.isShowNewFileSheet,
+            content: { NewFileSheet(appState: appState, browserState: browserState) }
         )
         .sheet(
-            isPresented: $state.isShowRenameSheet,
-            content: { RenameSheet(appState: appState, state: state) }
+            isPresented: $browserState.isShowRenameSheet,
+            content: { RenameSheet(appState: appState, browserState: browserState) }
         )
         .alert(
             "",
-            isPresented: $state.alertState.hasMessage,
+            isPresented: $browserState.alertState.hasMessage,
             actions: { Button("OK") { } },
-            message: { Text(state.alertState.message) }
+            message: { Text(browserState.alertState.message) }
         )
         .alert(
             "",
-            isPresented: $state.hasFileBufferAlertMessage,
+            isPresented: $browserState.hasFileBufferAlertMessage,
             actions: { Button("OK") { } },
-            message: { Text(state.textBuffer?.alertMessage ?? "nil") }
+            message: { Text(browserState.textBuffer?.alertMessage ?? "nil") }
         )
-        .onChange(of: state.selectedFile) { _, newValue in
+        .onChange(of: browserState.selectedFile) { _, newValue in
             guard let newValue else { return }
             saveFileURL(newValue.url)
         }
@@ -140,17 +140,17 @@ struct BrowserView: View {
         //     guard let window else { return }
         //     let sequence = NotificationCenter.default.notifications(named: NSWindow.willCloseNotification, object: window)
         //     for await _ in sequence {
-        //         dismissWindow(id: "search", value: state.id)
-        //         dismissWindow(id: "history", value: state.id)
-        //         state.releaseResource()
+        //         dismissWindow(id: "search", value: browserState.id)
+        //         dismissWindow(id: "history", value: browserState.id)
+        //         browserState.releaseResource()
         //     }
         // }
         // .task(id: window) {
         //     guard let window else { return }
         //     let sequence = NotificationCenter.default.notifications(named: NSWindow.didResignMainNotification, object: window)
         //     for await _ in sequence {
-        //         print("resign main window: \(state.rootName ?? "nil")")
-        //         state.textBuffer?.autoSaveTextView()
+        //         print("resign main window: \(browserState.rootName ?? "nil")")
+        //         browserState.textBuffer?.autoSaveTextView()
         //     }
         // }
     }
@@ -174,14 +174,14 @@ struct BrowserView: View {
         // 초기화 로딩 조건을 잘 설정해둬야 한다;
 
         // Scene 복구가 먼저다, 사용자의 마지막 파일로 돌아간다.
-        if !state.isRootReady, let rootURL = loadRootURL() {
-            state.initState(with: rootURL, fileURL: loadFileURL())
+        if !browserState.isRootReady, let rootURL = loadRootURL() {
+            browserState.initState(with: rootURL, fileURL: loadFileURL())
             return
         }
 
         // initParam 으로 URL 전달받은 경우.
         if let rootURL = initParam.rootURL {
-            state.initState(with: rootURL, fileURL: initParam.fileURL)
+            browserState.initState(with: rootURL, fileURL: initParam.fileURL)
             saveRootURL(rootURL)
             appState.addRecentDocumentURL(rootURL)
             return
@@ -193,7 +193,7 @@ struct BrowserView: View {
     private func showOpenPanel() {
         guard let window else { return }
         appState.showFolderOpenPanelFor(window) { url in
-            state.initState(with: url, fileURL: nil)
+            browserState.initState(with: url, fileURL: nil)
             saveRootURL(url)
             appState.addRecentDocumentURL(url)
         }
@@ -253,22 +253,22 @@ struct BrowserView: View {
             .publisher(for: NSWindow.willCloseNotification, object: window)
             .sink { notification in
                 print("333")
-                dismissWindow(id: "search", value: state.id)
-                dismissWindow(id: "history", value: state.id)
-                state.releaseResource()
+                dismissWindow(id: "search", value: browserState.id)
+                dismissWindow(id: "history", value: browserState.id)
+                browserState.releaseResource()
             }
             .store(in: &cancellables)
 
         NotificationCenter.default
             .publisher(for: NSWindow.didResignMainNotification, object: window)
             .sink { _ in
-                print("resign main window: \(state.rootName ?? "nil")")
-                state.textBuffer?.autoSaveTextView()
+                print("resign main window: \(browserState.rootName ?? "nil")")
+                browserState.textBuffer?.autoSaveTextView()
             }
             .store(in: &cancellables)
     }
 
     func saveWindowSize(_ window: NSWindow) {
-        appState.saveWindowRect(window.frame, for: "browser", uuid: state.id)
+        appState.saveWindowRect(window.frame, for: "browser", uuid: browserState.id)
     }
 }

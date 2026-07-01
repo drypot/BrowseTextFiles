@@ -11,14 +11,14 @@ import SwiftUI
 
 struct TextBufferEditor: NSViewRepresentable {
     var appState: AppState
-    var state: BrowserState
+    var browserState: BrowserState
 
     func makeCoordinator() -> Coordinator {
         return Coordinator(self)
     }
 
     func makeNSView(context: Context) -> NSScrollView {
-        LogStore.shared.log("make nstextview: \(state.id)")
+        LogStore.shared.log("make nstextview: \(browserState.id)")
 
         let textView = makeTextView()
         let scrollView = makeScrollView(for: textView)
@@ -30,7 +30,7 @@ struct TextBufferEditor: NSViewRepresentable {
     }
 
     func updateNSView(_ nsView: NSScrollView, context: Context) {
-        guard let fileBuffer = state.textBuffer else { return }
+        guard let fileBuffer = browserState.textBuffer else { return }
 
         //print("nsview updated: \(fileBuffer.name), TextBufferEditor, updateNSView")
 
@@ -187,16 +187,16 @@ struct TextBufferEditor: NSViewRepresentable {
 
     final class Coordinator: NSObject, NSTextViewDelegate {
         let appState: AppState
-        let state: BrowserState
+        let browserState: BrowserState
 
         init(_ view: TextBufferEditor) {
-            //print("coordinator created: \(view.state.id), TextBufferEditor.Coordinator")
+            //print("coordinator created: \(view.browserState.id), TextBufferEditor.Coordinator")
             appState = view.appState
-            state = view.state
+            browserState = view.browserState
         }
 
         func textDidChange(_ notification: Notification) {
-            guard let fileBuffer = state.textBuffer else { return }
+            guard let fileBuffer = browserState.textBuffer else { return }
 
             //print("text changed: \(fileBuffer.name), TextBufferEditor.Coordinator")
             // guard let textView = notification.object as? NSTextView else { return }

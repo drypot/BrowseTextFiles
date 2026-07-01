@@ -9,7 +9,7 @@ import SwiftUI
 
 struct FileListView: View {
     var appState: AppState
-    var state: BrowserState
+    var browserState: BrowserState
 
     @Environment(\.openWindow) private var openWindow
     @Environment(\.appearsActive) var appearsActive
@@ -24,15 +24,15 @@ struct FileListView: View {
 
         ScrollViewReader { proxy in
             List {
-                if let fileList = state.fileList {
+                if let fileList = browserState.fileList {
                     ForEach(fileList) { fileItem in
-                        RowView(appState: appState, state: state, item: fileItem, isActive: isActive)
+                        RowView(appState: appState, browserState: browserState, item: fileItem, isActive: isActive)
                             .id(fileItem.id)
                     }
                 }
             }
-            .onChange(of: state.selectedFileID) {
-                guard let id = state.selectedFileID else { return }
+            .onChange(of: browserState.selectedFileID) {
+                guard let id = browserState.selectedFileID else { return }
                 proxy.scrollTo(id)
             }
         }
@@ -42,25 +42,25 @@ struct FileListView: View {
         .onKeyPress(phases: .down, action: handleKeyPress)
         .contextMenu {
             Button("New File") {
-                state.makeNewFile()
+                browserState.makeNewFile()
             }
 
             Button("New File...") {
-                state.showNewFileSheet()
+                browserState.showNewFileSheet()
             }
 
             Button("New Folder") {
-                state.makeNewFolder()
+                browserState.makeNewFolder()
             }
 
             Button("Show in Finder") {
-                if let url = state.selectedFolder?.url {
+                if let url = browserState.selectedFolder?.url {
                     Finder.shared.open(url: url)
                 }
             }
 
             Button("Open in New Window") {
-                if let url = state.selectedFolder?.url {
+                if let url = browserState.selectedFolder?.url {
                     appState.openNewBrowserWindow(fromFileURL: url, openWindow: openWindow)
                 }
             }
@@ -74,16 +74,16 @@ struct FileListView: View {
         case "\u{19}": // shift tab
             focusedViewBinding?.wrappedValue = .folderTree
         case .downArrow:
-            if state.selecteNextFile() {
-                state.loadFileBuffer()
+            if browserState.selecteNextFile() {
+                browserState.loadFileBuffer()
             }
         case .upArrow:
-            if state.selectePreviousFile() {
-                state.loadFileBuffer()
+            if browserState.selectePreviousFile() {
+                browserState.loadFileBuffer()
             }
         case .return:
-            guard let file = state.selectedFile else { return .ignored }
-            state.showRenameSheet(for: file.url, isFolder: false)
+            guard let file = browserState.selectedFile else { return .ignored }
+            browserState.showRenameSheet(for: file.url, isFolder: false)
         default:
             return .ignored
         }
@@ -93,7 +93,7 @@ struct FileListView: View {
 
 fileprivate struct RowView: View {
     var appState: AppState
-    var state: BrowserState
+    var browserState: BrowserState
 
     @Environment(\.openWindow) private var openWindow
     @Environment(\.focusedViewBinding) var focusedViewBinding
@@ -102,7 +102,7 @@ fileprivate struct RowView: View {
     let isActive: Bool
 
     var body: some View {
-        let isSelected = item.id == state.selectedFileID
+        let isSelected = item.id == browserState.selectedFileID
         let styler = Styler.shared
         let foregroundStyle = styler.foregroundStyleWhen(selected: isSelected, active: isActive)
         let backgroundStyle = styler.backgroundStyleWhen(selected: isSelected, active: isActive)
@@ -123,21 +123,21 @@ fileprivate struct RowView: View {
         .contentShape(Rectangle()) // 빈공간도 클릭되게 한다.
         .onTapGesture {
             focusedViewBinding?.wrappedValue = .fileList
-            guard state.selectedFileID != item.id else { return }
-            state.selectFile(withID: item.id)
-            state.loadFileBuffer()
+            guard browserState.selectedFileID != item.id else { return }
+            browserState.selectFile(withID: item.id)
+            browserState.loadFileBuffer()
         }
         .contextMenu {
             Button("New File") {
-                state.makeNewFile()
+                browserState.makeNewFile()
             }
 
             Button("New File...") {
-                state.showNewFileSheet()
+                browserState.showNewFileSheet()
             }
 
             Button("New Folder") {
-                state.makeNewFolder()
+                browserState.makeNewFolder()
             }
 
             Button("Show in Finder") {
@@ -151,11 +151,11 @@ fileprivate struct RowView: View {
             Divider()
 
             Button("Rename") {
-                state.showRenameSheet(for: item.url, isFolder: false)
+                browserState.showRenameSheet(for: item.url, isFolder: false)
             }
 
             Button("Delete") {
-                state.trashFile(at: item.url)
+                browserState.trashFile(at: item.url)
             }
         }
         //.focusEffectDisabled() // 포커스 테두리 표시 안 함

@@ -13,15 +13,15 @@ struct TextBufferView: View {
     @Environment(\.focusedViewBinding) var focusedViewBinding
 
     var appState: AppState
-    var state: BrowserState
-    
+    var browserState: BrowserState
+
 //    private let debugID = UUID()
     
     var body: some View {
         VStack(alignment: .leading) {
-            if let message = state.textBuffer?.loadingError {
+            if let message = browserState.textBuffer?.loadingError {
                 errorMessageView(message: message)
-            } else if state.textBuffer != nil {
+            } else if browserState.textBuffer != nil {
                 textEditorView
             }
         }
@@ -39,29 +39,29 @@ struct TextBufferView: View {
 
             ToolbarItemGroup(placement: .secondaryAction) {
                 Button("Reload", systemImage: "arrow.clockwise") {
-                    state.reloadAll()
+                    browserState.reloadAll()
                 }
                 .help("Reload")
 
                 Button("New File", systemImage: "square.and.pencil") {
-                    state.makeNewFile()
+                    browserState.makeNewFile()
                 }
                 .help("New File")
 
                 Button("New File...", systemImage: "bubble.and.pencil") {
-                    state.showNewFileSheet()
+                    browserState.showNewFileSheet()
                 }
                 .help("New File...")
 
                 Button("Show History", systemImage: "clock") {
-                    appState.toggleHistoryWindow(for: state, openWindow: openWindow, dismissWindow: dismissWindow)
+                    appState.toggleHistoryWindow(for: browserState, openWindow: openWindow, dismissWindow: dismissWindow)
                 }
                 .help("Show History")
             }
 
             ToolbarItem(placement: .primaryAction) {
                 Button("Search", systemImage: "magnifyingglass") {
-                    appState.toggleSearchWindow(for: state, openWindow: openWindow, dismissWindow: dismissWindow)
+                    appState.toggleSearchWindow(for: browserState, openWindow: openWindow, dismissWindow: dismissWindow)
                 }
                 .help("Search")
             }
@@ -73,7 +73,7 @@ struct TextBufferView: View {
             Text(message)
                 .textSelection(.enabled)
             Button("Reload folder tree") {
-                state.reloadAll()
+                browserState.reloadAll()
             }
             Spacer()
         }
@@ -85,7 +85,7 @@ struct TextBufferView: View {
         // SwiftUI TextEditor source of truth 동기화 비효율이 심해서
         // TextBufferEditor 를 만들었다. NSTextView.string 을 source 로 쓴다.
 
-        TextBufferEditor(appState: appState, state: state)
+        TextBufferEditor(appState: appState, browserState: browserState)
         //.frame(maxWidth: .infinity, maxHeight: .infinity)
             .focused(focusedViewBinding!, equals: .textEditor)
             .task {
@@ -113,7 +113,7 @@ struct TextBufferView: View {
     }
 
     func updateTextViewStyle() {
-        guard let textView = state.textBuffer?.textView else { return }
+        guard let textView = browserState.textBuffer?.textView else { return }
 
         let paragraphStyle = NSMutableParagraphStyle()
         // lineSpacing 쓰면 엔터 입력시 커서가 사라진다; macOS 26

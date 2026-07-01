@@ -15,7 +15,7 @@ fileprivate struct OptionItem: Identifiable {
 
 struct NewFileSheet: View {
     @Bindable var appState: AppState
-    var state: BrowserState
+    var browserState: BrowserState
 
     @Environment(\.dismiss) private var dismiss
     @State private var newFilePath = ""
@@ -93,7 +93,7 @@ struct NewFileSheet: View {
     }
 
     func submit() {
-        state.makeNewFile(with: newFilePath)
+        browserState.makeNewFile(with: newFilePath)
     }
 
     func updateNewFilePath() {
@@ -121,7 +121,7 @@ struct NewFileSheet: View {
         let minute = components.minute ?? 0
         let second = components.second ?? 0
         let weekday = components.weekday ?? 0
-        let relativeFolderPath = state.workingRelativePath ?? ""
+        let relativeFolderPath = browserState.workingRelativePath ?? ""
         return template
             .replacingOccurrences(of: "{year}", with: year.formatted(.number.grouping(.never).precision(.integerLength(4))))
             .replacingOccurrences(of: "{month}", with: month.formatted(.number.precision(.integerLength(2))))

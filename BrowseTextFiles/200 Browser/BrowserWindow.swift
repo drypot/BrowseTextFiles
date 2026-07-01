@@ -12,7 +12,7 @@ struct BrowserWindow: Scene {
 
     @Environment(\.openWindow) private var openWindow
     @Environment(\.dismissWindow) private var dismissWindow
-    @FocusedValue(\.focusedBrowserState) private var state: BrowserState?
+    @FocusedValue(\.focusedBrowserState) private var browserState: BrowserState?
 
     var body: some Scene {
         WindowGroup("Browser", id: "browser", for: BrowserInitParam.self) { $initParam in
@@ -50,17 +50,17 @@ struct BrowserWindow: Scene {
                 .keyboardShortcut("n", modifiers: [.command, .control])
 
                 Button("New File", systemImage: "text.document") {
-                    state?.makeNewFile()
+                    browserState?.makeNewFile()
                 }
                 .keyboardShortcut("n", modifiers: [.command])
 
                 Button("New File...", systemImage: "text.document") {
-                    state?.showNewFileSheet()
+                    browserState?.showNewFileSheet()
                 }
                 .keyboardShortcut("n", modifiers: [.command, .option])
 
                 Button("New Folder", systemImage: "folder.badge.plus") {
-                    state?.makeNewFolder()
+                    browserState?.makeNewFolder()
                 }
                 .keyboardShortcut("n", modifiers: [.command, .shift])
 
@@ -91,20 +91,20 @@ struct BrowserWindow: Scene {
                 Divider()
 
                 Button("Save File", systemImage: "square.and.arrow.down") {
-                    state?.saveFileBuffer()
+                    browserState?.saveFileBuffer()
                 }
                 .keyboardShortcut("s", modifiers: .command)
             }
             
             CommandGroup(after: .toolbar) {
                 Button("Reload", systemImage: "arrow.clockwise") {
-                     state?.reloadAll()
+                     browserState?.reloadAll()
                 }
                 .keyboardShortcut("r", modifiers: .command)
 
                 Button("Toggle History", systemImage: "clock") {
-                    guard let state else { return }
-                    appState.toggleHistoryWindow(for: state, openWindow: openWindow, dismissWindow: dismissWindow)
+                    guard let browserState else { return }
+                    appState.toggleHistoryWindow(for: browserState, openWindow: openWindow, dismissWindow: dismissWindow)
                 }
                 .keyboardShortcut("y", modifiers: .command)
 
@@ -132,8 +132,8 @@ struct BrowserWindow: Scene {
             CommandGroup(after: .textEditing) {
                 Divider()
                 Button("Find in Files", systemImage: "magnifyingglass") {
-                    guard let state else { return }
-                    appState.openSearchWindow(for: state, openWindow: openWindow)
+                    guard let browserState else { return }
+                    appState.openSearchWindow(for: browserState, openWindow: openWindow)
                 }
                 .keyboardShortcut("f", modifiers: [.command, .shift])
             }

@@ -11,23 +11,23 @@ struct FolderTreeViewV2: View {
     @Environment(\.openWindow) private var openWindow
 
     var appState: AppState
-    @Bindable var state: BrowserState
+    @Bindable var browserState: BrowserState
 
     var body: some View {
         ScrollViewReader { proxy in
-            List(selection: $state.selectedFolderIDs) {
-                if let rootFolder = state.rootFolder {
-                    TreeRow(rootFolder, children: \.children, expanded: $state.expandedFolderIDs) { folder in
+            List(selection: $browserState.selectedFolderIDs) {
+                if let rootFolder = browserState.rootFolder {
+                    TreeRow(rootFolder, children: \.children, expanded: $browserState.expandedFolderIDs) { folder in
                         Text(folder.name)
                             .id(folder.id)
                     }
                 }
             }
-            .id(state.rootFolderRefreshID)
+            .id(browserState.rootFolderRefreshID)
             .onAppear {
                 scrollToSelection(proxy)
             }
-            .onChange(of: state.selectedFolderID) {
+            .onChange(of: browserState.selectedFolderID) {
                 scrollToSelection(proxy)
             }
             .contextMenu(forSelectionType: FolderState.ID.self) {
@@ -36,7 +36,7 @@ struct FolderTreeViewV2: View {
             .toolbar {
                 ToolbarItem {
                     Button("New Folder", systemImage: "folder.badge.plus") {
-                        state.makeNewFolder()
+                        browserState.makeNewFolder()
                     }
                     .help("New Folder")
                 }
@@ -53,25 +53,25 @@ struct FolderTreeViewV2: View {
 //        if selection.count == 1, let first = selection.first {
 //            let _ = print("1")
 //            Button("New File") {
-//                state.makeNewFile()
+//                browserState.makeNewFile()
 //            }
 //
 //            Button("New File...") {
-//                state.showNewFileSheet()
+//                browserState.showNewFileSheet()
 //            }
 //
 //            Button("New Folder") {
-//                state.makeNewFolder()
+//                browserState.makeNewFolder()
 //            }
 //
 //            Button("Show in Finder") {
-//                if let rootURL = state.rootURL {
+//                if let rootURL = browserState.rootURL {
 //                    Finder.shared.open(url: rootURL)
 //                }
 //            }
 //
 //            Button("Open in New Window") {
-//                if let rootURL = state.rootURL {
+//                if let rootURL = browserState.rootURL {
 //                    appState.openNewBrowserWindow(fromRootURL: rootURL, fileURL: nil, openWindow: openWindow)
 //                }
 //            }
@@ -82,7 +82,7 @@ struct FolderTreeViewV2: View {
     }
 
     func scrollToSelection(_ proxy: ScrollViewProxy) {
-        guard let id = state.selectedFolderID else { return }
+        guard let id = browserState.selectedFolderID else { return }
         Task {
             withAnimation {
                 proxy.scrollTo(id)
