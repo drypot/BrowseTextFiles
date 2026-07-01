@@ -63,7 +63,7 @@ struct BrowserView: View {
                     FileListView(appState: appState, browserState: browserState)
                         .frame(minWidth: 180, maxHeight: .infinity)
                 } detail: {
-                    TextBufferView(appState: appState, browserState: browserState)
+                    EditorView(appState: appState, browserState: browserState)
                         .frame(minWidth: 300, maxHeight: .infinity)
                         //.layoutPriority(1)
                 }
@@ -75,7 +75,7 @@ struct BrowserView: View {
 //                    FileListView()
 //                        .frame(minWidth: 180, idealWidth: 260, maxHeight: .infinity)
 //
-//                    TextBufferView()
+//                    EditorView()
 //                }
             } else if isShowBlank {
                 Button("Open Folder") {

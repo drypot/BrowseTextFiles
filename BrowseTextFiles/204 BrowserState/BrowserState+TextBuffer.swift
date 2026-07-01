@@ -1,5 +1,5 @@
 //
-//  BrowserState+TextBufferState.swift
+//  BrowserState+EditorState.swift
 //  Browse Text Files
 //
 //  Created by Kyuhyun Park on 5/24/26.
@@ -8,7 +8,7 @@
 import SwiftUI
 
 extension BrowserState {
-    // MARK: - TextBufferState
+    // MARK: - EditorState
 
     var hasFileBufferAlertMessage: Bool {
         get { textBuffer?.hasAlertMessage ?? false }
@@ -35,7 +35,7 @@ extension BrowserState {
 
         guard let url else { return }
 
-        let fileBuffer = TextBufferState(from: url)
+        let fileBuffer = EditorState(from: url)
         fileBuffer.loadOriginalText()
         if !fileBuffer.hasLoadingError {
             historyState.addToHistory(url)

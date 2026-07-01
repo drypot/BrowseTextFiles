@@ -33,7 +33,7 @@ final class BrowserState: Identifiable {
     var selectedFileID: FileState.ID?
     var selectedFile: FileState?
 
-    var textBuffer: TextBufferState?
+    var textBuffer: EditorState?
 
     var workingFolderID: FolderState.ID?
     var workingFolder: FolderState?

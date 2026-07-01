@@ -1,5 +1,5 @@
 //
-//  TextBufferView.swift
+//  EditorView.swift
 //  Browse Text Files
 //
 //  Created by Kyuhyun Park on 5/5/26.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct TextBufferView: View {
+struct EditorView: View {
     @Environment(\.openWindow) private var openWindow
     @Environment(\.dismissWindow) private var dismissWindow
     @Environment(\.focusedViewBinding) var focusedViewBinding
@@ -83,16 +83,16 @@ struct TextBufferView: View {
 
     var textEditorView: some View {
         // SwiftUI TextEditor source of truth 동기화 비효율이 심해서
-        // TextBufferEditor 를 만들었다. NSTextView.string 을 source 로 쓴다.
+        // TextViewRepresentable 를 만들었다. NSTextView.string 을 source 로 쓴다.
 
-        TextBufferEditor(appState: appState, browserState: browserState)
+        TextViewRepresentable(appState: appState, browserState: browserState)
         //.frame(maxWidth: .infinity, maxHeight: .infinity)
             .focused(focusedViewBinding!, equals: .textEditor)
             .task {
                 updateTextViewStyle()
             }
 
-        // TextBufferEditor.updateNSView 에서 스타일까지 업데이트하면 비효율이 심해진다.
+        // TextViewRepresentable.updateNSView 에서 스타일까지 업데이트하면 비효율이 심해진다.
         // 여기로 따로 빼놨다.
             .onChange(of: appState.fontName) {
                 updateTextViewStyle()
@@ -142,5 +142,5 @@ struct TextBufferView: View {
 }
 
 #Preview {
-    //    TextBufferView()
+    //    EditorView()
 }

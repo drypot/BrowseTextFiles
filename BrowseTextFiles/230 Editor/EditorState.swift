@@ -1,5 +1,5 @@
 //
-//  TextBufferState.swift
+//  EditorState.swift
 //  BrowseTextFiles
 //
 //  Created by Kyuhyun Park on 3/1/26.
@@ -9,7 +9,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 @Observable
-final class TextBufferState {
+final class EditorState {
     private(set) var url: URL
     private(set) var name: String
 

@@ -1,5 +1,5 @@
 //
-//  TextBufferEditor.swift
+//  TextViewRepresentable.swift
 //  BrowseTextFiles
 //
 //  Created by Kyuhyun Park on 7/26/25.
@@ -9,7 +9,7 @@ import SwiftUI
 
 // https://developer.apple.com/library/archive/documentation/TextFonts/Conceptual/CocoaTextArchitecture/TextEditing/TextEditing.html#//apple_ref/doc/uid/TP40009459-CH3-SW16
 
-struct TextBufferEditor: NSViewRepresentable {
+struct TextViewRepresentable: NSViewRepresentable {
     var appState: AppState
     var browserState: BrowserState
 
@@ -189,7 +189,7 @@ struct TextBufferEditor: NSViewRepresentable {
         let appState: AppState
         let browserState: BrowserState
 
-        init(_ view: TextBufferEditor) {
+        init(_ view: TextViewRepresentable) {
             //print("coordinator created: \(view.browserState.id), TextBufferEditor.Coordinator")
             appState = view.appState
             browserState = view.browserState
