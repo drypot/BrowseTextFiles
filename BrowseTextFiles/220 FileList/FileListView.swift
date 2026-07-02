@@ -14,7 +14,7 @@ struct FileListView: View {
 
     var appState: AppState
     var browserState: BrowserState
-    var fileListState: FileListState
+    @Bindable var fileListState: FileListState
 
     init(appState: AppState, browserState: BrowserState) {
         self.appState = appState
@@ -23,6 +23,51 @@ struct FileListView: View {
     }
 
     var body: some View {
+        ScrollViewReader { proxy in
+            List(fileListState.fileList ?? [], selection: $fileListState.selectedFileID) { file in
+                NavigationLink(file.name, value: file.id)
+                    .id(file.id)
+                    .listRowSeparator(.hidden)
+            }
+            .onChange(of: fileListState.selectedFileID) {
+                let id = fileListState.selectedFileID
+                fileListState.selectFile(with: id)
+                if let id {
+                    proxy.scrollTo(id)
+                }
+            }
+        }
+        .onKeyPress(phases: .down, action: handleKeyPress)
+        .contextMenu {
+            Button("New File") {
+                browserState.makeNewFile()
+            }
+
+            Button("New File...") {
+                browserState.showNewFileSheet()
+            }
+
+            Button("New Folder") {
+                browserState.makeNewFolder()
+            }
+
+            Button("Show in Finder") {
+                if let url = browserState.selectedFolder?.url {
+                    Finder.shared.open(url: url)
+                }
+            }
+
+            Button("Open in New Window") {
+                if let url = browserState.selectedFolder?.url {
+                    appState.openNewBrowserWindow(fromFileURL: url, openWindow: openWindow)
+                }
+            }
+        }
+    }
+
+    /*
+    @ViewBuilder
+    var bodyV1: some View {
         let isActive = appearsActive && (focusedViewBinding?.wrappedValue == .fileList)
 
         // List(state.fileURLsForList, id: \.self, selection: state.selectedFileBinding()) { file in
@@ -73,11 +118,13 @@ struct FileListView: View {
             }
         }
     }
+    */
 
     func handleKeyPress(_ press: KeyPress) -> KeyPress.Result {
         switch press.key {
         case .tab:
             focusedViewBinding?.wrappedValue = .textEditor
+        /*
         case "\u{19}": // shift tab
             focusedViewBinding?.wrappedValue = .folderTree
         case .downArrow:
@@ -91,6 +138,7 @@ struct FileListView: View {
         case .return:
             guard let file = fileListState.selectedFile else { return .ignored }
             browserState.showRenameSheet(for: file.url, isFolder: false)
+        */
         default:
             return .ignored
         }
@@ -140,8 +188,8 @@ fileprivate struct RowView: View {
         .onTapGesture {
             focusedViewBinding?.wrappedValue = .fileList
             guard fileListState.selectedFileID != item.id else { return }
-            fileListState.selectFile(withID: item.id)
-            browserState.editorState.loadFile(at: fileListState.selectedFile?.url)
+            fileListState.selectFile(with: item.id)
+            //browserState.editorState.loadFile(at: fileListState.selectedFile?.url)
         }
         .contextMenu {
             Button("New File") {

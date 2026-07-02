@@ -16,8 +16,6 @@ struct EditorView: View {
     var browserState: BrowserState
     var editorState: EditorState
 
-//    private let debugID = UUID()
-
     init(appState: AppState, browserState: BrowserState) {
         self.appState = appState
         self.browserState = browserState
@@ -32,6 +30,12 @@ struct EditorView: View {
                 textEditorView()
                     .ignoresSafeArea()
             }
+        }
+        .task {
+            loadFile()
+        }
+        .onChange(of: browserState.fileListState.selectedFile) {
+            loadFile()
         }
         .toolbar {
             // ToolbarItemGroup(placement: .navigation) {
@@ -152,8 +156,13 @@ struct EditorView: View {
         storage.endEditing()
     }
 
-}
-
-#Preview {
-    //    EditorView()
+    func loadFile() {
+        let selectedFile = browserState.fileListState.selectedFile
+        if let selectedFile {
+            editorState.loadFile(at: selectedFile.url)
+            browserState.historyState.addToHistory(selectedFile.url)
+        } else {
+            editorState.reset()
+        }
+    }
 }

@@ -39,8 +39,8 @@ extension BrowserState {
             } else {
                 if renamingSelectedFile {
                     fileListState.loadFileList(at: selectedFolder?.url, preserveSelection: false)
-                    fileListState.selectFile(withURL: newURL)
-                    editorState.loadFile(at: newURL)
+                    fileListState.selectFile(with: newURL)
+//                    editorState.loadFile(at: newURL)
                 } else {
                     fileListState.loadFileList(at: selectedFolder?.url)
                 }

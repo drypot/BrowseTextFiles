@@ -47,22 +47,19 @@ final class EditorState {
     @ObservationIgnored
     private(set) var alertState: AlertState
 
-    @ObservationIgnored
-    private(set) var historyState: HistoryState
-
-    init(alertState: AlertState, historyState: HistoryState) {
+    init(alertState: AlertState) {
         self.alertState = alertState
-        self.historyState = historyState
     }
 
     func loadFile(at url: URL?) {
-        guard let url else { return }
         guard closeFile() else { return }
 
-        reset(with: url)
-        loadFile()
-        if !hasLoadingError {
-            historyState.addToHistory(url)
+        reset()
+
+        if let url {
+            editingFileURL = url
+            editingFilename = url.lastPathComponent
+            loadFile()
         }
     }
 
@@ -77,12 +74,6 @@ final class EditorState {
         isTextViewEdited = false
         fileMonitor = nil
         autoSaveTask?.cancel()
-    }
-
-    func reset(with url: URL) {
-        reset()
-        editingFileURL = url
-        editingFilename = url.lastPathComponent
     }
 
     func loadFile() {

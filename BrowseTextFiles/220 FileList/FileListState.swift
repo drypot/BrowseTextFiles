@@ -18,12 +18,8 @@ final class FileListState {
     @ObservationIgnored
     private(set) var alertState: AlertState
 
-    @ObservationIgnored
-    private(set) var editorState: EditorState
-
-    init(alertState: AlertState, editorState: EditorState) {
+    init(alertState: AlertState) {
         self.alertState = alertState
-        self.editorState = editorState
     }
 
     func loadFileList(at folderURL: URL?, preserveSelection: Bool = true) {
@@ -66,7 +62,7 @@ final class FileListState {
 
     func restoreSelection() {
         guard let savedSelectedFileURL else { return }
-        selectFile(withURL: savedSelectedFileURL)
+        selectFile(with: savedSelectedFileURL)
     }
 
     func selectFile(_ fileItem: FileState?) {
@@ -78,7 +74,7 @@ final class FileListState {
         }
     }
 
-    func selectFile(withID id: FileState.ID?) {
+    func selectFile(with id: FileState.ID?) {
         if let fileList, let file = fileList.first(where: { $0.id ==  id }) {
             selectedFileID = file.id
             selectedFile = file
@@ -87,7 +83,8 @@ final class FileListState {
         }
     }
 
-    func selectFile(withURL url: URL) {
+    // 현재는 ID 가 URL 인데 추후 변경될 경우를 대비해서 두 selectFile 모두 유지해 두기로 한다.
+    func selectFile(with url: URL) {
         if let fileList, let file = fileList.first(where: { $0.url ==  url }) {
             selectedFileID = file.id
             selectedFile = file
@@ -140,9 +137,6 @@ final class FileListState {
 
             let deletingSelectedFile = selectedFile?.url == url
 
-            if deletingSelectedFile {
-                guard editorState.closeFile() else { return }
-            }
             LogStore.shared.log("deleting file: \(url.path(percentEncoded: false))")
             try fileManager.trashItem(at: url, resultingItemURL: nil)
             if deletingSelectedFile {

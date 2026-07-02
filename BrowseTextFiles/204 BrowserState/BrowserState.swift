@@ -56,8 +56,8 @@ final class BrowserState: Identifiable {
         self.alertState = AlertState()
         self.searchState = SearchState()
         self.historyState = HistoryState()
-        self.editorState = EditorState(alertState: alertState, historyState: historyState)
-        self.fileListState = FileListState(alertState: alertState, editorState: editorState)
+        self.editorState = EditorState(alertState: alertState)
+        self.fileListState = FileListState(alertState: alertState)
     }
 
     func initState(with rootURL: URL, fileURL: URL?) {
@@ -132,8 +132,8 @@ final class BrowserState: Identifiable {
         guard fileListState.fileList != nil else { return }
 
         expandFolders(for: folderURL)
-        fileListState.selectFile(withURL: fileURL)
-        editorState.loadFile(at: fileURL)
+        fileListState.selectFile(with: fileURL)
+        //editorState.loadFile(at: fileURL)
     }
 
 }
