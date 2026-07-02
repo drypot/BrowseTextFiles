@@ -30,7 +30,7 @@ extension BrowserState {
             loadFolderTree(preserveSelection: false)
 
             selectFolder(with: newFolderURL)
-            loadFileList(preserveSelection: false)
+            fileListState.loadFileList(at: selectedFolder?.url, preserveSelection: false)
             expandFolders(for: newFolderURL)
         } catch {
             let message = error.localizedDescription

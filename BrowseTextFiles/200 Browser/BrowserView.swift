@@ -107,7 +107,7 @@ struct BrowserView: View {
             actions: { Button("OK") { } },
             message: { Text(browserState.alertState.message) }
         )
-        .onChange(of: browserState.selectedFile) { _, newValue in
+        .onChange(of: browserState.fileListState.selectedFile) { _, newValue in
             guard let newValue else { return }
             saveFileURL(newValue.url)
         }

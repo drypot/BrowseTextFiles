@@ -168,7 +168,7 @@ class AppState {
     }
 
     func openNewBrowserWindow(fromState state: BrowserState?, openWindow: OpenWindowAction) {
-        openNewBrowserWindow(fromRootURL: state?.rootURL, fileURL: state?.selectedFile?.url, openWindow: openWindow)
+        openNewBrowserWindow(fromRootURL: state?.rootURL, fileURL: state?.fileListState.selectedFile?.url, openWindow: openWindow)
     }
 
     func openNewBrowserWindow(openWindow: OpenWindowAction) {

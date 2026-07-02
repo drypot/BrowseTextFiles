@@ -20,7 +20,7 @@ extension BrowserState {
         let newURL = renamingURL.deletingLastPathComponent().appending(path: newName).standardizedFileURL
         let fileManager = FileManager.default
         let renamingSelectedFolder = selectedFolder?.url.isChildOrEqual(to: renamingURL) ?? false
-        let renamingSelectedFile = selectedFile?.url.isChildOrEqual(to: renamingURL) ?? false
+        let renamingSelectedFile = fileListState.selectedFile?.url.isChildOrEqual(to: renamingURL) ?? false
         do {
             if renamingSelectedFile {
                 guard editorState.closeFile() else { return }
@@ -32,17 +32,17 @@ extension BrowserState {
                     loadFolderTree(preserveSelection: false)
                     selectFolder(with: newURL)
                     expandFolders(for: newURL)
-                    loadFileList(preserveSelection: false)
+                    fileListState.loadFileList(at: selectedFolder?.url, preserveSelection: false)
                 } else {
                     loadFolderTree()
                 }
             } else {
                 if renamingSelectedFile {
-                    loadFileList(preserveSelection: false)
-                    selectFile(withURL: newURL)
+                    fileListState.loadFileList(at: selectedFolder?.url, preserveSelection: false)
+                    fileListState.selectFile(withURL: newURL)
                     editorState.loadFile(at: newURL)
                 } else {
-                    loadFileList()
+                    fileListState.loadFileList(at: selectedFolder?.url)
                 }
             }
         } catch {

@@ -28,10 +28,7 @@ final class BrowserState: Identifiable {
     var selectedFolderID: FolderState.ID?
     var selectedFolder: FolderState?
 
-    var fileList: [FileState]?
 
-    var selectedFileID: FileState.ID?
-    var selectedFile: FileState?
 
     var workingFolderID: FolderState.ID?
     var workingFolder: FolderState?
@@ -48,9 +45,10 @@ final class BrowserState: Identifiable {
     var isShowRenameSheet = false
 
     @ObservationIgnored var alertState: AlertState
-    @ObservationIgnored var editorState: EditorState
     @ObservationIgnored var searchState: SearchState
     @ObservationIgnored var historyState: HistoryState
+    @ObservationIgnored var editorState: EditorState
+    @ObservationIgnored var fileListState: FileListState
 
     // MARK: - Init / Release
 
@@ -59,6 +57,7 @@ final class BrowserState: Identifiable {
         self.searchState = SearchState()
         self.historyState = HistoryState()
         self.editorState = EditorState(alertState: alertState, historyState: historyState)
+        self.fileListState = FileListState(alertState: alertState, editorState: editorState)
     }
 
     func initState(with rootURL: URL, fileURL: URL?) {
@@ -81,7 +80,7 @@ final class BrowserState: Identifiable {
             locateFile(with: fileURL)
         } else {
             selectFolder(rootFolder)
-            loadFileList(preserveSelection: false)
+            fileListState.loadFileList(at: selectedFolder?.url, preserveSelection: false)
         }
     }
 
@@ -127,13 +126,13 @@ final class BrowserState: Identifiable {
         let folderURL = fileURL.deletingLastPathComponent()
 
         selectFolder(with: folderURL)
-        loadFileList(preserveSelection: false)
+        fileListState.loadFileList(at: selectedFolder?.url, preserveSelection: false)
         if alertState.hasMessage { return }
 
-        guard fileList != nil else { return }
+        guard fileListState.fileList != nil else { return }
 
         expandFolders(for: folderURL)
-        selectFile(withURL: fileURL)
+        fileListState.selectFile(withURL: fileURL)
         editorState.loadFile(at: fileURL)
     }
 

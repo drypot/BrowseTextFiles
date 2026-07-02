@@ -87,11 +87,11 @@ struct FolderTreeView: View {
 
         switch press.key {
         case .tab:
-            guard let fileList = browserState.fileList else { return .handled }
+            guard let fileList = browserState.fileListState.fileList else { return .handled }
             focusedViewBinding?.wrappedValue = .fileList
-            if browserState.selectedFileID == nil {
+            if browserState.fileListState.selectedFileID == nil {
                 if let first = fileList.first {
-                    browserState.selectFile(first)
+                    browserState.fileListState.selectFile(first)
                     browserState.editorState.loadFile(at: first.url)
                 }
             }
@@ -99,17 +99,17 @@ struct FolderTreeView: View {
             break
         case .downArrow:
             if browserState.selectNextFolder() {
-                browserState.loadFileList()
+                browserState.fileListState.loadFileList(at: browserState.selectedFolder?.url)
             }
         case .upArrow:
             if browserState.selectPreviousFolder() {
-                browserState.loadFileList()
+                browserState.fileListState.loadFileList(at: browserState.selectedFolder?.url)
             }
         case .rightArrow:
             browserState.expandSelectedFolder()
         case .leftArrow:
             if browserState.collapseSelectedFolder() {
-                browserState.loadFileList()
+                browserState.fileListState.loadFileList(at: browserState.selectedFolder?.url)
             }
         case .return:
             guard let selectedFolder = browserState.selectedFolder else { return .ignored }
@@ -170,7 +170,7 @@ fileprivate struct RowView: View {
                     focusedViewBinding?.wrappedValue = .folderTree
                     guard browserState.selectedFolderID != item.id else { return }
                     browserState.selectFolder(with: item.id)
-                    browserState.loadFileList()
+                    browserState.fileListState.loadFileList(at: browserState.selectedFolder?.url)
                 }
                 .simultaneously(with: TapGesture(count: 2)
                     .onEnded {

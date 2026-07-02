@@ -8,12 +8,19 @@
 import SwiftUI
 
 struct FileListView: View {
-    var appState: AppState
-    var browserState: BrowserState
-
     @Environment(\.openWindow) private var openWindow
     @Environment(\.appearsActive) var appearsActive
     @Environment(\.focusedViewBinding) var focusedViewBinding
+
+    var appState: AppState
+    var browserState: BrowserState
+    var fileListState: FileListState
+
+    init(appState: AppState, browserState: BrowserState) {
+        self.appState = appState
+        self.browserState = browserState
+        self.fileListState = browserState.fileListState
+    }
 
     var body: some View {
         let isActive = appearsActive && (focusedViewBinding?.wrappedValue == .fileList)
@@ -24,15 +31,15 @@ struct FileListView: View {
 
         ScrollViewReader { proxy in
             List {
-                if let fileList = browserState.fileList {
+                if let fileList = fileListState.fileList {
                     ForEach(fileList) { fileItem in
                         RowView(appState: appState, browserState: browserState, item: fileItem, isActive: isActive)
                             .id(fileItem.id)
                     }
                 }
             }
-            .onChange(of: browserState.selectedFileID) {
-                guard let id = browserState.selectedFileID else { return }
+            .onChange(of: fileListState.selectedFileID) {
+                guard let id = fileListState.selectedFileID else { return }
                 proxy.scrollTo(id)
             }
         }
@@ -74,15 +81,15 @@ struct FileListView: View {
         case "\u{19}": // shift tab
             focusedViewBinding?.wrappedValue = .folderTree
         case .downArrow:
-            if browserState.selecteNextFile() {
-                browserState.editorState.loadFile(at: browserState.selectedFile?.url)
+            if fileListState.selecteNextFile() {
+                browserState.editorState.loadFile(at: fileListState.selectedFile?.url)
             }
         case .upArrow:
-            if browserState.selectePreviousFile() {
-                browserState.editorState.loadFile(at: browserState.selectedFile?.url)
+            if fileListState.selectePreviousFile() {
+                browserState.editorState.loadFile(at: fileListState.selectedFile?.url)
             }
         case .return:
-            guard let file = browserState.selectedFile else { return .ignored }
+            guard let file = fileListState.selectedFile else { return .ignored }
             browserState.showRenameSheet(for: file.url, isFolder: false)
         default:
             return .ignored
@@ -92,17 +99,26 @@ struct FileListView: View {
 }
 
 fileprivate struct RowView: View {
-    var appState: AppState
-    var browserState: BrowserState
-
     @Environment(\.openWindow) private var openWindow
     @Environment(\.focusedViewBinding) var focusedViewBinding
+
+    var appState: AppState
+    var browserState: BrowserState
+    var fileListState: FileListState
 
     let item: FileState
     let isActive: Bool
 
+    init(appState: AppState, browserState: BrowserState, item: FileState, isActive: Bool) {
+        self.appState = appState
+        self.browserState = browserState
+        self.fileListState = browserState.fileListState
+        self.item = item
+        self.isActive = isActive
+    }
+
     var body: some View {
-        let isSelected = item.id == browserState.selectedFileID
+        let isSelected = item.id == fileListState.selectedFileID
         let styler = Styler.shared
         let foregroundStyle = styler.foregroundStyleWhen(selected: isSelected, active: isActive)
         let backgroundStyle = styler.backgroundStyleWhen(selected: isSelected, active: isActive)
@@ -123,9 +139,9 @@ fileprivate struct RowView: View {
         .contentShape(Rectangle()) // 빈공간도 클릭되게 한다.
         .onTapGesture {
             focusedViewBinding?.wrappedValue = .fileList
-            guard browserState.selectedFileID != item.id else { return }
-            browserState.selectFile(withID: item.id)
-            browserState.editorState.loadFile(at: browserState.selectedFile?.url)
+            guard fileListState.selectedFileID != item.id else { return }
+            fileListState.selectFile(withID: item.id)
+            browserState.editorState.loadFile(at: fileListState.selectedFile?.url)
         }
         .contextMenu {
             Button("New File") {
@@ -155,7 +171,7 @@ fileprivate struct RowView: View {
             }
 
             Button("Delete") {
-                browserState.trashFile(at: item.url)
+                fileListState.trashFile(at: item.url)
             }
         }
         //.focusEffectDisabled() // 포커스 테두리 표시 안 함

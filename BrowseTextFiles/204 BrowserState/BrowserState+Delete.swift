@@ -24,7 +24,7 @@ extension BrowserState {
             if deletingSelectedFolder {
                 loadFolderTree(preserveSelection: false)
                 selectFolder(with: url.deletingLastPathComponent())
-                loadFileList(preserveSelection: false)
+                fileListState.loadFileList(at: selectedFolder?.url, preserveSelection: false)
             } else {
                 loadFolderTree()
             }
@@ -35,27 +35,5 @@ extension BrowserState {
         }
     }
 
-    func trashFile(at url: URL) {
-        do {
-            let fileManager = FileManager.default
-
-            let deletingSelectedFile = selectedFile?.url == url
-
-            if deletingSelectedFile {
-                guard editorState.closeFile() else { return }
-            }
-            LogStore.shared.log("deleting file: \(url.path(percentEncoded: false))")
-            try fileManager.trashItem(at: url, resultingItemURL: nil)
-            if deletingSelectedFile {
-                loadFileList(preserveSelection: false)
-            } else {
-                loadFileList()
-            }
-        } catch {
-            let message = error.localizedDescription
-            alertState.showAlert(message)
-            LogStore.shared.log("delete file: \(message)")
-        }
-    }
 
 }
