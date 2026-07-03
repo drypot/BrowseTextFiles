@@ -10,7 +10,7 @@ import SwiftUI
 struct FileListView: View {
     @Environment(\.openWindow) private var openWindow
     @Environment(\.appearsActive) var appearsActive
-    @Environment(\.focusedViewBinding) var focusedViewBinding
+    //@Environment(\.focusedViewBinding) var focusedViewBinding
 
     var appState: AppState
     var browserState: BrowserState
@@ -123,7 +123,8 @@ struct FileListView: View {
     func handleKeyPress(_ press: KeyPress) -> KeyPress.Result {
         switch press.key {
         case .tab:
-            focusedViewBinding?.wrappedValue = .textEditor
+            //focusedViewBinding?.wrappedValue = .textEditor
+            browserState.editorState.shouldFocusedCount += 1
         /*
         case "\u{19}": // shift tab
             focusedViewBinding?.wrappedValue = .folderTree
@@ -148,7 +149,7 @@ struct FileListView: View {
 
 fileprivate struct RowView: View {
     @Environment(\.openWindow) private var openWindow
-    @Environment(\.focusedViewBinding) var focusedViewBinding
+    //@Environment(\.focusedViewBinding) var focusedViewBinding
 
     var appState: AppState
     var browserState: BrowserState
@@ -186,7 +187,7 @@ fileprivate struct RowView: View {
         .frame(maxWidth: .infinity)
         .contentShape(Rectangle()) // 빈공간도 클릭되게 한다.
         .onTapGesture {
-            focusedViewBinding?.wrappedValue = .fileList
+            //focusedViewBinding?.wrappedValue = .fileList
             guard fileListState.selectedFileID != item.id else { return }
             fileListState.selectFile(with: item.id)
             //browserState.editorState.loadFile(at: fileListState.selectedFile?.url)

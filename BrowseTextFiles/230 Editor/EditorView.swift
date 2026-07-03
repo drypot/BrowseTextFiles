@@ -10,7 +10,8 @@ import SwiftUI
 struct EditorView: View {
     @Environment(\.openWindow) private var openWindow
     @Environment(\.dismissWindow) private var dismissWindow
-    @Environment(\.focusedViewBinding) var focusedViewBinding
+
+    @FocusState private var isFocused: Bool
 
     var appState: AppState
     var browserState: BrowserState
@@ -98,13 +99,15 @@ struct EditorView: View {
         // TextViewRepresentable 를 만들었다. NSTextView.string 을 source 로 쓴다.
         TextViewRepresentable(appState: appState, editorState: editorState)
             //.frame(maxWidth: .infinity, maxHeight: .infinity)
-            .focused(focusedViewBinding!, equals: .textEditor)
+            .focused($isFocused)
+            .onChange(of: editorState.shouldFocusedCount) {
+                isFocused = true
+            }
+            // TextViewRepresentable.updateNSView 에서 스타일까지 업데이트하면 비효율이 심해진다.
+            // 여기로 따로 빼놨다.
             .task {
                 updateTextViewStyle()
             }
-
-            // TextViewRepresentable.updateNSView 에서 스타일까지 업데이트하면 비효율이 심해진다.
-            // 여기로 따로 빼놨다.
             .onChange(of: appState.fontName) {
                 updateTextViewStyle()
             }

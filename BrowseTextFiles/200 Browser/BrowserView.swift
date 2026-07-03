@@ -8,16 +8,6 @@
 import SwiftUI
 import Combine
 
-enum FocusedView {
-    case folderTree
-    case fileList
-    case textEditor
-}
-
-extension EnvironmentValues {
-    @Entry var focusedViewBinding: FocusState<FocusedView?>.Binding?
-}
-
 struct BrowserView: View {
     @Environment(\.openWindow) private var openWindow
     @Environment(\.dismissWindow) private var dismissWindow
@@ -30,13 +20,11 @@ struct BrowserView: View {
     @State private var isShowBlank = false
     @State private var cancellables = Set<AnyCancellable>()
 
-    @FocusState private var focusedView: FocusedView?
-
     var appState: AppState
 
     init(appState: AppState) {
         self.appState = appState
-        print("--- BrowserView \(browserState.id)")
+        print("init BrowserView: \(browserState.id)")
     }
 
     var body: some View {
@@ -64,7 +52,6 @@ struct BrowserView: View {
         }
         .background(WindowReader(onResolve: setupWindow))
         .navigationTitle(browserState.rootName ?? "Browser")
-        .environment(\.focusedViewBinding, $focusedView)
         .focusedSceneValue(browserState)
         .task {
             initView()

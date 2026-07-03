@@ -10,13 +10,14 @@ import SwiftUI
 struct FolderTreeView: View {
     @Environment(\.openWindow) private var openWindow
     @Environment(\.appearsActive) var appearsActive
-    @Environment(\.focusedViewBinding) var focusedViewBinding
+    //@Environment(\.focusedViewBinding) var focusedViewBinding
 
     var appState: AppState
     @Bindable var browserState: BrowserState
 
     var body: some View {
-        let isActive = appearsActive && (focusedViewBinding?.wrappedValue == .folderTree)
+        //let isActive = appearsActive && (focusedViewBinding?.wrappedValue == .folderTree)
+        let isActive = true
         ScrollViewReader { proxy in
             List {
                 if let rootFolder = browserState.rootFolder {
@@ -34,7 +35,7 @@ struct FolderTreeView: View {
         }
         .focusable()
         .focusEffectDisabled()
-        .focused(focusedViewBinding!, equals: .folderTree)
+        //.focused(focusedViewBinding!, equals: .folderTree)
         .onKeyPress(phases: .down, action: handleKeyPress)
         .contextMenu {
             Button("New File") {
@@ -88,7 +89,8 @@ struct FolderTreeView: View {
         switch press.key {
         case .tab:
             guard let fileList = browserState.fileListState.fileList else { return .handled }
-            focusedViewBinding?.wrappedValue = .fileList
+            //focusedViewBinding?.wrappedValue = .fileList
+            browserState.editorState.shouldFocusedCount += 1
             if browserState.fileListState.selectedFileID == nil {
                 if let first = fileList.first {
                     browserState.fileListState.selectFile(first)
@@ -128,7 +130,6 @@ fileprivate struct RowView: View {
     var browserState: BrowserState
 
     @Environment(\.openWindow) private var openWindow
-    @Environment(\.focusedViewBinding) var focusedViewBinding
 
     let item: FolderState
     let level: Int
@@ -167,7 +168,7 @@ fileprivate struct RowView: View {
             TapGesture(count: 1)
                 .onEnded {
                     // print("Single Tap")
-                    focusedViewBinding?.wrappedValue = .folderTree
+                    //focusedViewBinding?.wrappedValue = .folderTree
                     guard browserState.selectedFolderID != item.id else { return }
                     browserState.selectFolder(with: item.id)
                     browserState.fileListState.loadFileList(at: browserState.selectedFolder?.url)

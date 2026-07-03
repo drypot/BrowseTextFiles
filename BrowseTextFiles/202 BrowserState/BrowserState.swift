@@ -51,7 +51,7 @@ final class BrowserState: Identifiable {
     // MARK: - Init / Release
 
     init() {
-        print("--- BrowserState \(id)")
+        print("init BrowserState: \(id)")
         self.alertState = AlertState()
         self.searchState = SearchState()
         self.historyState = HistoryState()
