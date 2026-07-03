@@ -76,6 +76,7 @@ struct BrowserWindow: Scene {
             )
         }
         .commands {
+            TextEditingCommands()
             BrowserCommands(appState: appState)
         }
     }
@@ -177,8 +178,6 @@ struct BrowserCommands: Commands {
             // }
             // .keyboardShortcut("t", modifiers: [.command, .shift, .control])
         }
-
-        TextEditingCommands()
 
         CommandGroup(after: .textEditing) {
             Divider()

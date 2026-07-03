@@ -9,7 +9,6 @@ import SwiftUI
 
 @main
 struct BrowseTextFilesApp: App {
-
     @State private var appState = AppState()
 
     var body: some Scene {

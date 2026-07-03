@@ -28,7 +28,7 @@ struct BrowserView: View {
     }
 
     var body: some View {
-        Text("browserState.id: \(browserState.id)")
+        //Text("browserState.id: \(browserState.id)")
         VStack {
             if browserState.isRootReady {
                 NavigationSplitView {
@@ -54,6 +54,10 @@ struct BrowserView: View {
         .navigationTitle(browserState.rootName ?? "Browser")
         .focusedSceneValue(browserState)
         .task {
+            // 아직 SceneStorage 가 업데이트 안 되어 있다;
+            // Task.yield() 로 한템포 쉬어준다;
+            await Task.yield()
+
             initView()
         }
         .sheet(
