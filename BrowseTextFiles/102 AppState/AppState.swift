@@ -82,7 +82,15 @@ class AppState {
     @ObservationIgnored private var windowRectStoreForStringUUID: [StringAndUUID: CGRect] = [:]
     @ObservationIgnored private var windowRectStoreForString: [String: CGRect] = [:]
 
+    @ObservationIgnored var newWindowRootURL: URL?
+    @ObservationIgnored var newWindowFileURL: URL?
+
     var recentDocumentURLs: [URL]
+
+    @ObservationIgnored private let newFileTemplateDefaults = [
+        "{selected-folder}/Untitled.txt",
+        "{year}/{month}/{year}-{month}-{day}-{weekday-short}.txt",
+    ]
 
     init() {
         let defaults = UserDefaults.standard
@@ -139,11 +147,6 @@ class AppState {
 
     // MARK: - New File Templates
 
-    private let newFileTemplateDefaults = [
-        "{selected-folder}/Untitled.txt",
-        "{year}/{month}/{year}-{month}-{day}-{weekday-short}.txt",
-    ]
-
     func resetNewFileTemplatesToDefaults() {
         let minSize = self.newFileTemplates.count
         self.newFileTemplates = UserDefaults.standard.stringArray(forKey: "_NoneKey_", defaultValue: newFileTemplateDefaults, minSize: minSize)
@@ -157,14 +160,14 @@ class AppState {
     }
 
     func openNewBrowserWindow(fromRootURL rootURL: URL?, fileURL: URL?, openWindow: OpenWindowAction) {
-        let initParam = BrowserInitParam(rootURL: rootURL, fileURL: fileURL)
-        openWindow(id: "browser", value: initParam)
+        newWindowRootURL = rootURL
+        newWindowFileURL = fileURL
+        openWindow(id: "browser")
     }
 
     func openNewBrowserWindow(fromFileURL fileURL: URL, openWindow: OpenWindowAction) {
         let rootURL = fileURL.deletingLastPathComponent()
-        let initParam = BrowserInitParam(rootURL: rootURL, fileURL: fileURL)
-        openWindow(id: "browser", value: initParam)
+        openNewBrowserWindow(fromRootURL: rootURL, fileURL: fileURL, openWindow: openWindow)
     }
 
     func openNewBrowserWindow(fromState state: BrowserState?, openWindow: OpenWindowAction) {
@@ -172,7 +175,7 @@ class AppState {
     }
 
     func openNewBrowserWindow(openWindow: OpenWindowAction) {
-        openWindow(id: "browser")
+        openNewBrowserWindow(fromRootURL: nil, fileURL: nil, openWindow: openWindow)
     }
 
     func openNewBrowserWindowFromDialog(openWindow: OpenWindowAction) {

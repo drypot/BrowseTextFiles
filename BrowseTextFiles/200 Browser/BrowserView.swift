@@ -14,32 +14,11 @@ enum FocusedView {
     case textEditor
 }
 
-extension FocusedValues {
-    @Entry var focusedBrowserState: BrowserState?
-}
-
 extension EnvironmentValues {
     @Entry var focusedViewBinding: FocusState<FocusedView?>.Binding?
 }
 
-struct BrowserInitParam: Hashable, Codable {
-    // 동일 폴더를 두 창에서 열려면 id 로 구분해야 한다.
-    let id: UUID
-    let rootURL: URL?
-    let fileURL: URL?
-
-    // Codable 해야 해서 init 를 번잡스럽게 만들어 준다.
-    init(id: UUID = UUID(), rootURL: URL? = nil, fileURL: URL? = nil) {
-        self.id = id
-        self.rootURL = rootURL
-        self.fileURL = fileURL
-    }
-}
-
 struct BrowserView: View {
-    var appState: AppState
-    var initParam: BrowserInitParam
-
     @Environment(\.openWindow) private var openWindow
     @Environment(\.dismissWindow) private var dismissWindow
 
@@ -53,7 +32,15 @@ struct BrowserView: View {
 
     @FocusState private var focusedView: FocusedView?
 
+    var appState: AppState
+
+    init(appState: AppState) {
+        self.appState = appState
+        print("--- BrowserView \(browserState.id)")
+    }
+
     var body: some View {
+        Text("browserState.id: \(browserState.id)")
         VStack {
             if browserState.isRootReady {
                 NavigationSplitView {
@@ -67,16 +54,6 @@ struct BrowserView: View {
                         .frame(minWidth: 300, maxHeight: .infinity)
                         //.layoutPriority(1)
                 }
-
-//                HSplitView {
-//                    FolderTreeView()
-//                        .frame(minWidth: 180, idealWidth: 260, maxHeight: .infinity)
-//
-//                    FileListView()
-//                        .frame(minWidth: 180, idealWidth: 260, maxHeight: .infinity)
-//
-//                    EditorView()
-//                }
             } else if isShowBlank {
                 Button("Open Folder") {
                     showOpenPanel()
@@ -87,10 +64,9 @@ struct BrowserView: View {
         }
         .background(WindowReader(onResolve: setupWindow))
         .navigationTitle(browserState.rootName ?? "Browser")
-        .environment(browserState)
         .environment(\.focusedViewBinding, $focusedView)
-        .focusedSceneValue(\.focusedBrowserState, browserState)
-        .task(id: initParam) {
+        .focusedSceneValue(browserState)
+        .task {
             initView()
         }
         .sheet(
@@ -149,33 +125,18 @@ struct BrowserView: View {
         // }
     }
 
-    func printInitParamID(_ part: String) {
-        print("\(part): id, \(self.initParam.id.uuidString)")
-    }
-
-    func printInitParam(_ part: String) {
-        print("\(part): rootURL, \(initParam.rootURL?.path ?? "nil")")
-        print("\(part): fileURL, \(initParam.fileURL?.path ?? "nil")")
-        print("\(part): sceneData, \(loadRootURL()?.path ?? "nil")")
-    }
-
     func initView() {
-        //printInitParamID("task")
-        //printInitParam("task")
-
-        // view 는 생각보다 자주 생성된다;
-        // initParam nil 로도 3번 이상 생성된다;
-        // 초기화 로딩 조건을 잘 설정해둬야 한다;
-
         // Scene 복구가 먼저다, 사용자의 마지막 파일로 돌아간다.
-        if !browserState.isRootReady, let rootURL = loadRootURL() {
+        if let rootURL = loadRootURL() {
             browserState.initState(with: rootURL, fileURL: loadFileURL())
             return
         }
 
         // initParam 으로 URL 전달받은 경우.
-        if let rootURL = initParam.rootURL {
-            browserState.initState(with: rootURL, fileURL: initParam.fileURL)
+        if let rootURL = appState.newWindowRootURL {
+            browserState.initState(with: rootURL, fileURL: appState.newWindowFileURL)
+            appState.newWindowRootURL = nil
+            appState.newWindowFileURL = nil
             saveRootURL(rootURL)
             appState.addRecentDocumentURL(rootURL)
             return
@@ -194,16 +155,20 @@ struct BrowserView: View {
     }
 
     func saveRootURL(_ rootURL: URL) {
+        print("save RootURL: \(browserState.id)")
         sceneRootURLData = try? rootURL.bookmarkData(options: .withSecurityScope)
     }
 
     func loadRootURL() ->URL? {
+        print("load RootURL: \(browserState.id)")
         guard let data = sceneRootURLData else { return nil }
         var isStale = false
-        return try? URL(resolvingBookmarkData: data,
+        let url = try? URL(resolvingBookmarkData: data,
                         options: .withSecurityScope,
                         relativeTo: nil,
                         bookmarkDataIsStale: &isStale)
+        print("load RootURL: \(url?.lastPathComponent ?? "nil")")
+        return url
     }
 
     func saveFileURL(_ url: URL?) {

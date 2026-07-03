@@ -77,7 +77,7 @@ struct SearchView: View {
         }
         .background(WindowReader(onResolve: setupWindow))
         .navigationTitle("Search: \(browserState.rootName ?? "")")
-        .focusedSceneValue(\.focusedBrowserState, browserState)
+        .focusedSceneValue(browserState)
     }
 
     func startSearch() {

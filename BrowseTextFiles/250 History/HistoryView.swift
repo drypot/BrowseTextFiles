@@ -56,7 +56,7 @@ struct HistoryView: View {
         }
         .background(WindowReader(onResolve: setupWindow))
         .navigationTitle("History: \(browserState.rootName ?? "")")
-        .focusedSceneValue(\.focusedBrowserState, browserState)
+        .focusedSceneValue(browserState)
     }
     
     func setupWindow(_ window: NSWindow?) {

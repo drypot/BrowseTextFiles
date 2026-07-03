@@ -28,8 +28,6 @@ final class BrowserState: Identifiable {
     var selectedFolderID: FolderState.ID?
     var selectedFolder: FolderState?
 
-
-
     var workingFolderID: FolderState.ID?
     var workingFolder: FolderState?
 
@@ -53,6 +51,7 @@ final class BrowserState: Identifiable {
     // MARK: - Init / Release
 
     init() {
+        print("--- BrowserState \(id)")
         self.alertState = AlertState()
         self.searchState = SearchState()
         self.historyState = HistoryState()
@@ -85,7 +84,7 @@ final class BrowserState: Identifiable {
     }
 
     func releaseResource() {
-        print("release resource:")
+        print("release browser resource:")
 
         guard let rootURL else { return }
         if shouldReleaseSecurityScopedResource {
