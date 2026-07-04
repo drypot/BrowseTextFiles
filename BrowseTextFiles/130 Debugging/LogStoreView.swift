@@ -8,13 +8,10 @@
 import SwiftUI
 
 struct LogStoreView: View {
-
-    init() {}
-    
     var body: some View {
         let store = LogStore.shared
         ScrollViewReader { proxy in
-            ZStack {
+            ZStack(alignment: .topTrailing) {
                 ScrollView {
                     LazyVStack(alignment: .leading) {
                         ForEach(store.logs) { log in
@@ -25,18 +22,17 @@ struct LogStoreView: View {
                     .monospaced()
                     .padding(.horizontal)
                 }
-                .frame(maxHeight: .infinity)
+                .frame(maxWidth:.infinity, maxHeight: .infinity)
                 HStack {
                     Button("Scroll Down") {
                         proxy.scrollTo("999")
                     }
                     .padding(.horizontal)
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
             }
             .frame(minWidth: 450, minHeight: 150)
         }
-        .background(WindowReader(onResolve: setupWindow))
+        .background(WindowAccessor(onResolve: setupWindow))
     }
 
     func setupWindow(_ window: NSWindow?) {

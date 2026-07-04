@@ -52,7 +52,7 @@ struct BrowserView: View {
                 Text("Loading...")
             }
         }
-        .background(WindowReader(onResolve: setupWindow))
+        .background(WindowAccessor(onResolve: setupWindow))
         .navigationTitle(browserState.rootName ?? "Browser")
         .focusedSceneValue(browserState)
         .task {
@@ -81,41 +81,6 @@ struct BrowserView: View {
             saveFileURL(newValue.url)
         }
         //.toolbar(removing: .title)
-
-        // 다른 것은 잘 작동하는데, willCloseNotification 을 받지 못한다;
-        // 걍 원래 쓰던 Combine 코드 계속 쓰는 것으로;
-        //
-        // .task(id: window) {
-        //     guard let window else { return }
-        //     let sequence = NotificationCenter.default.notifications(named: NSWindow.didBecomeMainNotification, object: window)
-        //     for await _ in sequence {
-        //         saveWindowSize(window)
-        //     }
-        // }
-        // .task(id: window) {
-        //     guard let window else { return }
-        //     let sequence = NotificationCenter.default.notifications(named: NSWindow.didResizeNotification, object: window)
-        //     for await _ in sequence {
-        //         saveWindowSize(window)
-        //     }
-        // }
-        // .task(id: window) {
-        //     guard let window else { return }
-        //     let sequence = NotificationCenter.default.notifications(named: NSWindow.willCloseNotification, object: window)
-        //     for await _ in sequence {
-        //         dismissWindow(id: "search", value: browserState.id)
-        //         dismissWindow(id: "history", value: browserState.id)
-        //         browserState.releaseResource()
-        //     }
-        // }
-        // .task(id: window) {
-        //     guard let window else { return }
-        //     let sequence = NotificationCenter.default.notifications(named: NSWindow.didResignMainNotification, object: window)
-        //     for await _ in sequence {
-        //         print("resign main window: \(browserState.rootName ?? "nil")")
-        //         browserState.textBuffer?.autoSaveFile()
-        //     }
-        // }
     }
 
     func initView() {
@@ -187,7 +152,6 @@ struct BrowserView: View {
         NotificationCenter.default
             .publisher(for: NSWindow.didBecomeMainNotification, object: window)
             .sink { notification in
-                guard let window = notification.object as? NSWindow else { return }
                 saveWindowSize(window)
             }
             .store(in: &cancellables)
@@ -195,7 +159,6 @@ struct BrowserView: View {
         NotificationCenter.default
             .publisher(for: NSWindow.didResizeNotification, object: window)
             .sink { notification in
-                guard let window = notification.object as? NSWindow else { return }
                 saveWindowSize(window)
             }
             .store(in: &cancellables)

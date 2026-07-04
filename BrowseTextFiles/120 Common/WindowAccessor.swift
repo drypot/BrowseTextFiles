@@ -1,5 +1,5 @@
 //
-//  WindowReader.swift
+//  WindowAccessor.swift
 //  BrowseTextFiles
 //
 //  Created by Kyuhyun Park on 7/7/25.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct WindowReader: NSViewRepresentable {
+struct WindowAccessor: NSViewRepresentable {
     var onResolve: (NSWindow?) -> Void
 
     func makeNSView(context: Context) -> NSView {

@@ -75,7 +75,7 @@ struct SearchView: View {
                 Spacer()
             }
         }
-        .background(WindowReader(onResolve: setupWindow))
+        .background(WindowAccessor(onResolve: setupWindow))
         .navigationTitle("Search: \(browserState.rootName ?? "")")
         .focusedSceneValue(browserState)
     }
@@ -89,13 +89,11 @@ struct SearchView: View {
         guard let window else { return }
 
         window.collectionBehavior.insert(.ignoresCycle)
-
         saveWindowSize(window)
 
         NotificationCenter.default
             .publisher(for: NSWindow.didBecomeMainNotification, object: window)
             .sink { notification in
-                guard let window = notification.object as? NSWindow else { return }
                 saveWindowSize(window)
             }
             .store(in: &cancellables)
@@ -103,7 +101,6 @@ struct SearchView: View {
         NotificationCenter.default
             .publisher(for: NSWindow.didResizeNotification, object: window)
             .sink { notification in
-                guard let window = notification.object as? NSWindow else { return }
                 saveWindowSize(window)
             }
             .store(in: &cancellables)
@@ -111,7 +108,6 @@ struct SearchView: View {
         NotificationCenter.default
             .publisher(for: NSWindow.didMoveNotification, object: window)
             .sink { notification in
-                guard let window = notification.object as? NSWindow else { return }
                 saveWindowSize(window)
             }
             .store(in: &cancellables)

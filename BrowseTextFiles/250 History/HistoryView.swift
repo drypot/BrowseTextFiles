@@ -54,7 +54,7 @@ struct HistoryView: View {
                 Spacer()
             }
         }
-        .background(WindowReader(onResolve: setupWindow))
+        .background(WindowAccessor(onResolve: setupWindow))
         .navigationTitle("History: \(browserState.rootName ?? "")")
         .focusedSceneValue(browserState)
     }
@@ -68,7 +68,6 @@ struct HistoryView: View {
         NotificationCenter.default
             .publisher(for: NSWindow.didBecomeMainNotification, object: window)
             .sink { notification in
-                guard let window = notification.object as? NSWindow else { return }
                 saveWindowSize(window)
             }
             .store(in: &cancellables)
@@ -76,7 +75,6 @@ struct HistoryView: View {
         NotificationCenter.default
             .publisher(for: NSWindow.didResizeNotification, object: window)
             .sink { notification in
-                guard let window = notification.object as? NSWindow else { return }
                 saveWindowSize(window)
             }
             .store(in: &cancellables)
@@ -84,7 +82,6 @@ struct HistoryView: View {
         NotificationCenter.default
             .publisher(for: NSWindow.didMoveNotification, object: window)
             .sink { notification in
-                guard let window = notification.object as? NSWindow else { return }
                 saveWindowSize(window)
             }
             .store(in: &cancellables)
