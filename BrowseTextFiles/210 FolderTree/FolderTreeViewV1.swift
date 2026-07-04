@@ -19,7 +19,7 @@ struct FolderTreeView: View {
         self.appState = browserState.appState
         self.browserState = browserState
     }
-    
+
     var body: some View {
         //let isActive = appearsActive && (focusedViewBinding?.wrappedValue == .folderTree)
         let isActive = true
@@ -96,12 +96,14 @@ struct FolderTreeView: View {
             guard let fileList = browserState.fileListState.fileList else { return .handled }
             //focusedViewBinding?.wrappedValue = .fileList
             browserState.editorState.shouldFocusedCount += 1
+            /*
             if browserState.fileListState.selectedFileID == nil {
                 if let first = fileList.first {
                     browserState.fileListState.selectFile(first)
                     //browserState.editorState.loadFile(at: first.url)
                 }
             }
+             */
         case "\u{19}": // shift tab
             break
         case .downArrow:

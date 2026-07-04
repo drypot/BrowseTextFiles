@@ -48,7 +48,7 @@ final class BrowserState: Identifiable {
     @ObservationIgnored lazy var searchState: SearchState = SearchState()
     @ObservationIgnored lazy var historyState: HistoryState = HistoryState()
     @ObservationIgnored lazy var editorState: EditorState = EditorState(alertState: alertState)
-    @ObservationIgnored lazy var fileListState: FileListState = FileListState(alertState: alertState)
+    @ObservationIgnored lazy var fileListState: FileListState = FileListState(appState: appState, alertState: alertState)
 
     // MARK: - Init / Release
 

@@ -15,11 +15,13 @@ struct EditorView: View {
 
     var appState: AppState
     var browserState: BrowserState
+    var fileListState: FileListState
     var editorState: EditorState
 
     init(browserState: BrowserState) {
         self.appState = browserState.appState
         self.browserState = browserState
+        self.fileListState = browserState.fileListState
         self.editorState = browserState.editorState
     }
 
@@ -32,8 +34,8 @@ struct EditorView: View {
                     .ignoresSafeArea()
             }
         }
-        .onChange(of: browserState.fileListState.selectedFile, initial: true) {
-            loadFile()
+        .onChange(of: fileListState.selectedFileIDs, initial: true) {
+            selectedFileIDsChanged()
         }
         .toolbar {
             // ToolbarItemGroup(placement: .navigation) {
@@ -153,13 +155,16 @@ struct EditorView: View {
         storage.endEditing()
     }
 
-    func loadFile() {
-        let selectedFile = browserState.fileListState.selectedFile
-        if let selectedFile {
-            editorState.loadFile(at: selectedFile.url)
-            browserState.historyState.addToHistory(selectedFile.url)
-        } else {
+    func selectedFileIDsChanged() {
+        let selectedFileIDs = fileListState.selectedFileIDs
+        if selectedFileIDs.count == 0 {
             editorState.reset()
+            return
+        }
+        if selectedFileIDs.count == 1 {
+            guard let url = selectedFileIDs.first else { return }
+            editorState.loadFile(at: url)
+            browserState.historyState.addToHistory(url)
         }
     }
 }

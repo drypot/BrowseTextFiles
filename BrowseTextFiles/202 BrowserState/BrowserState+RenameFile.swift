@@ -16,6 +16,7 @@ extension BrowserState {
     }
 
     func renameRenamingURL(with newName: String) {
+        /*
         guard let renamingURL else { return }
         let newURL = renamingURL.deletingLastPathComponent().appending(path: newName).standardizedFileURL
         let fileManager = FileManager.default
@@ -50,6 +51,7 @@ extension BrowserState {
             alertState.showAlert(message)
             consoleLog("rename file: \(message)")
         }
+         */
     }
     
 }

@@ -10,10 +10,10 @@ import UniformTypeIdentifiers
 
 @Observable
 final class EditorState {
+    private(set) var containsFile: Bool = false
+
     private(set) var editingFileURL: URL?
     private(set) var editingFilename: String?
-
-    private(set) var containsFile: Bool = false
 
     private(set) var originalText: String = ""
     var shouldCopyOriginalText = false
@@ -53,19 +53,10 @@ final class EditorState {
         self.alertState = alertState
     }
 
-    func loadFile(at url: URL?) {
-        guard closeFile() else { return }
-
-        reset()
-
-        if let url {
-            editingFileURL = url
-            editingFilename = url.lastPathComponent
-            loadFile()
-        }
-    }
-
     func reset() {
+        guard containsFile else { return }
+
+        consoleLog("reset editor:")
         editingFileURL = nil
         editingFilename = nil
         containsFile = false
@@ -76,6 +67,16 @@ final class EditorState {
         isTextViewEdited = false
         fileMonitor = nil
         autoSaveTask?.cancel()
+    }
+
+    func loadFile(at url: URL?) {
+        guard closeFile() else { return }
+        reset()
+        if let url {
+            editingFileURL = url
+            editingFilename = url.lastPathComponent
+            loadFile()
+        }
     }
 
     func loadFile() {
@@ -99,7 +100,7 @@ final class EditorState {
     private func startFileMonitoring() {
         guard let editingFileURL else { return }
         fileMonitor = FileMonitor()
-        fileMonitor!.startMonitoring(editingFileURL) { [weak self] _ in
+        fileMonitor!.startMonitoring(editingFileURL) { [weak self] event in
             guard let self else { return }
             self.autoSaveTask?.cancel()
             self.loadFile()
@@ -110,6 +111,7 @@ final class EditorState {
     }
 
     func closeFile() -> Bool {
+        guard containsFile else { return true }
         guard autoSaveFile() else { return false }
         consoleLog("close: \(editingFilename ?? "")")
         reset()
@@ -128,6 +130,7 @@ final class EditorState {
     }
 
     func autoSaveFile() -> Bool {
+        guard containsFile else { return true }
         guard isTextViewEdited else { return true }
         guard !hasLoadingError else { return true }
         guard !hasSavingError else { return true }
@@ -136,6 +139,7 @@ final class EditorState {
     }
 
     func saveFile() {
+        guard containsFile else { return }
         guard let editingFileURL else { return }
         guard !hasLoadingError else { return }
         guard let text = textView?.string else { return }

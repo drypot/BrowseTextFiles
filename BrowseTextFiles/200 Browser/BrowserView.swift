@@ -76,9 +76,10 @@ struct BrowserView: View {
             actions: { Button("OK") { } },
             message: { Text(browserState.alertState.message) }
         )
-        .onChange(of: browserState.fileListState.selectedFile) { _, newValue in
-            guard let newValue else { return }
-            saveFileURL(newValue.url)
+        .onChange(of: browserState.fileListState.selectedFileIDs) { _, ids in
+            guard ids.count == 1 else { return }
+            guard let first = ids.first else { return }
+            saveFileURL(first)
         }
         //.toolbar(removing: .title)
     }
@@ -113,7 +114,7 @@ struct BrowserView: View {
     }
 
     func saveRootURL(_ rootURL: URL) {
-        consoleLog("save RootURL: \(browserState.id)")
+        consoleLog("save scene RootURL: \(browserState.id)")
         sceneRootURLData = try? rootURL.bookmarkData(options: .withSecurityScope)
     }
 
@@ -124,7 +125,7 @@ struct BrowserView: View {
                         options: .withSecurityScope,
                         relativeTo: nil,
                         bookmarkDataIsStale: &isStale)
-        consoleLog("load RootURL: \(url?.lastPathComponent ?? "nil")")
+        consoleLog("load scene RootURL: \(url?.path(percentEncoded: false) ?? "nil")")
         return url
     }
 

@@ -11,14 +11,17 @@ import SwiftUI
 final class FileListState {
     var folderURL: URL?
     var fileList: [FileState]?
-    var selectedFileID: FileState.ID?
-    var selectedFile: FileState?
-    private var savedSelectedFileURL: URL?
+    var selectedFileIDs: Set<FileState.ID> = []
+    var scrollToFileID: FileState.ID?
+
+    @ObservationIgnored
+    private(set) var appState: AppState
 
     @ObservationIgnored
     private(set) var alertState: AlertState
 
-    init(alertState: AlertState) {
+    init(appState: AppState, alertState: AlertState) {
+        self.appState = appState
         self.alertState = alertState
     }
 
@@ -28,8 +31,7 @@ final class FileListState {
 
         consoleLog("load filelist: \(folderURL.lastPathComponent)")
 
-        saveSelection()
-        reset()
+        let savedFileURLs = selectedFileIDs
 
         do {
             fileList = try FileState.collectShallowly(from: folderURL) { contentType in
@@ -39,6 +41,7 @@ final class FileListState {
             fileList?.sort {
                 $0.name.localizedStandardCompare($1.name) == .orderedAscending
             }
+            selectedFileIDs.removeAll()
         } catch {
             let message = error.localizedDescription
             alertState.showAlert(message)
@@ -46,57 +49,43 @@ final class FileListState {
         }
 
         if preserveSelection {
-            restoreSelection()
-        }
-    }
-
-    func reset() {
-        fileList = nil
-        selectedFileID = nil
-        selectedFile = nil
-    }
-
-    func saveSelection() {
-        savedSelectedFileURL = selectedFile?.url
-    }
-
-    func restoreSelection() {
-        guard let savedSelectedFileURL else { return }
-        selectFile(with: savedSelectedFileURL)
-    }
-
-    func selectFile(_ fileItem: FileState?) {
-        if let fileItem {
-            selectedFileID = fileItem.id
-            selectedFile = fileItem
-        } else {
-            deselectFile()
+            selectedFileIDs = savedFileURLs
         }
     }
 
     func selectFile(with id: FileState.ID?) {
-        if let fileList, let file = fileList.first(where: { $0.id ==  id }) {
-            selectedFileID = file.id
-            selectedFile = file
+        if let id {
+            selectedFileIDs = [id]
         } else {
-            deselectFile()
+            selectedFileIDs.removeAll()
         }
     }
 
-    // 현재는 ID 가 URL 인데 추후 변경될 경우를 대비해서 두 selectFile 모두 유지해 두기로 한다.
-    func selectFile(with url: URL) {
-        if let fileList, let file = fileList.first(where: { $0.url ==  url }) {
-            selectedFileID = file.id
-            selectedFile = file
-        } else {
-            deselectFile()
+    func openNewBrowserWindow(openWindow: OpenWindowAction) {
+        if let url = selectedFileIDs.first {
+            appState.openNewBrowserWindow(fromFileURL: url, openWindow: openWindow)
         }
     }
 
-    func deselectFile() {
-        selectedFileID = nil
-        selectedFile = nil
+    func trashFiles(selection: Set<FileState.ID>) {
+        do {
+            selectedFileIDs.subtract(selection)
+            fileList?.removeAll(where: { selection.contains($0.id) })
+
+            // 오늘 기준으론 url 을 id 로 쓰고 있다;
+            for url in selection {
+                consoleLog("deleting file: \(url.path(percentEncoded: false))")
+                try FileManager.default.trashItem(at: url, resultingItemURL: nil)
+            }
+        } catch {
+            let message = error.localizedDescription
+            alertState.showAlert(message)
+            consoleLog("delete file: \(message)")
+        }
     }
+
+    /*
+    List 수작업으로 만들었을 때 쓰던 코드.
 
     func selecteNextFile() -> Bool {
         guard let fileList else { return false }
@@ -130,25 +119,5 @@ final class FileListState {
 
         return false
     }
-
-    func trashFile(at url: URL) {
-        do {
-            let fileManager = FileManager.default
-
-            let deletingSelectedFile = selectedFile?.url == url
-
-            consoleLog("deleting file: \(url.path(percentEncoded: false))")
-            try fileManager.trashItem(at: url, resultingItemURL: nil)
-            if deletingSelectedFile {
-                loadFileList(at: folderURL, preserveSelection: false)
-            } else {
-                loadFileList(at: folderURL)
-            }
-        } catch {
-            let message = error.localizedDescription
-            alertState.showAlert(message)
-            consoleLog("delete file: \(message)")
-        }
-    }
-
+    */
 }

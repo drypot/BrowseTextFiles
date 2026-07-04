@@ -38,6 +38,12 @@ extension BrowserState {
         }
     }
 
+    func openFinder() {
+        if let url = selectedFolder?.url {
+            Finder.shared.open(url: url)
+        }
+    }
+
     // MARK: - Selected Folder
 
     func findFolder(with id: FolderState.ID) -> FolderState? {
