@@ -47,7 +47,7 @@ struct FolderTreeViewV2: View {
     @ViewBuilder
     func contextMenu(_ selection: Set<FolderState.ID>) -> some View {
         if selection.count == 0 {
-            let _ = print("0")
+            let _ = consoleLog("0")
         }
 
 //        if selection.count == 1, let first = selection.first {

@@ -54,11 +54,12 @@ final class BrowserState: Identifiable {
 
     init(appState: AppState) {
         self.appState = appState
-        print("init BrowserState: \(id)")
+        // 여기서 log 쓰면 무한 루프.
+        printLog("init BrowserState: \(id)")
     }
 
     func initState(with rootURL: URL, fileURL: URL?) {
-        LogStore.shared.log("init root: \(rootURL.path(percentEncoded: false))")
+        consoleLog("init root: \(rootURL.path(percentEncoded: false))")
 
         self.rootURL = rootURL
         rootName = rootURL.lastPathComponent
@@ -82,7 +83,7 @@ final class BrowserState: Identifiable {
     }
 
     func releaseResource() {
-        print("release browser resource:")
+        consoleLog("release browser resource:")
 
         guard let rootURL else { return }
         if shouldReleaseSecurityScopedResource {
@@ -101,7 +102,7 @@ final class BrowserState: Identifiable {
     // MARK: - Update All
 
     func reloadAll() {
-        LogStore.shared.log("reload all:")
+        consoleLog("reload all:")
 
         guard editorState.autoSaveFile() else { return }
 
@@ -116,7 +117,7 @@ final class BrowserState: Identifiable {
     }
 
     func locateFile(with fileURL: URL) {
-        LogStore.shared.log("locate file: \(fileURL.path(percentEncoded: false))")
+        consoleLog("locate file: \(fileURL.path(percentEncoded: false))")
 
         guard editorState.closeFile() else { return }
 

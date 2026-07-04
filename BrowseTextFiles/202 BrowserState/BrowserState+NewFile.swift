@@ -27,14 +27,14 @@ extension BrowserState {
                     try fileManager.createDirectory(at: folderURL, withIntermediateDirectories: true, attributes: nil)
                     loadFolderTree()
                 }
-                LogStore.shared.log("new file: \(newFileURL.path)")
+                consoleLog("new file: \(newFileURL.path)")
                 try "".write(to: newFileURL, atomically: true, encoding: .utf8)
             }
             locateFile(with: newFileURL)
         } catch {
             let message = error.localizedDescription
             alertState.showAlert(message)
-            LogStore.shared.log("new file: \(message)")
+            consoleLog("new file: \(message)")
         }
     }
 
@@ -52,13 +52,13 @@ extension BrowserState {
         }
 
         do {
-            LogStore.shared.log("new file: \(newFileURL.path)")
+            consoleLog("new file: \(newFileURL.path)")
             try "".write(to: newFileURL, atomically: true, encoding: .utf8)
             locateFile(with: newFileURL)
         } catch {
             let message = error.localizedDescription
             alertState.showAlert(message)
-            LogStore.shared.log("new file: \(message)")
+            consoleLog("new file: \(message)")
         }
     }
 

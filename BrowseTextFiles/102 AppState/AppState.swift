@@ -134,7 +134,6 @@ class AppState {
     }
 
     @objc func onFontPanelChange(_ sender: Any?) {
-        print("im here")
         guard let manager = sender as? NSFontManager else { return }
         guard let fontPanelFont else { return }
 

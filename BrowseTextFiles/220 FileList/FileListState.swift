@@ -26,7 +26,7 @@ final class FileListState {
         self.folderURL = folderURL
         guard let folderURL else { return }
 
-        LogStore.shared.log("load filelist: \(folderURL.lastPathComponent)")
+        consoleLog("load filelist: \(folderURL.lastPathComponent)")
 
         saveSelection()
         reset()
@@ -42,7 +42,7 @@ final class FileListState {
         } catch {
             let message = error.localizedDescription
             alertState.showAlert(message)
-            LogStore.shared.log("load filelist: \(message)")
+            consoleLog("load filelist: \(message)")
         }
 
         if preserveSelection {
@@ -137,7 +137,7 @@ final class FileListState {
 
             let deletingSelectedFile = selectedFile?.url == url
 
-            LogStore.shared.log("deleting file: \(url.path(percentEncoded: false))")
+            consoleLog("deleting file: \(url.path(percentEncoded: false))")
             try fileManager.trashItem(at: url, resultingItemURL: nil)
             if deletingSelectedFile {
                 loadFileList(at: folderURL, preserveSelection: false)
@@ -147,7 +147,7 @@ final class FileListState {
         } catch {
             let message = error.localizedDescription
             alertState.showAlert(message)
-            LogStore.shared.log("delete file: \(message)")
+            consoleLog("delete file: \(message)")
         }
     }
 

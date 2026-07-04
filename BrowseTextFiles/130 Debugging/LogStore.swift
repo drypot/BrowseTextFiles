@@ -11,13 +11,20 @@ struct LogEntry: Identifiable {
     private static let style = Date.ISO8601FormatStyle(timeZone: TimeZone.current)
         .time(includingFractionalSeconds: false)
 
-    let id = UUID()
-    let dateTime = Date()
-    let message: String
+    let id: Int
+    let description: String
+    //let dateTime = Date()
 
-    var description: String {
-        let timestamp = dateTime.formatted(Self.style)
-        return "\(timestamp), \(message)"
+    init(id: Int, message: String) {
+        self.id = id
+
+        //let header = dateTime.formatted(Self.style)
+        let header = id.formatted(
+            .number
+                .grouping(.never)
+                .precision(.integerLength(4))
+        )
+        self.description = "\(header): \(message)"
     }
 }
 
@@ -25,16 +32,17 @@ struct LogEntry: Identifiable {
 final class LogStore {
     static let shared = LogStore()
 
+    private(set) var idCount: Int = 0
     private(set) var logs: [LogEntry] = []
 
     private init() {}
 
     func log(_ message: String) {
-        let entry = LogEntry(message: message)
-        logs.append(entry)
+        let entry = LogEntry(id: idCount, message: message)
+        idCount += 1
         print(entry.description)
-
-        if logs.count > 500 {
+        logs.append(entry)
+        if logs.count > 300 {
             logs.removeFirst()
         }
     }
@@ -44,3 +52,10 @@ final class LogStore {
     }
 }
 
+func consoleLog(_ message: String) {
+    LogStore.shared.log(message)
+}
+
+func printLog(_ message: String) {
+    print("----: \(message)")
+}

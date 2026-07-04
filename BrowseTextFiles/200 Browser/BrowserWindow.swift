@@ -25,8 +25,8 @@ struct BrowserWindow: Scene {
     var appState: AppState
 
     init(appState: AppState) {
-        print("init BrowserWindow")
         self.appState = appState
+        printLog("init BrowserWindow")
     }
 
     var body: some Scene {

@@ -25,7 +25,8 @@ struct BrowserView: View {
     init(appState: AppState) {
         self.appState = appState
         self._browserState = State(initialValue: BrowserState(appState: appState))
-        print("init BrowserView: \(browserState.id)")
+        // 여기서 log 쓰면 무한 루프.
+        printLog("init BrowserView: \(browserState.id)")
     }
 
     var body: some View {
@@ -147,19 +148,18 @@ struct BrowserView: View {
     }
 
     func saveRootURL(_ rootURL: URL) {
-        print("save RootURL: \(browserState.id)")
+        consoleLog("save RootURL: \(browserState.id)")
         sceneRootURLData = try? rootURL.bookmarkData(options: .withSecurityScope)
     }
 
     func loadRootURL() ->URL? {
-        print("load RootURL: \(browserState.id)")
         guard let data = sceneRootURLData else { return nil }
         var isStale = false
         let url = try? URL(resolvingBookmarkData: data,
                         options: .withSecurityScope,
                         relativeTo: nil,
                         bookmarkDataIsStale: &isStale)
-        print("load RootURL: \(url?.lastPathComponent ?? "nil")")
+        consoleLog("load RootURL: \(url?.lastPathComponent ?? "nil")")
         return url
     }
 
@@ -212,7 +212,7 @@ struct BrowserView: View {
         NotificationCenter.default
             .publisher(for: NSWindow.didResignMainNotification, object: window)
             .sink { _ in
-                print("resign main window: \(browserState.rootName ?? "nil")")
+                consoleLog("resign main window: \(browserState.rootName ?? "nil")")
                 _ = browserState.editorState.autoSaveFile()
             }
             .store(in: &cancellables)

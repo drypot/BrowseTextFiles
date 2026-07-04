@@ -25,7 +25,7 @@ extension BrowserState {
         do {
             guard editorState.closeFile() else { return }
 
-            LogStore.shared.log("new folder: \(newFolderURL.path)")
+            consoleLog("new folder: \(newFolderURL.path)")
             try fileManager.createDirectory(at: newFolderURL, withIntermediateDirectories: true, attributes: nil)
             loadFolderTree(preserveSelection: false)
 
@@ -35,7 +35,7 @@ extension BrowserState {
         } catch {
             let message = error.localizedDescription
             alertState.showAlert(message)
-            LogStore.shared.log("new file: \(message)")
+            consoleLog("new file: \(message)")
         }
     }
 

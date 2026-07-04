@@ -13,36 +13,28 @@ struct LogStoreView: View {
     
     var body: some View {
         let store = LogStore.shared
-        VStack(alignment: .leading, spacing: 0) {
-            HStack {
-                Spacer()
-                Button("Clear") {
-                    store.clear()
-                }
-            }
-            .padding(.horizontal)
-            .padding(.vertical, 8)
-
-            Divider()
-
-            ScrollViewReader { proxy in
+        ScrollViewReader { proxy in
+            ZStack {
                 ScrollView {
                     LazyVStack(alignment: .leading) {
                         ForEach(store.logs) { log in
                             Text(log.description)
-                                .id(log.id)
                         }
+                        Text("").id("999")
                     }
-                    .font(.system(.caption, design: .monospaced))
+                    .monospaced()
                     .padding(.horizontal)
-                    .padding(.vertical, 8)
                 }
-                .frame(minWidth: 450, minHeight: 150, maxHeight: .infinity)
-                .onChange(of: store.logs.count) { _, _ in
-                    guard let last = store.logs.last else { return }
-                    proxy.scrollTo(last.id, anchor: .bottom)
+                .frame(maxHeight: .infinity)
+                HStack {
+                    Button("Scroll Down") {
+                        proxy.scrollTo("999")
+                    }
+                    .padding(.horizontal)
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
             }
+            .frame(minWidth: 450, minHeight: 150)
         }
         .background(WindowReader(onResolve: setupWindow))
     }

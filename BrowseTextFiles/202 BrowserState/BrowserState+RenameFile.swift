@@ -25,7 +25,7 @@ extension BrowserState {
             if renamingSelectedFile {
                 guard editorState.closeFile() else { return }
             }
-            LogStore.shared.log("renaming: \(renamingURL.path) to \(newName)")
+            consoleLog("renaming: \(renamingURL.path) to \(newName)")
             try fileManager.moveItem(at: renamingURL, to: newURL)
             if isRenamingFolder {
                 if renamingSelectedFolder {
@@ -48,7 +48,7 @@ extension BrowserState {
         } catch {
             let message = error.localizedDescription
             alertState.showAlert(message)
-            LogStore.shared.log("rename file: \(message)")
+            consoleLog("rename file: \(message)")
         }
     }
     

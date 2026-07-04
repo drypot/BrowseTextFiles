@@ -19,7 +19,7 @@ extension BrowserState {
             if deletingSelectedFile {
                 guard editorState.closeFile() else { return }
             }
-            LogStore.shared.log("deleting folder: \(url.path(percentEncoded: false))")
+            consoleLog("deleting folder: \(url.path(percentEncoded: false))")
             try fileManager.trashItem(at: url, resultingItemURL: nil)
             if deletingSelectedFolder {
                 loadFolderTree(preserveSelection: false)
@@ -31,7 +31,7 @@ extension BrowserState {
         } catch {
             let message = error.localizedDescription
             alertState.showAlert(message)
-            LogStore.shared.log("delete folder: \(message)")
+            consoleLog("delete folder: \(message)")
         }
     }
 

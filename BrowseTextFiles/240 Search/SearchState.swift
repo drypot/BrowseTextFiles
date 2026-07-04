@@ -27,7 +27,7 @@ final class SearchState {
     var isShowSearchWindow = false
 
     func startSearch(rootURL: URL, alertState: AlertState) {
-        LogStore.shared.log("search: \"\(searchText)\"")
+        consoleLog("search: \"\(searchText)\"")
 
         if isSearching { return }
         if searchText.isEmpty { return }
@@ -50,11 +50,11 @@ final class SearchState {
             do {
                 searchResults = try await searchParallel(rootURL: rootURL, searchText: searchText)
                 isSearching = false
-                LogStore.shared.log("search: found \(searchResults?.count ?? 0) files")
+                consoleLog("search: found \(searchResults?.count ?? 0) files")
             } catch {
                 let message = error.localizedDescription
                 alertState.showAlert(message)
-                LogStore.shared.log("search: \(message)")
+                consoleLog("search: \(message)")
             }
         }
     }
