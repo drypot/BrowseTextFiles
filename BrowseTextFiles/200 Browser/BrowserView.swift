@@ -15,7 +15,7 @@ struct BrowserView: View {
     @SceneStorage("rootURLData") private var sceneRootURLData: Data?
     @SceneStorage("fileURLData") private var sceneFileURLData: Data?
 
-    @State private var browserState = BrowserState()
+    @State private var browserState: BrowserState
     @State private var window: NSWindow?
     @State private var isShowBlank = false
     @State private var cancellables = Set<AnyCancellable>()
@@ -24,6 +24,7 @@ struct BrowserView: View {
 
     init(appState: AppState) {
         self.appState = appState
+        self._browserState = State(initialValue: BrowserState(appState: appState))
         print("init BrowserView: \(browserState.id)")
     }
 
@@ -32,13 +33,13 @@ struct BrowserView: View {
         VStack {
             if browserState.isRootReady {
                 NavigationSplitView {
-                    FolderTreeView(appState: appState, browserState: browserState)
+                    FolderTreeView(browserState: browserState)
                         .frame(minWidth: 200, maxHeight: .infinity)
                 } content: {
-                    FileListView(appState: appState, browserState: browserState)
+                    FileListView(browserState: browserState)
                         .frame(minWidth: 180, maxHeight: .infinity)
                 } detail: {
-                    EditorView(appState: appState, browserState: browserState)
+                    EditorView(browserState: browserState)
                         .frame(minWidth: 300, maxHeight: .infinity)
                         //.layoutPriority(1)
                 }

@@ -16,8 +16,8 @@ struct FileListView: View {
     var browserState: BrowserState
     @Bindable var fileListState: FileListState
 
-    init(appState: AppState, browserState: BrowserState) {
-        self.appState = appState
+    init(browserState: BrowserState) {
+        self.appState = browserState.appState
         self.browserState = browserState
         self.fileListState = browserState.fileListState
     }

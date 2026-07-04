@@ -13,7 +13,7 @@ struct HistoryWindow: Scene {
     var body: some Scene {
         WindowGroup("History", id: "history", for: UUID.self) { $id in
             if let browserState = appState.lastBrowserState {
-                HistoryView(appState: appState, browserState: browserState)
+                HistoryView(browserState: browserState)
                     .frame(minWidth: 320, minHeight: 200)
             }
         }

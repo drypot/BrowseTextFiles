@@ -15,6 +15,11 @@ struct FolderTreeView: View {
     var appState: AppState
     @Bindable var browserState: BrowserState
 
+    init(browserState: BrowserState) {
+        self.appState = browserState.appState
+        self.browserState = browserState
+    }
+    
     var body: some View {
         //let isActive = appearsActive && (focusedViewBinding?.wrappedValue == .folderTree)
         let isActive = true

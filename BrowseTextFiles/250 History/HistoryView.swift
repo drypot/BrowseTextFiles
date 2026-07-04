@@ -15,8 +15,8 @@ struct HistoryView: View {
 
     @State private var cancellables = Set<AnyCancellable>()
 
-    init(appState: AppState, browserState: BrowserState) {
-        self.appState = appState
+    init(browserState: BrowserState) {
+        self.appState = browserState.appState
         self.browserState = browserState
         self.historyState = browserState.historyState
     }

@@ -42,21 +42,19 @@ final class BrowserState: Identifiable {
     var isShowNewFileSheet = false
     var isShowRenameSheet = false
 
-    @ObservationIgnored var alertState: AlertState
-    @ObservationIgnored var searchState: SearchState
-    @ObservationIgnored var historyState: HistoryState
-    @ObservationIgnored var editorState: EditorState
-    @ObservationIgnored var fileListState: FileListState
+    @ObservationIgnored var appState: AppState
+
+    @ObservationIgnored lazy var alertState: AlertState = AlertState()
+    @ObservationIgnored lazy var searchState: SearchState = SearchState()
+    @ObservationIgnored lazy var historyState: HistoryState = HistoryState()
+    @ObservationIgnored lazy var editorState: EditorState = EditorState(alertState: alertState)
+    @ObservationIgnored lazy var fileListState: FileListState = FileListState(alertState: alertState)
 
     // MARK: - Init / Release
 
-    init() {
+    init(appState: AppState) {
+        self.appState = appState
         print("init BrowserState: \(id)")
-        self.alertState = AlertState()
-        self.searchState = SearchState()
-        self.historyState = HistoryState()
-        self.editorState = EditorState(alertState: alertState)
-        self.fileListState = FileListState(alertState: alertState)
     }
 
     func initState(with rootURL: URL, fileURL: URL?) {

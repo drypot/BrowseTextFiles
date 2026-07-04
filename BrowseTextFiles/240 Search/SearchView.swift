@@ -16,8 +16,8 @@ struct SearchView: View {
     @State private var cancellables = Set<AnyCancellable>()
     @FocusState var isFocused: Bool
 
-    init(appState: AppState, browserState: BrowserState) {
-        self.appState = appState
+    init(browserState: BrowserState) {
+        self.appState = browserState.appState
         self.browserState = browserState
         self.searchState = browserState.searchState
     }

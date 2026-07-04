@@ -17,8 +17,8 @@ struct EditorView: View {
     var browserState: BrowserState
     var editorState: EditorState
 
-    init(appState: AppState, browserState: BrowserState) {
-        self.appState = appState
+    init(browserState: BrowserState) {
+        self.appState = browserState.appState
         self.browserState = browserState
         self.editorState = browserState.editorState
     }
