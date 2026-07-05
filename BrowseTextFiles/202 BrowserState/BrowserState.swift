@@ -36,13 +36,11 @@ final class BrowserState: Identifiable {
 
     var workingRelativePath: String?
 
-    var renamingURL: URL?
-    var isRenamingFolder: Bool = true
-
     var isShowNewFileSheet = false
-    var isShowRenameSheet = false
 
     @ObservationIgnored var alertState: AlertState
+    @ObservationIgnored var newFileState: NewFileState
+    @ObservationIgnored var renameState: RenameState
     @ObservationIgnored var fileListState: FileListState
     @ObservationIgnored var searchState: SearchState
     @ObservationIgnored var historyState: HistoryState
@@ -52,6 +50,8 @@ final class BrowserState: Identifiable {
 
     init() {
         alertState = AlertState()
+        newFileState = NewFileState(alertState: alertState)
+        renameState = RenameState(alertState: alertState)
         fileListState = FileListState(alertState: alertState)
         searchState = SearchState()
         historyState = HistoryState()
@@ -81,7 +81,7 @@ final class BrowserState: Identifiable {
             locateFile(with: fileURL)
         } else {
             selectFolder(rootFolder)
-            fileListState.loadFileList(at: selectedFolder?.url, preserveSelection: false)
+            fileListState.loadFileList(at: selectedFolder?.url)
         }
     }
 
@@ -127,7 +127,7 @@ final class BrowserState: Identifiable {
         let folderURL = fileURL.deletingLastPathComponent()
 
         selectFolder(with: folderURL)
-        fileListState.loadFileList(at: selectedFolder?.url, preserveSelection: false)
+        fileListState.loadFileList(at: selectedFolder?.url)
         if alertState.hasMessage { return }
 
         guard fileListState.fileList != nil else { return }

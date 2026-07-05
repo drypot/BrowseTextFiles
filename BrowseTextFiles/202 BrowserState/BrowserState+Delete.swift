@@ -24,7 +24,7 @@ extension BrowserState {
             if deletingSelectedFolder {
                 loadFolderTree(preserveSelection: false)
                 selectFolder(with: url.deletingLastPathComponent())
-                fileListState.loadFileList(at: selectedFolder?.url, preserveSelection: false)
+                fileListState.loadFileList(at: selectedFolder?.url)
             } else {
                 loadFolderTree()
             }

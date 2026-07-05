@@ -21,14 +21,15 @@ final class FileListState {
         self.alertState = alertState
     }
 
-    func loadFileList(at folderURL: URL?, preserveSelection: Bool = true) {
+    func loadFileList(at folderURL: URL?) {
         self.folderURL = folderURL
+        reloadFileList(preserveSelection: false)
+    }
+
+    func reloadFileList(preserveSelection: Bool = true) {
         guard let folderURL else { return }
 
-        consoleLog("load filelist: \(folderURL.lastPathComponent)")
-
-        let savedFileURLs = selectedFileIDs
-
+        consoleLog("load filelist: \(folderURL.path(percentEncoded: false))")
         do {
             fileList = try FileState.collectShallowly(from: folderURL) { contentType in
                 // contentType.conforms(to: .text)
@@ -37,15 +38,14 @@ final class FileListState {
             fileList?.sort {
                 $0.name.localizedStandardCompare($1.name) == .orderedAscending
             }
-            selectedFileIDs.removeAll()
         } catch {
             let message = error.localizedDescription
             alertState.showAlert(message)
             consoleLog("load filelist: \(message)")
         }
 
-        if preserveSelection {
-            selectedFileIDs = savedFileURLs
+        if !preserveSelection {
+            selectedFileIDs.removeAll()
         }
     }
 
@@ -70,7 +70,7 @@ final class FileListState {
 
             // 오늘 기준으론 url 을 id 로 쓰고 있다;
             for url in selection {
-                consoleLog("deleting file: \(url.path(percentEncoded: false))")
+                consoleLog("delete file: \(url.path(percentEncoded: false))")
                 try FileManager.default.trashItem(at: url, resultingItemURL: nil)
             }
         } catch {

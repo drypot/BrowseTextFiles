@@ -11,7 +11,7 @@ extension BrowserState {
     // MARK: - Folder Tree
 
     func loadFolderTree(preserveSelection: Bool = true) {
-        consoleLog("load tree: \(rootName ?? "nil")")
+        consoleLog("load tree: \(rootURL?.path(percentEncoded: false) ?? "nil")")
 
         guard let rootURL else { return }
 

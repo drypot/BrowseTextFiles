@@ -120,7 +120,7 @@ struct BrowserView: View {
     }
 
     func saveRootURL(_ rootURL: URL) {
-        consoleLog("save scene RootURL: \(browserState.id)")
+        consoleLog("save root: \(browserState.id)")
         sceneRootURLData = try? rootURL.bookmarkData(options: .withSecurityScope)
     }
 
@@ -131,7 +131,7 @@ struct BrowserView: View {
                         options: .withSecurityScope,
                         relativeTo: nil,
                         bookmarkDataIsStale: &isStale)
-        consoleLog("load scene RootURL: \(url?.path(percentEncoded: false) ?? "nil")")
+        consoleLog("restore root: \(url?.path(percentEncoded: false) ?? "nil")")
         return url
     }
 

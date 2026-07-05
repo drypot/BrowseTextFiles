@@ -117,7 +117,9 @@ struct FolderTreeView: View {
         case .return:
             guard let selectedFolder = browserState.selectedFolder else { return .ignored }
             guard selectedFolder != browserState.rootFolder else { return .ignored }
-            browserState.showRenameSheet(for: selectedFolder.url, isFolder: true)
+            browserState.renameState.showRenameSheet(for: selectedFolder.url) { _, _ in
+
+            }
         default:
             return .ignored
         }
@@ -206,7 +208,7 @@ fileprivate struct RowView: View {
 
             if item != browserState.rootFolder {
                 Button("Rename") {
-                    browserState.showRenameSheet(for: item.url, isFolder: true)
+                    browserState.renameState.showRenameSheet(for: item.url) { _, _ in }
                 }
 
                 Button("Delete") {

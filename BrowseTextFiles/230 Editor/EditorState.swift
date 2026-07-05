@@ -58,7 +58,7 @@ final class EditorState {
     func reset() {
         guard fileAssigned else { return }
 
-        consoleLog("reset editor:")
+        consoleLog("reset buffer:")
         editingFileURL = nil
         editingFilename = nil
         originalText = ""
@@ -84,7 +84,7 @@ final class EditorState {
         guard let editingFileURL else { return }
         guard let editingFilename else { return }
 
-        consoleLog("load: \(editingFilename)")
+        consoleLog("load file: \(editingFilename)")
 
         do {
             originalText = try String(contentsOf: editingFileURL, encoding: .utf8)
@@ -93,7 +93,7 @@ final class EditorState {
         } catch {
             let message = error.localizedDescription
             loadingError = message
-            consoleLog("load: \(message)")
+            consoleLog("load file: \(message)")
         }
     }
 
@@ -113,7 +113,7 @@ final class EditorState {
     func closeFile() -> Bool {
         guard fileAssigned else { return true }
         guard autoSaveFile() else { return false }
-        consoleLog("close: \(editingFilename ?? "")")
+        consoleLog("close file: \(editingFilename ?? "")")
         reset()
         return true
     }
@@ -145,7 +145,7 @@ final class EditorState {
         guard let text = textView?.string else { return }
         guard let data = text.data(using: .utf8) else { return }
 
-        consoleLog("save: \(editingFilename ?? "")")
+        consoleLog("save file: \(editingFilename ?? "")")
         do {
             // 이렇게 하면 먼저 붙였던 fileMonitor 가 떨어져 나간다. 하지 말 것.
             // try text.write(to: url, atomically: true, encoding: .utf8)
@@ -165,7 +165,7 @@ final class EditorState {
             let message = error.localizedDescription
             savingError = message
             alertState.showAlert(message)
-            consoleLog("save: \(message)")
+            consoleLog("save file: \(message)")
         }
     }
 }

@@ -11,6 +11,8 @@ struct FileListView: View {
     @Environment(AppState.self) var appState
     @Environment(BrowserState.self) var browserState
     @Environment(FileListState.self) var fileListState
+    @Environment(NewFileState.self) var newFileState
+    @Environment(RenameState.self) var renameState
 
     @Environment(\.openWindow) private var openWindow
 
@@ -50,8 +52,12 @@ struct FileListView: View {
                 fileListState.openNewBrowserWindow(appState: appState, openWindow: openWindow)
             }
 
-            Button("Rename") {
-                //browserState.showRenameSheet(for: item.url, isFolder: false)
+            Divider()
+
+            if selection.count == 1 {
+                Button("Rename") {
+                    showRenameSheet(selection: selection)
+                }
             }
 
             Button("Delete") {
@@ -65,25 +71,41 @@ struct FileListView: View {
         case .tab:
             //focusedViewBinding?.wrappedValue = .textEditor
             browserState.editorState.shouldFocusedCount += 1
-            /*
-             case "\u{19}": // shift tab
-             focusedViewBinding?.wrappedValue = .folderTree
-             case .downArrow:
-             if fileListState.selecteNextFile() {
-             browserState.editorState.loadFile(at: fileListState.selectedFile?.url)
-             }
-             case .upArrow:
-             if fileListState.selectePreviousFile() {
-             browserState.editorState.loadFile(at: fileListState.selectedFile?.url)
-             }
-             case .return:
-             guard let file = fileListState.selectedFile else { return .ignored }
-             browserState.showRenameSheet(for: file.url, isFolder: false)
-             */
+
+        case .return:
+            showRenameSheet(selection: fileListState.selectedFileIDs)
+
+        /*
+        case "\u{19}": // shift tab
+            focusedViewBinding?.wrappedValue = .folderTree
+        case .downArrow:
+            if fileListState.selecteNextFile() {
+                browserState.editorState.loadFile(at: fileListState.selectedFile?.url)
+            }
+        case .upArrow:
+            if fileListState.selectePreviousFile() {
+                browserState.editorState.loadFile(at: fileListState.selectedFile?.url)
+            }
+        */
+
         default:
             return .ignored
         }
+
         return .handled
+    }
+
+    func showRenameSheet(selection: Set<FileState.ID>) {
+        guard selection.count == 1 else { return }
+        guard let url = selection.first else { return }
+        renameState.showRenameSheet(for: url) { oldURL, newURL in
+            if fileListState.selectedFileIDs.first == oldURL {
+                fileListState.reloadFileList(preserveSelection: false)
+                fileListState.selectFile(with: newURL)
+            } else {
+                fileListState.reloadFileList(preserveSelection: true)
+            }
+        }
     }
 
     /*
