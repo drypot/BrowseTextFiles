@@ -64,7 +64,7 @@ struct BrowserView: View {
             content: { NewFileSheet() }
         )
         .sheet(
-            isPresented: $browserState.isShowRenameSheet,
+            isPresented: $browserState.renameState.isRenameSheetPresented,
             content: { RenameSheet() }
         )
         .alert(
@@ -81,6 +81,8 @@ struct BrowserView: View {
         // .environment(browserState) 가 NewFileSheet 아래/바깥쪽에 있어야 NewFileSheet 에서 사용할 수 있다.
         .environment(browserState)
         .environment(browserState.alertState)
+        .environment(browserState.newFileState)
+        .environment(browserState.renameState)
         .environment(browserState.fileListState)
         .environment(browserState.searchState)
         .environment(browserState.historyState)

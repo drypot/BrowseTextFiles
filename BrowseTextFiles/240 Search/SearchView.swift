@@ -111,7 +111,7 @@ struct SearchView: View {
         NotificationCenter.default
             .publisher(for: NSWindow.willCloseNotification, object: window)
             .sink { notification in
-                searchState.isShowSearchWindow = false
+                searchState.isSearchWindowPresented = false
             }
             .store(in: &cancellables)
     }

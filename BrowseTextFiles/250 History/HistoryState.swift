@@ -40,7 +40,7 @@ struct HistoryItem: Identifiable, Hashable {
 @Observable
 final class HistoryState {
     var history: [HistoryItem] = []
-    var isHistoryWindowShown = false
+    var isHistoryWindowPresented = false
 
     func addToHistory(_ url: URL) {
         let first = history.firstIndex { $0.url == url }

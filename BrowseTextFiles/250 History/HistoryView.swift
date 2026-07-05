@@ -83,7 +83,7 @@ struct HistoryView: View {
         NotificationCenter.default
             .publisher(for: NSWindow.willCloseNotification, object: window)
             .sink { notification in
-                historyState.isHistoryWindowShown = false
+                historyState.isHistoryWindowPresented = false
             }
             .store(in: &cancellables)
     }

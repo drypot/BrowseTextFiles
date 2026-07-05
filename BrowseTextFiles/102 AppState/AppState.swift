@@ -257,14 +257,14 @@ class AppState {
         guard state.isRootReady else { return }
         lastBrowserState = state
         openWindow(id: "search", value: state.id)
-        state.searchState.isShowSearchWindow = true
+        state.searchState.isSearchWindowPresented = true
     }
 
     func toggleSearchWindow(for state: BrowserState, openWindow: OpenWindowAction, dismissWindow: DismissWindowAction) {
         guard state.isRootReady else { return }
-        if state.searchState.isShowSearchWindow {
+        if state.searchState.isSearchWindowPresented {
             dismissWindow(id: "search", value: state.id)
-            state.searchState.isShowSearchWindow = false
+            state.searchState.isSearchWindowPresented = false
         } else {
             openSearchWindow(for: state, openWindow: openWindow)
         }
@@ -276,14 +276,14 @@ class AppState {
         guard state.isRootReady else { return }
         lastBrowserState = state
         openWindow(id: "history", value: state.id)
-        state.historyState.isHistoryWindowShown = true
+        state.historyState.isHistoryWindowPresented = true
     }
 
     func toggleHistoryWindow(for state: BrowserState, openWindow: OpenWindowAction, dismissWindow: DismissWindowAction) {
         guard state.isRootReady else { return }
-        if state.historyState.isHistoryWindowShown {
+        if state.historyState.isHistoryWindowPresented {
             dismissWindow(id: "history", value: state.id)
-            state.historyState.isHistoryWindowShown = false
+            state.historyState.isHistoryWindowPresented = false
         } else {
             openHistoryWindow(for: state, openWindow: openWindow)
         }

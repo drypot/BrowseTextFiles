@@ -24,7 +24,7 @@ final class SearchState {
     var searchText = ""
     var isSearching = false
     var searchResults: [SearchResult]?
-    var isShowSearchWindow = false
+    var isSearchWindowPresented = false
 
     func startSearch(rootURL: URL, alertState: AlertState) {
         consoleLog("search: \"\(searchText)\"")
