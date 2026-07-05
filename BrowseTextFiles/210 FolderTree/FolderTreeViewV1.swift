@@ -8,17 +8,11 @@
 import SwiftUI
 
 struct FolderTreeView: View {
+    @Environment(AppState.self) var appState
+    @Environment(BrowserState.self) var browserState
+
     @Environment(\.openWindow) private var openWindow
     @Environment(\.appearsActive) var appearsActive
-    //@Environment(\.focusedViewBinding) var focusedViewBinding
-
-    var appState: AppState
-    @Bindable var browserState: BrowserState
-
-    init(browserState: BrowserState) {
-        self.appState = browserState.appState
-        self.browserState = browserState
-    }
 
     var body: some View {
         //let isActive = appearsActive && (focusedViewBinding?.wrappedValue == .folderTree)

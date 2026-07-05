@@ -14,13 +14,15 @@ fileprivate struct OptionItem: Identifiable {
 }
 
 struct NewFileSheet: View {
-    @Bindable var appState: AppState
-    var browserState: BrowserState
+    @Environment(AppState.self) var appState
+    @Environment(BrowserState.self) var browserState
 
     @Environment(\.dismiss) private var dismiss
+    
     @State private var newFilePath = ""
 
     var body: some View {
+        @Bindable var appState = appState
         VStack(alignment: .leading, spacing: 0) {
             Text("New File")
                 .font(.headline)

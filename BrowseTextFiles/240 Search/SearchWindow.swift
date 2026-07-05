@@ -8,13 +8,14 @@
 import SwiftUI
 
 struct SearchWindow: Scene {
-    var appState: AppState
+    @Environment(AppState.self) var appState
 
     var body: some Scene {
         WindowGroup("Search", id: "search", for: UUID.self) { $id in
             if let browserState = appState.lastBrowserState {
-                SearchView(browserState: browserState)
+                SearchView()
                     .frame(minWidth: 320, minHeight: 200)
+                    .environment(browserState)
             }
         }
         .restorationBehavior(.disabled)

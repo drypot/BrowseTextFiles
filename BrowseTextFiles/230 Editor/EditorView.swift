@@ -8,22 +8,15 @@
 import SwiftUI
 
 struct EditorView: View {
+    @Environment(AppState.self) var appState
+    @Environment(BrowserState.self) var browserState
+    @Environment(FileListState.self) var fileListState
+    @Environment(EditorState.self) var editorState
+
     @Environment(\.openWindow) private var openWindow
     @Environment(\.dismissWindow) private var dismissWindow
 
     @FocusState private var isFocused: Bool
-
-    var appState: AppState
-    var browserState: BrowserState
-    var fileListState: FileListState
-    var editorState: EditorState
-
-    init(browserState: BrowserState) {
-        self.appState = browserState.appState
-        self.browserState = browserState
-        self.fileListState = browserState.fileListState
-        self.editorState = browserState.editorState
-    }
 
     var body: some View {
         VStack {

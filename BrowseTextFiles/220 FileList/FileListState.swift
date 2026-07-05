@@ -15,13 +15,9 @@ final class FileListState {
     var scrollToFileID: FileState.ID?
 
     @ObservationIgnored
-    private(set) var appState: AppState
-
-    @ObservationIgnored
     private(set) var alertState: AlertState
 
-    init(appState: AppState, alertState: AlertState) {
-        self.appState = appState
+    init(alertState: AlertState) {
         self.alertState = alertState
     }
 
@@ -61,7 +57,7 @@ final class FileListState {
         }
     }
 
-    func openNewBrowserWindow(openWindow: OpenWindowAction) {
+    func openNewBrowserWindow(appState: AppState, openWindow: OpenWindowAction) {
         if let url = selectedFileIDs.first {
             appState.openNewBrowserWindow(fromFileURL: url, openWindow: openWindow)
         }

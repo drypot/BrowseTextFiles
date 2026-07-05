@@ -8,12 +8,13 @@
 import SwiftUI
 
 struct FolderTreeViewV2: View {
+    @Environment(AppState.self) var appState
+    @Environment(BrowserState.self) var browserState
+
     @Environment(\.openWindow) private var openWindow
 
-    var appState: AppState
-    @Bindable var browserState: BrowserState
-
     var body: some View {
+        @Bindable var browserState = browserState
         ScrollViewReader { proxy in
             List(selection: $browserState.selectedFolderIDs) {
                 if let rootFolder = browserState.rootFolder {

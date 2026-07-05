@@ -9,20 +9,16 @@ import SwiftUI
 import Combine
 
 struct SearchView: View {
-    var appState: AppState
-    var browserState: BrowserState
-    @Bindable var searchState: SearchState
+    @Environment(AppState.self) var appState
+    @Environment(BrowserState.self) var browserState
+    @Environment(SearchState.self) var searchState
 
     @State private var cancellables = Set<AnyCancellable>()
+
     @FocusState var isFocused: Bool
 
-    init(browserState: BrowserState) {
-        self.appState = browserState.appState
-        self.browserState = browserState
-        self.searchState = browserState.searchState
-    }
-
     var body: some View {
+        @Bindable var searchState = searchState
         VStack(alignment: .leading, spacing: 0) {
             HStack {
                 TextField("Search", text: $searchState.searchText)

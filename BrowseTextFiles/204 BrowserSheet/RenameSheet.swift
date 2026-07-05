@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct RenameSheet: View {
-    var appState: AppState
-    var browserState: BrowserState
+    @Environment(AppState.self) var appState
+    @Environment(BrowserState.self) var browserState
 
     @Environment(\.dismiss) private var dismiss
 

@@ -12,19 +12,17 @@ struct BrowserView: View {
     @Environment(\.openWindow) private var openWindow
     @Environment(\.dismissWindow) private var dismissWindow
 
+    @Environment(AppState.self) var appState
+
     @SceneStorage("rootURLData") private var sceneRootURLData: Data?
     @SceneStorage("fileURLData") private var sceneFileURLData: Data?
 
-    @State private var browserState: BrowserState
+    @State private var browserState = BrowserState()
     @State private var window: NSWindow?
     @State private var isShowBlank = false
     @State private var cancellables = Set<AnyCancellable>()
 
-    var appState: AppState
-
-    init(appState: AppState) {
-        self.appState = appState
-        self._browserState = State(initialValue: BrowserState(appState: appState))
+    init() {
         // 여기서 log 쓰면 무한 루프.
         printLog("init BrowserView: \(browserState.id)")
     }
@@ -34,13 +32,13 @@ struct BrowserView: View {
         VStack {
             if browserState.isRootReady {
                 NavigationSplitView {
-                    FolderTreeView(browserState: browserState)
+                    FolderTreeView()
                         .frame(minWidth: 200, maxHeight: .infinity)
                 } content: {
-                    FileListView(browserState: browserState)
+                    FileListView()
                         .frame(minWidth: 180, maxHeight: .infinity)
                 } detail: {
-                    EditorView(browserState: browserState)
+                    EditorView()
                         .frame(minWidth: 300, maxHeight: .infinity)
                         //.layoutPriority(1)
                 }
@@ -52,9 +50,8 @@ struct BrowserView: View {
                 Text("Loading...")
             }
         }
-        .background(WindowAccessor(onResolve: setupWindow))
         .navigationTitle(browserState.rootName ?? "Browser")
-        .focusedSceneValue(browserState)
+        .background(WindowAccessor(onResolve: setupWindow))
         .task {
             // 아직 SceneStorage 가 업데이트 안 되어 있다;
             // Task.yield() 로 한템포 쉬어준다;
@@ -64,11 +61,11 @@ struct BrowserView: View {
         }
         .sheet(
             isPresented: $browserState.isShowNewFileSheet,
-            content: { NewFileSheet(appState: appState, browserState: browserState) }
+            content: { NewFileSheet() }
         )
         .sheet(
             isPresented: $browserState.isShowRenameSheet,
-            content: { RenameSheet(appState: appState, browserState: browserState) }
+            content: { RenameSheet() }
         )
         .alert(
             "",
@@ -81,7 +78,14 @@ struct BrowserView: View {
             guard let first = ids.first else { return }
             saveFileURL(first)
         }
-        //.toolbar(removing: .title)
+        // .environment(browserState) 가 NewFileSheet 아래/바깥쪽에 있어야 NewFileSheet 에서 사용할 수 있다.
+        .environment(browserState)
+        .environment(browserState.alertState)
+        .environment(browserState.fileListState)
+        .environment(browserState.searchState)
+        .environment(browserState.historyState)
+        .environment(browserState.editorState)
+        .focusedSceneValue(browserState)
     }
 
     func initView() {

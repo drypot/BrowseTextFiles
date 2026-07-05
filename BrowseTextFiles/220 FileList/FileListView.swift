@@ -8,20 +8,14 @@
 import SwiftUI
 
 struct FileListView: View {
+    @Environment(AppState.self) var appState
+    @Environment(BrowserState.self) var browserState
+    @Environment(FileListState.self) var fileListState
+
     @Environment(\.openWindow) private var openWindow
-    @Environment(\.appearsActive) var appearsActive
-
-    var appState: AppState
-    var browserState: BrowserState
-    @Bindable var fileListState: FileListState
-
-    init(browserState: BrowserState) {
-        self.appState = browserState.appState
-        self.browserState = browserState
-        self.fileListState = browserState.fileListState
-    }
 
     var body: some View {
+        @Bindable var fileListState = fileListState
         ScrollViewReader { proxy in
             List(fileListState.fileList ?? [], selection: $fileListState.selectedFileIDs) { file in
                 NavigationLink(file.name, value: file.id)
@@ -53,7 +47,7 @@ struct FileListView: View {
             }
 
             Button("Open in New Window") {
-                fileListState.openNewBrowserWindow(openWindow: openWindow)
+                fileListState.openNewBrowserWindow(appState: appState, openWindow: openWindow)
             }
 
             Button("Rename") {

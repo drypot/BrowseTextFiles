@@ -42,18 +42,21 @@ final class BrowserState: Identifiable {
     var isShowNewFileSheet = false
     var isShowRenameSheet = false
 
-    @ObservationIgnored var appState: AppState
-
-    @ObservationIgnored lazy var alertState: AlertState = AlertState()
-    @ObservationIgnored lazy var searchState: SearchState = SearchState()
-    @ObservationIgnored lazy var historyState: HistoryState = HistoryState()
-    @ObservationIgnored lazy var editorState: EditorState = EditorState(alertState: alertState)
-    @ObservationIgnored lazy var fileListState: FileListState = FileListState(appState: appState, alertState: alertState)
+    @ObservationIgnored var alertState: AlertState
+    @ObservationIgnored var fileListState: FileListState
+    @ObservationIgnored var searchState: SearchState
+    @ObservationIgnored var historyState: HistoryState
+    @ObservationIgnored var editorState: EditorState
 
     // MARK: - Init / Release
 
-    init(appState: AppState) {
-        self.appState = appState
+    init() {
+        alertState = AlertState()
+        fileListState = FileListState(alertState: alertState)
+        searchState = SearchState()
+        historyState = HistoryState()
+        editorState = EditorState(alertState: alertState)
+
         // 여기서 log 쓰면 무한 루프.
         printLog("init BrowserState: \(id)")
     }

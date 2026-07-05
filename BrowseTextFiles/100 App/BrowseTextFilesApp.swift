@@ -12,11 +12,20 @@ struct BrowseTextFilesApp: App {
     @State private var appState = AppState()
 
     var body: some Scene {
-        BrowserWindow(appState: appState)
-        SearchWindow(appState: appState)
-        HistoryWindow(appState: appState)
-        SettingsWindow(appState: appState)
+        BrowserWindow()
+            .environment(appState)
+
+        SearchWindow()
+            .environment(appState)
+
+        HistoryWindow()
+            .environment(appState)
+
+        SettingsWindow()
+            .environment(appState)
+
         ConsoleWindow()
+
         AboutWindow()
     }
 }

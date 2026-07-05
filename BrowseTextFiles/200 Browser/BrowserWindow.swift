@@ -7,25 +7,10 @@
 
 import SwiftUI
 
-//struct BrowserInitParam: Hashable, Codable {
-//    // 동일 폴더를 두 창에서 열려면 id 로 구분해야 한다.
-//    let id: UUID
-//    let rootURL: URL?
-//    let fileURL: URL?
-//
-//    // Codable 해야 해서 init 를 번잡스럽게 만들어 준다.
-//    init(id: UUID = UUID(), rootURL: URL? = nil, fileURL: URL? = nil) {
-//        self.id = id
-//        self.rootURL = rootURL
-//        self.fileURL = fileURL
-//    }
-//}
-
 struct BrowserWindow: Scene {
-    var appState: AppState
+    @Environment(AppState.self) var appState
 
-    init(appState: AppState) {
-        self.appState = appState
+    init() {
         printLog("init BrowserWindow")
     }
 
@@ -52,7 +37,7 @@ struct BrowserWindow: Scene {
         //let _ = print("WindowGroup(Browser)")
         WindowGroup("Browser", id: "browser") {
             //let _ = print("--- BrowserView(appState)")
-            BrowserView(appState: appState)
+            BrowserView()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             // 외부에서 file url 을 받았을 경우 folder 에 대한 권한이 없어서 원만히 작동하기가 힘들다.
@@ -77,13 +62,15 @@ struct BrowserWindow: Scene {
         }
         .commands {
             TextEditingCommands()
-            BrowserCommands(appState: appState)
+            BrowserCommands()
         }
     }
 
 }
 
 struct BrowserCommands: Commands {
+    @Environment(AppState.self) var appState
+
     @Environment(\.openWindow) private var openWindow
     @Environment(\.dismissWindow) private var dismissWindow
 
@@ -91,8 +78,6 @@ struct BrowserCommands: Commands {
     // @FocusedValue 가 업데이트되면 하위 트리를 모두 새로 만드는 것 같다.
     // 트리 재구성 영역을 줄이기 위해 Commands 코드들을 BrowserCommands struct 로 분리하였다.
     @FocusedValue(BrowserState.self) private var browserState: BrowserState?
-
-    var appState: AppState
 
     var body: some Commands {
         CommandGroup(replacing: .newItem) {

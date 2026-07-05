@@ -9,18 +9,12 @@ import SwiftUI
 import Combine
 
 struct HistoryView: View {
-    var appState: AppState
-    var browserState: BrowserState
-    var historyState: HistoryState
+    @Environment(AppState.self) var appState
+    @Environment(BrowserState.self) var browserState
+    @Environment(HistoryState.self) var historyState
 
     @State private var cancellables = Set<AnyCancellable>()
 
-    init(browserState: BrowserState) {
-        self.appState = browserState.appState
-        self.browserState = browserState
-        self.historyState = browserState.historyState
-    }
-    
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
