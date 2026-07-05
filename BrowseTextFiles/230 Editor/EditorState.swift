@@ -10,10 +10,12 @@ import UniformTypeIdentifiers
 
 @Observable
 final class EditorState {
-    private(set) var containsFile: Bool = false
-
     private(set) var editingFileURL: URL?
     private(set) var editingFilename: String?
+
+    var fileAssigned: Bool {
+        editingFileURL != nil
+    }
 
     private(set) var originalText: String = ""
     var shouldCopyOriginalText = false
@@ -54,12 +56,11 @@ final class EditorState {
     }
 
     func reset() {
-        guard containsFile else { return }
+        guard fileAssigned else { return }
 
         consoleLog("reset editor:")
         editingFileURL = nil
         editingFilename = nil
-        containsFile = false
         originalText = ""
         shouldCopyOriginalText = false
         loadingError = nil
@@ -88,7 +89,6 @@ final class EditorState {
         do {
             originalText = try String(contentsOf: editingFileURL, encoding: .utf8)
             shouldCopyOriginalText = true
-            containsFile = true
             startFileMonitoring()
         } catch {
             let message = error.localizedDescription
@@ -111,7 +111,7 @@ final class EditorState {
     }
 
     func closeFile() -> Bool {
-        guard containsFile else { return true }
+        guard fileAssigned else { return true }
         guard autoSaveFile() else { return false }
         consoleLog("close: \(editingFilename ?? "")")
         reset()
@@ -130,7 +130,7 @@ final class EditorState {
     }
 
     func autoSaveFile() -> Bool {
-        guard containsFile else { return true }
+        guard fileAssigned else { return true }
         guard isTextViewEdited else { return true }
         guard !hasLoadingError else { return true }
         guard !hasSavingError else { return true }
@@ -139,7 +139,7 @@ final class EditorState {
     }
 
     func saveFile() {
-        guard containsFile else { return }
+        guard fileAssigned else { return }
         guard let editingFileURL else { return }
         guard !hasLoadingError else { return }
         guard let text = textView?.string else { return }

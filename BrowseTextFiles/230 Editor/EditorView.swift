@@ -22,7 +22,7 @@ struct EditorView: View {
         VStack {
             if let loadingError = editorState.loadingError {
                 errorMessageView(message: loadingError)
-            } else if editorState.containsFile {
+            } else if editorState.fileAssigned {
                 textEditorView()
                     .ignoresSafeArea()
             }
