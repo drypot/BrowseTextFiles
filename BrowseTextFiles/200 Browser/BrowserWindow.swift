@@ -87,12 +87,13 @@ struct BrowserCommands: Commands {
             .keyboardShortcut("n", modifiers: [.command, .control])
 
             Button("New File", systemImage: "text.document") {
-                browserState?.makeNewFile()
+                browserState?.newFileState.makeNewFile()
             }
             .keyboardShortcut("n", modifiers: [.command])
 
             Button("New File...", systemImage: "text.document") {
-                browserState?.showNewFileSheet()
+                guard let folderURL = browserState?.fileListState.folderURL else { return }
+                browserState?.newFileState.showNewFileSheet(for: folderURL)
             }
             .keyboardShortcut("n", modifiers: [.command, .option])
 

@@ -36,7 +36,7 @@ final class BrowserState: Identifiable {
 
     var workingRelativePath: String?
 
-    var isShowNewFileSheet = false
+
 
     @ObservationIgnored var alertState: AlertState
     @ObservationIgnored var newFileState: NewFileState

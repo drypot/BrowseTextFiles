@@ -60,7 +60,7 @@ struct BrowserView: View {
             initView()
         }
         .sheet(
-            isPresented: $browserState.isShowNewFileSheet,
+            isPresented: $browserState.newFileState.isNewFileSheetPresented,
             content: { NewFileSheet() }
         )
         .sheet(

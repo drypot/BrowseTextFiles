@@ -50,12 +50,13 @@ struct EditorView: View {
 
             ToolbarItemGroup(placement: .secondaryAction) {
                 Button("New File", systemImage: "square.and.pencil") {
-                    browserState.makeNewFile()
+                    browserState.newFileState.makeNewFile()
                 }
                 .help("New File")
 
                 Button("New File...", systemImage: "bubble.and.pencil") {
-                    browserState.showNewFileSheet()
+                    guard let folderURL = browserState.fileListState.folderURL else { return }
+                    browserState.newFileState.showNewFileSheet(for: folderURL)
                 }
                 .help("New File...")
 

@@ -38,11 +38,12 @@ struct FolderTreeView: View {
         .onKeyPress(phases: .down, action: handleKeyPress)
         .contextMenu {
             Button("New File") {
-                browserState.makeNewFile()
+                browserState.newFileState.makeNewFile()
             }
 
             Button("New File...") {
-                browserState.showNewFileSheet()
+                guard let folderURL = browserState.fileListState.folderURL else { return }
+                browserState.newFileState.showNewFileSheet(for: folderURL)
             }
 
             Button("New Folder") {
@@ -185,11 +186,11 @@ fileprivate struct RowView: View {
         )
         .contextMenu {
             Button("New File") {
-                browserState.makeNewFile()
+                browserState.newFileState.makeNewFile()
             }
 
             Button("New File...") {
-                browserState.showNewFileSheet(for: item)
+                browserState.newFileState.showNewFileSheet(for: item.url)
             }
 
             Button("New Folder") {
