@@ -19,33 +19,32 @@ struct RenameSheet: View {
 
     var body: some View {
         Form {
-            Section {
-                LabeledContent("Rename") {
-                    Text(orgName)
-                }
-                TextField("to", text: $newName, selection: $selection)
-                    .textFieldStyle(.roundedBorder)
-                    .padding(.bottom)
-                    .focused($isFocused)
-                    .onChange(of: isFocused) { _, isFocused in
-                        if isFocused {
-                            selectNameWithoutExtension()
-                        }
-                    }
-            } footer: {
-                HStack {
-                    Button("Cancel") {
-                        dismiss()
-                    }
-                    .keyboardShortcut(.escape)
+            LabeledContent("Rename") {
+                Text(orgName)
+            }
 
-                    Button("OK") {
-                        submit()
-                        dismiss()
+            TextField("to", text: $newName, selection: $selection)
+                .textFieldStyle(.roundedBorder)
+                .padding(.bottom)
+                .focused($isFocused)
+                .onChange(of: isFocused) { _, isFocused in
+                    if isFocused {
+                        selectNameWithoutExtension()
                     }
-                    .buttonStyle(.borderedProminent)
-                    .keyboardShortcut(.defaultAction)
                 }
+
+            HStack {
+                Button("Cancel") {
+                    dismiss()
+                }
+                .keyboardShortcut(.escape)
+
+                Button("OK") {
+                    submit()
+                    dismiss()
+                }
+                .buttonStyle(.borderedProminent)
+                .keyboardShortcut(.defaultAction)
             }
         }
         .formStyle(.columns)
