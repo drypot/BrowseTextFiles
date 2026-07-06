@@ -11,6 +11,7 @@ import Combine
 struct HistoryView: View {
     @Environment(AppState.self) var appState
     @Environment(BrowserState.self) var browserState
+    @Environment(RootState.self) var rootState
     @Environment(HistoryState.self) var historyState
 
     @State private var cancellables = Set<AnyCancellable>()
@@ -28,7 +29,7 @@ struct HistoryView: View {
 
             Divider()
 
-            if !historyState.history.isEmpty, let rootComponents = browserState.rootPathComponents {
+            if !historyState.history.isEmpty, let rootComponents = rootState.rootPathComponents {
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 8) {
                         ForEach(historyState.history) { historyItem in
@@ -49,7 +50,7 @@ struct HistoryView: View {
             }
         }
         .background(WindowAccessor(onResolve: setupWindow))
-        .navigationTitle("History: \(browserState.rootName ?? "")")
+        .navigationTitle("History: \(rootState.rootName ?? "")")
         .focusedSceneValue(browserState)
     }
     

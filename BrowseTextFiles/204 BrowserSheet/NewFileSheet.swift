@@ -9,7 +9,7 @@ import SwiftUI
 
 struct NewFileSheet: View {
     @Environment(AppState.self) var appState
-    @Environment(BrowserState.self) var browserState
+    @Environment(NewFileState.self) var newFileState
 
     @Environment(\.dismiss) private var dismiss
 
@@ -89,7 +89,7 @@ struct NewFileSheet: View {
     }
 
     func submit() {
-        browserState.newFileState.makeNewFile(with: newFilePath)
+        newFileState.makeNewFile(with: newFilePath)
     }
 
     func updateNewFilePath() {
@@ -117,7 +117,7 @@ struct NewFileSheet: View {
         let minute = components.minute ?? 0
         let second = components.second ?? 0
         let weekday = components.weekday ?? 0
-        let relativeFolderPath = browserState.workingRelativePath ?? ""
+        let relativeFolderPath = newFileState.relativePath ?? ""
         return template
             .replacingOccurrences(of: "{year}", with: year.formatted(.number.grouping(.never).precision(.integerLength(4))))
             .replacingOccurrences(of: "{month}", with: month.formatted(.number.precision(.integerLength(2))))

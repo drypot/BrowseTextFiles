@@ -51,13 +51,13 @@ struct FolderTreeView: View {
             }
 
             Button("Show in Finder") {
-                if let rootURL = browserState.rootURL {
+                if let rootURL = browserState.rootState.rootURL {
                     Finder.shared.open(url: rootURL)
                 }
             }
 
             Button("Open in New Window") {
-                if let rootURL = browserState.rootURL {
+                if let rootURL = browserState.rootState.rootURL {
                     appState.openNewBrowserWindow(fromRootURL: rootURL, fileURL: nil, openWindow: openWindow)
                 }
             }

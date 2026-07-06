@@ -11,9 +11,9 @@ extension BrowserState {
     // MARK: - Folder Tree
 
     func loadFolderTree(preserveSelection: Bool = true) {
-        consoleLog("load tree: \(rootURL?.path(percentEncoded: false) ?? "nil")")
+        consoleLog("load tree: \(rootState.rootURL?.path(percentEncoded: false) ?? "nil")")
 
-        guard let rootURL else { return }
+        guard let rootURL = rootState.rootURL else { return }
 
         let selectedFolderURL = selectedFolder?.url
 
@@ -207,7 +207,7 @@ extension BrowserState {
     }
 
     func expandFolders(for url: URL) {
-        guard let rootURL else { return }
+        guard let rootURL = rootState.rootURL else { return }
         let rootCount = rootURL.pathComponents.count
         let urlCount = url.pathComponents.count
         let count = urlCount - rootCount

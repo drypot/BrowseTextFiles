@@ -24,13 +24,14 @@ struct BrowserView: View {
 
     init() {
         // 여기서 log 쓰면 무한 루프.
-        printLog("init BrowserView: \(browserState.id)")
+        printLog("init browser view: \(browserState.id)")
     }
 
     var body: some View {
+        let rootState = browserState.rootState
         //Text("browserState.id: \(browserState.id)")
         VStack {
-            if browserState.isRootReady {
+            if rootState.isReady {
                 NavigationSplitView {
                     FolderTreeView()
                         .frame(minWidth: 200, maxHeight: .infinity)
@@ -50,7 +51,7 @@ struct BrowserView: View {
                 Text("Loading...")
             }
         }
-        .navigationTitle(browserState.rootName ?? "Browser")
+        .navigationTitle(rootState.rootName ?? "Browser")
         .background(WindowAccessor(onResolve: setupWindow))
         .task {
             // 아직 SceneStorage 가 업데이트 안 되어 있다;
@@ -80,6 +81,7 @@ struct BrowserView: View {
         }
         // .environment(browserState) 가 NewFileSheet 아래/바깥쪽에 있어야 NewFileSheet 에서 사용할 수 있다.
         .environment(browserState)
+        .environment(browserState.rootState)
         .environment(browserState.alertState)
         .environment(browserState.newFileState)
         .environment(browserState.renameState)
@@ -182,7 +184,7 @@ struct BrowserView: View {
         NotificationCenter.default
             .publisher(for: NSWindow.didResignMainNotification, object: window)
             .sink { _ in
-                consoleLog("resign main window: \(browserState.rootName ?? "nil")")
+                consoleLog("resign main window: \(browserState.rootState.rootName ?? "nil")")
                 _ = browserState.editorState.autoSaveFile()
             }
             .store(in: &cancellables)

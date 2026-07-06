@@ -12,13 +12,6 @@ import UniformTypeIdentifiers
 final class BrowserState: Identifiable {
     let id = UUID()
 
-    var rootURL: URL?
-    var rootName: String?
-    var rootPathComponents: [String]?
-    var shouldReleaseSecurityScopedResource = false
-
-    //var rootWatcher: FolderWatcher?
-
     var rootFolder: FolderState?
     var rootFolderRefreshID = UUID()
 
@@ -28,16 +21,7 @@ final class BrowserState: Identifiable {
     var selectedFolderID: FolderState.ID?
     var selectedFolder: FolderState?
 
-    var workingFolderID: FolderState.ID?
-    var workingFolder: FolderState?
-
-    var workingFileID: FileState.ID?
-    var workingFile: FileState?
-
-    var workingRelativePath: String?
-
-
-
+    @ObservationIgnored var rootState: RootState
     @ObservationIgnored var alertState: AlertState
     @ObservationIgnored var newFileState: NewFileState
     @ObservationIgnored var renameState: RenameState
@@ -49,6 +33,7 @@ final class BrowserState: Identifiable {
     // MARK: - Init / Release
 
     init() {
+        rootState = RootState()
         alertState = AlertState()
         newFileState = NewFileState(alertState: alertState)
         renameState = RenameState(alertState: alertState)
@@ -58,21 +43,13 @@ final class BrowserState: Identifiable {
         editorState = EditorState(alertState: alertState)
 
         // 여기서 log 쓰면 무한 루프.
-        printLog("init BrowserState: \(id)")
+        printLog("init browser state: \(id)")
     }
 
     func initState(with rootURL: URL, fileURL: URL?) {
         consoleLog("init root: \(rootURL.path(percentEncoded: false))")
 
-        self.rootURL = rootURL
-        rootName = rootURL.lastPathComponent
-        rootPathComponents = rootURL.pathComponents
-        shouldReleaseSecurityScopedResource = rootURL.startAccessingSecurityScopedResource()
-
-        //rootWatcher = FolderWatcher()
-        //rootWatcher?.startWatching(url) {
-        //    print("root watcher: changed")
-        //}
+        rootState.configure(with: rootURL)
 
         loadFolderTree(preserveSelection: false)
         if alertState.hasMessage { return }
@@ -86,20 +63,8 @@ final class BrowserState: Identifiable {
     }
 
     func releaseResource() {
-        consoleLog("release browser resource:")
-
-        guard let rootURL else { return }
-        if shouldReleaseSecurityScopedResource {
-            rootURL.stopAccessingSecurityScopedResource()
-            shouldReleaseSecurityScopedResource = false
-        }
-        //rootWatcher?.stopWatching()
-    }
-
-    // MARK: - Root
-
-    var isRootReady: Bool {
-        rootFolder != nil
+        consoleLog("release resource:")
+        rootState.releaseResource()
     }
 
     // MARK: - Update All

@@ -11,6 +11,7 @@ import Combine
 struct SearchView: View {
     @Environment(AppState.self) var appState
     @Environment(BrowserState.self) var browserState
+    @Environment(RootState.self) var rootState
     @Environment(SearchState.self) var searchState
 
     @State private var cancellables = Set<AnyCancellable>()
@@ -72,12 +73,12 @@ struct SearchView: View {
             }
         }
         .background(WindowAccessor(onResolve: setupWindow))
-        .navigationTitle("Search: \(browserState.rootName ?? "")")
+        .navigationTitle("Search: \(rootState.rootName ?? "")")
         .focusedSceneValue(browserState)
     }
 
     func startSearch() {
-        guard let rootURL = browserState.rootURL else { return }
+        guard let rootURL = rootState.rootURL else { return }
         searchState.startSearch(rootURL: rootURL, alertState: browserState.alertState)
     }
 
