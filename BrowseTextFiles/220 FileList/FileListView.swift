@@ -33,12 +33,11 @@ struct FileListView: View {
         .onKeyPress(phases: .down, action: handleKeyPress)
         .contextMenu(forSelectionType: FileState.ID.self) { selection in
             Button("New File") {
-                browserState.newFileState.makeNewFile()
+                browserState.makeNewFile()
             }
 
             Button("New File...") {
-                guard let folderURL = browserState.fileListState.folderURL else { return }
-                browserState.newFileState.showNewFileSheet(for: folderURL)
+                browserState.showNewFileSheet()
             }
 
             Button("New Folder") {

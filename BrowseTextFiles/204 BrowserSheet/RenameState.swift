@@ -14,10 +14,10 @@ final class RenameState {
     private(set) var renamingURL: URL?
     private(set) var isFolder: Bool = true
     private var onComplete: CompletionHandler?
+
     var isRenameSheetPresented = false
 
-    @ObservationIgnored
-    private(set) var alertState: AlertState
+    @ObservationIgnored private(set) var alertState: AlertState
 
     init(alertState: AlertState) {
         self.alertState = alertState

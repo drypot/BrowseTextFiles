@@ -16,6 +16,8 @@ struct HistoryWindow: Scene {
                 HistoryView()
                     .frame(minWidth: 320, minHeight: 200)
                     .environment(browserState)
+                    .environment(browserState.rootState)
+                    .environment(browserState.historyState)
             }
         }
         .restorationBehavior(.disabled)

@@ -9,65 +9,71 @@ import SwiftUI
 
 @Observable
 final class NewFileState {
+    typealias CompletionHandler = (URL?, URL) -> Void
+
     private(set) var relativePath: String?
+    private var onComplete: CompletionHandler?
+
     var isNewFileSheetPresented = false
 
-    @ObservationIgnored
-    private(set) var alertState: AlertState
+    @ObservationIgnored private var rootState: RootState
+    @ObservationIgnored private var alertState: AlertState
 
-    init(alertState: AlertState) {
+    init(rootState: RootState, alertState: AlertState) {
+        self.rootState = rootState
         self.alertState = alertState
     }
 
-    func showNewFileSheet(for folderURL: URL) {
-//        guard let relativePath = folderURL.relativePath(from: rootURL) else { return }
-//        self.relativePath = relativePath
-//        isNewFileSheetPresented = true
+    func showNewFileSheet(for folderURL: URL, onComplete: @escaping CompletionHandler) {
+        guard let rootURL = rootState.rootURL else { return }
+        guard let relativePath = folderURL.relativePath(from: rootURL) else { return }
+        self.relativePath = relativePath
+        self.onComplete = onComplete
+        self.isNewFileSheetPresented = true
     }
 
     func makeNewFile(with newFilePath: String) {
-//        do {
-//            guard let rootURL else { return }
-//            let fileManager = FileManager.default
-//            let newFileURL = rootURL.appending(path: newFilePath).standardizedFileURL
-//            if !fileManager.fileExists(atPath: newFileURL.path) {
-//                let folderURL = newFileURL.deletingLastPathComponent()
-//                if !fileManager.fileExists(atPath: folderURL.path) {
-//                    try fileManager.createDirectory(at: folderURL, withIntermediateDirectories: true, attributes: nil)
-//                    loadFolderTree()
-//                }
-//                consoleLog("new file: \(newFileURL.path)")
-//                try "".write(to: newFileURL, atomically: true, encoding: .utf8)
-//            }
-//            locateFile(with: newFileURL)
-//        } catch {
-//            let message = error.localizedDescription
-//            alertState.showAlert(message)
-//            consoleLog("new file: \(message)")
-//        }
+        guard let rootURL = rootState.rootURL else { return }
+        let fileManager = FileManager.default
+        let newFileURL = rootURL.appending(path: newFilePath).standardizedFileURL
+        var newFolderURL: URL? = nil
+        do {
+            if !fileManager.fileExists(atPath: newFileURL.path(percentEncoded: false)) {
+                let folderURL = newFileURL.deletingLastPathComponent()
+                if !fileManager.fileExists(atPath: folderURL.path(percentEncoded: false)) {
+                    try fileManager.createDirectory(at: folderURL, withIntermediateDirectories: true, attributes: nil)
+                    newFolderURL = folderURL
+                }
+                consoleLog("new file: \(newFileURL.path(percentEncoded: false))")
+                try "".write(to: newFileURL, atomically: true, encoding: .utf8)
+            }
+            onComplete?(newFolderURL, newFileURL)
+        } catch {
+            let message = error.localizedDescription
+            alertState.showAlert(message)
+            consoleLog("new file: \(message)")
+        }
     }
 
-    func makeNewFile(in folderURL: URL? = nil) {
-//        let folderURL = folderURL ?? selectedFolder?.url
-//        guard let folderURL else { return }
-//        let fileManager = FileManager.default
-//        var newFileURL = folderURL.appending(path: "Untitled.md", directoryHint: .notDirectory)
-//        var counter = 1
-//
-//        while fileManager.fileExists(atPath: newFileURL.path), counter < 100 {
-//            let newName = "Untitled \(counter).md"
-//            newFileURL = folderURL.appending(path: newName, directoryHint: .notDirectory)
-//            counter += 1
-//        }
-//
-//        do {
-//            consoleLog("new file: \(newFileURL.path)")
-//            try "".write(to: newFileURL, atomically: true, encoding: .utf8)
-//            locateFile(with: newFileURL)
-//        } catch {
-//            let message = error.localizedDescription
-//            alertState.showAlert(message)
-//            consoleLog("new file: \(message)")
-//        }
+    func makeNewFile(in folderURL: URL, onComplete: @escaping (URL) -> Void) {
+        let fileManager = FileManager.default
+        var newFileURL = folderURL.appending(path: "Untitled.md", directoryHint: .notDirectory)
+        var counter = 1
+
+        while fileManager.fileExists(atPath: newFileURL.path(percentEncoded: false)), counter < 100 {
+            let newName = "Untitled \(counter).md"
+            newFileURL = folderURL.appending(path: newName, directoryHint: .notDirectory)
+            counter += 1
+        }
+
+        do {
+            consoleLog("new file: \(newFileURL.path(percentEncoded: false))")
+            try "".write(to: newFileURL, atomically: true, encoding: .utf8)
+            onComplete(newFileURL)
+        } catch {
+            let message = error.localizedDescription
+            alertState.showAlert(message)
+            consoleLog("new file: \(message)")
+        }
     }
 }

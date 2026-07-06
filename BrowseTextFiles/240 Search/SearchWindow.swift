@@ -16,6 +16,8 @@ struct SearchWindow: Scene {
                 SearchView()
                     .frame(minWidth: 320, minHeight: 200)
                     .environment(browserState)
+                    .environment(browserState.rootState)
+                    .environment(browserState.searchState)
             }
         }
         .restorationBehavior(.disabled)

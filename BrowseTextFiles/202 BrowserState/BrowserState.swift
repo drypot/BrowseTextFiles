@@ -35,7 +35,7 @@ final class BrowserState: Identifiable {
     init() {
         rootState = RootState()
         alertState = AlertState()
-        newFileState = NewFileState(alertState: alertState)
+        newFileState = NewFileState(rootState: rootState, alertState: alertState)
         renameState = RenameState(alertState: alertState)
         fileListState = FileListState(alertState: alertState)
         searchState = SearchState()
@@ -55,7 +55,7 @@ final class BrowserState: Identifiable {
         if alertState.hasMessage { return }
 
         if let fileURL {
-            locateFile(with: fileURL)
+            loadFile(at: fileURL)
         } else {
             selectFolder(rootFolder)
             fileListState.loadFileList(at: selectedFolder?.url)
@@ -80,26 +80,46 @@ final class BrowserState: Identifiable {
         if alertState.hasMessage { return }
 
         if let fileURL {
-            locateFile(with: fileURL)
+            loadFile(at: fileURL)
         }
     }
 
-    func locateFile(with fileURL: URL) {
-        consoleLog("locate file: \(fileURL.path(percentEncoded: false))")
-
-        guard editorState.closeFile() else { return }
-
+    func loadFile(at fileURL: URL) {
         let folderURL = fileURL.deletingLastPathComponent()
 
         selectFolder(with: folderURL)
-        fileListState.loadFileList(at: selectedFolder?.url)
+        expandFolders(for: folderURL)
         if alertState.hasMessage { return }
 
-        guard fileListState.fileList != nil else { return }
-
-        expandFolders(for: folderURL)
+        fileListState.loadFileList(at: folderURL)
         fileListState.selectFile(with: fileURL)
-        //editorState.loadFile(at: fileURL)
+        if alertState.hasMessage { return }
     }
 
+    // MARK: - New File
+
+    func makeNewFile(in folderURL: URL) {
+        newFileState.makeNewFile(in: folderURL) { newFileURL in
+            self.loadFile(at: newFileURL)
+        }
+    }
+
+    func makeNewFile() {
+        guard let folderURL = fileListState.folderURL else { return }
+        makeNewFile(in: folderURL)
+    }
+
+    func showNewFileSheet(for folderURL: URL) {
+        newFileState.showNewFileSheet(for: folderURL) { newFolderURL, newFileURL in
+            if newFolderURL != nil {
+                self.loadFolderTree()
+            }
+            self.loadFile(at: newFileURL)
+        }
+    }
+
+    func showNewFileSheet() {
+        guard let folderURL = fileListState.folderURL else { return }
+        showNewFileSheet(for: folderURL)
+    }
 }

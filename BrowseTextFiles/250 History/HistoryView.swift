@@ -35,7 +35,7 @@ struct HistoryView: View {
                         ForEach(historyState.history) { historyItem in
                             let path = historyItem.relativePath(from: rootComponents)
                             Button(path) {
-                                browserState.locateFile(with: historyItem.url)
+                                browserState.loadFile(at: historyItem.url)
                             }
                         }
                         .buttonStyle(.plain)
