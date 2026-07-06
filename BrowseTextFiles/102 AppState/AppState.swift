@@ -88,8 +88,8 @@ class AppState {
     var recentDocumentURLs: [URL]
 
     @ObservationIgnored private let newFileTemplateDefaults = [
-        "{selected-folder}/Untitled.txt",
-        "{year}/{month}/{year}-{month}-{day}-{weekday-short}.txt",
+        "{selected-folder}/Untitled.md",
+        "{year}/{month}/{year}-{month}-{day}-{weekday-short}.md",
     ]
 
     init() {

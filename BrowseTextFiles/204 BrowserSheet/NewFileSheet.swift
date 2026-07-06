@@ -7,90 +7,84 @@
 
 import SwiftUI
 
-fileprivate struct OptionItem: Identifiable {
-    let id = UUID()
-    var title: String
-    var isSelected: Bool = false
-}
-
 struct NewFileSheet: View {
     @Environment(AppState.self) var appState
     @Environment(BrowserState.self) var browserState
 
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var newFilePath = ""
 
     var body: some View {
-        @Bindable var appState = appState
-        VStack(alignment: .leading, spacing: 0) {
-            Text("New File")
-                .font(.headline)
+        VStack(alignment: .leading) {
+            formView
+            buttonsView
                 .padding()
-            Form {
-                Section(header: Text("Relative path from the root")) {
-                    TextField("", text: $newFilePath)
-                        .frame(maxWidth: .infinity)
-                        .labelsHidden()
-                        .textFieldStyle(.roundedBorder)
-                }
-                Section(header: Text("Templates")) {
-                    let range = 0 ..< appState.newFileTemplates.count
-                    ForEach(range, id: \.self) { index in
-                        HStack {
-                            let selected = appState.newFileTemplateIndex == index
-                            Image(systemName: selected ? "largecircle.fill.circle" : "circle")
-                                .foregroundColor(.accentColor)
-                                .onTapGesture {
-                                    appState.newFileTemplateIndex = index
-                                    updateNewFilePath()
-                                }
-                            TextField("", text: $appState.newFileTemplates[index])
-                                .frame(maxWidth: .infinity)
-                                .labelsHidden()
-                                .textFieldStyle(.roundedBorder)
-                                .onChange(of: appState.newFileTemplates[index]) {
-                                    if selected {
-                                        updateNewFilePath()
-                                    }
-                                }
-
-                        }
-                    }
-                }
-                Section(header: Text("Expressions")) {
-                    Text(expressionExamples())
-                        .textSelection(.enabled)
-                }
-            }
-            .formStyle(.grouped)
-
-            HStack {
-                Button("Reset templates to defaults") {
-                    appState.resetNewFileTemplatesToDefaults()
-                }
-                Spacer()
-                Button("Cancel") {
-                    dismiss()
-                }
-                .keyboardShortcut(.escape)
-
-                Button("OK") {
-                    submit()
-                    dismiss()
-                }
-                .buttonStyle(.borderedProminent)
-                .keyboardShortcut(.defaultAction)
-            }
-            .padding()
         }
-        .frame(width: 700, height: 600)
-        .onAppear {
-            loadSheet()
+        .frame(width: 700 /*, height: 600*/)
+        .task {
+            initSheet()
         }
     }
 
-    func loadSheet() {
+    var formView: some View {
+        Form {
+            @Bindable var appState = appState
+
+            Section("New File") {
+                TextField("New File", text: $newFilePath)
+                    .labelsHidden()
+                    .textFieldStyle(.roundedBorder)
+            }
+
+            Section("Filename Templates") {
+                Picker("Filename Templates", selection: $appState.newFileTemplateIndex) {
+                    let range = 0 ..< appState.newFileTemplates.count
+                    ForEach(range, id: \.self) { index in
+                        TextField("", text: $appState.newFileTemplates[index])
+                            .frame(maxWidth: .infinity)
+                            .labelsHidden()
+                            .textFieldStyle(.roundedBorder)
+                            .tag(index)
+                    }
+                }
+                .pickerStyle(.radioGroup)
+                .labelsHidden()
+                .onChange(of: appState.newFileTemplateIndex, initial: true) {
+                    updateNewFilePath()
+                }
+            }
+
+            Section("Expressions") {
+                Text(expressionExamples())
+                    .textSelection(.enabled)
+            }
+        }
+        .formStyle(.grouped)
+    }
+
+    var buttonsView: some View {
+        HStack {
+            Button("Reset templates to defaults") {
+                appState.resetNewFileTemplatesToDefaults()
+            }
+            Spacer()
+
+            Button("Cancel") {
+                dismiss()
+            }
+            .keyboardShortcut(.escape)
+
+            Button("OK") {
+                submit()
+                dismiss()
+            }
+            .buttonStyle(.borderedProminent)
+            .keyboardShortcut(.defaultAction)
+        }
+    }
+
+    func initSheet() {
         updateNewFilePath()
     }
 
@@ -138,5 +132,5 @@ struct NewFileSheet: View {
 }
 
 #Preview {
-//    NewFileSheet()
+    //    NewFileSheet()
 }

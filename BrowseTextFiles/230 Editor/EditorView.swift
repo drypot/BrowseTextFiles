@@ -41,12 +41,14 @@ struct EditorView: View {
             //     .help("다음 항목으로 이동")
             // }
 
-            ToolbarItemGroup(placement: .secondaryAction) {
+            ToolbarItemGroup(placement: .navigation) {
                 Button("Reload", systemImage: "arrow.clockwise") {
                     browserState.reloadAll()
                 }
                 .help("Reload")
+            }
 
+            ToolbarItemGroup(placement: .secondaryAction) {
                 Button("New File", systemImage: "square.and.pencil") {
                     browserState.makeNewFile()
                 }

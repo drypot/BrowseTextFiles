@@ -42,11 +42,11 @@ extension BrowserState {
         let folderURL = folderURL ?? selectedFolder?.url
         guard let folderURL else { return }
         let fileManager = FileManager.default
-        var newFileURL = folderURL.appending(path: "Untitled.txt", directoryHint: .notDirectory)
+        var newFileURL = folderURL.appending(path: "Untitled.md", directoryHint: .notDirectory)
         var counter = 1
 
         while fileManager.fileExists(atPath: newFileURL.path), counter < 100 {
-            let newName = "Untitled \(counter).txt"
+            let newName = "Untitled \(counter).md"
             newFileURL = folderURL.appending(path: newName, directoryHint: .notDirectory)
             counter += 1
         }
