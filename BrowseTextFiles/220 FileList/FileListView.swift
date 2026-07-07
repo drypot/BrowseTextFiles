@@ -45,16 +45,16 @@ struct FileListView: View {
                 browserState.showNewFileSheet()
             }
 
-            Button("New Folder") {
-                browserState.makeNewFolder()
-            }
+            if selection.count == 1 {
+                Button("Show in Finder") {
+                    guard let url = selection.first else { return }
+                    Finder.shared.open(url: url)
+                }
 
-            Button("Show in Finder") {
-                browserState.openFinder()
-            }
-
-            Button("Open in New Window") {
-                fileListState.openNewBrowserWindow(appState: appState, openWindow: openWindow)
+                Button("Open in New Window") {
+                    guard let url = selection.first else { return }
+                    appState.openNewBrowserWindow(fromFileURL: url, openWindow: openWindow)
+                }
             }
 
             Divider()
@@ -74,7 +74,6 @@ struct FileListView: View {
     func handleKeyPress(_ press: KeyPress) -> KeyPress.Result {
         switch press.key {
         case .tab:
-            //focusedViewBinding?.wrappedValue = .textEditor
             browserState.editorState.shouldFocusedCount += 1
 
         case .return:

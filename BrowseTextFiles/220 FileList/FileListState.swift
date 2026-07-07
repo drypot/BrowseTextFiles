@@ -55,12 +55,6 @@ final class FileListState {
         }
     }
 
-    func openNewBrowserWindow(appState: AppState, openWindow: OpenWindowAction) {
-        if let url = selectedFileIDs.first {
-            appState.openNewBrowserWindow(fromFileURL: url, openWindow: openWindow)
-        }
-    }
-
     func trashFiles(selection: Set<FileState.ID>) {
         selectedFileIDs.subtract(selection)
         fileList?.removeAll(where: { selection.contains($0.id) })

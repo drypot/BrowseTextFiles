@@ -44,14 +44,14 @@ final class BrowserState: Identifiable {
 
         rootState.configure(with: rootURL)
 
-        loadFolderTree(preserveSelection: false)
+        folderTreeState.loadFolderTree(preserveSelection: false)
         if alertState.hasMessage { return }
 
         if let fileURL {
             loadFile(at: fileURL)
         } else {
-            selectFolder(rootFolder)
-            fileListState.loadFileList(at: selectedFolder?.url)
+            //folderTreeState.selectFolder(rootFolder)
+            //fileListState.loadFileList(at: selectedFolder?.url)
         }
     }
 
@@ -65,11 +65,9 @@ final class BrowserState: Identifiable {
     func reloadAll() {
         consoleLog("reload all:")
 
-        guard editorState.autoSaveFile() else { return }
-
         let fileURL = editorState.editingFileURL
 
-        loadFolderTree()
+        folderTreeState.loadFolderTree()
         if alertState.hasMessage { return }
 
         if let fileURL {
@@ -80,8 +78,8 @@ final class BrowserState: Identifiable {
     func loadFile(at fileURL: URL) {
         let folderURL = fileURL.deletingLastPathComponent()
 
-        selectFolder(with: folderURL)
-        expandFolders(for: folderURL)
+        folderTreeState.selectFolder(folderURL)
+        folderTreeState.expandFolders(for: folderURL)
         if alertState.hasMessage { return }
 
         fileListState.loadFileList(at: folderURL)
@@ -91,22 +89,13 @@ final class BrowserState: Identifiable {
 
     // MARK: - New File
 
-    func makeNewFile(in folderURL: URL) {
-        newFileState.makeNewFile(in: folderURL) { newFileURL in
-            self.loadFile(at: newFileURL)
-        }
-    }
-
     func makeNewFile() {
         guard let folderURL = fileListState.folderURL else { return }
         makeNewFile(in: folderURL)
     }
 
-    func showNewFileSheet(for folderURL: URL) {
-        newFileState.showNewFileSheet(for: folderURL) { newFolderURL, newFileURL in
-            if newFolderURL != nil {
-                self.loadFolderTree()
-            }
+    func makeNewFile(in folderURL: URL) {
+        newFileState.makeNewFile(in: folderURL) { newFileURL in
             self.loadFile(at: newFileURL)
         }
     }
@@ -115,4 +104,14 @@ final class BrowserState: Identifiable {
         guard let folderURL = fileListState.folderURL else { return }
         showNewFileSheet(for: folderURL)
     }
+
+    func showNewFileSheet(for folderURL: URL) {
+        newFileState.showNewFileSheet(for: folderURL) { newFolderURL, newFileURL in
+            if newFolderURL != nil {
+                self.folderTreeState.loadFolderTree()
+            }
+            self.loadFile(at: newFileURL)
+        }
+    }
+
 }

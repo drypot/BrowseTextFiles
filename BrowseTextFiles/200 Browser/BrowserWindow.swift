@@ -97,7 +97,7 @@ struct BrowserCommands: Commands {
             .keyboardShortcut("n", modifiers: [.command, .option])
 
             Button("New Folder", systemImage: "folder.badge.plus") {
-                browserState?.makeNewFolder()
+                browserState?.folderTreeState.makeNewFolder()
             }
             .keyboardShortcut("n", modifiers: [.command, .shift])
 

@@ -18,6 +18,8 @@ final class FolderTreeState {
         return selectedFolderIDs.first
     }
 
+    var scrollToID: FolderState.ID?
+
     var expandedFolderIDs: Set<FolderState.ID> = []
 
     private(set) var rootFolderRefreshCount = 0
@@ -43,7 +45,7 @@ final class FolderTreeState {
             guard let rootFolder else { return }
             if !preserveSelection {
                 selectFolder(rootURL)
-                expand(rootFolder)
+                expand(rootURL)
             }
         } catch {
             let message = error.localizedDescription
@@ -202,13 +204,13 @@ final class FolderTreeState {
         }
     }
 
+    func expand(_ id: FolderState.ID) {
+        expandedFolderIDs.insert(id)
+    }
+
     /*
     func isExpanded(_ id: FolderState.ID) -> Bool {
         expandedFolderIDs.contains(id)
-    }
-
-    func expand(_ id: FolderState.ID) {
-        expandedFolderIDs.insert(id)
     }
 
     func collapse(_ id: FolderState.ID) {
@@ -246,7 +248,6 @@ final class FolderTreeState {
     func makeNewFolder() {
         guard let selectedFolderID else { return }
         makeNewFolder(in: selectedFolderID)
-
     }
 
     func makeNewFolder(in folderURL: URL) {
