@@ -12,19 +12,11 @@ import UniformTypeIdentifiers
 final class BrowserState: Identifiable {
     let id = UUID()
 
-    var rootFolder: FolderState?
-    var rootFolderRefreshID = UUID()
-
-    var expandedFolderIDs: Set<FolderState.ID> = []
-    var selectedFolderIDs: Set<FolderState.ID> = []
-
-    var selectedFolderID: FolderState.ID?
-    var selectedFolder: FolderState?
-
     @ObservationIgnored var rootState: RootState
     @ObservationIgnored var alertState: AlertState
     @ObservationIgnored var newFileState: NewFileState
     @ObservationIgnored var renameState: RenameState
+    @ObservationIgnored var folderTreeState: FolderTreeState
     @ObservationIgnored var fileListState: FileListState
     @ObservationIgnored var searchState: SearchState
     @ObservationIgnored var historyState: HistoryState
@@ -37,6 +29,7 @@ final class BrowserState: Identifiable {
         alertState = AlertState()
         newFileState = NewFileState(rootState: rootState, alertState: alertState)
         renameState = RenameState(alertState: alertState)
+        folderTreeState = FolderTreeState(rootState: rootState, alertState: alertState)
         fileListState = FileListState(alertState: alertState)
         searchState = SearchState()
         historyState = HistoryState()

@@ -52,6 +52,26 @@ final class FolderState: Identifiable, Hashable {
         return nil
     }
 
+    func removeAll(where shouldBeRemoved: (FolderState) -> Bool) {
+        guard let children else { return }
+        guard !children.isEmpty else { return }
+
+        for child in children {
+            child.removeAll(where: shouldBeRemoved)
+        }
+
+        var i = children.count
+        while i > 0 {
+            i -= 1
+            if shouldBeRemoved(children[i]) {
+
+                print("remove all: \(children[i].url.path)")
+
+                self.children!.remove(at: i)
+            }
+        }
+    }
+
     static func buildTree(from rootURL: URL) throws -> FolderState {
         let keys: [URLResourceKey] = [.isDirectoryKey]
         let keySet = Set(keys)

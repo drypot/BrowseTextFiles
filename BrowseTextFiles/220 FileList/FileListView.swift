@@ -10,9 +10,10 @@ import SwiftUI
 struct FileListView: View {
     @Environment(AppState.self) var appState
     @Environment(BrowserState.self) var browserState
-    @Environment(FileListState.self) var fileListState
     @Environment(NewFileState.self) var newFileState
     @Environment(RenameState.self) var renameState
+    @Environment(FolderTreeState.self) var folderTreeState
+    @Environment(FileListState.self) var fileListState
 
     @Environment(\.openWindow) private var openWindow
 
@@ -28,6 +29,10 @@ struct FileListView: View {
                 if let id {
                     proxy.scrollTo(id)
                 }
+            }
+            .onChange(of: folderTreeState.selectedFolderID) {
+                print("update file list")
+                // fileListState.loadFileList(at: selectedFolder?.url)
             }
         }
         .onKeyPress(phases: .down, action: handleKeyPress)

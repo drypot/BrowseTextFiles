@@ -14,8 +14,7 @@ final class FileListState {
     var selectedFileIDs: Set<FileState.ID> = []
     var scrollToFileID: FileState.ID?
 
-    @ObservationIgnored
-    private(set) var alertState: AlertState
+    @ObservationIgnored private(set) var alertState: AlertState
 
     init(alertState: AlertState) {
         self.alertState = alertState
@@ -38,14 +37,13 @@ final class FileListState {
             fileList?.sort {
                 $0.name.localizedStandardCompare($1.name) == .orderedAscending
             }
+            if !preserveSelection {
+                selectedFileIDs.removeAll()
+            }
         } catch {
             let message = error.localizedDescription
             alertState.showAlert(message)
             consoleLog("load filelist: \(message)")
-        }
-
-        if !preserveSelection {
-            selectedFileIDs.removeAll()
         }
     }
 
@@ -64,14 +62,13 @@ final class FileListState {
     }
 
     func trashFiles(selection: Set<FileState.ID>) {
+        selectedFileIDs.subtract(selection)
+        fileList?.removeAll(where: { selection.contains($0.id) })
         do {
-            selectedFileIDs.subtract(selection)
-            fileList?.removeAll(where: { selection.contains($0.id) })
-
-            // 오늘 기준으론 url 을 id 로 쓰고 있다;
+            let fileManager = FileManager.default
             for url in selection {
                 consoleLog("delete file: \(url.path(percentEncoded: false))")
-                try FileManager.default.trashItem(at: url, resultingItemURL: nil)
+                try fileManager.trashItem(at: url, resultingItemURL: nil)
             }
         } catch {
             let message = error.localizedDescription
