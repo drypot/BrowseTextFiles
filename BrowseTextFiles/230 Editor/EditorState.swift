@@ -90,6 +90,7 @@ final class EditorState {
             originalText = try String(contentsOf: editingFileURL, encoding: .utf8)
             shouldCopyOriginalText = true
             startFileMonitoring()
+            consoleLog("----")
         } catch {
             let message = error.localizedDescription
             loadingError = message
@@ -164,7 +165,7 @@ final class EditorState {
         } catch {
             let message = error.localizedDescription
             savingError = message
-            alertState.showAlert(message)
+            alertState.leaveAlert(message)
             consoleLog("save file: \(message)")
         }
     }

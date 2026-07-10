@@ -11,31 +11,33 @@ struct FolderTreeView: View {
     @Environment(AppState.self) var appState
     @Environment(BrowserState.self) var browserState
     @Environment(RootState.self) var rootState
+    @Environment(TargetState.self) var targetState
     @Environment(RenameState.self) var renameState
     @Environment(FolderTreeState.self) var folderTreeState
 
     @Environment(\.openWindow) private var openWindow
-    //@Environment(\.appearsActive) var appearsActive
 
     var body: some View {
+        @Bindable var targetState = targetState
         @Bindable var folderTreeState = folderTreeState
         ScrollViewReader { proxy in
-            List(selection: $folderTreeState.selectedFolderIDs) {
+            List(selection: $targetState.selectedFolderURLs) {
                 if let rootFolder = folderTreeState.rootFolder {
-                    TreeRow(rootFolder, children: \.children, expanded: $folderTreeState.expandedFolderIDs) { folder in
+                    TreeRow(rootFolder, children: \.children, expanded: $folderTreeState.expandedFolderURLs) { folder in
                         Text(folder.name)
                             .id(folder.id)
                     }
                 }
             }
-            .id(folderTreeState.rootFolderRefreshCount)
-            .onChange(of: folderTreeState.scrollToID) {
-                scrollTo(proxy)
+            .id(folderTreeState.refreshCount)
+            .onChange(of: targetState.selectedFolderURL) { _, url in
+                if let url {
+                    withAnimation {
+                        proxy.scrollTo(url)
+                    }
+                }
             }
         }
-        //.focusable()
-        //.focusEffectDisabled()
-        //.focused(focusedViewBinding!, equals: .folderTree)
         .onKeyPress(phases: .down, action: handleKeyPress)
         .contextMenu(forSelectionType: FolderState.ID.self) { selection in
             if selection.count == 1 {
@@ -67,15 +69,7 @@ struct FolderTreeView: View {
                 Divider()
 
                 Button("Rename") {
-                    guard let url = selection.first else { return }
-                    renameState.showRenameSheet(for: url) { oldURL, newURL in
-                        if folderTreeState.selectedFolderID == oldURL {
-                            folderTreeState.loadFolderTree(preserveSelection: false)
-                            folderTreeState.selectFolder(newURL)
-                        } else {
-                            folderTreeState.loadFolderTree(preserveSelection: true)
-                        }
-                    }
+                    showRenameSheet(selection: selection)
                 }
             }
 
@@ -86,7 +80,7 @@ struct FolderTreeView: View {
         .toolbar {
             ToolbarItem {
                 Button("New Folder", systemImage: "folder.badge.plus") {
-                    folderTreeState.makeNewFolder()
+                    browserState.makeNewFile(in: targetState.selectedFolderURL)
                 }
                 .help("New Folder")
             }
@@ -103,7 +97,7 @@ struct FolderTreeView: View {
             browserState.editorState.shouldFocusedCount += 1
 
         case .return:
-            showRenameSheet(selection: folderTreeState.selectedFolderIDs)
+            showRenameSheet(selection: targetState.selectedFolderURLs)
 
         /*
         case "\u{19}": // shift tab
@@ -135,23 +129,15 @@ struct FolderTreeView: View {
         guard selection.count == 1 else { return }
         guard let url = selection.first else { return }
         renameState.showRenameSheet(for: url) { oldURL, newURL in
-            if folderTreeState.selectedFolderID == oldURL {
-                folderTreeState.loadFolderTree(preserveSelection: false)
-                folderTreeState.selectFolder(newURL)
+            if targetState.selectedFolderURL == oldURL {
+                folderTreeState.reloadFolderTree()
+                targetState.selectedFolderURL = newURL
             } else {
-                folderTreeState.loadFolderTree(preserveSelection: true)
+                folderTreeState.reloadFolderTree()
             }
         }
     }
 
-    func scrollTo(_ proxy: ScrollViewProxy) {
-        guard let id = folderTreeState.scrollToID else { return }
-        Task {
-            withAnimation {
-                proxy.scrollTo(id)
-            }
-        }
-    }
 }
 
 /*
@@ -216,7 +202,7 @@ fileprivate struct RowView: View {
             }
 
             Button("New File...") {
-                browserState.showNewFileSheet(for: item.url)
+                browserState.showNewFileSheet(on: item.url)
             }
 
             Button("New Folder") {

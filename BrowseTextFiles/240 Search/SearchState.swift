@@ -53,7 +53,7 @@ final class SearchState {
                 consoleLog("search: found \(searchResults?.count ?? 0) files")
             } catch {
                 let message = error.localizedDescription
-                alertState.showAlert(message)
+                alertState.leaveAlert(message)
                 consoleLog("search: \(message)")
             }
         }

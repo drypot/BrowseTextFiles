@@ -170,7 +170,7 @@ class AppState {
     }
 
     func openNewBrowserWindow(fromState state: BrowserState?, openWindow: OpenWindowAction) {
-        openNewBrowserWindow(fromRootURL: state?.rootState.rootURL, fileURL: state?.fileListState.selectedFileIDs.first, openWindow: openWindow)
+        openNewBrowserWindow(fromRootURL: state?.rootState.rootURL, fileURL: state?.targetState.selectedFileURL, openWindow: openWindow)
     }
 
     func openNewBrowserWindow(openWindow: OpenWindowAction) {
@@ -254,14 +254,14 @@ class AppState {
     // MARK: - Search Window
 
     func openSearchWindow(for state: BrowserState, openWindow: OpenWindowAction) {
-        guard state.rootState.isReady else { return }
+        guard state.folderTreeState.isReady else { return }
         lastBrowserState = state
         openWindow(id: "search", value: state.id)
         state.searchState.isSearchWindowPresented = true
     }
 
     func toggleSearchWindow(for state: BrowserState, openWindow: OpenWindowAction, dismissWindow: DismissWindowAction) {
-        guard state.rootState.isReady else { return }
+        guard state.folderTreeState.isReady else { return }
         if state.searchState.isSearchWindowPresented {
             dismissWindow(id: "search", value: state.id)
             state.searchState.isSearchWindowPresented = false
@@ -273,14 +273,14 @@ class AppState {
     // MARK: - History Window
 
     func openHistoryWindow(for state: BrowserState, openWindow: OpenWindowAction) {
-        guard state.rootState.isReady else { return }
+        guard state.folderTreeState.isReady else { return }
         lastBrowserState = state
         openWindow(id: "history", value: state.id)
         state.historyState.isHistoryWindowPresented = true
     }
 
     func toggleHistoryWindow(for state: BrowserState, openWindow: OpenWindowAction, dismissWindow: DismissWindowAction) {
-        guard state.rootState.isReady else { return }
+        guard state.folderTreeState.isReady else { return }
         if state.historyState.isHistoryWindowPresented {
             dismissWindow(id: "history", value: state.id)
             state.historyState.isHistoryWindowPresented = false

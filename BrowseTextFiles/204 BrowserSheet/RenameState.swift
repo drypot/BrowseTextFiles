@@ -43,19 +43,19 @@ final class RenameState {
 
 //            if isFolder {
 //                if renamingSelectedFolder {
-//                    loadFolderTree(preserveSelection: false)
+//                    reloadFolderTree(preserveSelection: false)
 //                    selectFolder(with: newURL)
 //                    expandFolders(for: newURL)
 //                    fileListState.loadFileList(at: selectedFolder?.url, preserveSelection: false)
 //                } else {
-//                    loadFolderTree()
+//                    reloadFolderTree()
 //                }
 //            }
 
             onComplete?(renamingURL, newURL)
         } catch {
             let message = error.localizedDescription
-            alertState.showAlert(message)
+            alertState.leaveAlert(message)
             consoleLog("rename: \(message)")
         }
     }

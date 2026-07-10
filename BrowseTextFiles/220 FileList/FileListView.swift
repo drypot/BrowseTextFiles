@@ -10,39 +10,39 @@ import SwiftUI
 struct FileListView: View {
     @Environment(AppState.self) var appState
     @Environment(BrowserState.self) var browserState
+    @Environment(TargetState.self) var targetState
     @Environment(NewFileState.self) var newFileState
     @Environment(RenameState.self) var renameState
-    @Environment(FolderTreeState.self) var folderTreeState
     @Environment(FileListState.self) var fileListState
 
     @Environment(\.openWindow) private var openWindow
 
     var body: some View {
-        @Bindable var fileListState = fileListState
+        @Bindable var targetState = targetState
         ScrollViewReader { proxy in
-            List(fileListState.fileList ?? [], selection: $fileListState.selectedFileIDs) { file in
-                NavigationLink(file.name, value: file.id)
+            List(fileListState.fileList ?? [], selection: $targetState.selectedFileURLs) { file in
+                NavigationLink(file.name, value: file.url)
                     .id(file.id)
                     .listRowSeparator(.hidden)
             }
-            .onChange(of: fileListState.scrollToFileID) { _, id in
-                if let id {
-                    proxy.scrollTo(id)
+            .id(fileListState.refreshCount)
+            .onChange(of: targetState.selectedFileURL) { _, url in
+                if let url {
+                    proxy.scrollTo(url)
                 }
             }
-            .onChange(of: folderTreeState.selectedFolderID) {
-                print("update file list")
-                // fileListState.loadFileList(at: selectedFolder?.url)
+            .onChange(of: targetState.selectedFolderURL, initial: true) { _, url in
+                fileListState.loadFileList(at: url)
             }
         }
         .onKeyPress(phases: .down, action: handleKeyPress)
         .contextMenu(forSelectionType: FileState.ID.self) { selection in
             Button("New File") {
-                browserState.makeNewFile()
+                browserState.makeNewFile(in: targetState.selectedFolderURL)
             }
 
             Button("New File...") {
-                browserState.showNewFileSheet()
+                browserState.showNewFileSheet(for: targetState.selectedFolderURL)
             }
 
             if selection.count == 1 {
@@ -77,7 +77,7 @@ struct FileListView: View {
             browserState.editorState.shouldFocusedCount += 1
 
         case .return:
-            showRenameSheet(selection: fileListState.selectedFileIDs)
+            showRenameSheet(selection: targetState.selectedFileURLs)
 
         /*
         case "\u{19}": // shift tab
@@ -103,11 +103,11 @@ struct FileListView: View {
         guard selection.count == 1 else { return }
         guard let url = selection.first else { return }
         renameState.showRenameSheet(for: url) { oldURL, newURL in
-            if fileListState.selectedFileIDs.first == oldURL {
-                fileListState.reloadFileList(preserveSelection: false)
-                fileListState.selectFile(with: newURL)
+            if targetState.selectedFileURL == oldURL {
+                fileListState.loadFileList(at: targetState.selectedFolderURL)
+                targetState.selectedFileURL = newURL
             } else {
-                fileListState.reloadFileList(preserveSelection: true)
+                fileListState.loadFileList(at: targetState.selectedFolderURL)
             }
         }
     }
@@ -187,7 +187,7 @@ fileprivate struct RowView: View {
         .onTapGesture {
             //focusedViewBinding?.wrappedValue = .fileList
             guard fileListState.selectedFileID != item.id else { return }
-            fileListState.selectFile(with: item.id)
+            fileListState.selectFile(item.id)
             //browserState.editorState.loadFile(at: fileListState.selectedFile?.url)
         }
         .contextMenu {

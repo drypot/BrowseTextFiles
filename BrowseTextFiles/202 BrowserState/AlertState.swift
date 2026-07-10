@@ -12,12 +12,8 @@ final class AlertState {
     var message: String = ""
     var hasMessage = false
 
-    func showAlert(_ message: String) {
+    func leaveAlert(_ message: String) {
         self.message = message
         self.hasMessage = true
-    }
-
-    func clear() {
-        hasMessage = false
     }
 }

@@ -13,6 +13,7 @@ final class BrowserState: Identifiable {
     let id = UUID()
 
     @ObservationIgnored var rootState: RootState
+    @ObservationIgnored var targetState: TargetState
     @ObservationIgnored var alertState: AlertState
     @ObservationIgnored var newFileState: NewFileState
     @ObservationIgnored var renameState: RenameState
@@ -22,96 +23,64 @@ final class BrowserState: Identifiable {
     @ObservationIgnored var historyState: HistoryState
     @ObservationIgnored var editorState: EditorState
 
-    // MARK: - Init / Release
-
     init() {
         rootState = RootState()
+        targetState = TargetState()
         alertState = AlertState()
         newFileState = NewFileState(rootState: rootState, alertState: alertState)
         renameState = RenameState(alertState: alertState)
-        folderTreeState = FolderTreeState(rootState: rootState, alertState: alertState)
-        fileListState = FileListState(alertState: alertState)
+        folderTreeState = FolderTreeState(rootState: rootState, targetState: targetState, alertState: alertState)
+        fileListState = FileListState(targetState: targetState, alertState: alertState)
         searchState = SearchState()
         historyState = HistoryState()
         editorState = EditorState(alertState: alertState)
 
-        // 여기서 log 쓰면 무한 루프.
         printLog("init browser state: \(id)")
     }
 
-    func initState(with rootURL: URL, fileURL: URL?) {
-        consoleLog("init root: \(rootURL.path(percentEncoded: false))")
-
-        rootState.configure(with: rootURL)
-
-        folderTreeState.loadFolderTree(preserveSelection: false)
-        if alertState.hasMessage { return }
-
-        if let fileURL {
-            loadFile(at: fileURL)
-        } else {
-            //folderTreeState.selectFolder(rootFolder)
-            //fileListState.loadFileList(at: selectedFolder?.url)
-        }
-    }
-
     func releaseResource() {
-        consoleLog("release resource:")
+        consoleLog("release browser resource:")
         rootState.releaseResource()
     }
 
-    // MARK: - Update All
-
-    func reloadAll() {
-        consoleLog("reload all:")
-
-        let fileURL = editorState.editingFileURL
-
-        folderTreeState.loadFolderTree()
-        if alertState.hasMessage { return }
-
-        if let fileURL {
-            loadFile(at: fileURL)
-        }
+    func configure(with rootURL: URL) {
+        consoleLog("configure browser: \(rootURL.path(percentEncoded: false))")
+        rootState.configure(with: rootURL)
+        folderTreeState.reloadFolderTree()
+        targetState.selectedFolderURL = rootURL
     }
 
-    func loadFile(at fileURL: URL) {
-        let folderURL = fileURL.deletingLastPathComponent()
-
-        folderTreeState.selectFolder(folderURL)
-        folderTreeState.expandFolders(for: folderURL)
-        if alertState.hasMessage { return }
-
-        fileListState.loadFileList(at: folderURL)
-        fileListState.selectFile(with: fileURL)
-        if alertState.hasMessage { return }
+    func reload() {
+        consoleLog("reload:")
+        folderTreeState.reloadFolderTree()
+        fileListState.loadFileList(at: targetState.selectedFolderURL)
     }
 
     // MARK: - New File
 
-    func makeNewFile() {
-        guard let folderURL = fileListState.folderURL else { return }
-        makeNewFile(in: folderURL)
+    func makeNewFile(in folderURL: URL?) {
+        guard let folderURL else { return }
+        newFileState.makeNewFile(in: folderURL) { newFileURL in
+            self.targetState.targetFile(newFileURL)
+        }
     }
 
-    func makeNewFile(in folderURL: URL) {
-        newFileState.makeNewFile(in: folderURL) { newFileURL in
-            self.loadFile(at: newFileURL)
+    func makeNewFile() {
+        makeNewFile(in: targetState.selectedFolderURL)
+    }
+
+    func showNewFileSheet(for folderURL: URL?) {
+        guard let folderURL else { return }
+        newFileState.showNewFileSheet(on: folderURL) { newFolderURL, newFileURL in
+            if newFolderURL != nil {
+                self.folderTreeState.reloadFolderTree()
+            }
+            self.targetState.targetFile(newFileURL)
         }
     }
 
     func showNewFileSheet() {
-        guard let folderURL = fileListState.folderURL else { return }
-        showNewFileSheet(for: folderURL)
-    }
-
-    func showNewFileSheet(for folderURL: URL) {
-        newFileState.showNewFileSheet(for: folderURL) { newFolderURL, newFileURL in
-            if newFolderURL != nil {
-                self.folderTreeState.loadFolderTree()
-            }
-            self.loadFile(at: newFileURL)
-        }
+        showNewFileSheet(for: targetState.selectedFolderURL)
     }
 
 }

@@ -11,7 +11,7 @@ struct BrowserWindow: Scene {
     @Environment(AppState.self) var appState
 
     init() {
-        printLog("init BrowserWindow")
+        printLog("init browser window")
     }
 
     var body: some Scene {
@@ -135,7 +135,7 @@ struct BrowserCommands: Commands {
 
         CommandGroup(after: .toolbar) {
             Button("Reload", systemImage: "arrow.clockwise") {
-                browserState?.reloadAll()
+                browserState?.reload()
             }
             .keyboardShortcut("r", modifiers: .command)
 

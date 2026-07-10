@@ -49,7 +49,7 @@ struct SearchView: View {
                         ForEach(results) { result in
                             VStack(alignment: .leading) {
                                 Button(result.title) {
-                                    browserState.loadFile(at: result.url)
+                                    browserState.targetState.targetFile(result.url)
                                 }
                                 .buttonStyle(.plain)
                                 .foregroundStyle(.link)

@@ -10,63 +10,144 @@ import SwiftUI
 @Observable
 final class FolderTreeState {
     private(set) var rootFolder: FolderState?
-
-    var selectedFolderIDs: Set<FolderState.ID> = []
-
-    var selectedFolderID: FolderState.ID? {
-        guard selectedFolderIDs.count == 1 else { return nil }
-        return selectedFolderIDs.first
-    }
-
-    var scrollToID: FolderState.ID?
-
-    var expandedFolderIDs: Set<FolderState.ID> = []
-
-    private(set) var rootFolderRefreshCount = 0
+    var expandedFolderURLs: Set<URL> = []
+    var refreshCount = 0
+    var isReady: Bool = false
 
     @ObservationIgnored private var rootState: RootState
+    @ObservationIgnored private var targetState: TargetState
     @ObservationIgnored private var alertState: AlertState
 
-    init(rootState: RootState, alertState: AlertState) {
+    init(rootState: RootState, targetState: TargetState, alertState: AlertState) {
         self.rootState = rootState
+        self.targetState = targetState
         self.alertState = alertState
     }
 
     // MARK: - Folder Tree
 
-    func loadFolderTree(preserveSelection: Bool = true) {
+    func reloadFolderTree() {
         guard let rootURL = rootState.rootURL else { return }
-
-        consoleLog("load folder tree: \(rootState.rootPath ?? "nil")")
-        rootFolder = nil
+        consoleLog("load folder tree: \(rootURL.path(percentEncoded: false))")
         do {
             rootFolder = try FolderState.buildTree(from: rootURL)
-            rootFolderRefreshCount += 1
-            guard let rootFolder else { return }
-            if !preserveSelection {
-                selectFolder(rootURL)
-                expand(rootURL)
-            }
+            expandFolder(rootURL)
+            refreshCount += 1
+            isReady = true
         } catch {
             let message = error.localizedDescription
-            alertState.showAlert(message)
+            alertState.leaveAlert(message)
             consoleLog("load tree: \(message)")
         }
     }
 
-    // MARK: - Selected Folder
+    // MARK: - Folder Folding
 
-    func selectFolder(_ id: FolderState.ID?) {
-        if let id {
-            selectedFolderIDs = [id]
-        } else {
-            deselectFolder()
+    func expandFolders(for url: URL) {
+        guard let rootPathComponents = rootState.rootURL?.pathComponents else { return }
+        let rootCount = rootPathComponents.count
+        let urlCount = url.pathComponents.count
+        var count = urlCount - rootCount
+
+        var tmpURL = url
+        while count > 0 {
+
+            print("+++ \(tmpURL.path)")
+
+            expandedFolderURLs.insert(tmpURL)
+            tmpURL.deleteLastPathComponent()
+            count -= 1
         }
     }
 
-    func deselectFolder() {
-        selectedFolderIDs.removeAll()
+    func expandFolder(_ url: URL) {
+        expandedFolderURLs.insert(url)
     }
+
+    /*
+    func isExpanded(_ id: FolderState.ID) -> Bool {
+        expandedFolderURLs.contains(id)
+    }
+
+    func collapse(_ id: FolderState.ID) {
+        expandedFolderURLs.remove(id)
+    }
+
+    func toggleExpanded(_ id: FolderState.ID) {
+        if isExpanded(id) {
+            collapse(id)
+        } else {
+            expandFolder(id)
+        }
+    }
+
+    func expandSelectedFolder() {
+        guard let selectedFolder else { return }
+        if selectedFolder.hasChildren {
+            expandFolder(selectedFolder)
+        }
+    }
+
+    func collapseSelectedFolder() -> Bool {
+        guard let selectedFolder else { return false }
+        if selectedFolder.hasChildren, isExpanded(selectedFolder) {
+            collapse(selectedFolder)
+        } else {
+            return selectParentFolder()
+        }
+        return false
+    }
+    */
+
+    // MARK: - New Folder
+
+    func makeNewFolder(in folderURL: URL) {
+        let fileManager = FileManager.default
+        var newFolderURL = folderURL.appending(path: "NewFolder", directoryHint: .isDirectory)
+        var counter = 1
+
+        while fileManager.fileExists(atPath: newFolderURL.path(percentEncoded: false)), counter < 100 {
+            let newName = "NewFolder \(counter)"
+            newFolderURL = folderURL.appending(path: newName, directoryHint: .isDirectory)
+            counter += 1
+        }
+
+        do {
+            consoleLog("new folder: \(newFolderURL.path(percentEncoded: false))")
+            try fileManager.createDirectory(at: newFolderURL, withIntermediateDirectories: true, attributes: nil)
+            reloadFolderTree()
+            expandFolders(for: newFolderURL)
+            targetState.selectedFolderURL = newFolderURL
+        } catch {
+            let message = error.localizedDescription
+            alertState.leaveAlert(message)
+            consoleLog("new file: \(message)")
+        }
+    }
+
+    func makeNewFolder() {
+        guard let folderURL = targetState.selectedFolderURL else { return }
+        makeNewFolder(in: folderURL)
+    }
+
+    // MARK: - Delete Folder
+
+    func trashFolders(selection: Set<FileState.ID>) {
+        rootFolder?.removeAll(where: { selection.contains($0.id) })
+        do {
+            let fileManager = FileManager.default
+            for url in selection {
+                consoleLog("delete folder: \(url.path(percentEncoded: false))")
+                try fileManager.trashItem(at: url, resultingItemURL: nil)
+            }
+        } catch {
+            let message = error.localizedDescription
+            alertState.leaveAlert(message)
+            consoleLog("delete folder: \(message)")
+        }
+    }
+
+    // MARK: - Selected Folder
 
     /*
     func findFolder(with id: FolderState.ID) -> FolderState? {
@@ -185,119 +266,4 @@ final class FolderTreeState {
         return true
     }
     */
-
-    // MARK: - Folder Folding
-
-    func expandFolders(for url: URL) {
-        guard let rootCount = rootState.rootPathComponents?.count else { return }
-        let urlCount = url.pathComponents.count
-        var count = urlCount - rootCount
-
-        var tmpURL = url
-        while count > 0 {
-
-            print("+ \(tmpURL.path)")
-
-            expandedFolderIDs.insert(tmpURL)
-            tmpURL.deleteLastPathComponent()
-            count -= 1
-        }
-    }
-
-    func expand(_ id: FolderState.ID) {
-        expandedFolderIDs.insert(id)
-    }
-
-    /*
-    func isExpanded(_ id: FolderState.ID) -> Bool {
-        expandedFolderIDs.contains(id)
-    }
-
-    func collapse(_ id: FolderState.ID) {
-        expandedFolderIDs.remove(id)
-    }
-
-    func toggleExpanded(_ id: FolderState.ID) {
-        if isExpanded(id) {
-            collapse(id)
-        } else {
-            expand(id)
-        }
-    }
-
-    func expandSelectedFolder() {
-        guard let selectedFolder else { return }
-        if selectedFolder.hasChildren {
-            expand(selectedFolder)
-        }
-    }
-
-    func collapseSelectedFolder() -> Bool {
-        guard let selectedFolder else { return false }
-        if selectedFolder.hasChildren, isExpanded(selectedFolder) {
-            collapse(selectedFolder)
-        } else {
-            return selectParentFolder()
-        }
-        return false
-    }
-    */
-
-    // MARK: - New Folder
-
-    func makeNewFolder() {
-        guard let selectedFolderID else { return }
-        makeNewFolder(in: selectedFolderID)
-    }
-
-    func makeNewFolder(in folderURL: URL) {
-        let fileManager = FileManager.default
-        var newFolderURL = folderURL.appending(path: "NewFolder", directoryHint: .isDirectory)
-        var counter = 1
-
-        while fileManager.fileExists(atPath: newFolderURL.path(percentEncoded: false)), counter < 100 {
-            let newName = "NewFolder \(counter)"
-            newFolderURL = folderURL.appending(path: newName, directoryHint: .isDirectory)
-            counter += 1
-        }
-
-        do {
-            consoleLog("new folder: \(newFolderURL.path(percentEncoded: false))")
-            try fileManager.createDirectory(at: newFolderURL, withIntermediateDirectories: true, attributes: nil)
-            loadFolderTree(preserveSelection: false)
-            expandFolders(for: newFolderURL)
-            selectFolder(newFolderURL)
-        } catch {
-            let message = error.localizedDescription
-            alertState.showAlert(message)
-            consoleLog("new file: \(message)")
-        }
-    }
-
-    // MARK: - Delete Folder
-
-    func trashFolders(selection: Set<FileState.ID>) {
-        selectedFolderIDs.subtract(selection)
-        rootFolder?.removeAll(where: { selection.contains($0.id) })
-        do {
-            let fileManager = FileManager.default
-            for url in selection {
-                consoleLog("delete folder: \(url.path(percentEncoded: false))")
-                try fileManager.trashItem(at: url, resultingItemURL: nil)
-            }
-        } catch {
-            let message = error.localizedDescription
-            alertState.showAlert(message)
-            consoleLog("delete folder: \(message)")
-        }
-    }
-
-    // MARK: - Finder
-
-    func openFinder() {
-        if let url = selectedFolderID {
-            Finder.shared.open(url: url)
-        }
-    }
-
 }

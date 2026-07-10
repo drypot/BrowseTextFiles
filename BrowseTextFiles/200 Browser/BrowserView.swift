@@ -23,15 +23,13 @@ struct BrowserView: View {
     @State private var cancellables = Set<AnyCancellable>()
 
     init() {
-        // 여기서 log 쓰면 무한 루프.
         printLog("init browser view: \(browserState.id)")
     }
 
     var body: some View {
-        let rootState = browserState.rootState
         //Text("browserState.id: \(browserState.id)")
         VStack {
-            if rootState.isReady {
+            if browserState.folderTreeState.isReady {
                 NavigationSplitView {
                     FolderTreeView()
                         .frame(minWidth: 200, maxHeight: .infinity)
@@ -51,7 +49,7 @@ struct BrowserView: View {
                 Text("Loading...")
             }
         }
-        .navigationTitle(rootState.rootName ?? "Browser")
+        .navigationTitle(browserState.rootState.rootName ?? "Browser")
         .background(WindowAccessor(onResolve: setupWindow))
         .task {
             // 아직 SceneStorage 가 업데이트 안 되어 있다;
@@ -74,17 +72,60 @@ struct BrowserView: View {
             actions: { Button("OK") { } },
             message: { Text(browserState.alertState.message) }
         )
-        .onChange(of: browserState.fileListState.selectedFileIDs) { _, ids in
-            guard ids.count == 1 else { return }
-            guard let first = ids.first else { return }
-            saveFileURL(first)
+        .onChange(of: browserState.targetState.selectedFileURL) { _, url in
+            guard let url else { return }
+            saveFileURL(url)
+        }
+        .toolbar {
+            // ToolbarItemGroup(placement: .navigation) {
+            //     Button("Prev", systemImage: "chevron.left")  {
+            //     }
+            //     .help("이전 항목으로 이동")
+
+            //     Button("Next", systemImage: "chevron.right") {
+            //     }
+            //     .help("다음 항목으로 이동")
+            // }
+
+            ToolbarItemGroup(placement: .navigation) {
+                Button("Reload", systemImage: "arrow.clockwise") {
+                    browserState.reload()
+                }
+                .help("Reload")
+            }
+
+            ToolbarItemGroup(placement: .secondaryAction) {
+                Button("New File", systemImage: "square.and.pencil") {
+                    browserState.makeNewFile()
+                }
+                .help("New File")
+
+                Button("New File...", systemImage: "bubble.and.pencil") {
+                    browserState.showNewFileSheet()
+                }
+                .help("New File...")
+
+                Button("Show History", systemImage: "clock") {
+                    appState.toggleHistoryWindow(for: browserState, openWindow: openWindow, dismissWindow: dismissWindow)
+                }
+                .help("Show History")
+            }
+
+            ToolbarItem(placement: .primaryAction) {
+                Button("Search", systemImage: "magnifyingglass") {
+                    appState.toggleSearchWindow(for: browserState, openWindow: openWindow, dismissWindow: dismissWindow)
+                }
+                .help("Search")
+            }
         }
         // .environment(browserState) 가 NewFileSheet 아래/바깥쪽에 있어야 NewFileSheet 에서 사용할 수 있다.
         .environment(browserState)
         .environment(browserState.rootState)
+        .environment(browserState.targetState)
         .environment(browserState.alertState)
         .environment(browserState.newFileState)
         .environment(browserState.renameState)
+        .environment(browserState.folderTreeState)
         .environment(browserState.fileListState)
         .environment(browserState.searchState)
         .environment(browserState.historyState)
@@ -95,13 +136,19 @@ struct BrowserView: View {
     func initView() {
         // Scene 복구가 먼저다, 사용자의 마지막 파일로 돌아간다.
         if let rootURL = loadRootURL() {
-            browserState.initState(with: rootURL, fileURL: loadFileURL())
+            browserState.configure(with: rootURL)
+            if let fileURL = loadFileURL() {
+                browserState.targetState.targetFile(fileURL)
+            }
             return
         }
 
-        // initParam 으로 URL 전달받은 경우.
+        // initParam 전달받은 경우.
         if let rootURL = appState.newWindowRootURL {
-            browserState.initState(with: rootURL, fileURL: appState.newWindowFileURL)
+            browserState.configure(with: rootURL)
+            if let fileURL = appState.newWindowFileURL {
+                browserState.targetState.targetFile(fileURL)
+            }
             appState.newWindowRootURL = nil
             appState.newWindowFileURL = nil
             saveRootURL(rootURL)
@@ -115,7 +162,7 @@ struct BrowserView: View {
     private func showOpenPanel() {
         guard let window else { return }
         appState.showFolderOpenPanelFor(window) { url in
-            browserState.initState(with: url, fileURL: nil)
+            browserState.configure(with: url)
             saveRootURL(url)
             appState.addRecentDocumentURL(url)
         }

@@ -9,10 +9,8 @@ import SwiftUI
 
 @Observable
 final class NewFileState {
-    typealias CompletionHandler = (URL?, URL) -> Void
-
     private(set) var relativePath: String?
-    private var onComplete: CompletionHandler?
+    private var onComplete: ((URL?, URL) -> Void)?
 
     var isNewFileSheetPresented = false
 
@@ -24,7 +22,7 @@ final class NewFileState {
         self.alertState = alertState
     }
 
-    func showNewFileSheet(for folderURL: URL, onComplete: @escaping CompletionHandler) {
+    func showNewFileSheet(on folderURL: URL, onComplete: @escaping (URL?, URL) -> Void) {
         guard let rootURL = rootState.rootURL else { return }
         guard let relativePath = folderURL.relativePath(from: rootURL) else { return }
         self.relativePath = relativePath
@@ -50,7 +48,7 @@ final class NewFileState {
             onComplete?(newFolderURL, newFileURL)
         } catch {
             let message = error.localizedDescription
-            alertState.showAlert(message)
+            alertState.leaveAlert(message)
             consoleLog("new file: \(message)")
         }
     }
@@ -72,7 +70,7 @@ final class NewFileState {
             onComplete(newFileURL)
         } catch {
             let message = error.localizedDescription
-            alertState.showAlert(message)
+            alertState.leaveAlert(message)
             consoleLog("new file: \(message)")
         }
     }

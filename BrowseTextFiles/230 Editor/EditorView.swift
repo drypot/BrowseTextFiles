@@ -10,7 +10,7 @@ import SwiftUI
 struct EditorView: View {
     @Environment(AppState.self) var appState
     @Environment(BrowserState.self) var browserState
-    @Environment(FileListState.self) var fileListState
+    @Environment(TargetState.self) var targetState
     @Environment(EditorState.self) var editorState
 
     @Environment(\.openWindow) private var openWindow
@@ -27,49 +27,12 @@ struct EditorView: View {
                     .ignoresSafeArea()
             }
         }
-        .onChange(of: fileListState.selectedFileIDs, initial: true) {
-            selectedFileIDsChanged()
-        }
-        .toolbar {
-            // ToolbarItemGroup(placement: .navigation) {
-            //     Button("Prev", systemImage: "chevron.left")  {
-            //     }
-            //     .help("이전 항목으로 이동")
-
-            //     Button("Next", systemImage: "chevron.right") {
-            //     }
-            //     .help("다음 항목으로 이동")
-            // }
-
-            ToolbarItemGroup(placement: .navigation) {
-                Button("Reload", systemImage: "arrow.clockwise") {
-                    browserState.reloadAll()
-                }
-                .help("Reload")
-            }
-
-            ToolbarItemGroup(placement: .secondaryAction) {
-                Button("New File", systemImage: "square.and.pencil") {
-                    browserState.makeNewFile()
-                }
-                .help("New File")
-
-                Button("New File...", systemImage: "bubble.and.pencil") {
-                    browserState.showNewFileSheet()
-                }
-                .help("New File...")
-
-                Button("Show History", systemImage: "clock") {
-                    appState.toggleHistoryWindow(for: browserState, openWindow: openWindow, dismissWindow: dismissWindow)
-                }
-                .help("Show History")
-            }
-
-            ToolbarItem(placement: .primaryAction) {
-                Button("Search", systemImage: "magnifyingglass") {
-                    appState.toggleSearchWindow(for: browserState, openWindow: openWindow, dismissWindow: dismissWindow)
-                }
-                .help("Search")
+        .onChange(of: targetState.selectedFileURL, initial: true) { _, url in
+            if let url {
+                editorState.loadFile(at: url)
+                browserState.historyState.addToHistory(url)
+            } else {
+                editorState.reset()
             }
         }
     }
@@ -79,7 +42,7 @@ struct EditorView: View {
             Text(message)
                 .textSelection(.enabled)
             Button("Reload folder tree") {
-                browserState.reloadAll()
+                browserState.reload()
             }
             Spacer()
         }
@@ -87,7 +50,6 @@ struct EditorView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 
-    @ViewBuilder
     func textEditorView() -> some View {
         // SwiftUI TextEditor source of truth 동기화 비효율이 심해서
         // TextViewRepresentable 를 만들었다. NSTextView.string 을 source 로 쓴다.
@@ -148,18 +110,5 @@ struct EditorView: View {
         storage.beginEditing()
         storage.setAttributes(attributes, range: range)
         storage.endEditing()
-    }
-
-    func selectedFileIDsChanged() {
-        let selectedFileIDs = fileListState.selectedFileIDs
-        if selectedFileIDs.count == 0 {
-            editorState.reset()
-            return
-        }
-        if selectedFileIDs.count == 1 {
-            guard let url = selectedFileIDs.first else { return }
-            editorState.loadFile(at: url)
-            browserState.historyState.addToHistory(url)
-        }
     }
 }

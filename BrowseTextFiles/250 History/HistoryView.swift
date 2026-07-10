@@ -29,13 +29,13 @@ struct HistoryView: View {
 
             Divider()
 
-            if !historyState.history.isEmpty, let rootComponents = rootState.rootPathComponents {
+            if !historyState.history.isEmpty, let rootComponents = rootState.rootURL?.pathComponents {
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 8) {
                         ForEach(historyState.history) { historyItem in
                             let path = historyItem.relativePath(from: rootComponents)
                             Button(path) {
-                                browserState.loadFile(at: historyItem.url)
+                                browserState.targetState.targetFile(historyItem.url)
                             }
                         }
                         .buttonStyle(.plain)
