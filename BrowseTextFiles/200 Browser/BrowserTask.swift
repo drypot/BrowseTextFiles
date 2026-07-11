@@ -35,36 +35,35 @@ struct BrowserTask: ViewModifier {
     }
 
     func initialize() {
+        var sceneRootURL: URL? = nil
+        var sceneFileURL: URL? = nil
+        var isStale = false
+
         if let data = sceneRootURLData {
-            var isStale = false
-            let url = try? URL(resolvingBookmarkData: data,
-                               options: .withSecurityScope,
-                               relativeTo: nil,
-                               bookmarkDataIsStale: &isStale)
-            browserState.sceneRootURL = url
-            consoleLog("restore root: \(url?.path(percentEncoded: false) ?? "nil")")
+            sceneRootURL = try? URL(resolvingBookmarkData: data,
+                                    options: .withSecurityScope,
+                                    relativeTo: nil,
+                                    bookmarkDataIsStale: &isStale)
         }
+        consoleLog("restore root url: \(sceneRootURL?.path(percentEncoded: false) ?? "nil")")
 
         if let data = sceneFileURLData {
-            var isStale = false
-            let url = try? URL(resolvingBookmarkData: data,
-                               options: .withSecurityScope,
-                               relativeTo: nil,
-                               bookmarkDataIsStale: &isStale)
-            browserState.sceneFileURL = url
+            sceneFileURL = try? URL(resolvingBookmarkData: data,
+                                    options: .withSecurityScope,
+                                    relativeTo: nil,
+                                    bookmarkDataIsStale: &isStale)
         }
+        consoleLog("restore file url: \(sceneFileURL?.path(percentEncoded: false) ?? "nil")")
 
-        if let rootURL = browserState.sceneRootURL {
-            browserState.status = .loading
+        if let rootURL = sceneRootURL {
             browserState.configure(with: rootURL)
-            if let fileURL = browserState.sceneFileURL {
+            if let fileURL = sceneFileURL {
                 browserState.targetState.targetFile(fileURL)
             }
             return
         }
 
         if let rootURL = appState.newWindowRootURL {
-            browserState.status = .loading
             browserState.configure(with: rootURL)
             if let fileURL = appState.newWindowFileURL {
                 browserState.targetState.targetFile(fileURL)
@@ -73,17 +72,20 @@ struct BrowserTask: ViewModifier {
             appState.newWindowFileURL = nil
             return
         }
+
+        browserState.status = .showOpenPanel
     }
 
     func rootURLChanged() {
         guard let rootURL = browserState.rootState.rootURL else { return }
-        consoleLog("save root: \(browserState.id)")
+        consoleLog("save root url: \(rootURL.path(percentEncoded: false))")
         sceneRootURLData = try? rootURL.bookmarkData(options: .withSecurityScope)
         appState.addRecentDocumentURL(rootURL)
     }
 
     func fileURLChanged() {
         guard let fileURL = browserState.targetState.selectedFileURL else { return }
+        //consoleLog("save file url: \(fileURL.path(percentEncoded: false))")
         sceneFileURLData = try? fileURL.bookmarkData(options: .withSecurityScope)
     }
 

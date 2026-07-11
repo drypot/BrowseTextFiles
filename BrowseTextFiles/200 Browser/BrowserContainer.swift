@@ -24,7 +24,7 @@ struct BrowserContainer: View {
     var body: some View {
         Group {
             switch browserState.status {
-            case .blank:
+            case .showOpenPanel:
                 BrowserBlankView()
             case .loading:
                 Text("Loading...")

@@ -58,7 +58,7 @@ final class EditorState {
     func reset() {
         guard fileAssigned else { return }
 
-        consoleLog("reset buffer:")
+        //consoleLog("reset buffer:")
         editingFileURL = nil
         editingFilename = nil
         originalText = ""
@@ -82,9 +82,8 @@ final class EditorState {
 
     func loadFile() {
         guard let editingFileURL else { return }
-        guard let editingFilename else { return }
 
-        consoleLog("load file: \(editingFilename)")
+        consoleLog("load file: \(editingFileURL.path(percentEncoded: false))")
 
         do {
             originalText = try String(contentsOf: editingFileURL, encoding: .utf8)
@@ -114,7 +113,7 @@ final class EditorState {
     func closeFile() -> Bool {
         guard fileAssigned else { return true }
         guard autoSaveFile() else { return false }
-        consoleLog("close file: \(editingFilename ?? "")")
+        consoleLog("close file: \(editingFileURL?.path(percentEncoded: false) ?? "")")
         reset()
         return true
     }

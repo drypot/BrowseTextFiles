@@ -14,15 +14,12 @@ final class BrowserState: Identifiable {
     weak var window: NSWindow?
 
     enum BrowserStatus {
-        case blank
+        case showOpenPanel
         case loading
         case ready
     }
 
-    var status: BrowserStatus = .blank
-
-    var sceneRootURL: URL?
-    var sceneFileURL: URL?
+    var status: BrowserStatus = .loading
 
     @ObservationIgnored var rootState: RootState
     @ObservationIgnored var targetState: TargetState
