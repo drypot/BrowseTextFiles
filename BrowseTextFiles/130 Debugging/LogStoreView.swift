@@ -9,30 +9,8 @@ import SwiftUI
 
 struct LogStoreView: View {
     var body: some View {
-        let store = LogStore.shared
-        ScrollViewReader { proxy in
-            ZStack(alignment: .topTrailing) {
-                ScrollView {
-                    LazyVStack(alignment: .leading) {
-                        ForEach(store.logs) { log in
-                            Text(log.description)
-                        }
-                        Text("").id("999")
-                    }
-                    .monospaced()
-                    .padding(.horizontal)
-                }
-                .frame(maxWidth:.infinity, maxHeight: .infinity)
-                HStack {
-                    Button("Scroll Down") {
-                        proxy.scrollTo("999")
-                    }
-                    .padding(.horizontal)
-                }
-            }
-            .frame(minWidth: 450, minHeight: 150)
-        }
-        .background(WindowAccessor(onResolve: setupWindow))
+        LogStoreViewList()
+            .background(WindowAccessor(onResolve: setupWindow))
     }
 
     func setupWindow(_ window: NSWindow?) {
@@ -40,3 +18,30 @@ struct LogStoreView: View {
         window.collectionBehavior.insert(.ignoresCycle)
     }
 }
+
+fileprivate struct LogStoreViewList: View {
+    var body: some View {
+        let store = LogStore.shared
+        ScrollViewReader { proxy in
+            ZStack(alignment: .topTrailing) {
+                ScrollView {
+                    LazyVStack(alignment: .leading) {
+                        ForEach(store.logs) { log in
+                            Text(log.description)
+                                .textSelection(.enabled)
+                                .id(log.id)
+                        }
+                    }
+                    .monospaced()
+                    .padding(.horizontal)
+                }
+                .frame(maxWidth:.infinity, maxHeight: .infinity)
+            }
+            .frame(minWidth: 450, minHeight: 150)
+            .onChange(of: store.lastLogID) {
+                proxy.scrollTo(store.lastLogID, anchor: .bottom)
+            }
+        }
+    }
+}
+

@@ -26,20 +26,28 @@ struct LogEntry: Identifiable {
         )
         self.description = "\(header): \(message)"
     }
+
+    static func == (lhs: LogEntry, rhs: LogEntry) -> Bool {
+        lhs.id == rhs.id
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
 }
 
 @Observable
 final class LogStore {
     static let shared = LogStore()
 
-    private(set) var idCount: Int = 0
+    private(set) var lastLogID: Int = 0
     private(set) var logs: [LogEntry] = []
 
     private init() {}
 
     func log(_ message: String) {
-        let entry = LogEntry(id: idCount, message: message)
-        idCount += 1
+        lastLogID += 1
+        let entry = LogEntry(id: lastLogID, message: message)
         print(entry.description)
         logs.append(entry)
         if logs.count > 300 {
