@@ -34,23 +34,8 @@ struct BrowserWindow: Scene {
         //     BrowserInitParam()
         // }
 
-        //let _ = print("WindowGroup(Browser)")
         WindowGroup("Browser", id: "browser") {
-            //let _ = print("--- BrowserView(appState)")
-            BrowserView()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-
-            // 외부에서 file url 을 받았을 경우 folder 에 대한 권한이 없어서 원만히 작동하기가 힘들다.
-            // finder, drag & drop 연동은 일단 하지 않기로 한다.
-            // 오로지 folder 만 open 할 수 있는 것으로.
-
-            //.contentShape(Rectangle()) // 빈 화면에서 drag & drop 받기 위해
-            // .onOpenURL { url in
-            //     openURLFromFinder(url)
-            // }
-            // .dropDestination(for: URL.self) { urls, _ in
-            //     openURLsFromDragDrop(urls)
-            // }
+            BrowserContainer()
         }
         .defaultWindowPlacement { proxy, context in
             appState.makeWindowPlacement(

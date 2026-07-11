@@ -11,6 +11,18 @@ import UniformTypeIdentifiers
 @Observable
 final class BrowserState: Identifiable {
     let id = UUID()
+    weak var window: NSWindow?
+
+    enum BrowserStatus {
+        case blank
+        case loading
+        case ready
+    }
+
+    var status: BrowserStatus = .blank
+
+    var sceneRootURL: URL?
+    var sceneFileURL: URL?
 
     @ObservationIgnored var rootState: RootState
     @ObservationIgnored var targetState: TargetState
