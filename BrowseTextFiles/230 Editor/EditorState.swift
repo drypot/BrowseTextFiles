@@ -12,6 +12,7 @@ import UniformTypeIdentifiers
 final class EditorState {
     private(set) var editingFileURL: URL?
     private(set) var editingFilename: String?
+    private(set) var editingFilePath: String?
 
     var fileAssigned: Bool {
         editingFileURL != nil
@@ -61,6 +62,7 @@ final class EditorState {
         //consoleLog("reset buffer:")
         editingFileURL = nil
         editingFilename = nil
+        editingFilePath = nil
         originalText = ""
         shouldCopyOriginalText = false
         loadingError = nil
@@ -76,6 +78,7 @@ final class EditorState {
         if let url {
             editingFileURL = url
             editingFilename = url.lastPathComponent
+            editingFilePath = url.path(percentEncoded: false)
             loadFile()
         }
     }
@@ -83,7 +86,7 @@ final class EditorState {
     func loadFile() {
         guard let editingFileURL else { return }
 
-        consoleLog("load file: \(editingFileURL.path(percentEncoded: false))")
+        consoleLog("load file: \(editingFilePath ?? "nil")")
 
         do {
             originalText = try String(contentsOf: editingFileURL, encoding: .utf8)
@@ -113,7 +116,7 @@ final class EditorState {
     func closeFile() -> Bool {
         guard fileAssigned else { return true }
         guard autoSaveFile() else { return false }
-        consoleLog("close file: \(editingFileURL?.path(percentEncoded: false) ?? "")")
+        consoleLog("close file: \(editingFilePath ?? "nil")")
         reset()
         return true
     }
@@ -145,7 +148,7 @@ final class EditorState {
         guard let text = textView?.string else { return }
         guard let data = text.data(using: .utf8) else { return }
 
-        consoleLog("save file: \(editingFilename ?? "")")
+        consoleLog("save file: \(editingFilePath ?? "nil")")
         do {
             // 이렇게 하면 먼저 붙였던 fileMonitor 가 떨어져 나간다. 하지 말 것.
             // try text.write(to: url, atomically: true, encoding: .utf8)
