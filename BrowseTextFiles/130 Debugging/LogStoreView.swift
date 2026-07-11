@@ -9,7 +9,7 @@ import SwiftUI
 
 struct LogStoreView: View {
     var body: some View {
-        LogStoreViewList()
+        LogScrollViewReader()
             .background(WindowAccessor(onResolve: setupWindow))
     }
 
@@ -19,29 +19,40 @@ struct LogStoreView: View {
     }
 }
 
-fileprivate struct LogStoreViewList: View {
+fileprivate struct LogScrollViewReader: View {
     var body: some View {
         let store = LogStore.shared
         ScrollViewReader { proxy in
-            ZStack(alignment: .topTrailing) {
-                ScrollView {
-                    LazyVStack(alignment: .leading) {
-                        ForEach(store.logs) { log in
-                            Text(log.description)
-                                .textSelection(.enabled)
-                                .id(log.id)
-                        }
+            LogScrollView()
+                .onChange(of: store.shouldScroll) { _, shouldScroll in
+                    guard shouldScroll else { return }
+                    Task {
+                        proxy.scrollTo(-1, anchor: .bottom)
+                        store.shouldScroll = false
                     }
-                    .monospaced()
-                    .padding(.horizontal)
                 }
-                .frame(maxWidth:.infinity, maxHeight: .infinity)
-            }
-            .frame(minWidth: 450, minHeight: 150)
-            .onChange(of: store.lastLogID) {
-                proxy.scrollTo(store.lastLogID, anchor: .bottom)
-            }
         }
+    }
+}
+
+fileprivate struct LogScrollView: View {
+    var body: some View {
+        let store = LogStore.shared
+        ScrollView {
+            LazyVStack(alignment: .leading) {
+                ForEach(store.logs) { log in
+                    Text(log.description)
+                        .textSelection(.enabled)
+                }
+                Color.clear
+                    .frame(height: 1)
+                    .id(-1)
+            }
+            .monospaced()
+            .padding(.horizontal)
+        }
+        .frame(minWidth: 450, minHeight: 150)
+        .frame(maxWidth:.infinity, maxHeight: .infinity)
     }
 }
 

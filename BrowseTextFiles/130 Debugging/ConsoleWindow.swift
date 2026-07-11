@@ -25,6 +25,3 @@ struct ConsoleWindow: Scene {
     }
 }
 
-#Preview {
-//    ConsoneWindow()
-}

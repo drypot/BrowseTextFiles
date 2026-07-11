@@ -42,6 +42,7 @@ final class LogStore {
 
     private(set) var lastLogID: Int = 0
     private(set) var logs: [LogEntry] = []
+    var shouldScroll = false
 
     private init() {}
 
@@ -53,6 +54,7 @@ final class LogStore {
         if logs.count > 300 {
             logs.removeFirst()
         }
+        shouldScroll = true
     }
 
     func clear() {
