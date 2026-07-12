@@ -13,6 +13,8 @@ final class BrowserState: Identifiable {
     let id = UUID()
     weak var window: NSWindow?
 
+    // BrowserStatus
+
     enum BrowserStatus {
         case showOpenPanel
         case loading
@@ -21,10 +23,21 @@ final class BrowserState: Identifiable {
 
     var status: BrowserStatus = .loading
 
+    // New File Sheet
+
+    struct NewFileSheetParam {
+        let folderRelativePath: String
+    }
+
+    @ObservationIgnored var newFileSheetParam: NewFileSheetParam?
+
+    var isNewFileSheetPresented = false
+
+    // States
+
     @ObservationIgnored var rootState: RootState
     @ObservationIgnored var targetState: TargetState
     @ObservationIgnored var alertState: AlertState
-    @ObservationIgnored var newFileState: NewFileState
     @ObservationIgnored var renameState: RenameState
     @ObservationIgnored var folderTreeState: FolderTreeState
     @ObservationIgnored var fileListState: FileListState
@@ -36,7 +49,6 @@ final class BrowserState: Identifiable {
         rootState = RootState()
         targetState = TargetState()
         alertState = AlertState()
-        newFileState = NewFileState(rootState: rootState, alertState: alertState)
         renameState = RenameState(alertState: alertState)
         folderTreeState = FolderTreeState(rootState: rootState, targetState: targetState, alertState: alertState)
         fileListState = FileListState(targetState: targetState, alertState: alertState)
@@ -69,8 +81,24 @@ final class BrowserState: Identifiable {
 
     func makeNewFile(in folderURL: URL?) {
         guard let folderURL else { return }
-        newFileState.makeNewFile(in: folderURL) { newFileURL in
-            self.targetState.targetFile(newFileURL)
+        let fileManager = FileManager.default
+        var newFileURL = folderURL.appending(path: "Untitled.md", directoryHint: .notDirectory)
+        var counter = 1
+
+        while fileManager.fileExists(atPath: newFileURL.path(percentEncoded: false)), counter < 100 {
+            let newName = "Untitled \(counter).md"
+            newFileURL = folderURL.appending(path: newName, directoryHint: .notDirectory)
+            counter += 1
+        }
+
+        do {
+            consoleLog("new file: \(newFileURL.path(percentEncoded: false))")
+            try "".write(to: newFileURL, atomically: true, encoding: .utf8)
+            targetState.targetFile(newFileURL)
+        } catch {
+            let message = error.localizedDescription
+            alertState.leaveAlert(message)
+            consoleLog("new file: \(message)")
         }
     }
 
@@ -78,18 +106,59 @@ final class BrowserState: Identifiable {
         makeNewFile(in: targetState.selectedFolderURL)
     }
 
-    func showNewFileSheet(for folderURL: URL?) {
+    // MARK: - New File Sheet
+
+    func showNewFileSheet(on folderURL: URL?) {
         guard let folderURL else { return }
-        newFileState.showNewFileSheet(on: folderURL) { newFolderURL, newFileURL in
-            if newFolderURL != nil {
-                self.folderTreeState.reloadFolderTree()
-            }
-            self.targetState.targetFile(newFileURL)
-        }
+        guard let rootURL = rootState.rootURL else { return }
+        guard let relativePath = folderURL.relativePath(from: rootURL) else { return }
+        newFileSheetParam = NewFileSheetParam(folderRelativePath: relativePath)
+        isNewFileSheetPresented = true
     }
 
     func showNewFileSheet() {
-        showNewFileSheet(for: targetState.selectedFolderURL)
+        showNewFileSheet(on: targetState.selectedFolderURL)
     }
+
+    func makeNewFile(with newFilePath: String) {
+        guard let rootURL = rootState.rootURL else { return }
+        let fileManager = FileManager.default
+        let newFileURL = rootURL.appending(path: newFilePath).standardizedFileURL
+        var newFolderURL: URL? = nil
+        do {
+            if !fileManager.fileExists(atPath: newFileURL.path(percentEncoded: false)) {
+                let folderURL = newFileURL.deletingLastPathComponent()
+                if !fileManager.fileExists(atPath: folderURL.path(percentEncoded: false)) {
+                    try fileManager.createDirectory(at: folderURL, withIntermediateDirectories: true, attributes: nil)
+                    newFolderURL = folderURL
+                }
+                consoleLog("new file: \(newFileURL.path(percentEncoded: false))")
+                try "".write(to: newFileURL, atomically: true, encoding: .utf8)
+            }
+            if newFolderURL != nil {
+                folderTreeState.reloadFolderTree()
+            }
+            targetState.targetFile(newFileURL)
+        } catch {
+            let message = error.localizedDescription
+            alertState.leaveAlert(message)
+            consoleLog("new file: \(message)")
+        }
+    }
+
+    // MARK: - Rename Folder
+
+//    func showRenameFolderSheet(selection: Set<FileState.ID>) {
+//        guard selection.count == 1 else { return }
+//        guard let url = selection.first else { return }
+//        renameState.showRenameSheet(for: url) { oldURL, newURL in
+//            if targetState.selectedFolderURL == oldURL {
+//                folderTreeState.reloadFolderTree()
+//                targetState.selectedFolderURL = newURL
+//            } else {
+//                folderTreeState.reloadFolderTree()
+//            }
+//        }
+//    }
 
 }

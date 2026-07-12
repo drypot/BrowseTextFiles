@@ -9,7 +9,7 @@ import SwiftUI
 
 struct NewFileSheet: View {
     @Environment(AppState.self) var appState
-    @Environment(NewFileState.self) var newFileState
+    @Environment(BrowserState.self) var browserState
 
     @Environment(\.dismiss) private var dismiss
 
@@ -17,8 +17,8 @@ struct NewFileSheet: View {
 
     var body: some View {
         VStack(alignment: .leading) {
-            formView
-            buttonsView
+            form
+            buttons
                 .padding()
         }
         .frame(width: 700 /*, height: 600*/)
@@ -27,7 +27,7 @@ struct NewFileSheet: View {
         }
     }
 
-    var formView: some View {
+    var form: some View {
         Form {
             @Bindable var appState = appState
 
@@ -63,7 +63,7 @@ struct NewFileSheet: View {
         .formStyle(.grouped)
     }
 
-    var buttonsView: some View {
+    var buttons: some View {
         HStack {
             Button("Reset templates to defaults") {
                 appState.resetNewFileTemplatesToDefaults()
@@ -89,7 +89,7 @@ struct NewFileSheet: View {
     }
 
     func submit() {
-        newFileState.makeNewFile(with: newFilePath)
+        browserState.makeNewFile(with: newFilePath)
     }
 
     func updateNewFilePath() {
@@ -107,6 +107,7 @@ struct NewFileSheet: View {
     }
 
     func expand(template: String) -> String {
+        guard let param = browserState.newFileSheetParam else { return "" }
         let calendar = Calendar.current
         let date = Date()
         let components = calendar.dateComponents(in: calendar.timeZone, from: date)
@@ -117,7 +118,7 @@ struct NewFileSheet: View {
         let minute = components.minute ?? 0
         let second = components.second ?? 0
         let weekday = components.weekday ?? 0
-        let relativeFolderPath = newFileState.relativePath ?? ""
+        let folderRelativePath = param.folderRelativePath
         return template
             .replacingOccurrences(of: "{year}", with: year.formatted(.number.grouping(.never).precision(.integerLength(4))))
             .replacingOccurrences(of: "{month}", with: month.formatted(.number.precision(.integerLength(2))))
@@ -127,10 +128,6 @@ struct NewFileSheet: View {
             .replacingOccurrences(of: "{second}", with: second.formatted(.number.precision(.integerLength(2))))
             .replacingOccurrences(of: "{weekday}", with: calendar.standaloneWeekdaySymbols[weekday - 1])
             .replacingOccurrences(of: "{weekday-short}", with: calendar.shortWeekdaySymbols[weekday - 1])
-            .replacingOccurrences(of: "{selected-folder}", with: relativeFolderPath)
+            .replacingOccurrences(of: "{selected-folder}", with: folderRelativePath)
     }
-}
-
-#Preview {
-    //    NewFileSheet()
 }

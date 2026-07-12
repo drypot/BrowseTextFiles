@@ -11,7 +11,6 @@ struct FileListView: View {
     @Environment(AppState.self) var appState
     @Environment(BrowserState.self) var browserState
     @Environment(TargetState.self) var targetState
-    @Environment(NewFileState.self) var newFileState
     @Environment(RenameState.self) var renameState
     @Environment(FileListState.self) var fileListState
 
@@ -38,11 +37,11 @@ struct FileListView: View {
         .onKeyPress(phases: .down, action: handleKeyPress)
         .contextMenu(forSelectionType: FileState.ID.self) { selection in
             Button("New File") {
-                browserState.makeNewFile(in: targetState.selectedFolderURL)
+                browserState.makeNewFile()
             }
 
             Button("New File...") {
-                browserState.showNewFileSheet(for: targetState.selectedFolderURL)
+                browserState.showNewFileSheet()
             }
 
             if selection.count == 1 {

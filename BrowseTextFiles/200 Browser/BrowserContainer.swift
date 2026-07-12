@@ -45,8 +45,6 @@ struct BrowserContainer: View {
         .environment(browserState.rootState)
         .environment(browserState.targetState)
         .environment(browserState.alertState)
-        .environment(browserState.newFileState)
-        .environment(browserState.renameState)
         .environment(browserState.folderTreeState)
         .environment(browserState.fileListState)
         .environment(browserState.searchState)

@@ -13,7 +13,7 @@ struct BrowserSheet: ViewModifier {
     func body(content: Content) -> some View {
         @Bindable var browserState = browserState
         content
-            .sheet(isPresented: $browserState.newFileState.isNewFileSheetPresented) {
+            .sheet(isPresented: $browserState.isNewFileSheetPresented) {
                 NewFileSheet()
             }
             .sheet(isPresented: $browserState.renameState.isRenameSheetPresented) {

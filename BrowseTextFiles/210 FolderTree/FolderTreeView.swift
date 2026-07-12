@@ -15,8 +15,6 @@ struct FolderTreeView: View {
     @Environment(RenameState.self) var renameState
     @Environment(FolderTreeState.self) var folderTreeState
 
-    @Environment(\.openWindow) private var openWindow
-
     var body: some View {
         @Bindable var targetState = targetState
         @Bindable var folderTreeState = folderTreeState
@@ -39,43 +37,8 @@ struct FolderTreeView: View {
             }
         }
         .onKeyPress(phases: .down, action: handleKeyPress)
-        .contextMenu(forSelectionType: FolderState.ID.self) { selection in
-            if selection.count == 1 {
-                Button("New File") {
-                    guard let url = selection.first else { return }
-                    browserState.makeNewFile(in: url)
-                }
-
-                Button("New File...") {
-                    guard let url = selection.first else { return }
-                    browserState.showNewFileSheet(for: url)
-                }
-
-                Button("New Folder") {
-                    guard let url = selection.first else { return }
-                    folderTreeState.makeNewFolder(in: url)
-                }
-
-                Button("Show in Finder") {
-                    guard let url = selection.first else { return }
-                    Finder.shared.open(url: url)
-                }
-
-                Button("Open in New Window") {
-                    guard let url = selection.first else { return }
-                    appState.openNewBrowserWindow(fromRootURL: url, fileURL: nil, openWindow: openWindow)
-                }
-
-                Divider()
-
-                Button("Rename") {
-                    showRenameSheet(selection: selection)
-                }
-            }
-
-            Button("Delete") {
-                folderTreeState.trashFolders(selection: selection)
-            }
+        .contextMenu(forSelectionType: FolderState.ID.self) {
+            FolderTreeContextMenu(selection: $0)
         }
         .toolbar {
             ToolbarItem {
@@ -97,7 +60,8 @@ struct FolderTreeView: View {
             browserState.editorState.shouldFocusedCount += 1
 
         case .return:
-            showRenameSheet(selection: targetState.selectedFolderURLs)
+            break
+            //showRenameSheet(selection: targetState.selectedFolderURLs)
 
         /*
         case "\u{19}": // shift tab
@@ -125,18 +89,7 @@ struct FolderTreeView: View {
         return .handled
     }
 
-    func showRenameSheet(selection: Set<FileState.ID>) {
-        guard selection.count == 1 else { return }
-        guard let url = selection.first else { return }
-        renameState.showRenameSheet(for: url) { oldURL, newURL in
-            if targetState.selectedFolderURL == oldURL {
-                folderTreeState.reloadFolderTree()
-                targetState.selectedFolderURL = newURL
-            } else {
-                folderTreeState.reloadFolderTree()
-            }
-        }
-    }
+    
 
 }
 
