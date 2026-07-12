@@ -19,10 +19,9 @@ final class FileListState {
     }
 
     func loadFileList(at folderURL: URL?) {
-        guard let folderURL = browserState.selectedFolderURL else {
-            fileList = nil
-            return
-        }
+        fileList = nil
+
+        guard let folderURL else { return }
 
         consoleLog("load file list: \(folderURL.path(percentEncoded: false))")
         do {
@@ -42,8 +41,15 @@ final class FileListState {
         }
     }
 
+    func loadFileList() {
+        loadFileList(at: browserState.selectedFolderURL)
+    }
+
     func trashFiles(selection: Set<FileState.ID>) {
-        fileList?.removeAll(where: { selection.contains($0.id) })
+        fileList?.removeAll { selection.contains($0.id) }
+        if let selectedFileURL = browserState.selectedFileURL, selection.contains(selectedFileURL) {
+            browserState.selectedFileURL = nil
+        }
         do {
             let fileManager = FileManager.default
             for url in selection {
@@ -57,40 +63,4 @@ final class FileListState {
         }
     }
 
-    /*
-    List 수작업으로 만들었을 때 쓰던 코드.
-
-    func selecteNextFile() -> Bool {
-        guard let fileList else { return false }
-        guard let selectedFileID else { return false }
-        var previous: FileState?
-
-        for item in fileList {
-            if previous?.id == selectedFileID {
-                selectFile(item)
-                return true
-            }
-            previous = item
-        }
-
-        return false
-    }
-
-    func selectePreviousFile() -> Bool {
-        guard let fileList else { return false }
-        guard let selectedFileID else { return false }
-        var previous: FileState?
-
-        for item in fileList {
-            if item.id == selectedFileID {
-                guard let previous else { return false }
-                selectFile(previous)
-                return true
-            }
-            previous = item
-        }
-
-        return false
-    }
-    */
 }

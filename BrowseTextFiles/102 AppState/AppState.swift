@@ -158,29 +158,24 @@ class AppState {
         //print("save browser window size: \(size)")
     }
 
-    func openNewBrowserWindow(fromRootURL rootURL: URL?, fileURL: URL?, openWindow: OpenWindowAction) {
-        newWindowRootURL = rootURL
+    func openNewBrowserWindow(fromFolderURL folderURL: URL?, fileURL: URL?, openWindow: OpenWindowAction) {
+        newWindowRootURL = folderURL
         newWindowFileURL = fileURL
         openWindow(id: "browser")
     }
 
-    func openNewBrowserWindow(fromFileURL fileURL: URL, openWindow: OpenWindowAction) {
-        let rootURL = fileURL.deletingLastPathComponent()
-        openNewBrowserWindow(fromRootURL: rootURL, fileURL: fileURL, openWindow: openWindow)
-    }
-
-    func openNewBrowserWindow(fromState state: RootState?, openWindow: OpenWindowAction) {
-        openNewBrowserWindow(fromRootURL: state?.browserState.rootURL, fileURL: state?.browserState.selectedFileURL, openWindow: openWindow)
+    func openNewBrowserWindow(fromFileURL fileURL: URL?, openWindow: OpenWindowAction) {
+        let rootURL = fileURL?.deletingLastPathComponent()
+        openNewBrowserWindow(fromFolderURL: rootURL, fileURL: fileURL, openWindow: openWindow)
     }
 
     func openNewBrowserWindow(openWindow: OpenWindowAction) {
-        openNewBrowserWindow(fromRootURL: nil, fileURL: nil, openWindow: openWindow)
+        openNewBrowserWindow(fromFolderURL: nil, fileURL: nil, openWindow: openWindow)
     }
 
     func openNewBrowserWindowFromDialog(openWindow: OpenWindowAction) {
         showFolderOpenPanel { url in
-            self.addRecentDocumentURL(url)
-            self.openNewBrowserWindow(fromRootURL: url, fileURL: nil, openWindow: openWindow)
+            self.openNewBrowserWindow(fromFolderURL: url, fileURL: nil, openWindow: openWindow)
         }
     }
 
@@ -286,6 +281,19 @@ class AppState {
             state.historyState.isHistoryWindowPresented = false
         } else {
             openHistoryWindow(for: state, openWindow: openWindow)
+        }
+    }
+
+    // MARK: - Finder
+
+    func openFinder(with url: URL?) {
+        guard let url else { return }
+        let path = url.path(percentEncoded: false)
+        if FileManager.default.fileExists(atPath: path) {
+            NSWorkspace.shared.selectFile(path, inFileViewerRootedAtPath: "")
+        } else {
+            let folderURL = url.deletingLastPathComponent()
+            NSWorkspace.shared.open(folderURL)
         }
     }
 }

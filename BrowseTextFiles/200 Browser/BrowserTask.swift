@@ -56,7 +56,7 @@ struct BrowserTask: ViewModifier {
         consoleLog("restore file url: \(sceneFileURL?.path(percentEncoded: false) ?? "nil")")
 
         if let rootURL = sceneRootURL {
-            rootState.configure(with: rootURL)
+            rootState.configure(with: rootURL, appState: appState)
             if let fileURL = sceneFileURL {
                 rootState.browserState.targetFile(fileURL)
             }
@@ -64,7 +64,7 @@ struct BrowserTask: ViewModifier {
         }
 
         if let rootURL = appState.newWindowRootURL {
-            rootState.configure(with: rootURL)
+            rootState.configure(with: rootURL, appState: appState)
             if let fileURL = appState.newWindowFileURL {
                 rootState.browserState.targetFile(fileURL)
             }

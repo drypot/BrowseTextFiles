@@ -13,7 +13,7 @@ struct BrowserSplitView: View {
             FolderTreeView()
                 .frame(minWidth: 200, maxHeight: .infinity)
         } content: {
-            FileListView()
+            FileListContainer()
                 .frame(minWidth: 180, maxHeight: .infinity)
         } detail: {
             EditorContainer()

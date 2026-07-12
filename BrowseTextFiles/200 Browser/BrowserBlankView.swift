@@ -20,7 +20,7 @@ struct BrowserBlankView: View {
     private func showOpenPanel() {
         guard let window = rootState.window else { return }
         appState.showFolderOpenPanelFor(window) { url in
-            rootState.configure(with: url)
+            rootState.configure(with: url, appState: appState)
             appState.addRecentDocumentURL(url)
         }
     }

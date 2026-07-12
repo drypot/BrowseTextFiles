@@ -34,13 +34,13 @@ struct FolderTreeContextMenu: View {
             }
 
             Button("Show in Finder") {
-                guard let url = selection.first else { return }
-                Finder.shared.open(url: url)
+                let url = selection.first
+                appState.openFinder(with: url)
             }
 
             Button("Open in New Window") {
                 guard let url = selection.first else { return }
-                appState.openNewBrowserWindow(fromRootURL: url, fileURL: nil, openWindow: openWindow)
+                appState.openNewBrowserWindow(fromFolderURL: url, fileURL: nil, openWindow: openWindow)
             }
 
             Divider()

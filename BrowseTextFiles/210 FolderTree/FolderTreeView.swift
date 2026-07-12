@@ -164,7 +164,7 @@ fileprivate struct RowView: View {
             }
 
             Button("Open in New Window") {
-                appState.openNewBrowserWindow(fromRootURL: item.url, fileURL: nil, openWindow: openWindow)
+                appState.openNewBrowserWindow(fromFolderURL: item.url, fileURL: nil, openWindow: openWindow)
             }
 
             Divider()

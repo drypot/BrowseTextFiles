@@ -71,11 +71,12 @@ final class RootState: Identifiable {
         browserState.releaseResource()
     }
 
-    func configure(with rootURL: URL) {
+    func configure(with rootURL: URL, appState: AppState) {
         consoleLog("configure root state: \(rootURL.path(percentEncoded: false))")
         browserState.configure(with: rootURL)
         folderTreeState.reloadFolderTree()
         browserState.selectedFolderURL = rootURL
+        appState.addRecentDocumentURL(rootURL)
     }
 
     func reload() {
@@ -102,6 +103,7 @@ final class RootState: Identifiable {
             consoleLog("new file: \(newFileURL.path(percentEncoded: false))")
             try "".write(to: newFileURL, atomically: true, encoding: .utf8)
             browserState.targetFile(newFileURL)
+            fileListState.loadFileList()
         } catch {
             let message = error.localizedDescription
             browserState.leaveAlert(message)
@@ -146,6 +148,7 @@ final class RootState: Identifiable {
                 folderTreeState.reloadFolderTree()
             }
             browserState.targetFile(newFileURL)
+            fileListState.loadFileList()
         } catch {
             let message = error.localizedDescription
             browserState.leaveAlert(message)
