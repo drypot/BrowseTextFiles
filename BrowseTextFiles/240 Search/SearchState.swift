@@ -26,7 +26,13 @@ final class SearchState {
     var searchResults: [SearchResult]?
     var isSearchWindowPresented = false
 
-    func startSearch(rootURL: URL, alertState: AlertState) {
+    @ObservationIgnored private(set) var alertState: AlertState
+
+    init(alertState: AlertState) {
+        self.alertState = alertState
+    }
+
+    func startSearch(rootURL: URL) {
         consoleLog("search: \"\(searchText)\"")
 
         if isSearching { return }
@@ -48,8 +54,7 @@ final class SearchState {
 
         Task {
             do {
-                searchResults = try await searchParallel(rootURL: rootURL, searchText: searchText)
-                isSearching = false
+                searchResults = try await searchParallel(searchText, at: rootURL)
                 consoleLog("search: found \(searchResults?.count ?? 0) files")
             } catch {
                 let message = error.localizedDescription
@@ -57,17 +62,19 @@ final class SearchState {
                 consoleLog("search: \(message)")
             }
         }
+
+        isSearching = false
     }
 
     @concurrent
-    public func searchParallel(rootURL: URL, searchText: String) async throws -> [SearchResult] {
+    public func searchParallel(_ searchText: String, at rootURL: URL) async throws -> [SearchResult] {
         let basePath = rootURL.path(percentEncoded: false)
         let basePathLength = basePath.count
 
-        return try await withThrowingTaskGroup(of: SearchResult?.self) { group in
-            for fileItem in try FileState.collectRecursively(from: rootURL) {
+        let result = try await withThrowingTaskGroup(of: SearchResult?.self) { group in
+            for fileItem in try FileState.collectRecursively(at: rootURL) {
                 group.addTask(priority: .userInitiated) {
-                    let lines = try Self.filterLines(from: fileItem.url, searchText: searchText)
+                    let lines = try Self.filterLines(from: fileItem.url, with: searchText)
                     if fileItem.name.contains(searchText) || lines.count > 0 {
                         let title = String(fileItem.url.path(percentEncoded: false).dropFirst(basePathLength)).precomposedStringWithCanonicalMapping
                         return SearchResult(url: fileItem.url, title: title, lines: lines)
@@ -85,9 +92,11 @@ final class SearchState {
                 $0.title.localizedStandardCompare($1.title) == .orderedAscending
             }
         }
+
+        return result
     }
 
-    nonisolated private static func filterLines(from url: URL, searchText: String) throws -> [SearchResult.Line] {
+    nonisolated private static func filterLines(from url: URL, with searchText: String) throws -> [SearchResult.Line] {
         let fileHandle = try FileHandle(forReadingFrom: url)
         defer { try? fileHandle.close() }
 

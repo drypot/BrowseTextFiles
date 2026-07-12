@@ -13,10 +13,11 @@ struct SearchWindow: Scene {
     var body: some Scene {
         WindowGroup("Search", id: "search", for: UUID.self) { $id in
             if let browserState = appState.lastBrowserState {
-                SearchView()
+                SearchContainer()
                     .frame(minWidth: 320, minHeight: 200)
                     .environment(browserState)
                     .environment(browserState.rootState)
+                    .environment(browserState.targetState)
                     .environment(browserState.searchState)
             }
         }

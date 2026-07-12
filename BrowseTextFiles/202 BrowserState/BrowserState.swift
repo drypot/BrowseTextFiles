@@ -40,7 +40,7 @@ final class BrowserState: Identifiable {
         renameState = RenameState(alertState: alertState)
         folderTreeState = FolderTreeState(rootState: rootState, targetState: targetState, alertState: alertState)
         fileListState = FileListState(targetState: targetState, alertState: alertState)
-        searchState = SearchState()
+        searchState = SearchState(alertState: alertState)
         historyState = HistoryState()
         editorState = EditorState(alertState: alertState)
 

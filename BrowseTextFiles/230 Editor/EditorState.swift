@@ -37,20 +37,15 @@ final class EditorState {
 
     // Data 에서 NSTextView 링크를 갖는 것이 이상하지만;
     // 효율을 위해 NSTextView.string 을 Source of truth 로 쓴다;
-    @ObservationIgnored
-    weak var textView: NSTextView?
+    @ObservationIgnored weak var textView: NSTextView?
 
-    @ObservationIgnored
-    var isTextViewEdited = false
+    @ObservationIgnored var isTextViewEdited = false
 
-    @ObservationIgnored
-    private var fileMonitor: FileMonitor?
+    @ObservationIgnored private var fileMonitor: FileMonitor?
 
-    @ObservationIgnored
-    private var autoSaveTask: Task<Void, Never>?
+    @ObservationIgnored private var autoSaveTask: Task<Void, Never>?
 
-    @ObservationIgnored
-    private(set) var alertState: AlertState
+    @ObservationIgnored private(set) var alertState: AlertState
 
     init(alertState: AlertState) {
         self.alertState = alertState

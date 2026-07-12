@@ -56,7 +56,7 @@ nonisolated struct FileState: Identifiable, Hashable {
         return results
     }
 
-    static func collectRecursively(from rootURL: URL) throws -> [FileState] {
+    static func collectRecursively(at rootURL: URL) throws -> [FileState] {
         let fileManager = FileManager.default
         let keys: [URLResourceKey] = [.isRegularFileKey, .isDirectoryKey]
         let keySet = Set(keys)
