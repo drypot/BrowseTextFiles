@@ -10,8 +10,8 @@ import SwiftUI
 // https://developer.apple.com/library/archive/documentation/TextFonts/Conceptual/CocoaTextArchitecture/TextEditing/TextEditing.html#//apple_ref/doc/uid/TP40009459-CH3-SW16
 
 struct TextViewRepresentable: NSViewRepresentable {
-    var appState: AppState
-    var editorState: EditorState
+    @Environment(AppState.self) var appState
+    @Environment(EditorState.self) var editorState
 
     func makeCoordinator() -> Coordinator {
         return Coordinator(self)

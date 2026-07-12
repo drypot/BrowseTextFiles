@@ -72,7 +72,7 @@ final class RootState: Identifiable {
     }
 
     func configure(with rootURL: URL) {
-        consoleLog("configure browser: \(rootURL.path(percentEncoded: false))")
+        consoleLog("configure root state: \(rootURL.path(percentEncoded: false))")
         browserState.configure(with: rootURL)
         folderTreeState.reloadFolderTree()
         browserState.selectedFolderURL = rootURL

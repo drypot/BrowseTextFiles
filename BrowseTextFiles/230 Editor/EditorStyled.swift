@@ -1,66 +1,30 @@
 //
-//  EditorView.swift
+//  EditorStyled.swift
 //  Browse Text Files
 //
-//  Created by Kyuhyun Park on 5/5/26.
+//  Created by Kyuhyun Park on 7/13/26.
 //
 
 import SwiftUI
 
-struct EditorView: View {
+struct EditorStyled: View {
     @Environment(AppState.self) var appState
-    @Environment(RootState.self) var rootState
-    @Environment(BrowserState.self) var browserState
     @Environment(EditorState.self) var editorState
-
-    @Environment(\.openWindow) private var openWindow
-    @Environment(\.dismissWindow) private var dismissWindow
 
     @FocusState private var isFocused: Bool
 
     var body: some View {
-        VStack {
-            if let loadingError = editorState.loadingError {
-                errorMessageView(message: loadingError)
-            } else if editorState.fileAssigned {
-                textEditorView()
-                    .ignoresSafeArea()
-            }
-        }
-        .onChange(of: browserState.selectedFileURL, initial: true) { _, url in
-            if let url {
-                editorState.loadFile(at: url)
-                rootState.historyState.addToHistory(url)
-            } else {
-                editorState.reset()
-            }
-        }
-    }
-
-    func errorMessageView(message: String) -> some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text(message)
-                .textSelection(.enabled)
-            Button("Reload folder tree") {
-                rootState.reload()
-            }
-            Spacer()
-        }
-        .padding()
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-    }
-
-    func textEditorView() -> some View {
         // SwiftUI TextEditor source of truth 동기화 비효율이 심해서
         // TextViewRepresentable 를 만들었다. NSTextView.string 을 source 로 쓴다.
-        TextViewRepresentable(appState: appState, editorState: editorState)
-            //.frame(maxWidth: .infinity, maxHeight: .infinity)
+        TextViewRepresentable()
+        //.frame(maxWidth: .infinity, maxHeight: .infinity)
+            .ignoresSafeArea()
             .focused($isFocused)
             .onChange(of: editorState.shouldFocusedCount) {
                 isFocused = true
             }
-            // TextViewRepresentable.updateNSView 에서 스타일까지 업데이트하면 비효율이 심해진다.
-            // 여기로 따로 빼놨다.
+        // TextViewRepresentable.updateNSView 에서 스타일까지 업데이트하면 비효율이 심해진다.
+        // 여기로 따로 빼놨다.
             .onChange(of: editorState.updateTextViewStyleCount, initial: true) {
                 // 새 파일 로드하면 가끔 스타일이 입혀지지 않아서;
                 // 로드된 후 스타일을 강제로 한번 입히는 것으로;
@@ -76,12 +40,12 @@ struct EditorView: View {
                 updateTextViewStyle()
             }
 
-            // .overlay(
-            //     Text(debugID.uuidString.prefix(4))
-            //         .font(.caption)
-            //         .foregroundColor(.red),
-            //     alignment: .topTrailing
-            // )
+        // .overlay(
+        //     Text(debugID.uuidString.prefix(4))
+        //         .font(.caption)
+        //         .foregroundColor(.red),
+        //     alignment: .topTrailing
+        // )
     }
 
     func updateTextViewStyle() {

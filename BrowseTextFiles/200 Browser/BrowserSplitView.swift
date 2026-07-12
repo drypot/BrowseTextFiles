@@ -16,7 +16,7 @@ struct BrowserSplitView: View {
             FileListView()
                 .frame(minWidth: 180, maxHeight: .infinity)
         } detail: {
-            EditorView()
+            EditorContainer()
                 .frame(minWidth: 300, maxHeight: .infinity)
         }
     }
