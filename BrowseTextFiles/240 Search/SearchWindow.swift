@@ -12,13 +12,13 @@ struct SearchWindow: Scene {
 
     var body: some Scene {
         WindowGroup("Search", id: "search", for: UUID.self) { $id in
-            if let browserState = appState.lastBrowserState {
+            if let rootState = appState.lastBrowserState {
                 SearchContainer()
                     .frame(minWidth: 320, minHeight: 200)
-                    .environment(browserState)
-                    .environment(browserState.rootState)
-                    .environment(browserState.targetState)
-                    .environment(browserState.searchState)
+                    .environment(rootState)
+                    .environment(rootState.browserState)
+                    .environment(rootState.browserState)
+                    .environment(rootState.searchState)
             }
         }
         .restorationBehavior(.disabled)

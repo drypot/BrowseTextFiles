@@ -8,21 +8,21 @@
 import SwiftUI
 
 struct BrowserSheet: ViewModifier {
-    @Environment(BrowserState.self) var browserState
+    @Environment(RootState.self) var rootState
 
     func body(content: Content) -> some View {
-        @Bindable var browserState = browserState
+        @Bindable var rootState = rootState
         content
-            .sheet(isPresented: $browserState.isNewFileSheetPresented) {
+            .sheet(isPresented: $rootState.isNewFileSheetPresented) {
                 NewFileSheet()
             }
-            .sheet(isPresented: $browserState.isRenameSheetPresented) {
+            .sheet(isPresented: $rootState.isRenameSheetPresented) {
                 RenameSheet()
             }
-            .alert("", isPresented: $browserState.alertState.hasMessage) {
+            .alert("", isPresented: $rootState.browserState.hasAlertMessage) {
                 Button("OK") { }
             } message: {
-                Text(browserState.alertState.message)
+                Text(rootState.browserState.alertMessage)
             }
     }
 }

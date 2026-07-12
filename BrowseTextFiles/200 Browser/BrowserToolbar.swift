@@ -9,7 +9,7 @@ import SwiftUI
 
 struct BrowserToolbar: ToolbarContent {
     @Environment(AppState.self) var appState
-    @Environment(BrowserState.self) var browserState
+    @Environment(RootState.self) var rootState
 
     @Environment(\.openWindow) private var openWindow
     @Environment(\.dismissWindow) private var dismissWindow
@@ -27,31 +27,31 @@ struct BrowserToolbar: ToolbarContent {
 
         ToolbarItemGroup(placement: .navigation) {
             Button("Reload", systemImage: "arrow.clockwise") {
-                browserState.reload()
+                rootState.reload()
             }
             .help("Reload")
         }
 
         ToolbarItemGroup(placement: .secondaryAction) {
             Button("New File", systemImage: "square.and.pencil") {
-                browserState.makeNewFile()
+                rootState.makeNewFile()
             }
             .help("New File")
 
             Button("New File...", systemImage: "bubble.and.pencil") {
-                browserState.showNewFileSheet()
+                rootState.showNewFileSheet()
             }
             .help("New File...")
 
             Button("Show History", systemImage: "clock") {
-                appState.toggleHistoryWindow(for: browserState, openWindow: openWindow, dismissWindow: dismissWindow)
+                appState.toggleHistoryWindow(for: rootState, openWindow: openWindow, dismissWindow: dismissWindow)
             }
             .help("Show History")
         }
 
         ToolbarItem(placement: .primaryAction) {
             Button("Search", systemImage: "magnifyingglass") {
-                appState.toggleSearchWindow(for: browserState, openWindow: openWindow, dismissWindow: dismissWindow)
+                appState.toggleSearchWindow(for: rootState, openWindow: openWindow, dismissWindow: dismissWindow)
             }
             .help("Search")
         }

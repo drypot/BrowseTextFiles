@@ -9,16 +9,15 @@ import SwiftUI
 
 struct FolderTreeView: View {
     @Environment(AppState.self) var appState
-    @Environment(BrowserState.self) var browserState
     @Environment(RootState.self) var rootState
-    @Environment(TargetState.self) var targetState
+    @Environment(BrowserState.self) var browserState
     @Environment(FolderTreeState.self) var folderTreeState
 
     var body: some View {
-        @Bindable var targetState = targetState
+        @Bindable var browserState = browserState
         @Bindable var folderTreeState = folderTreeState
         ScrollViewReader { proxy in
-            List(selection: $targetState.selectedFolderURLs) {
+            List(selection: $browserState.selectedFolderURLs) {
                 if let rootFolder = folderTreeState.rootFolder {
                     TreeRow(rootFolder, children: \.children, expanded: $folderTreeState.expandedFolderURLs) { folder in
                         Text(folder.name)
@@ -27,7 +26,7 @@ struct FolderTreeView: View {
                 }
             }
             .id(folderTreeState.refreshCount)
-            .onChange(of: targetState.selectedFolderURL) { _, url in
+            .onChange(of: browserState.selectedFolderURL) { _, url in
                 if let url {
                     withAnimation {
                         proxy.scrollTo(url)
@@ -42,7 +41,7 @@ struct FolderTreeView: View {
         .toolbar {
             ToolbarItem {
                 Button("New Folder", systemImage: "folder.badge.plus") {
-                    browserState.makeNewFile(in: targetState.selectedFolderURL)
+                    rootState.makeNewFile(in: browserState.selectedFolderURL)
                 }
                 .help("New Folder")
             }
@@ -56,27 +55,27 @@ struct FolderTreeView: View {
 
         switch press.key {
         case .tab:
-            browserState.editorState.shouldFocusedCount += 1
+            rootState.editorState.shouldFocusedCount += 1
 
         case .return:
-            browserState.showRenameFolderSheet()
+            rootState.showRenameFolderSheet()
 
         /*
         case "\u{19}": // shift tab
             break
         case .downArrow:
-            if browserState.selectNextFolder() {
-                browserState.fileListState.loadFileList(at: browserState.selectedFolder?.url)
+            if rootState.selectNextFolder() {
+                rootState.fileListState.loadFileList(at: rootState.selectedFolder?.url)
             }
         case .upArrow:
-            if browserState.selectPreviousFolder() {
-                browserState.fileListState.loadFileList(at: browserState.selectedFolder?.url)
+            if rootState.selectPreviousFolder() {
+                rootState.fileListState.loadFileList(at: rootState.selectedFolder?.url)
             }
         case .rightArrow:
-            browserState.expandSelectedFolder()
+            rootState.expandSelectedFolder()
         case .leftArrow:
-            if browserState.collapseSelectedFolder() {
-                browserState.fileListState.loadFileList(at: browserState.selectedFolder?.url)
+            if rootState.collapseSelectedFolder() {
+                rootState.fileListState.loadFileList(at: rootState.selectedFolder?.url)
             }
         */
 
@@ -94,7 +93,7 @@ struct FolderTreeView: View {
 /*
 fileprivate struct RowView: View {
     var appState: AppState
-    var browserState: BrowserState
+    var rootState: RootState
 
     @Environment(\.openWindow) private var openWindow
 
@@ -103,8 +102,8 @@ fileprivate struct RowView: View {
     let isActive: Bool
 
     var body: some View {
-        let isExpanded = item.hasChildren && browserState.isExpanded(item)
-        let isSelected = item.id == browserState.selectedFolderID
+        let isExpanded = item.hasChildren && rootState.isExpanded(item)
+        let isSelected = item.id == rootState.selectedFolderID
         let styler = Styler.shared
         let foregroundStyle = styler.foregroundStyleWhen(selected: isSelected, active: isActive)
         let backgroundStyle = styler.backgroundStyleWhen(selected: isSelected, active: isActive)
@@ -114,7 +113,7 @@ fileprivate struct RowView: View {
                 .frame(width: 9 * CGFloat(level))
 
             Chevron(hasChildren: item.hasChildren, isExpaned: isExpanded) {
-                browserState.toggleExpanded(item)
+                rootState.toggleExpanded(item)
             }
 
             Text(item.name)
@@ -136,28 +135,28 @@ fileprivate struct RowView: View {
                 .onEnded {
                     // print("Single Tap")
                     //focusedViewBinding?.wrappedValue = .folderTree
-                    guard browserState.selectedFolderID != item.id else { return }
-                    browserState.selectFolder(with: item.id)
-                    browserState.fileListState.loadFileList(at: browserState.selectedFolder?.url)
+                    guard rootState.selectedFolderID != item.id else { return }
+                    rootState.selectFolder(with: item.id)
+                    rootState.fileListState.loadFileList(at: rootState.selectedFolder?.url)
                 }
                 .simultaneously(with: TapGesture(count: 2)
                     .onEnded {
                         //print("Double tap")
-                        browserState.toggleExpanded(item)
+                        rootState.toggleExpanded(item)
                     }
                 )
         )
         .contextMenu {
             Button("New File") {
-                browserState.makeNewFile(in: item.url)
+                rootState.makeNewFile(in: item.url)
             }
 
             Button("New File...") {
-                browserState.showNewFileSheet(on: item.url)
+                rootState.showNewFileSheet(on: item.url)
             }
 
             Button("New Folder") {
-                browserState.makeNewFolder(in: item.url)
+                rootState.makeNewFolder(in: item.url)
             }
 
             Button("Show in Finder") {
@@ -170,13 +169,13 @@ fileprivate struct RowView: View {
 
             Divider()
 
-            if item != browserState.rootFolder {
+            if item != rootState.rootFolder {
                 Button("Rename") {
-                    browserState.renameState.showRenameSheet(for: item.url) { _, _ in }
+                    rootState.renameState.showRenameSheet(for: item.url) { _, _ in }
                 }
 
                 Button("Delete") {
-                    browserState.trashFolder(at: item.url)
+                    rootState.trashFolder(at: item.url)
                 }
             }
         }
@@ -185,19 +184,19 @@ fileprivate struct RowView: View {
         // 위에 처럼 TapGesture 를 두 개 만들고 simultaneously 로 묶는다.
         //.onTapGesture(count: 1) {
         //    focusedViewBinding?.wrappedValue = .folderTree
-        //    guard browserState.selectedFolderID != item.id else { return }
-        //    browserState.selectFolder(with: item.id)
-        //    browserState.loadFileList()
+        //    guard rootState.selectedFolderID != item.id else { return }
+        //    rootState.selectFolder(with: item.id)
+        //    rootState.loadFileList()
         //}
         //.onTapGesture(count: 2) {
-        //    browserState.toggleFolder(for: item.url)
+        //    rootState.toggleFolder(for: item.url)
         //}
 
         //.focusEffectDisabled() // 포커스 테두리 표시 안 함
 
         if let children = item.children, isExpanded {
             ForEach(children) { child in
-                RowView(appState: appState, browserState: browserState, item: child, level: level + 1, isActive: isActive)
+                RowView(appState: appState, rootState: rootState, item: child, level: level + 1, isActive: isActive)
                     .id(child.id)
             }
         }

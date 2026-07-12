@@ -14,20 +14,16 @@ final class FolderTreeState {
     var refreshCount = 0
     var isReady: Bool = false
 
-    @ObservationIgnored private var rootState: RootState
-    @ObservationIgnored private var targetState: TargetState
-    @ObservationIgnored private var alertState: AlertState
+    @ObservationIgnored private var browserState: BrowserState
 
-    init(rootState: RootState, targetState: TargetState, alertState: AlertState) {
-        self.rootState = rootState
-        self.targetState = targetState
-        self.alertState = alertState
+    init(browserState: BrowserState) {
+        self.browserState = browserState
     }
 
     // MARK: - Folder Tree
 
     func reloadFolderTree() {
-        guard let rootURL = rootState.rootURL else { return }
+        guard let rootURL = browserState.rootURL else { return }
         consoleLog("load folder tree: \(rootURL.path(percentEncoded: false))")
         do {
             rootFolder = try FolderState.buildTree(from: rootURL)
@@ -36,7 +32,7 @@ final class FolderTreeState {
             isReady = true
         } catch {
             let message = error.localizedDescription
-            alertState.leaveAlert(message)
+            browserState.leaveAlert(message)
             consoleLog("load tree: \(message)")
         }
     }
@@ -44,7 +40,7 @@ final class FolderTreeState {
     // MARK: - Folder Folding
 
     func expandFolders(for url: URL) {
-        guard let rootPathComponents = rootState.rootURL?.pathComponents else { return }
+        guard let rootPathComponents = browserState.rootURL?.pathComponents else { return }
         let rootCount = rootPathComponents.count
         let urlCount = url.pathComponents.count
         var count = urlCount - rootCount
@@ -117,16 +113,16 @@ final class FolderTreeState {
             try fileManager.createDirectory(at: newFolderURL, withIntermediateDirectories: true, attributes: nil)
             reloadFolderTree()
             expandFolders(for: newFolderURL)
-            targetState.selectedFolderURL = newFolderURL
+            browserState.selectedFolderURL = newFolderURL
         } catch {
             let message = error.localizedDescription
-            alertState.leaveAlert(message)
+            browserState.leaveAlert(message)
             consoleLog("new file: \(message)")
         }
     }
 
     func makeNewFolder() {
-        guard let folderURL = targetState.selectedFolderURL else { return }
+        guard let folderURL = browserState.selectedFolderURL else { return }
         makeNewFolder(in: folderURL)
     }
 
@@ -142,7 +138,7 @@ final class FolderTreeState {
             }
         } catch {
             let message = error.localizedDescription
-            alertState.leaveAlert(message)
+            browserState.leaveAlert(message)
             consoleLog("delete folder: \(message)")
         }
     }

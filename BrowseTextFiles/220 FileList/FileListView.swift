@@ -9,38 +9,38 @@ import SwiftUI
 
 struct FileListView: View {
     @Environment(AppState.self) var appState
+    @Environment(RootState.self) var rootState
     @Environment(BrowserState.self) var browserState
-    @Environment(TargetState.self) var targetState
     @Environment(FileListState.self) var fileListState
 
     @Environment(\.openWindow) private var openWindow
 
     var body: some View {
-        @Bindable var targetState = targetState
+        @Bindable var browserState = browserState
         ScrollViewReader { proxy in
-            List(fileListState.fileList ?? [], selection: $targetState.selectedFileURLs) { file in
+            List(fileListState.fileList ?? [], selection: $browserState.selectedFileURLs) { file in
                 NavigationLink(file.name, value: file.url)
                     .id(file.id)
                     .listRowSeparator(.hidden)
             }
             .id(fileListState.refreshCount)
-            .onChange(of: targetState.selectedFileURL) { _, url in
+            .onChange(of: browserState.selectedFileURL) { _, url in
                 if let url {
                     proxy.scrollTo(url)
                 }
             }
-            .onChange(of: targetState.selectedFolderURL, initial: true) { _, url in
+            .onChange(of: browserState.selectedFolderURL, initial: true) { _, url in
                 fileListState.loadFileList(at: url)
             }
         }
         .onKeyPress(phases: .down, action: handleKeyPress)
         .contextMenu(forSelectionType: FileState.ID.self) { selection in
             Button("New File") {
-                browserState.makeNewFile()
+                rootState.makeNewFile()
             }
 
             Button("New File...") {
-                browserState.showNewFileSheet()
+                rootState.showNewFileSheet()
             }
 
             if selection.count == 1 {
@@ -59,7 +59,7 @@ struct FileListView: View {
 
             if selection.count == 1 {
                 Button("Rename") {
-                    browserState.showRenameFileSheet(for: selection)
+                    rootState.showRenameFileSheet(for: selection)
                 }
             }
 
@@ -72,21 +72,21 @@ struct FileListView: View {
     func handleKeyPress(_ press: KeyPress) -> KeyPress.Result {
         switch press.key {
         case .tab:
-            browserState.editorState.shouldFocusedCount += 1
+            rootState.editorState.shouldFocusedCount += 1
 
         case .return:
-            browserState.showRenameFileSheet()
+            rootState.showRenameFileSheet()
 
         /*
         case "\u{19}": // shift tab
             focusedViewBinding?.wrappedValue = .folderTree
         case .downArrow:
             if fileListState.selecteNextFile() {
-                browserState.editorState.loadFile(at: fileListState.selectedFile?.url)
+                rootState.editorState.loadFile(at: fileListState.selectedFile?.url)
             }
         case .upArrow:
             if fileListState.selectePreviousFile() {
-                browserState.editorState.loadFile(at: fileListState.selectedFile?.url)
+                rootState.editorState.loadFile(at: fileListState.selectedFile?.url)
             }
         */
 
@@ -107,7 +107,7 @@ struct FileListView: View {
             List {
                 if let fileList = fileListState.fileList {
                     ForEach(fileList) { fileItem in
-                        RowView(appState: appState, browserState: browserState, item: fileItem, isActive: isActive)
+                        RowView(appState: appState, rootState: rootState, item: fileItem, isActive: isActive)
                             .id(fileItem.id)
                     }
                 }
@@ -135,16 +135,16 @@ fileprivate struct RowView: View {
     @Environment(\.openWindow) private var openWindow
 
     var appState: AppState
-    var browserState: BrowserState
+    var rootState: RootState
     var fileListState: FileListState
 
     let item: FileState
     let isActive: Bool
 
-    init(appState: AppState, browserState: BrowserState, item: FileState, isActive: Bool) {
+    init(appState: AppState, rootState: RootState, item: FileState, isActive: Bool) {
         self.appState = appState
-        self.browserState = browserState
-        self.fileListState = browserState.fileListState
+        self.rootState = rootState
+        self.fileListState = rootState.fileListState
         self.item = item
         self.isActive = isActive
     }
@@ -173,19 +173,19 @@ fileprivate struct RowView: View {
             //focusedViewBinding?.wrappedValue = .fileList
             guard fileListState.selectedFileID != item.id else { return }
             fileListState.selectFile(item.id)
-            //browserState.editorState.loadFile(at: fileListState.selectedFile?.url)
+            //rootState.editorState.loadFile(at: fileListState.selectedFile?.url)
         }
         .contextMenu {
             Button("New File") {
-                browserState.makeNewFile()
+                rootState.makeNewFile()
             }
 
             Button("New File...") {
-                browserState.showNewFileSheet()
+                rootState.showNewFileSheet()
             }
 
             Button("New Folder") {
-                browserState.makeNewFolder()
+                rootState.makeNewFolder()
             }
 
             Button("Show in Finder") {
@@ -199,7 +199,7 @@ fileprivate struct RowView: View {
             Divider()
 
             Button("Rename") {
-                browserState.showRenameSheet(for: item.url, isFolder: false)
+                rootState.showRenameSheet(for: item.url, isFolder: false)
             }
 
             Button("Delete") {

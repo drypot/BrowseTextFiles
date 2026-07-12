@@ -9,7 +9,7 @@ import SwiftUI
 
 struct NewFileSheet: View {
     @Environment(AppState.self) var appState
-    @Environment(BrowserState.self) var browserState
+    @Environment(RootState.self) var rootState
 
     @Environment(\.dismiss) private var dismiss
 
@@ -89,7 +89,7 @@ struct NewFileSheet: View {
     }
 
     func submit() {
-        browserState.newFileSheetSubmitted(with: newFilePath)
+        rootState.newFileSheetSubmitted(with: newFilePath)
     }
 
     func updateNewFilePath() {
@@ -107,7 +107,7 @@ struct NewFileSheet: View {
     }
 
     func expand(template: String) -> String {
-        guard let param = browserState.newFileSheetParam else { return "" }
+        guard let param = rootState.newFileSheetParam else { return "" }
         let calendar = Calendar.current
         let date = Date()
         let components = calendar.dateComponents(in: calendar.timeZone, from: date)

@@ -9,8 +9,8 @@ import SwiftUI
 
 struct EditorView: View {
     @Environment(AppState.self) var appState
+    @Environment(RootState.self) var rootState
     @Environment(BrowserState.self) var browserState
-    @Environment(TargetState.self) var targetState
     @Environment(EditorState.self) var editorState
 
     @Environment(\.openWindow) private var openWindow
@@ -27,10 +27,10 @@ struct EditorView: View {
                     .ignoresSafeArea()
             }
         }
-        .onChange(of: targetState.selectedFileURL, initial: true) { _, url in
+        .onChange(of: browserState.selectedFileURL, initial: true) { _, url in
             if let url {
                 editorState.loadFile(at: url)
-                browserState.historyState.addToHistory(url)
+                rootState.historyState.addToHistory(url)
             } else {
                 editorState.reset()
             }
@@ -42,7 +42,7 @@ struct EditorView: View {
             Text(message)
                 .textSelection(.enabled)
             Button("Reload folder tree") {
-                browserState.reload()
+                rootState.reload()
             }
             Spacer()
         }

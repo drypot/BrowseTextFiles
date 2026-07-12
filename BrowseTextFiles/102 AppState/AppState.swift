@@ -76,7 +76,7 @@ class AppState {
         }
     }
 
-    @ObservationIgnored weak var lastBrowserState: BrowserState?
+    @ObservationIgnored weak var lastBrowserState: RootState?
     @ObservationIgnored var lastBrowserWindowSize: CGSize?
 
     @ObservationIgnored private var windowRectStoreForStringUUID: [StringAndUUID: CGRect] = [:]
@@ -169,8 +169,8 @@ class AppState {
         openNewBrowserWindow(fromRootURL: rootURL, fileURL: fileURL, openWindow: openWindow)
     }
 
-    func openNewBrowserWindow(fromState state: BrowserState?, openWindow: OpenWindowAction) {
-        openNewBrowserWindow(fromRootURL: state?.rootState.rootURL, fileURL: state?.targetState.selectedFileURL, openWindow: openWindow)
+    func openNewBrowserWindow(fromState state: RootState?, openWindow: OpenWindowAction) {
+        openNewBrowserWindow(fromRootURL: state?.browserState.rootURL, fileURL: state?.browserState.selectedFileURL, openWindow: openWindow)
     }
 
     func openNewBrowserWindow(openWindow: OpenWindowAction) {
@@ -253,14 +253,14 @@ class AppState {
 
     // MARK: - Search Window
 
-    func openSearchWindow(for state: BrowserState, openWindow: OpenWindowAction) {
+    func openSearchWindow(for state: RootState, openWindow: OpenWindowAction) {
         guard state.folderTreeState.isReady else { return }
         lastBrowserState = state
         openWindow(id: "search", value: state.id)
         state.searchState.isSearchWindowPresented = true
     }
 
-    func toggleSearchWindow(for state: BrowserState, openWindow: OpenWindowAction, dismissWindow: DismissWindowAction) {
+    func toggleSearchWindow(for state: RootState, openWindow: OpenWindowAction, dismissWindow: DismissWindowAction) {
         guard state.folderTreeState.isReady else { return }
         if state.searchState.isSearchWindowPresented {
             dismissWindow(id: "search", value: state.id)
@@ -272,14 +272,14 @@ class AppState {
 
     // MARK: - History Window
 
-    func openHistoryWindow(for state: BrowserState, openWindow: OpenWindowAction) {
+    func openHistoryWindow(for state: RootState, openWindow: OpenWindowAction) {
         guard state.folderTreeState.isReady else { return }
         lastBrowserState = state
         openWindow(id: "history", value: state.id)
         state.historyState.isHistoryWindowPresented = true
     }
 
-    func toggleHistoryWindow(for state: BrowserState, openWindow: OpenWindowAction, dismissWindow: DismissWindowAction) {
+    func toggleHistoryWindow(for state: RootState, openWindow: OpenWindowAction, dismissWindow: DismissWindowAction) {
         guard state.folderTreeState.isReady else { return }
         if state.historyState.isHistoryWindowPresented {
             dismissWindow(id: "history", value: state.id)

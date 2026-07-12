@@ -10,8 +10,8 @@ import Combine
 
 struct HistoryContainer: View {
     @Environment(AppState.self) var appState
-    @Environment(BrowserState.self) var browserState
     @Environment(RootState.self) var rootState
+    @Environment(BrowserState.self) var browserState
     @Environment(HistoryState.self) var historyState
 
     @State private var cancellables = Set<AnyCancellable>()
@@ -19,8 +19,8 @@ struct HistoryContainer: View {
     var body: some View {
         HistoryView()
             .background(WindowAccessor(onResolve: setupWindow))
-            .navigationTitle("History: \(rootState.rootName ?? "")")
-            .focusedSceneValue(browserState)
+            .navigationTitle("History: \(browserState.rootName ?? "")")
+            .focusedSceneValue(rootState)
     }
     
     func setupWindow(_ window: NSWindow?) {
@@ -61,6 +61,6 @@ struct HistoryContainer: View {
     }
 
     func saveWindowSize(_ window: NSWindow) {
-        appState.saveWindowRect(window.frame, for: "history", uuid: browserState.id)
+        appState.saveWindowRect(window.frame, for: "history", uuid: rootState.id)
     }
 }

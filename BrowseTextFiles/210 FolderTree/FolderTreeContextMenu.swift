@@ -9,7 +9,7 @@ import SwiftUI
 
 struct FolderTreeContextMenu: View {
     @Environment(AppState.self) var appState
-    @Environment(BrowserState.self) var browserState
+    @Environment(RootState.self) var rootState
     @Environment(FolderTreeState.self) var folderTreeState
 
     @Environment(\.openWindow) private var openWindow
@@ -20,12 +20,12 @@ struct FolderTreeContextMenu: View {
         if selection.count == 1 {
             Button("New File") {
                 let url = selection.first
-                browserState.makeNewFile(in: url)
+                rootState.makeNewFile(in: url)
             }
 
             Button("New File...") {
                 let url = selection.first
-                browserState.showNewFileSheet(on: url)
+                rootState.showNewFileSheet(on: url)
             }
 
             Button("New Folder") {
@@ -46,7 +46,7 @@ struct FolderTreeContextMenu: View {
             Divider()
 
             Button("Rename") {
-                browserState.showRenameFolderSheet(for: selection)
+                rootState.showRenameFolderSheet(for: selection)
             }
         }
 

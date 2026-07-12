@@ -12,16 +12,14 @@ final class FileListState {
     var fileList: [FileState]?
     var refreshCount = 0
 
-    @ObservationIgnored private var targetState: TargetState
-    @ObservationIgnored private(set) var alertState: AlertState
+    @ObservationIgnored private var browserState: BrowserState
 
-    init(targetState: TargetState, alertState: AlertState) {
-        self.targetState = targetState
-        self.alertState = alertState
+    init(browserState: BrowserState) {
+        self.browserState = browserState
     }
 
     func loadFileList(at folderURL: URL?) {
-        guard let folderURL = targetState.selectedFolderURL else {
+        guard let folderURL = browserState.selectedFolderURL else {
             fileList = nil
             return
         }
@@ -39,7 +37,7 @@ final class FileListState {
             consoleLog("----")
         } catch {
             let message = error.localizedDescription
-            alertState.leaveAlert(message)
+            browserState.leaveAlert(message)
             consoleLog("load file list: \(message)")
         }
     }
@@ -54,7 +52,7 @@ final class FileListState {
             }
         } catch {
             let message = error.localizedDescription
-            alertState.leaveAlert(message)
+            browserState.leaveAlert(message)
             consoleLog("delete file: \(message)")
         }
     }
