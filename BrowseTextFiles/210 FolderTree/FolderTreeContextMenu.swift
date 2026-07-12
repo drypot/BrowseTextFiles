@@ -46,7 +46,7 @@ struct FolderTreeContextMenu: View {
             Divider()
 
             Button("Rename") {
-                //showRenameSheet(selection: selection)
+                browserState.showRenameFolderSheet(for: selection)
             }
         }
 

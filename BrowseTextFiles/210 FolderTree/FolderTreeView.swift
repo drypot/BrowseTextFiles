@@ -12,7 +12,6 @@ struct FolderTreeView: View {
     @Environment(BrowserState.self) var browserState
     @Environment(RootState.self) var rootState
     @Environment(TargetState.self) var targetState
-    @Environment(RenameState.self) var renameState
     @Environment(FolderTreeState.self) var folderTreeState
 
     var body: some View {
@@ -60,8 +59,7 @@ struct FolderTreeView: View {
             browserState.editorState.shouldFocusedCount += 1
 
         case .return:
-            break
-            //showRenameSheet(selection: targetState.selectedFolderURLs)
+            browserState.showRenameFolderSheet()
 
         /*
         case "\u{19}": // shift tab

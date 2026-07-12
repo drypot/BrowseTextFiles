@@ -16,7 +16,7 @@ struct BrowserSheet: ViewModifier {
             .sheet(isPresented: $browserState.isNewFileSheetPresented) {
                 NewFileSheet()
             }
-            .sheet(isPresented: $browserState.renameState.isRenameSheetPresented) {
+            .sheet(isPresented: $browserState.isRenameSheetPresented) {
                 RenameSheet()
             }
             .alert("", isPresented: $browserState.alertState.hasMessage) {

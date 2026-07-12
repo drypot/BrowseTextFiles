@@ -89,7 +89,7 @@ struct NewFileSheet: View {
     }
 
     func submit() {
-        browserState.makeNewFile(with: newFilePath)
+        browserState.newFileSheetSubmitted(with: newFilePath)
     }
 
     func updateNewFilePath() {

@@ -33,12 +33,22 @@ final class BrowserState: Identifiable {
 
     var isNewFileSheetPresented = false
 
+    // Rename Sheet
+
+    struct RenameSheetParam {
+        let oldURL: URL
+        let onComplete: (URL, URL) -> Void
+    }
+
+    @ObservationIgnored var renameSheetParam: RenameSheetParam?
+
+    var isRenameSheetPresented = false
+
     // States
 
     @ObservationIgnored var rootState: RootState
     @ObservationIgnored var targetState: TargetState
     @ObservationIgnored var alertState: AlertState
-    @ObservationIgnored var renameState: RenameState
     @ObservationIgnored var folderTreeState: FolderTreeState
     @ObservationIgnored var fileListState: FileListState
     @ObservationIgnored var searchState: SearchState
@@ -49,7 +59,6 @@ final class BrowserState: Identifiable {
         rootState = RootState()
         targetState = TargetState()
         alertState = AlertState()
-        renameState = RenameState(alertState: alertState)
         folderTreeState = FolderTreeState(rootState: rootState, targetState: targetState, alertState: alertState)
         fileListState = FileListState(targetState: targetState, alertState: alertState)
         searchState = SearchState(alertState: alertState)
@@ -120,7 +129,7 @@ final class BrowserState: Identifiable {
         showNewFileSheet(on: targetState.selectedFolderURL)
     }
 
-    func makeNewFile(with newFilePath: String) {
+    func newFileSheetSubmitted(with newFilePath: String) {
         guard let rootURL = rootState.rootURL else { return }
         let fileManager = FileManager.default
         let newFileURL = rootURL.appending(path: newFilePath).standardizedFileURL
@@ -146,19 +155,60 @@ final class BrowserState: Identifiable {
         }
     }
 
-    // MARK: - Rename Folder
+    // MARK: - Rename Sheet
 
-//    func showRenameFolderSheet(selection: Set<FileState.ID>) {
-//        guard selection.count == 1 else { return }
-//        guard let url = selection.first else { return }
-//        renameState.showRenameSheet(for: url) { oldURL, newURL in
-//            if targetState.selectedFolderURL == oldURL {
-//                folderTreeState.reloadFolderTree()
-//                targetState.selectedFolderURL = newURL
-//            } else {
-//                folderTreeState.reloadFolderTree()
-//            }
-//        }
-//    }
+    func showRenameFileSheet(for selection: Set<FileState.ID>) {
+        guard selection.count == 1 else { return }
+        guard let url = selection.first else { return }
+        renameSheetParam = RenameSheetParam(oldURL: url) { oldURL, newURL in
+            let targetState = self.targetState
+            let fileListState = self.fileListState
+            if targetState.selectedFileURL == oldURL {
+                fileListState.loadFileList(at: targetState.selectedFolderURL)
+                targetState.selectedFileURL = newURL
+            } else {
+                fileListState.loadFileList(at: targetState.selectedFolderURL)
+            }
+        }
+        isRenameSheetPresented = true
+    }
 
+    func showRenameFileSheet() {
+        showRenameFileSheet(for: targetState.selectedFileURLs)
+    }
+
+    func showRenameFolderSheet(for selection: Set<FileState.ID>) {
+        guard selection.count == 1 else { return }
+        guard let url = selection.first else { return }
+        renameSheetParam = RenameSheetParam(oldURL: url) { oldURL, newURL in
+            let targetState = self.targetState
+            let folderTreeState = self.folderTreeState
+            if targetState.selectedFolderURL == oldURL {
+                folderTreeState.reloadFolderTree()
+                targetState.selectedFolderURL = newURL
+            } else {
+                folderTreeState.reloadFolderTree()
+            }
+        }
+        isRenameSheetPresented = true
+    }
+
+    func showRenameFolderSheet() {
+        showRenameFolderSheet(for: targetState.selectedFolderURLs)
+    }
+
+    func renameSheetSubmitted(with newName: String) {
+        guard let renameSheetParam else { return }
+        let renamingURL = renameSheetParam.oldURL
+        let newURL = renamingURL.deletingLastPathComponent().appending(path: newName).standardizedFileURL
+        do {
+            consoleLog("rename: \(renamingURL.path(percentEncoded: false)) to \(newName)")
+            try FileManager.default.moveItem(at: renamingURL, to: newURL)
+            renameSheetParam.onComplete(renamingURL, newURL)
+        } catch {
+            let message = error.localizedDescription
+            alertState.leaveAlert(message)
+            consoleLog("rename: \(message)")
+        }
+    }
 }

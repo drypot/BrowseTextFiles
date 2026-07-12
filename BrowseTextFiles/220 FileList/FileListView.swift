@@ -11,7 +11,6 @@ struct FileListView: View {
     @Environment(AppState.self) var appState
     @Environment(BrowserState.self) var browserState
     @Environment(TargetState.self) var targetState
-    @Environment(RenameState.self) var renameState
     @Environment(FileListState.self) var fileListState
 
     @Environment(\.openWindow) private var openWindow
@@ -60,7 +59,7 @@ struct FileListView: View {
 
             if selection.count == 1 {
                 Button("Rename") {
-                    showRenameSheet(selection: selection)
+                    browserState.showRenameFileSheet(for: selection)
                 }
             }
 
@@ -76,7 +75,7 @@ struct FileListView: View {
             browserState.editorState.shouldFocusedCount += 1
 
         case .return:
-            showRenameSheet(selection: targetState.selectedFileURLs)
+            browserState.showRenameFileSheet()
 
         /*
         case "\u{19}": // shift tab
@@ -96,19 +95,6 @@ struct FileListView: View {
         }
 
         return .handled
-    }
-
-    func showRenameSheet(selection: Set<FileState.ID>) {
-        guard selection.count == 1 else { return }
-        guard let url = selection.first else { return }
-        renameState.showRenameSheet(for: url) { oldURL, newURL in
-            if targetState.selectedFileURL == oldURL {
-                fileListState.loadFileList(at: targetState.selectedFolderURL)
-                targetState.selectedFileURL = newURL
-            } else {
-                fileListState.loadFileList(at: targetState.selectedFolderURL)
-            }
-        }
     }
 
     /*
