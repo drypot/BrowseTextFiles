@@ -2,19 +2,13 @@
 //  HistoryView.swift
 //  Browse Text Files
 //
-//  Created by Kyuhyun Park on 5/25/26.
+//  Created by Kyuhyun Park on 7/12/26.
 //
 
 import SwiftUI
-import Combine
 
 struct HistoryView: View {
-    @Environment(AppState.self) var appState
-    @Environment(BrowserState.self) var browserState
-    @Environment(RootState.self) var rootState
     @Environment(HistoryState.self) var historyState
-
-    @State private var cancellables = Set<AnyCancellable>()
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -29,67 +23,36 @@ struct HistoryView: View {
 
             Divider()
 
-            if !historyState.history.isEmpty, let rootComponents = rootState.rootURL?.pathComponents {
-                ScrollView {
-                    LazyVStack(alignment: .leading, spacing: 8) {
-                        ForEach(historyState.history) { historyItem in
-                            let path = historyItem.relativePath(from: rootComponents)
-                            Button(path) {
-                                browserState.targetState.targetFile(historyItem.url)
-                            }
-                        }
-                        .buttonStyle(.plain)
-                        .foregroundStyle(.link)
-                        .pointerStyle(.link)
-                        .padding(.horizontal)
-                    }
-                    .padding(.vertical, 16)
-                }
+            if !historyState.history.isEmpty {
+                HistoryListView()
             } else {
                 Spacer()
             }
         }
-        .background(WindowAccessor(onResolve: setupWindow))
-        .navigationTitle("History: \(rootState.rootName ?? "")")
-        .focusedSceneValue(browserState)
     }
-    
-    func setupWindow(_ window: NSWindow?) {
-        guard let window else { return }
+}
 
-        window.collectionBehavior.insert(.ignoresCycle)
-        saveWindowSize(window)
+fileprivate struct HistoryListView: View {
+    @Environment(TargetState.self) var targetState
+    @Environment(RootState.self) var rootState
+    @Environment(HistoryState.self) var historyState
 
-        NotificationCenter.default
-            .publisher(for: NSWindow.didBecomeMainNotification, object: window)
-            .sink { notification in
-                saveWindowSize(window)
+    var body: some View {
+        let rootComponents = rootState.rootURL?.pathComponents ?? []
+        ScrollView {
+            LazyVStack(alignment: .leading, spacing: 8) {
+                ForEach(historyState.history) { historyItem in
+                    let path = historyItem.relativePath(from: rootComponents)
+                    Button(path) {
+                        targetState.targetFile(historyItem.url)
+                    }
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(.link)
+                .pointerStyle(.link)
+                .padding(.horizontal)
             }
-            .store(in: &cancellables)
-
-        NotificationCenter.default
-            .publisher(for: NSWindow.didResizeNotification, object: window)
-            .sink { notification in
-                saveWindowSize(window)
-            }
-            .store(in: &cancellables)
-
-        NotificationCenter.default
-            .publisher(for: NSWindow.didMoveNotification, object: window)
-            .sink { notification in
-                saveWindowSize(window)
-            }
-            .store(in: &cancellables)
-
-        NotificationCenter.default
-            .publisher(for: NSWindow.willCloseNotification, object: window)
-            .sink { notification in
-                historyState.isHistoryWindowPresented = false
-            }
-            .store(in: &cancellables)
-    }
-
-    func saveWindowSize(_ window: NSWindow) {
-        appState.saveWindowRect(window.frame, for: "history", uuid: browserState.id)
+            .padding(.vertical, 16)
+        }
     }
 }

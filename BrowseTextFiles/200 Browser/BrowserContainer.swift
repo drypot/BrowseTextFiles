@@ -55,7 +55,7 @@ struct BrowserContainer: View {
     }
 
     func setupWindow(_ window: NSWindow?) {
-        //printLog("setup browser window:")
+        printLog("setup browser window:")
 
         self.browserState.window = window
 

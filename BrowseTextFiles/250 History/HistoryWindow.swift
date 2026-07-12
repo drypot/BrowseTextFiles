@@ -13,10 +13,11 @@ struct HistoryWindow: Scene {
     var body: some Scene {
         WindowGroup("History", id: "history", for: UUID.self) { $id in
             if let browserState = appState.lastBrowserState {
-                HistoryView()
+                HistoryContainer()
                     .frame(minWidth: 320, minHeight: 200)
                     .environment(browserState)
                     .environment(browserState.rootState)
+                    .environment(browserState.targetState)
                     .environment(browserState.historyState)
             }
         }

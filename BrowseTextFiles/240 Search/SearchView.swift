@@ -83,6 +83,8 @@ struct SearchView: View {
     }
 
     func setupWindow(_ window: NSWindow?) {
+        printLog("setup search window:")
+
         guard let window else { return }
 
         window.collectionBehavior.insert(.ignoresCycle)
