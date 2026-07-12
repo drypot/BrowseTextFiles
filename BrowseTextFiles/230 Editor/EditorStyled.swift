@@ -18,7 +18,6 @@ struct EditorStyled: View {
         // TextViewRepresentable 를 만들었다. NSTextView.string 을 source 로 쓴다.
         TextViewRepresentable()
         //.frame(maxWidth: .infinity, maxHeight: .infinity)
-            .ignoresSafeArea()
             .focused($isFocused)
             .onChange(of: editorState.shouldFocusedCount) {
                 isFocused = true

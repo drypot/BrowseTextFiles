@@ -35,6 +35,7 @@ struct BrowserContainer: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(WindowAccessor(onResolve: setupWindow))
         .navigationTitle(rootState.browserState.rootName ?? "Browser")
+        .toolbarBackground(.hidden, for: .windowToolbar)
         .toolbar {
             BrowserToolbar()
         }
