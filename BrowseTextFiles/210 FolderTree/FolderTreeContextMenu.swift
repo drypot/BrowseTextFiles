@@ -10,6 +10,7 @@ import SwiftUI
 struct FolderTreeContextMenu: View {
     @Environment(AppState.self) var appState
     @Environment(RootState.self) var rootState
+    @Environment(BrowserState.self) var browserState
     @Environment(FolderTreeState.self) var folderTreeState
 
     @Environment(\.openWindow) private var openWindow
@@ -17,41 +18,51 @@ struct FolderTreeContextMenu: View {
     var selection: Set<FolderState.ID>
 
     var body: some View {
-        if selection.count == 1 {
-            Button("New File") {
-                let url = selection.first
-                rootState.makeNewFile(in: url)
-            }
-
-            Button("New File...") {
-                let url = selection.first
-                rootState.showNewFileSheet(on: url)
-            }
-
-            Button("New Folder") {
-                guard let url = selection.first else { return }
-                folderTreeState.makeNewFolder(in: url)
-            }
+        if selection.count == 0 {
+            let url = browserState.rootURL
 
             Button("Show in Finder") {
-                let url = selection.first
                 appState.openFinder(with: url)
             }
 
             Button("Open in New Window") {
-                guard let url = selection.first else { return }
+                appState.openNewBrowserWindow(fromFolderURL: url, fileURL: nil, openWindow: openWindow)
+            }
+        }
+        if selection.count == 1 {
+            let url = selection.first
+
+            Button("New File") {
+                rootState.makeNewFile(in: url)
+            }
+
+            Button("New File...") {
+                rootState.showNewFileSheet(on: url)
+            }
+
+            Button("New Folder") {
+                folderTreeState.makeNewFolder(in: url)
+            }
+
+            Button("Show in Finder") {
+                appState.openFinder(with: url)
+            }
+
+            Button("Open in New Window") {
                 appState.openNewBrowserWindow(fromFolderURL: url, fileURL: nil, openWindow: openWindow)
             }
 
             Divider()
 
             Button("Rename") {
-                rootState.showRenameFolderSheet(for: selection)
+                rootState.showRenameFolderSheet(for: url)
             }
         }
 
-        Button("Delete") {
-            folderTreeState.trashFolders(selection: selection)
+        if selection.count > 0 {
+            Button("Delete") {
+                folderTreeState.trashFolders(selection: selection)
+            }
         }
     }
 }

@@ -1,5 +1,5 @@
 //
-//  FolderTreeView.swift
+//  FolderTreeContainer.swift
 //  Browse Text Files
 //
 //  Created by Kyuhyun Park on 4/23/26.
@@ -7,32 +7,23 @@
 
 import SwiftUI
 
-struct FolderTreeView: View {
+struct FolderTreeContainer: View {
     @Environment(AppState.self) var appState
     @Environment(RootState.self) var rootState
     @Environment(BrowserState.self) var browserState
     @Environment(FolderTreeState.self) var folderTreeState
 
     var body: some View {
-        @Bindable var browserState = browserState
-        @Bindable var folderTreeState = folderTreeState
         ScrollViewReader { proxy in
-            List(selection: $browserState.selectedFolderURLs) {
-                if let rootFolder = folderTreeState.rootFolder {
-                    TreeRow(rootFolder, children: \.children, expanded: $folderTreeState.expandedFolderURLs) { folder in
-                        Text(folder.name)
-                            .id(folder.id)
+            FolderTree()
+                .onChange(of: browserState.selectedFolderURL, initial: true) { _, url in
+                    if let url {
+                        folderTreeState.expandFoldersUntilSelectedFolder()
+                        withAnimation {
+                            proxy.scrollTo(url)
+                        }
                     }
                 }
-            }
-            .id(folderTreeState.refreshCount)
-            .onChange(of: browserState.selectedFolderURL) { _, url in
-                if let url {
-                    withAnimation {
-                        proxy.scrollTo(url)
-                    }
-                }
-            }
         }
         .onKeyPress(phases: .down, action: handleKeyPress)
         .contextMenu(forSelectionType: FolderState.ID.self) {
@@ -41,7 +32,7 @@ struct FolderTreeView: View {
         .toolbar {
             ToolbarItem {
                 Button("New Folder", systemImage: "folder.badge.plus") {
-                    rootState.makeNewFile(in: browserState.selectedFolderURL)
+                    folderTreeState.makeNewFolder()
                 }
                 .help("New Folder")
             }
@@ -60,33 +51,12 @@ struct FolderTreeView: View {
         case .return:
             rootState.showRenameFolderSheet()
 
-        /*
-        case "\u{19}": // shift tab
-            break
-        case .downArrow:
-            if rootState.selectNextFolder() {
-                rootState.fileListState.loadFileList(at: rootState.selectedFolder?.url)
-            }
-        case .upArrow:
-            if rootState.selectPreviousFolder() {
-                rootState.fileListState.loadFileList(at: rootState.selectedFolder?.url)
-            }
-        case .rightArrow:
-            rootState.expandSelectedFolder()
-        case .leftArrow:
-            if rootState.collapseSelectedFolder() {
-                rootState.fileListState.loadFileList(at: rootState.selectedFolder?.url)
-            }
-        */
-
         default:
             return .ignored
         }
 
         return .handled
     }
-
-    
 
 }
 
@@ -146,39 +116,7 @@ fileprivate struct RowView: View {
                     }
                 )
         )
-        .contextMenu {
-            Button("New File") {
-                rootState.makeNewFile(in: item.url)
-            }
 
-            Button("New File...") {
-                rootState.showNewFileSheet(on: item.url)
-            }
-
-            Button("New Folder") {
-                rootState.makeNewFolder(in: item.url)
-            }
-
-            Button("Show in Finder") {
-                Finder.shared.open(url: item.url)
-            }
-
-            Button("Open in New Window") {
-                appState.openNewBrowserWindow(fromFolderURL: item.url, fileURL: nil, openWindow: openWindow)
-            }
-
-            Divider()
-
-            if item != rootState.rootFolder {
-                Button("Rename") {
-                    rootState.renameState.showRenameSheet(for: item.url) { _, _ in }
-                }
-
-                Button("Delete") {
-                    rootState.trashFolder(at: item.url)
-                }
-            }
-        }
 
         // onTapGesture 를 두 개 쓰면 싱글 클릭시 딜레이가 발생한다;
         // 위에 처럼 TapGesture 를 두 개 만들고 simultaneously 로 묶는다.

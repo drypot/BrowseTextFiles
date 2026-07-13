@@ -7,6 +7,9 @@
 
 import SwiftUI
 
+// 이제는 쓰지 않는다.
+// 하지만 그냥 남겨둠.
+
 struct Chevron: View {
     let hasChildren: Bool
     let isExpaned: Bool

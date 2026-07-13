@@ -15,9 +15,9 @@ struct EditorError: View {
         VStack(alignment: .leading, spacing: 16) {
             Text(editorState.loadingError ?? "...")
                 .textSelection(.enabled)
-            Button("Reload folder tree") {
-                rootState.reload()
-            }
+            // Button("Reload folder tree") {
+            //     rootState.reload()
+            // }
             Spacer()
         }
         .padding()

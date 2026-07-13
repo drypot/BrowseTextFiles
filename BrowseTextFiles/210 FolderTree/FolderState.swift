@@ -64,9 +64,6 @@ final class FolderState: Identifiable, Hashable {
         while i > 0 {
             i -= 1
             if shouldBeRemoved(children[i]) {
-
-                print("remove all: \(children[i].url.path)")
-
                 self.children!.remove(at: i)
             }
         }

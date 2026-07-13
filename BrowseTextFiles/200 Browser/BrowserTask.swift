@@ -10,6 +10,8 @@ import SwiftUI
 struct BrowserTask: ViewModifier {
     @Environment(AppState.self) var appState
     @Environment(RootState.self) var rootState
+    @Environment(BrowserState.self) var browserState
+    @Environment(FolderTreeState.self) var folderTreeState
 
     @SceneStorage("rootURLData") private var sceneRootURLData: Data?
     @SceneStorage("fileURLData") private var sceneFileURLData: Data?

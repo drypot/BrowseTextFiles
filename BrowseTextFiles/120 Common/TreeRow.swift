@@ -36,17 +36,13 @@ struct TreeRow<Node, RowContent>: View where Node: Identifiable, RowContent: Vie
                     }
                 }
             )
-            DisclosureGroup(
-                isExpanded: isExpanded,
-                content: {
-                    ForEach(childNodes) { child in
-                        TreeRow(child, children: children, expanded: expanded, rowContent: rowContent)
-                    }
-                },
-                label: {
-                    rowContent(node)
+            DisclosureGroup(isExpanded: isExpanded) {
+                ForEach(childNodes) { child in
+                    TreeRow(child, children: children, expanded: expanded, rowContent: rowContent)
                 }
-            )
+            } label: {
+                rowContent(node)
+            }
         } else {
             rowContent(node)
         }

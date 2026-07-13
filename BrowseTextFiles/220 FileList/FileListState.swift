@@ -46,15 +46,17 @@ final class FileListState {
     }
 
     func trashFiles(selection: Set<FileState.ID>) {
-        fileList?.removeAll { selection.contains($0.id) }
-        if let selectedFileURL = browserState.selectedFileURL, selection.contains(selectedFileURL) {
-            browserState.selectedFileURL = nil
-        }
         do {
             let fileManager = FileManager.default
             for url in selection {
                 consoleLog("delete file: \(url.path(percentEncoded: false))")
                 try fileManager.trashItem(at: url, resultingItemURL: nil)
+            }
+            loadFileList()
+            if let selectedFileURL = browserState.selectedFileURL {
+                if selection.contains(selectedFileURL) {
+                    browserState.selectedFileURL = nil
+                }
             }
         } catch {
             let message = error.localizedDescription
