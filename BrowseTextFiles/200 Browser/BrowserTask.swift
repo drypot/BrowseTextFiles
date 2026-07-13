@@ -29,11 +29,6 @@ struct BrowserTask: ViewModifier {
             .onChange(of: rootState.browserState.selectedFileURL) {
                 fileURLChanged()
             }
-            .onChange(of: rootState.folderTreeState.isReady) { _, isReady in
-                if isReady {
-                    rootState.status = .ready
-                }
-            }
     }
 
     func initialize() {
@@ -75,7 +70,7 @@ struct BrowserTask: ViewModifier {
             return
         }
 
-        rootState.status = .showOpenPanel
+        browserState.status = .showOpenPanel
     }
 
     func rootURLChanged() {

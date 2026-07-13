@@ -10,20 +10,6 @@ import UniformTypeIdentifiers
 
 @Observable
 final class RootState: Identifiable {
-    // MARK: - ID
-
-    let id = UUID()
-    weak var window: NSWindow?
-
-    // MARK: - Status
-
-    enum BrowserStatus {
-        case showOpenPanel
-        case loading
-        case ready
-    }
-
-    var status: BrowserStatus = .loading
 
     // MARK: - New File Sheet
 
@@ -194,14 +180,14 @@ final class RootState: Identifiable {
 
     func renameSheetSubmitted(with newName: String) {
         guard let param = renameSheetParam else { return }
-        let renamingURL = param.oldURL
-        let newURL = renamingURL.deletingLastPathComponent()
+        let oldURL = param.oldURL
+        let newURL = oldURL.deletingLastPathComponent()
             .appending(path: newName, directoryHint: param.isDirectory ? .isDirectory : .notDirectory)
             .standardized
         do {
-            consoleLog("rename: \(renamingURL.path(percentEncoded: false)) to \(newName)")
-            try FileManager.default.moveItem(at: renamingURL, to: newURL)
-            param.onComplete(renamingURL, newURL)
+            consoleLog("rename: \(oldURL.path(percentEncoded: false)) to \(newName)")
+            try FileManager.default.moveItem(at: oldURL, to: newURL)
+            param.onComplete(oldURL, newURL)
         } catch {
             let message = error.localizedDescription
             browserState.leaveAlert(message)

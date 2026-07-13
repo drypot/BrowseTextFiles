@@ -9,12 +9,28 @@ import SwiftUI
 
 @Observable
 final class BrowserState {
+
+    // MARK: - ID
+
+    let id = UUID()
+    weak var window: NSWindow?
+
     // MARK: - Root
 
     private(set) var rootURL: URL?
     private(set) var rootName: String?
     private(set) var rootPath: String?
     private var shouldReleaseSecurityScopedResource = false
+
+    // MARK: - Status
+
+    enum BrowserStatus {
+        case showOpenPanel
+        case loading
+        case ready
+    }
+
+    var status: BrowserStatus = .loading
 
     // MARK: - Folder
 

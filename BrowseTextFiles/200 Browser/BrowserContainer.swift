@@ -23,7 +23,7 @@ struct BrowserContainer: View {
 
     var body: some View {
         Group {
-            switch rootState.status {
+            switch rootState.browserState.status {
             case .showOpenPanel:
                 BrowserBlankView()
             case .loading:
@@ -56,7 +56,7 @@ struct BrowserContainer: View {
     func setupWindow(_ window: NSWindow?) {
         printLog("setup browser window:")
 
-        self.rootState.window = window
+        self.rootState.browserState.window = window
 
         guard let window else { return }
 
@@ -79,8 +79,8 @@ struct BrowserContainer: View {
         NotificationCenter.default
             .publisher(for: NSWindow.willCloseNotification, object: window)
             .sink { notification in
-                dismissWindow(id: "search", value: rootState.id)
-                dismissWindow(id: "history", value: rootState.id)
+                dismissWindow(id: "search", value: rootState.browserState.id)
+                dismissWindow(id: "history", value: rootState.browserState.id)
                 rootState.releaseResource()
             }
             .store(in: &cancellables)
@@ -95,7 +95,7 @@ struct BrowserContainer: View {
     }
 
     func saveWindowSize(_ window: NSWindow) {
-        appState.saveWindowRect(window.frame, for: "browser", uuid: rootState.id)
+        appState.saveWindowRect(window.frame, for: "browser", uuid: rootState.browserState.id)
     }
 }
 

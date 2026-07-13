@@ -61,6 +61,6 @@ struct HistoryContainer: View {
     }
 
     func saveWindowSize(_ window: NSWindow) {
-        appState.saveWindowRect(window.frame, for: "history", uuid: rootState.id)
+        appState.saveWindowRect(window.frame, for: "history", uuid: rootState.browserState.id)
     }
 }

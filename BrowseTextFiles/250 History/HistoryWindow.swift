@@ -12,7 +12,7 @@ struct HistoryWindow: Scene {
 
     var body: some Scene {
         WindowGroup("History", id: "history", for: UUID.self) { $id in
-            if let rootState = appState.lastBrowserState {
+            if let rootState = appState.lastRootState {
                 HistoryContainer()
                     .frame(minWidth: 320, minHeight: 200)
                     .environment(rootState)
@@ -25,7 +25,7 @@ struct HistoryWindow: Scene {
         .defaultWindowPlacement { proxy, context in
             appState.makeWindowPlacement(
                 for: "history",
-                uuid: appState.lastBrowserState?.id,
+                uuid: appState.lastRootState?.browserState.id,
                 visibleRect: context.defaultDisplay.visibleRect,
                 defaultSize: CGSize(width: 400, height: 600)
             )

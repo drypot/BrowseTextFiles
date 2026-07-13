@@ -12,7 +12,7 @@ struct SearchWindow: Scene {
 
     var body: some Scene {
         WindowGroup("Search", id: "search", for: UUID.self) { $id in
-            if let rootState = appState.lastBrowserState {
+            if let rootState = appState.lastRootState {
                 SearchContainer()
                     .frame(minWidth: 320, minHeight: 200)
                     .environment(rootState)
@@ -25,7 +25,7 @@ struct SearchWindow: Scene {
         .defaultWindowPlacement { proxy, context in
             appState.makeWindowPlacement(
                 for: "search",
-                uuid: appState.lastBrowserState?.id,
+                uuid: appState.lastRootState?.browserState.id,
                 visibleRect: context.defaultDisplay.visibleRect,
                 defaultSize: CGSize(width: 400, height: 600)
             )

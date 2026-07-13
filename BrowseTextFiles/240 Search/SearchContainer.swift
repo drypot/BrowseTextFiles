@@ -61,6 +61,6 @@ struct SearchContainer: View {
     }
 
     func saveWindowSize(_ window: NSWindow) {
-        appState.saveWindowRect(window.frame, for: "search", uuid: rootState.id)
+        appState.saveWindowRect(window.frame, for: "search", uuid: rootState.browserState.id)
     }
 }

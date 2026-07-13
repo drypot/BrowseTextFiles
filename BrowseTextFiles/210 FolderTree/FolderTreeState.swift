@@ -12,7 +12,6 @@ final class FolderTreeState {
     private(set) var rootFolder: FolderState?
     var expandedFolderURLs: Set<URL> = []
     var refreshCount = 0
-    var isReady: Bool = false
 
     @ObservationIgnored private var browserState: BrowserState
 
@@ -29,7 +28,7 @@ final class FolderTreeState {
             rootFolder = try FolderState.buildTree(from: rootURL)
             expandFolder(at: rootURL)
             refreshCount += 1
-            isReady = true
+            browserState.status = .ready
         } catch {
             let message = error.localizedDescription
             browserState.leaveAlert(message)
