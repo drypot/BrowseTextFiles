@@ -79,8 +79,8 @@ struct BrowserContainer: View {
         NotificationCenter.default
             .publisher(for: NSWindow.willCloseNotification, object: window)
             .sink { notification in
-                dismissWindow(id: "search", value: rootState.browserState.id)
-                dismissWindow(id: "history", value: rootState.browserState.id)
+                // dismissWindow(id: "search", value: rootState.browserState.id)
+                // dismissWindow(id: "history", value: rootState.browserState.id)
                 rootState.releaseResource()
             }
             .store(in: &cancellables)

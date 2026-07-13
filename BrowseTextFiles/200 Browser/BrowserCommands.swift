@@ -45,7 +45,7 @@ struct BrowserCommands: Commands {
             Button("Open Folder...", systemImage: "folder") {
                 appState.openNewBrowserWindowFromDialog(openWindow: openWindow)
             }
-            .keyboardShortcut("o", modifiers: .command)
+            .keyboardShortcut("o")
 
             Menu("Open Recent", systemImage: "text.below.folder") {
                 let urls = appState.recentDocumentURLs
@@ -69,45 +69,44 @@ struct BrowserCommands: Commands {
             Button("Save File", systemImage: "square.and.arrow.down") {
                 rootState?.editorState.saveFile()
             }
-            .keyboardShortcut("s", modifiers: .command)
+            .keyboardShortcut("s")
         }
 
-        CommandGroup(after: .toolbar) {
+        CommandGroup(before: .toolbar) {
             Button("Reload", systemImage: "arrow.clockwise") {
                 rootState?.reload()
             }
-            .keyboardShortcut("r", modifiers: .command)
+            .keyboardShortcut("r")
+        }
 
-            Button("Toggle History", systemImage: "clock") {
-                guard let rootState else { return }
-                appState.toggleHistoryWindow(for: rootState, openWindow: openWindow, dismissWindow: dismissWindow)
+        CommandGroup(after: .sidebar) {
+
+            Button("Sidebar Folder") {
+                rootState?.browserState.sidebarStatus = .folder
             }
-            .keyboardShortcut("y", modifiers: .command)
+            .keyboardShortcut("1")
 
+            Button("Sidebar History") {
+                rootState?.browserState.sidebarStatus = .history
+            }
+            .keyboardShortcut("2")
 
-            Divider()
+            Button("Sidebar Find") {
+                rootState?.browserState.sidebarStatus = .find
+            }
+            .keyboardShortcut("3")
 
-            // Button("Test SecurityScoped") {
-            //     TestSecurityScopedBookmark().testASS()
+            // Button("Toggle History", systemImage: "clock") {
+            //     guard let rootState else { return }
+            //     appState.toggleHistoryWindow(for: rootState, openWindow: openWindow, dismissWindow: dismissWindow)
             // }
-            // .keyboardShortcut("t", modifiers: .command)
-
-            // Button("Test SecurityScoped Bookmark") {
-            //     TestSecurityScopedBookmark().testBookmark()
-            // }
-            // .keyboardShortcut("t", modifiers: [.command, .shift])
-
-            // Button("Test SecurityScoped Bookmark 2") {
-            //     TestSecurityScopedBookmark().testBookmark2()
-            // }
-            // .keyboardShortcut("t", modifiers: [.command, .shift, .control])
+            // .keyboardShortcut("y")
         }
 
         CommandGroup(after: .textEditing) {
             Divider()
             Button("Find in Files", systemImage: "magnifyingglass") {
-                guard let rootState else { return }
-                appState.openSearchWindow(for: rootState, openWindow: openWindow)
+                rootState?.browserState.sidebarStatus = .find
             }
             .keyboardShortcut("f", modifiers: [.command, .shift])
         }

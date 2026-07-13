@@ -10,7 +10,8 @@ import SwiftUI
 struct BrowserSplitView: View {
     var body: some View {
         NavigationSplitView {
-            FolderTreeContainer()
+            //FolderTreeContainer()
+            SidebarContainer()
                 .frame(minWidth: 200, maxHeight: .infinity)
         } content: {
             FileListContainer()

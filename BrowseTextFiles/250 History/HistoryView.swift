@@ -12,22 +12,22 @@ struct HistoryView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack {
-                Spacer()
-                Button("Clear") {
-                    historyState.clearHistory()
-                }
-            }
-            .padding(.horizontal)
-            .padding(.vertical, 8)
-
-            Divider()
-
             if !historyState.history.isEmpty {
                 HistoryListView()
             } else {
                 Spacer()
             }
+
+            Divider()
+
+            HStack {
+                Button("Clear") {
+                    historyState.clearHistory()
+                }
+                Spacer()
+            }
+            .padding(.horizontal)
+            .padding(.vertical, 8)
         }
     }
 }

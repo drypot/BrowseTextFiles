@@ -36,20 +36,20 @@ fileprivate struct SearchButtons: View {
         @Bindable var searchState = searchState
         HStack {
             TextField("Search", text: $searchState.searchText)
-                .frame(minWidth: 100)
+                .frame(maxWidth: .infinity)
                 .focused($isFocused)
-                .task {
+                .onAppear {
                     isFocused = true
                 }
                 .onSubmit {
                     startSearch()
                 }
-            Button("Search") {
-                startSearch()
-            }
-            Button("Reset") {
-                searchState.clearSearchResult()
-            }
+            //Button("Search") {
+            //    startSearch()
+            //}
+            //Button("Reset") {
+            //    searchState.clearSearchResult()
+            //}
         }
         .padding(.horizontal)
         .padding(.vertical, 8)

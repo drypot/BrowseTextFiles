@@ -29,14 +29,24 @@ struct FolderTreeContainer: View {
         .contextMenu(forSelectionType: FolderState.ID.self) {
             FolderTreeContextMenu(selection: $0)
         }
-        .toolbar {
-            ToolbarItem {
-                Button("New Folder", systemImage: "folder.badge.plus") {
-                    folderTreeState.makeNewFolder()
-                }
-                .help("New Folder")
-            }
-        }
+        // .toolbar {
+        //     FolderTreeToolbar()
+        // }
+
+        // Divider()
+
+        // HStack {
+        //     Button {
+        //         folderTreeState.makeNewFolder()
+        //     } label: {
+        //         Image(systemName: "folder.badge.plus")
+        //             .font(.title2)
+        //     }
+        //     .help("New Folder")
+        //     .buttonStyle(.plain)
+        //     .labelsHidden()
+        // }
+        // .padding(12)
     }
 
     func handleKeyPress(_ press: KeyPress) -> KeyPress.Result {
@@ -58,6 +68,19 @@ struct FolderTreeContainer: View {
         return .handled
     }
 
+}
+
+struct FolderTreeToolbar: ToolbarContent {
+    @Environment(FolderTreeState.self) var folderTreeState
+
+    var body: some ToolbarContent {
+        ToolbarItem {
+            Button("New Folder", systemImage: "folder.badge.plus") {
+                folderTreeState.makeNewFolder()
+            }
+            .help("New Folder")
+        }
+    }
 }
 
 /*

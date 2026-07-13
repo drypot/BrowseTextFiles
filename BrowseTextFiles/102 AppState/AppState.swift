@@ -248,41 +248,41 @@ class AppState {
 
     // MARK: - Search Window
 
-    func openSearchWindow(for rootState: RootState, openWindow: OpenWindowAction) {
-        guard rootState.browserState.status == .ready else { return }
-        lastRootState = rootState
-        openWindow(id: "search", value: rootState.browserState.id)
-        rootState.searchState.isSearchWindowPresented = true
-    }
+    // func openSearchWindow(for rootState: RootState, openWindow: OpenWindowAction) {
+    //     guard rootState.browserState.status == .ready else { return }
+    //     lastRootState = rootState
+    //     openWindow(id: "search", value: rootState.browserState.id)
+    //     rootState.searchState.isSearchWindowPresented = true
+    // }
 
-    func toggleSearchWindow(for rootState: RootState, openWindow: OpenWindowAction, dismissWindow: DismissWindowAction) {
-        guard rootState.browserState.status == .ready else { return }
-        if rootState.searchState.isSearchWindowPresented {
-            dismissWindow(id: "search", value: rootState.browserState.id)
-            rootState.searchState.isSearchWindowPresented = false
-        } else {
-            openSearchWindow(for: rootState, openWindow: openWindow)
-        }
-    }
+    // func toggleSearchWindow(for rootState: RootState, openWindow: OpenWindowAction, dismissWindow: DismissWindowAction) {
+    //     guard rootState.browserState.status == .ready else { return }
+    //     if rootState.searchState.isSearchWindowPresented {
+    //         dismissWindow(id: "search", value: rootState.browserState.id)
+    //         rootState.searchState.isSearchWindowPresented = false
+    //     } else {
+    //         openSearchWindow(for: rootState, openWindow: openWindow)
+    //     }
+    // }
 
     // MARK: - History Window
 
-    func openHistoryWindow(for rootState: RootState, openWindow: OpenWindowAction) {
-        guard rootState.browserState.status == .ready else { return }
-        lastRootState = rootState
-        openWindow(id: "history", value: rootState.browserState.id)
-        rootState.historyState.isHistoryWindowPresented = true
-    }
+    // func openHistoryWindow(for rootState: RootState, openWindow: OpenWindowAction) {
+    //     guard rootState.browserState.status == .ready else { return }
+    //     lastRootState = rootState
+    //     openWindow(id: "history", value: rootState.browserState.id)
+    //     rootState.historyState.isHistoryWindowPresented = true
+    // }
 
-    func toggleHistoryWindow(for rootState: RootState, openWindow: OpenWindowAction, dismissWindow: DismissWindowAction) {
-        guard rootState.browserState.status == .ready else { return }
-        if rootState.historyState.isHistoryWindowPresented {
-            dismissWindow(id: "history", value: rootState.browserState.id)
-            rootState.historyState.isHistoryWindowPresented = false
-        } else {
-            openHistoryWindow(for: rootState, openWindow: openWindow)
-        }
-    }
+    // func toggleHistoryWindow(for rootState: RootState, openWindow: OpenWindowAction, dismissWindow: DismissWindowAction) {
+    //     guard rootState.browserState.status == .ready else { return }
+    //     if rootState.historyState.isHistoryWindowPresented {
+    //         dismissWindow(id: "history", value: rootState.browserState.id)
+    //         rootState.historyState.isHistoryWindowPresented = false
+    //     } else {
+    //         openHistoryWindow(for: rootState, openWindow: openWindow)
+    //     }
+    // }
 
     // MARK: - Finder
 

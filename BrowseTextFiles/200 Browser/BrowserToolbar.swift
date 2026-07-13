@@ -43,15 +43,16 @@ struct BrowserToolbar: ToolbarContent {
             }
             .help("New File...")
 
-            Button("Show History", systemImage: "clock") {
-                appState.toggleHistoryWindow(for: rootState, openWindow: openWindow, dismissWindow: dismissWindow)
-            }
-            .help("Show History")
+            //Button("Show History", systemImage: "clock") {
+            //    appState.toggleHistoryWindow(for: rootState, openWindow: openWindow, dismissWindow: dismissWindow)
+            //}
+            //.help("Show History")
         }
 
         ToolbarItem(placement: .primaryAction) {
             Button("Search", systemImage: "magnifyingglass") {
-                appState.toggleSearchWindow(for: rootState, openWindow: openWindow, dismissWindow: dismissWindow)
+                //appState.toggleSearchWindow(for: rootState, openWindow: openWindow, dismissWindow: dismissWindow)
+                rootState.browserState.sidebarStatus = .find
             }
             .help("Search")
         }

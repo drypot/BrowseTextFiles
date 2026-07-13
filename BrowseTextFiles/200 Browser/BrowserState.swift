@@ -32,6 +32,28 @@ final class BrowserState {
 
     var status: BrowserStatus = .loading
 
+    // MARK: - Sidebar Status
+
+    enum SidebarStatus: String, Identifiable, CaseIterable {
+        case folder = "Folder"
+        case history = "History"
+        case find = "Find"
+
+        var id: String {
+            self.rawValue
+        }
+
+        var imageName: String {
+            switch self {
+            case .folder: return "folder"
+            case .history: return "clock"
+            case .find: return "magnifyingglass"
+            }
+        }
+    }
+
+    var sidebarStatus: SidebarStatus = .folder
+
     // MARK: - Folder
 
     private var _selectedFolderURL: URL?
