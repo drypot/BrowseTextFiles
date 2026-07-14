@@ -11,33 +11,32 @@ struct FolderListContainer: View {
     @Environment(AppState.self) var appState
     @Environment(RootState.self) var rootState
     @Environment(BrowserState.self) var browserState
-    @Environment(FolderListState.self) var folderTreeState
+    @Environment(FolderListState.self) var folderListState
 
     var body: some View {
         ScrollViewReader { proxy in
             FolderList()
                 .onChange(of: browserState.selectedFolderURL, initial: true) { _, url in
                     if let url {
-                        folderTreeState.expandFoldersUntilSelectedFolder()
                         withAnimation {
                             proxy.scrollTo(url)
                         }
                     }
                 }
+                .onKeyPress(phases: .down, action: handleKeyPress)
+                .contextMenu(forSelectionType: FolderState.ID.self) {
+                    FolderListContextMenu(selection: $0)
+                }
+                // .toolbar {
+                //     FolderTreeToolbar()
+                // }
         }
-        .onKeyPress(phases: .down, action: handleKeyPress)
-        .contextMenu(forSelectionType: FolderState.ID.self) {
-            FolderListContextMenu(selection: $0)
-        }
-        // .toolbar {
-        //     FolderTreeToolbar()
-        // }
 
         // Divider()
 
         // HStack {
         //     Button {
-        //         folderTreeState.makeNewFolder()
+        //         folderListState.makeNewFolder()
         //     } label: {
         //         Image(systemName: "folder.badge.plus")
         //             .font(.title2)
@@ -71,12 +70,13 @@ struct FolderListContainer: View {
 }
 
 struct FolderTreeToolbar: ToolbarContent {
-    @Environment(FolderListState.self) var folderTreeState
+    @Environment(RootState.self) var rootState
+    //@Environment(FolderListState.self) var folderListState
 
     var body: some ToolbarContent {
         ToolbarItem {
             Button("New Folder", systemImage: "folder.badge.plus") {
-                folderTreeState.makeNewFolder()
+                rootState.makeNewFolder()
             }
             .help("New Folder")
         }

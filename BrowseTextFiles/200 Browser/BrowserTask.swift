@@ -11,7 +11,7 @@ struct BrowserTask: ViewModifier {
     @Environment(AppState.self) var appState
     @Environment(RootState.self) var rootState
     @Environment(BrowserState.self) var browserState
-    @Environment(FolderListState.self) var folderTreeState
+    @Environment(FolderListState.self) var folderListState
 
     @SceneStorage("rootURLData") private var sceneRootURLData: Data?
     @SceneStorage("fileURLData") private var sceneFileURLData: Data?
@@ -55,7 +55,7 @@ struct BrowserTask: ViewModifier {
         if let rootURL = sceneRootURL {
             rootState.configure(with: rootURL, appState: appState)
             if let fileURL = sceneFileURL {
-                rootState.browserState.targetFile(fileURL)
+                rootState.targetFile(fileURL)
             }
             return
         }
@@ -63,7 +63,7 @@ struct BrowserTask: ViewModifier {
         if let rootURL = appState.newWindowRootURL {
             rootState.configure(with: rootURL, appState: appState)
             if let fileURL = appState.newWindowFileURL {
-                rootState.browserState.targetFile(fileURL)
+                rootState.targetFile(fileURL)
             }
             appState.newWindowRootURL = nil
             appState.newWindowFileURL = nil

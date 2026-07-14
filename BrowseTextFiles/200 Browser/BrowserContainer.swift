@@ -46,7 +46,7 @@ struct BrowserContainer: View {
         .environment(rootState.browserState)
         .environment(rootState.browserState)
         .environment(rootState.browserState)
-        .environment(rootState.folderTreeState)
+        .environment(rootState.folderListState)
         .environment(rootState.fileListState)
         .environment(rootState.searchState)
         .environment(rootState.historyState)

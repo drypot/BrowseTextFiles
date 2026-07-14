@@ -132,14 +132,6 @@ final class BrowserState {
         }
     }
 
-    // MARK: - Target
-
-    func targetFile(_ fileURL: URL) {
-        let folderURL = fileURL.deletingLastPathComponent()
-        selectedFolderURL = folderURL
-        selectedFileURL = fileURL
-    }
-
     // MARK: - Alert
 
     func leaveAlert(_ message: String) {

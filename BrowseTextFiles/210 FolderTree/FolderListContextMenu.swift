@@ -11,7 +11,7 @@ struct FolderListContextMenu: View {
     @Environment(AppState.self) var appState
     @Environment(RootState.self) var rootState
     @Environment(BrowserState.self) var browserState
-    @Environment(FolderListState.self) var folderTreeState
+    @Environment(FolderListState.self) var folderListState
 
     @Environment(\.openWindow) private var openWindow
     
@@ -41,7 +41,7 @@ struct FolderListContextMenu: View {
             }
 
             Button("New Folder") {
-                folderTreeState.makeNewFolder(in: url)
+                rootState.makeNewFolder(in: url)
             }
 
             Button("Show in Finder") {
@@ -61,7 +61,7 @@ struct FolderListContextMenu: View {
 
         if selection.count > 0 {
             Button("Delete") {
-                folderTreeState.trashFolders(selection: selection)
+                folderListState.trashFolders(selection: selection)
             }
         }
     }

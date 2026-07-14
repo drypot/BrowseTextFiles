@@ -57,37 +57,6 @@ final class FolderListState {
         }
     }
 
-    // MARK: - New Folder
-
-    func makeNewFolder(in folderURL: URL?) {
-        guard let folderURL else { return }
-        let fileManager = FileManager.default
-        var newFolderURL = folderURL.appending(path: "NewFolder", directoryHint: .isDirectory)
-        var counter = 1
-
-        while fileManager.fileExists(atPath: newFolderURL.path(percentEncoded: false)), counter < 100 {
-            let newName = "NewFolder \(counter)"
-            newFolderURL = folderURL.appending(path: newName, directoryHint: .isDirectory)
-            counter += 1
-        }
-
-        do {
-            consoleLog("new folder: \(newFolderURL.path(percentEncoded: false))")
-            try fileManager.createDirectory(at: newFolderURL, withIntermediateDirectories: true, attributes: nil)
-            reloadFolderTree()
-            browserState.selectedFolderURL = newFolderURL
-        } catch {
-            let message = error.localizedDescription
-            browserState.leaveAlert(message)
-            consoleLog("new file: \(message)")
-        }
-    }
-
-    func makeNewFolder() {
-        let folderURL = browserState.selectedFolderURL
-        makeNewFolder(in: folderURL)
-    }
-
     // MARK: - Delete Folder
 
     func trashFolders(selection: Set<FileState.ID>) {

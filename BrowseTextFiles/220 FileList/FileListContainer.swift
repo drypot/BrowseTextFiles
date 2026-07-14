@@ -19,8 +19,8 @@ struct FileListContainer: View {
                     guard let url else { return }
                     proxy.scrollTo(url)
                 }
-                .onChange(of: browserState.selectedFolderURL, initial: true) { _, url in
-                    fileListState.loadFileList(at: url)
+                .onChange(of: browserState.selectedFolderURL, initial: true) {
+                    fileListState.loadFileList()
                 }
         }
         .onKeyPress(phases: .down) {

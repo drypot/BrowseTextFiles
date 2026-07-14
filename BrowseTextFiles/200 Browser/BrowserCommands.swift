@@ -36,7 +36,7 @@ struct BrowserCommands: Commands {
             .keyboardShortcut("n", modifiers: [.command, .option])
 
             Button("New Folder", systemImage: "folder.badge.plus") {
-                rootState?.folderTreeState.makeNewFolder()
+                rootState?.makeNewFolder()
             }
             .keyboardShortcut("n", modifiers: [.command, .shift])
 
@@ -72,13 +72,6 @@ struct BrowserCommands: Commands {
             .keyboardShortcut("s")
         }
 
-        CommandGroup(before: .toolbar) {
-            Button("Reload", systemImage: "arrow.clockwise") {
-                rootState?.reload()
-            }
-            .keyboardShortcut("r")
-        }
-
         CommandGroup(after: .sidebar) {
 
             Button("Sidebar Folder") {
@@ -95,6 +88,15 @@ struct BrowserCommands: Commands {
                 rootState?.browserState.sidebarStatus = .find
             }
             .keyboardShortcut("3")
+
+            Divider()
+
+            Button("Reload", systemImage: "arrow.clockwise") {
+                rootState?.reload()
+            }
+            .keyboardShortcut("r")
+
+            Divider()
 
             // Button("Toggle History", systemImage: "clock") {
             //     guard let rootState else { return }

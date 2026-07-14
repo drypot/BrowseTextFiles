@@ -9,19 +9,19 @@ import SwiftUI
 
 struct FolderList: View {
     @Environment(BrowserState.self) var browserState
-    @Environment(FolderListState.self) var folderTreeState
+    @Environment(FolderListState.self) var folderListState
 
     var body: some View {
         @Bindable var browserState = browserState
-        @Bindable var folderTreeState = folderTreeState
+        @Bindable var folderListState = folderListState
         List(selection: $browserState.selectedFolderURLs) {
-            if let rootFolder = folderTreeState.rootFolder {
-                TreeRow(rootFolder, children: \.children, expanded: $folderTreeState.expandedFolderURLs) { folder in
+            if let rootFolder = folderListState.rootFolder {
+                TreeRow(rootFolder, children: \.children, expanded: $folderListState.expandedFolderURLs) { folder in
                     Text(folder.name)
                         .id(folder.id)
                 }
             }
         }
-        .id(folderTreeState.refreshCount)
+        .id(folderListState.refreshCount)
     }
 }

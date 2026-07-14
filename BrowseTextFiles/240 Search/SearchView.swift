@@ -63,7 +63,7 @@ fileprivate struct SearchButtons: View {
 }
 
 fileprivate struct SearchResults: View {
-    @Environment(BrowserState.self) var browserState
+    @Environment(RootState.self) var rootState
 
     let results: [SearchResult]
 
@@ -73,7 +73,7 @@ fileprivate struct SearchResults: View {
                 ForEach(results) { result in
                     VStack(alignment: .leading) {
                         Button(result.title) {
-                            browserState.targetFile(result.url)
+                            rootState.targetFile(result.url)
                         }
                         .buttonStyle(.plain)
                         .foregroundStyle(.link)
