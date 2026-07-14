@@ -43,6 +43,11 @@ struct BrowserToolbar: ToolbarContent {
             }
             .help("New File...")
 
+            Button("New Folder", systemImage: "folder.badge.plus") {
+                rootState.makeNewFolder()
+            }
+            .help("New Folder")
+
             //Button("Show History", systemImage: "clock") {
             //    appState.toggleHistoryWindow(for: rootState, openWindow: openWindow, dismissWindow: dismissWindow)
             //}
