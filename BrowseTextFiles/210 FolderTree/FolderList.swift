@@ -1,5 +1,5 @@
 //
-//  FolderTree.swift
+//  FolderList.swift
 //  Browse Text Files
 //
 //  Created by Kyuhyun Park on 7/13/26.
@@ -7,9 +7,9 @@
 
 import SwiftUI
 
-struct FolderTree: View {
+struct FolderList: View {
     @Environment(BrowserState.self) var browserState
-    @Environment(FolderTreeState.self) var folderTreeState
+    @Environment(FolderListState.self) var folderTreeState
 
     var body: some View {
         @Bindable var browserState = browserState

@@ -1,5 +1,5 @@
 //
-//  FolderTreeContextMenu.swift
+//  FolderListContextMenu.swift
 //  Browse Text Files
 //
 //  Created by Kyuhyun Park on 7/12/26.
@@ -7,11 +7,11 @@
 
 import SwiftUI
 
-struct FolderTreeContextMenu: View {
+struct FolderListContextMenu: View {
     @Environment(AppState.self) var appState
     @Environment(RootState.self) var rootState
     @Environment(BrowserState.self) var browserState
-    @Environment(FolderTreeState.self) var folderTreeState
+    @Environment(FolderListState.self) var folderTreeState
 
     @Environment(\.openWindow) private var openWindow
     

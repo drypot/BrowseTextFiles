@@ -1,5 +1,5 @@
 //
-//  FolderTreeState.swift
+//  FolderListState.swift
 //  Browse Text Files
 //
 //  Created by Kyuhyun Park on 7/7/26.
@@ -8,7 +8,7 @@
 import SwiftUI
 
 @Observable
-final class FolderTreeState {
+final class FolderListState {
     private(set) var rootFolder: FolderState?
     var expandedFolderURLs: Set<URL> = []
     var refreshCount = 0

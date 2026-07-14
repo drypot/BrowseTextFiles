@@ -36,7 +36,7 @@ final class RootState: Identifiable {
     // MARK: - States
 
     @ObservationIgnored var browserState: BrowserState
-    @ObservationIgnored var folderTreeState: FolderTreeState
+    @ObservationIgnored var folderTreeState: FolderListState
     @ObservationIgnored var fileListState: FileListState
     @ObservationIgnored var searchState: SearchState
     @ObservationIgnored var historyState: HistoryState
@@ -44,7 +44,7 @@ final class RootState: Identifiable {
 
     init() {
         browserState = BrowserState()
-        folderTreeState = FolderTreeState(browserState: browserState)
+        folderTreeState = FolderListState(browserState: browserState)
         fileListState = FileListState(browserState: browserState)
         searchState = SearchState(browserState: browserState)
         historyState = HistoryState()

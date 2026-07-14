@@ -19,7 +19,7 @@ struct SidebarContainer: View {
             
             switch browserState.sidebarStatus {
             case .folder:
-                FolderTreeContainer()
+                FolderListContainer()
             case .history:
                 HistoryView()
             case .find:

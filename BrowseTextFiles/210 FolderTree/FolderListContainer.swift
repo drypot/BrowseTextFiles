@@ -1,5 +1,5 @@
 //
-//  FolderTreeContainer.swift
+//  FolderListContainer.swift
 //  Browse Text Files
 //
 //  Created by Kyuhyun Park on 4/23/26.
@@ -7,15 +7,15 @@
 
 import SwiftUI
 
-struct FolderTreeContainer: View {
+struct FolderListContainer: View {
     @Environment(AppState.self) var appState
     @Environment(RootState.self) var rootState
     @Environment(BrowserState.self) var browserState
-    @Environment(FolderTreeState.self) var folderTreeState
+    @Environment(FolderListState.self) var folderTreeState
 
     var body: some View {
         ScrollViewReader { proxy in
-            FolderTree()
+            FolderList()
                 .onChange(of: browserState.selectedFolderURL, initial: true) { _, url in
                     if let url {
                         folderTreeState.expandFoldersUntilSelectedFolder()
@@ -27,7 +27,7 @@ struct FolderTreeContainer: View {
         }
         .onKeyPress(phases: .down, action: handleKeyPress)
         .contextMenu(forSelectionType: FolderState.ID.self) {
-            FolderTreeContextMenu(selection: $0)
+            FolderListContextMenu(selection: $0)
         }
         // .toolbar {
         //     FolderTreeToolbar()
@@ -71,7 +71,7 @@ struct FolderTreeContainer: View {
 }
 
 struct FolderTreeToolbar: ToolbarContent {
-    @Environment(FolderTreeState.self) var folderTreeState
+    @Environment(FolderListState.self) var folderTreeState
 
     var body: some ToolbarContent {
         ToolbarItem {
