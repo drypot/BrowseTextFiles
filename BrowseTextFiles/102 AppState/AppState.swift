@@ -11,6 +11,24 @@ import Observation
 @Observable
 class AppState {
 
+    var newFileName: String {
+        didSet {
+            UserDefaults.standard.set(newFileName, forKey: "newFileName")
+        }
+    }
+
+    var newFileTemplates: [String] {
+        didSet {
+            UserDefaults.standard.set(newFileTemplates, forKey: "newFileTemplates")
+        }
+    }
+
+    var newFileTemplateIndex: Int {
+        didSet {
+            UserDefaults.standard.set(newFileTemplateIndex, forKey: "newFileTemplateIndex")
+        }
+    }
+
     var fontName: String {
         didSet {
             UserDefaults.standard.set(fontName, forKey: "fontName")
@@ -47,17 +65,6 @@ class AppState {
         }
     }
 
-    var newFileTemplates: [String] {
-        didSet {
-            UserDefaults.standard.set(newFileTemplates, forKey: "newFileTemplates")
-        }
-    }
-
-    var newFileTemplateIndex: Int {
-        didSet {
-            UserDefaults.standard.set(newFileTemplateIndex, forKey: "newFileTemplateIndex")
-        }
-    }
 
     enum TabKeyAction: Int {
         case `default` = 0
@@ -94,15 +101,17 @@ class AppState {
 
     init() {
         let defaults = UserDefaults.standard
+
+        self.newFileName = defaults.string(forKey: "newFileName", defaultValue: "Untitled.md")
+        self.newFileTemplates = defaults.stringArray(forKey: "newFileTemplates", defaultValue: newFileTemplateDefaults, minSize: 5)
+        self.newFileTemplateIndex = defaults.integer(forKey: "newFileTemplateIndex", defaultValue: 0)
+
         self.fontName = defaults.string(forKey: "fontName", defaultValue: "SF Pro")
         self.fontSize = defaults.double(forKey: "fontSize", defaultValue: 16)
         self.lineHeightMultiple = defaults.double(forKey: "lineHeightMultiple", defaultValue: 1.3)
 
         self.isAutoSaveEnabled = defaults.bool(forKey: "isAutoSaveEnabled", defaultValue: true)
         self.autoSaveDelay = defaults.integer(forKey: "autoSaveDelay", defaultValue: 2)
-
-        self.newFileTemplates = defaults.stringArray(forKey: "newFileTemplates", defaultValue: newFileTemplateDefaults, minSize: 5)
-        self.newFileTemplateIndex = defaults.integer(forKey: "newFileTemplateIndex", defaultValue: 0)
 
         let tabKeyActionRaw = defaults.integer(forKey: "tabKeyAction", defaultValue: TabKeyAction.default.rawValue)
         self.tabKeyAction =  TabKeyAction(rawValue: tabKeyActionRaw) ?? TabKeyAction.default

@@ -13,6 +13,11 @@ struct SettingsView: View {
     var body: some View {
         @Bindable var appState = appState
         Form {
+            Section("New File") {
+                TextField("New file name", text: $appState.newFileName)
+                    .textFieldStyle(.roundedBorder)
+            }
+
             Section("Font") {
                 LabeledContent("Font: \(appState.fontName)") {
                     Button("Change Font") {
@@ -70,7 +75,8 @@ struct SettingsView: View {
         }
         .formStyle(.grouped)
         .navigationTitle("Settings")
-        .frame(minWidth: 500, minHeight: 500)
+        .fixedSize()
+        //.frame(minWidth: 500, minHeight: 500)
     }
 }
 

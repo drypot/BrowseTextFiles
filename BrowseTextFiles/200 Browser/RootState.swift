@@ -35,6 +35,7 @@ final class RootState: Identifiable {
 
     // MARK: - States
 
+    @ObservationIgnored var appState: AppState?
     @ObservationIgnored var browserState: BrowserState
     @ObservationIgnored var folderListState: FolderListState
     @ObservationIgnored var fileListState: FileListState
@@ -60,6 +61,7 @@ final class RootState: Identifiable {
 
     func configure(with rootURL: URL, appState: AppState) {
         consoleLog("configure root state: \(rootURL.path(percentEncoded: false))")
+        self.appState = appState
         browserState.configure(with: rootURL)
         folderListState.reloadFolderTree()
         browserState.selectedFolderURL = rootURL
@@ -92,12 +94,19 @@ final class RootState: Identifiable {
 
     func makeNewFile(in folderURL: URL?) {
         guard let folderURL else { return }
-        let fileManager = FileManager.default
-        var newFileURL = folderURL.appending(path: "Untitled.md", directoryHint: .notDirectory)
+
+        guard let defaultFileName = appState?.newFileName else { return }
+        let defaultFileURL = URL(fileURLWithPath: defaultFileName)
+        let namePart = defaultFileURL.deletingPathExtension().lastPathComponent
+        let extensionPart = defaultFileURL.pathExtension
+
+        var newFileURL = folderURL.appending(path: defaultFileName, directoryHint: .notDirectory)
         var counter = 1
 
+        let fileManager = FileManager.default
+
         while fileManager.fileExists(atPath: newFileURL.path(percentEncoded: false)), counter < 100 {
-            let newName = "Untitled \(counter).md"
+            let newName = "\(namePart) \(counter).\(extensionPart)"
             newFileURL = folderURL.appending(path: newName, directoryHint: .notDirectory)
             counter += 1
         }
