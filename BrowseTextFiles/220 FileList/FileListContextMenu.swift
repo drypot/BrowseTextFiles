@@ -9,7 +9,7 @@ import SwiftUI
 
 struct FileListContextMenu: View {
     @Environment(AppState.self) var appState
-    @Environment(RootState.self) var rootState
+    @Environment(BrowserStateRoot.self) var stateRoot
     @Environment(BrowserState.self) var browserState
     @Environment(FileListState.self) var fileListState
 
@@ -19,11 +19,11 @@ struct FileListContextMenu: View {
 
     var body: some View {
         Button("New File") {
-            rootState.makeNewFile()
+            stateRoot.makeNewFile()
         }
 
         Button("New File...") {
-            rootState.showNewFileWithTemplate()
+            stateRoot.showNewFileWithTemplate()
         }
 
         Button("Show in Finder") {
@@ -46,7 +46,7 @@ struct FileListContextMenu: View {
 
         if selection.count == 1 {
             Button("Rename") {
-                rootState.showRenameFile(for: selection)
+                stateRoot.showRenameFile(for: selection)
             }
         }
 

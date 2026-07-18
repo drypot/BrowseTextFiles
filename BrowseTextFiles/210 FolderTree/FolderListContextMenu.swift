@@ -9,7 +9,7 @@ import SwiftUI
 
 struct FolderListContextMenu: View {
     @Environment(AppState.self) var appState
-    @Environment(RootState.self) var rootState
+    @Environment(BrowserStateRoot.self) var stateRoot
     @Environment(BrowserState.self) var browserState
     @Environment(FolderListState.self) var folderListState
 
@@ -33,15 +33,15 @@ struct FolderListContextMenu: View {
             let url = selection.first
 
             Button("New File") {
-                rootState.makeNewFile(in: url)
+                stateRoot.makeNewFile(in: url)
             }
 
             Button("New File...") {
-                rootState.showNewFileWithTemplate(on: url)
+                stateRoot.showNewFileWithTemplate(on: url)
             }
 
             Button("New Folder") {
-                rootState.makeNewFolder(in: url)
+                stateRoot.makeNewFolder(in: url)
             }
 
             Button("Show in Finder") {
@@ -55,7 +55,7 @@ struct FolderListContextMenu: View {
             Divider()
 
             Button("Rename") {
-                rootState.showRenameFolder(for: url)
+                stateRoot.showRenameFolder(for: url)
             }
         }
 

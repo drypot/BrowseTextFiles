@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct EditorError: View {
-    @Environment(RootState.self) var rootState
+    @Environment(BrowserStateRoot.self) var stateRoot
     @Environment(EditorState.self) var editorState
 
     var body: some View {
@@ -16,7 +16,7 @@ struct EditorError: View {
             Text(editorState.loadingError ?? "...")
                 .textSelection(.enabled)
             // Button("Reload folder tree") {
-            //     rootState.reload()
+            //     stateRoot.reload()
             // }
             Spacer()
         }

@@ -12,13 +12,13 @@ struct HistoryWindow: Scene {
 
     var body: some Scene {
         WindowGroup("History", id: "history", for: UUID.self) { $id in
-            if let rootState = appState.lastRootState {
+            if let stateRoot = appState.lastRootState {
                 HistoryContainer()
                     .frame(minWidth: 320, minHeight: 200)
-                    .environment(rootState)
-                    .environment(rootState.browserState)
-                    .environment(rootState.browserState)
-                    .environment(rootState.historyState)
+                    .environment(stateRoot)
+                    .environment(stateRoot.browserState)
+                    .environment(stateRoot.browserState)
+                    .environment(stateRoot.historyState)
             }
         }
         .restorationBehavior(.disabled)

@@ -33,7 +33,7 @@ struct HistoryView: View {
 }
 
 fileprivate struct HistoryListView: View {
-    @Environment(RootState.self) var rootState
+    @Environment(BrowserStateRoot.self) var stateRoot
     @Environment(BrowserState.self) var browserState
     @Environment(HistoryState.self) var historyState
 
@@ -44,7 +44,7 @@ fileprivate struct HistoryListView: View {
                 ForEach(historyState.history) { historyItem in
                     let path = historyItem.relativePath(from: rootComponents)
                     Button(path) {
-                        rootState.targetFile(historyItem.url)
+                        stateRoot.targetFile(historyItem.url)
                     }
                 }
                 .buttonStyle(.plain)

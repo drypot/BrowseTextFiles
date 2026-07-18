@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct FileListContainer: View {
-    @Environment(RootState.self) var rootState
+    @Environment(BrowserStateRoot.self) var stateRoot
     @Environment(BrowserState.self) var browserState
     @Environment(FileListState.self) var fileListState
 
@@ -34,10 +34,10 @@ struct FileListContainer: View {
     func handleKeyPress(_ press: KeyPress) -> KeyPress.Result {
         switch press.key {
         case .tab:
-            rootState.editorState.shouldFocusedCount += 1
+            stateRoot.editorState.shouldFocusedCount += 1
 
         case .return:
-            rootState.showRenameFile()
+            stateRoot.showRenameFile()
 
         default:
             return .ignored
@@ -53,16 +53,16 @@ List 수작업으로 전부 만들었을 때 코드
 
 fileprivate struct RowView: View {
     var appState: AppState
-    var rootState: RootState
+    var stateRoot: RootState
     var fileListState: FileListState
 
     let item: FileState
     let isActive: Bool
 
-    init(appState: AppState, rootState: RootState, item: FileState, isActive: Bool) {
+    init(appState: AppState, stateRoot: RootState, item: FileState, isActive: Bool) {
         self.appState = appState
-        self.rootState = rootState
-        self.fileListState = rootState.fileListState
+        self.stateRoot = stateRoot
+        self.fileListState = stateRoot.fileListState
         self.item = item
         self.isActive = isActive
     }
@@ -91,7 +91,7 @@ fileprivate struct RowView: View {
             //focusedViewBinding?.wrappedValue = .fileList
             guard fileListState.selectedFileID != item.id else { return }
             fileListState.selectFile(item.id)
-            //rootState.editorState.loadFile(at: fileListState.selectedFile?.url)
+            //stateRoot.editorState.loadFile(at: fileListState.selectedFile?.url)
         }
         //.focusEffectDisabled() // 포커스 테두리 표시 안 함
     }

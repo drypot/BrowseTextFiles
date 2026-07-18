@@ -9,7 +9,7 @@ import SwiftUI
 
 struct BrowserBlankView: View {
     @Environment(AppState.self) var appState
-    @Environment(RootState.self) var rootState
+    @Environment(BrowserStateRoot.self) var stateRoot
 
     var body: some View {
         Button("Open Folder") {
@@ -18,9 +18,9 @@ struct BrowserBlankView: View {
     }
 
     private func showOpenPanel() {
-        guard let window = rootState.browserState.window else { return }
+        guard let window = stateRoot.browserState.window else { return }
         appState.showFolderOpenPanelFor(window) { url in
-            rootState.configure(with: url, appState: appState)
+            stateRoot.configure(with: url, appState: appState)
             appState.addRecentDocumentURL(url)
         }
     }

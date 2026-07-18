@@ -10,7 +10,7 @@ import Combine
 
 struct HistoryContainer: View {
     @Environment(AppState.self) var appState
-    @Environment(RootState.self) var rootState
+    @Environment(BrowserStateRoot.self) var stateRoot
     @Environment(BrowserState.self) var browserState
     @Environment(HistoryState.self) var historyState
 
@@ -20,7 +20,7 @@ struct HistoryContainer: View {
         HistoryView()
             .background(WindowAccessor(onResolve: setupWindow))
             .navigationTitle("History: \(browserState.rootName ?? "")")
-            .focusedSceneValue(rootState)
+            .focusedSceneValue(stateRoot)
     }
     
     func setupWindow(_ window: NSWindow?) {
@@ -61,6 +61,6 @@ struct HistoryContainer: View {
     }
 
     func saveWindowSize(_ window: NSWindow) {
-        appState.saveWindowRect(window.frame, for: "history", uuid: rootState.browserState.id)
+        appState.saveWindowRect(window.frame, for: "history", uuid: stateRoot.browserState.id)
     }
 }

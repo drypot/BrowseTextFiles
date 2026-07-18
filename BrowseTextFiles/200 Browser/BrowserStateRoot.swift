@@ -1,5 +1,5 @@
 //
-//  RootState.swift
+//  BrowserStateRoot.swift
 //  BrowseTextFiles
 //
 //  Created by Kyuhyun Park on 3/1/26.
@@ -9,7 +9,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 @Observable
-final class RootState: Identifiable {
+final class BrowserStateRoot: Identifiable {
 
     // MARK: - New File Sheet
 
@@ -82,10 +82,7 @@ final class RootState: Identifiable {
         printLog("init browser state: \(id)")
     }
 
-    func releaseResource() {
-        consoleLog("release browser resource:")
-        browserState.releaseResource()
-    }
+    // MARK: - Configure
 
     func configure(with rootURL: URL, appState: AppState) {
         consoleLog("configure root state: \(rootURL.path(percentEncoded: false))")
@@ -94,6 +91,11 @@ final class RootState: Identifiable {
         folderListState.reloadFolderTree()
         browserState.selectedFolderURL = rootURL
         appState.addRecentDocumentURL(rootURL)
+    }
+
+    func releaseResource() {
+        consoleLog("release browser resource:")
+        browserState.releaseResource()
     }
 
     // MARK: - Reload

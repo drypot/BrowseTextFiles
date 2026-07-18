@@ -115,7 +115,7 @@ final class BrowserState {
     var alertMessage: String = ""
     var hasAlertMessage = false
 
-    // MARK: - Root
+    // MARK: - Configure
 
     func configure(with rootURL: URL) {
         self.rootURL = rootURL

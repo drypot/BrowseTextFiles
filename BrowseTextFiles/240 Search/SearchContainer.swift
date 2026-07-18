@@ -10,7 +10,7 @@ import Combine
 
 struct SearchContainer: View {
     @Environment(AppState.self) var appState
-    @Environment(RootState.self) var rootState
+    @Environment(BrowserStateRoot.self) var stateRoot
     @Environment(BrowserState.self) var browserState
     @Environment(SearchState.self) var searchState
 
@@ -20,7 +20,7 @@ struct SearchContainer: View {
         SearchView()
             .background(WindowAccessor(onResolve: setupWindow))
             .navigationTitle("Search: \(browserState.rootName ?? "")")
-            .focusedSceneValue(rootState)
+            .focusedSceneValue(stateRoot)
     }
 
     func setupWindow(_ window: NSWindow?) {
@@ -61,6 +61,6 @@ struct SearchContainer: View {
     }
 
     func saveWindowSize(_ window: NSWindow) {
-        appState.saveWindowRect(window.frame, for: "search", uuid: rootState.browserState.id)
+        appState.saveWindowRect(window.frame, for: "search", uuid: stateRoot.browserState.id)
     }
 }

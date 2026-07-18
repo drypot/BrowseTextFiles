@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SidebarContainer: View {
     @Environment(AppState.self) var appState
-    @Environment(RootState.self) var rootState
+    @Environment(BrowserStateRoot.self) var stateRoot
     @Environment(BrowserState.self) var browserState
 
     var body: some View {
