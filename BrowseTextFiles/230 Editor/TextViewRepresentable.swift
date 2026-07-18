@@ -76,16 +76,16 @@ struct TextViewRepresentable: NSViewRepresentable {
             height: CGFloat.greatestFiniteMagnitude
         )
 
-//        if let layoutManager = textView.textLayoutManager {
-//            if let textContainer = layoutManager.textContainer {
-//                // Wrap 모드면 true
-//                textContainer.widthTracksTextView = true // **
-//                textContainer.size = NSSize(
-//                    width: CGFloat.greatestFiniteMagnitude,
-//                    height: CGFloat.greatestFiniteMagnitude
-//                )
-//            }
-//        }
+        //        if let layoutManager = textView.textLayoutManager {
+        //            if let textContainer = layoutManager.textContainer {
+        //                // Wrap 모드면 true
+        //                textContainer.widthTracksTextView = true // **
+        //                textContainer.size = NSSize(
+        //                    width: CGFloat.greatestFiniteMagnitude,
+        //                    height: CGFloat.greatestFiniteMagnitude
+        //                )
+        //            }
+        //        }
 
         return textView
     }
@@ -157,7 +157,7 @@ struct TextViewRepresentable: NSViewRepresentable {
         //textView 에서 줬다.
         //scrollView.contentInsets = NSEdgeInsets(top: 8, left: 0, bottom: 8, right: 0)
         //scrollView.automaticallyAdjustsContentInsets = false
-        
+
         return scrollView
     }
 
@@ -205,12 +205,12 @@ struct TextViewRepresentable: NSViewRepresentable {
         func textView(_ textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
             if appState.tabKeyAction == .indentWithSpace {
                 if commandSelector == #selector(NSResponder.insertTab(_:)) {
-                    indentSelection(textView)
+                    indentWithSpace(textView)
                     return true
                 }
 
                 if commandSelector == #selector(NSResponder.insertBacktab(_:)) {
-                    outdentSelection(textView)
+                    outdentWithSpace(textView)
                     return true
                 }
             }
@@ -244,24 +244,35 @@ struct TextViewRepresentable: NSViewRepresentable {
             textView.setSelectedRange(newSelectedRange)
         }
 
-        private func indentSelection(_ textView: NSTextView) {
+        private func indentWithSpace(_ textView: NSTextView) {
             guard let undoManager = textView.undoManager else { return }
             guard let textStorage = textView.textStorage else { return }
             let selectedRange = textView.selectedRange()
             var newSelectedRange = selectedRange
             let nsString = textStorage.string as NSString
-            let lineRange = nsString.lineRange(for: selectedRange)
+            let totalLineRange = nsString.lineRange(for: selectedRange)
             let indentSize = appState.indentSize
             let spaces = String(repeating: " ", count: indentSize)
 
             var resultLines: [String] = []
             var delta = 0
-            nsString.enumerateSubstrings(in: lineRange, options: [.byLines, .substringNotRequired]) {
-                (_, substringRange, enclosingRange, stop) in
-                let line = spaces + nsString.substring(with: enclosingRange)
+
+            if selectedRange.length == 0 {
+                let lineRange = nsString.lineRange(for: selectedRange)
+                let line = spaces + nsString.substring(with: lineRange)
                 resultLines.append(line)
                 delta += indentSize
+            } else {
+                var lineHead = NSRange(location: totalLineRange.location, length: 0)
+                while lineHead.location < NSMaxRange(totalLineRange) {
+                    let lineRange = nsString.lineRange(for: lineHead)
+                    let line = spaces + nsString.substring(with: lineRange)
+                    resultLines.append(line)
+                    delta += indentSize
+                    lineHead.location = NSMaxRange(lineRange)
+                }
             }
+
             let replacement = resultLines.joined()
 
             newSelectedRange.location += indentSize
@@ -271,52 +282,60 @@ struct TextViewRepresentable: NSViewRepresentable {
             //if textView.shouldChangeText(in: lineRange, replacementString: replacement) {
             //    textView.didChangeText()
             //}
-            updateTextView(textView, in: lineRange, with: replacement, newSelectedRange: newSelectedRange)
+            updateTextView(textView, in: totalLineRange, with: replacement, newSelectedRange: newSelectedRange)
             undoManager.endUndoGrouping()
             undoManager.setActionName("Indent")
         }
 
-        private func outdentSelection(_ textView: NSTextView) {
+        private func outdentWithSpace(_ textView: NSTextView) {
             guard let undoManager = textView.undoManager else { return }
             guard let textStorage = textView.textStorage else { return }
             let selectedRange = textView.selectedRange()
             var newSelectedRange = selectedRange
             let nsString = textStorage.string as NSString
-            let lineRange = nsString.lineRange(for: selectedRange)
+            let totalLineRange = nsString.lineRange(for: selectedRange)
             let indentSize = appState.indentSize
 
             var resultLines: [String] = []
             var isFirstLine = true
             var firstLineDelta = 0
             var delta = 0
-            nsString.enumerateSubstrings(in: lineRange, options: [.byLines, .substringNotRequired]) {
-                (_, substringRange, enclosingRange, stop) in
+
+            var lineHead = NSRange(location: totalLineRange.location, length: 0)
+            while lineHead.location < NSMaxRange(totalLineRange) {
+                let lineRange = nsString.lineRange(for: lineHead)
+
                 var spaceCount = 0
                 for i in 0..<indentSize {
-                    let char = nsString.character(at: substringRange.location + i)
+                    let char = nsString.character(at: lineRange.location + i)
                     if char == 32 {
                         spaceCount += 1
                     } else {
                         break
                     }
                 }
-                let copyRange = NSRange(location: enclosingRange.location + spaceCount,
-                                        length: enclosingRange.length - spaceCount)
+
+                let copyRange = NSRange(location: lineRange.location + spaceCount,
+                                        length: lineRange.length - spaceCount)
                 let line = nsString.substring(with: copyRange)
                 resultLines.append(line)
+
                 if isFirstLine {
                     firstLineDelta = spaceCount
                     isFirstLine = false
                 } else {
                     delta += spaceCount
                 }
+
+                lineHead.location = NSMaxRange(lineRange)
             }
+
             let replacement = resultLines.joined()
 
             newSelectedRange.location -= firstLineDelta
             newSelectedRange.length -= delta
-            if lineRange.location > newSelectedRange.location {
-                let alpha = lineRange.location - newSelectedRange.location
+            if totalLineRange.location > newSelectedRange.location {
+                let alpha = totalLineRange.location - newSelectedRange.location
                 newSelectedRange.location += alpha
                 if newSelectedRange.length >= alpha {
                     newSelectedRange.length -= alpha
@@ -327,7 +346,7 @@ struct TextViewRepresentable: NSViewRepresentable {
             //if textView.shouldChangeText(in: lineRange, replacementString: replacement) {
             //    textView.didChangeText()
             //}
-            updateTextView(textView, in: lineRange, with: replacement, newSelectedRange: newSelectedRange)
+            updateTextView(textView, in: totalLineRange, with: replacement, newSelectedRange: newSelectedRange)
             undoManager.endUndoGrouping()
             undoManager.setActionName("Unindent")
         }
