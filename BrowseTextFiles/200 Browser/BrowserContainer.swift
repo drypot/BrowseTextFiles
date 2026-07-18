@@ -14,16 +14,16 @@ struct BrowserContainer: View {
     @Environment(\.openWindow) private var openWindow
     @Environment(\.dismissWindow) private var dismissWindow
 
-    @State private var stateRoot = BrowserStateRoot()
+    @State private var state = BrowserState()
     @State private var cancellables = Set<AnyCancellable>()
 
     init() {
-        printLog("init browser container: \(stateRoot.id)")
+        printLog("init browser container: \(state.id)")
     }
 
     var body: some View {
         Group {
-            switch stateRoot.browserState.status {
+            switch state.context.status {
             case .showOpenPanel:
                 BrowserBlankView()
             case .loading:
@@ -34,29 +34,29 @@ struct BrowserContainer: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(WindowAccessor(onResolve: setupWindow))
-        .navigationTitle(stateRoot.browserState.rootName ?? "Browser")
+        .navigationTitle(state.context.rootName ?? "Browser")
         .toolbarBackground(.hidden, for: .windowToolbar)
         .toolbar {
             BrowserToolbar()
         }
         .modifier(BrowserSheet())
         .modifier(BrowserTask())
-        .focusedSceneValue(stateRoot)
-        .environment(stateRoot)
-        .environment(stateRoot.browserState)
-        .environment(stateRoot.browserState)
-        .environment(stateRoot.browserState)
-        .environment(stateRoot.folderListState)
-        .environment(stateRoot.fileListState)
-        .environment(stateRoot.searchState)
-        .environment(stateRoot.historyState)
-        .environment(stateRoot.editorState)
+        .focusedSceneValue(state)
+        .environment(state)
+        .environment(state.context)
+        .environment(state.context)
+        .environment(state.context)
+        .environment(state.folderListState)
+        .environment(state.fileListState)
+        .environment(state.searchState)
+        .environment(state.historyState)
+        .environment(state.editorState)
     }
 
     func setupWindow(_ window: NSWindow?) {
         printLog("setup browser window:")
 
-        self.stateRoot.browserState.window = window
+        self.state.context.window = window
 
         guard let window else { return }
 
@@ -79,23 +79,23 @@ struct BrowserContainer: View {
         NotificationCenter.default
             .publisher(for: NSWindow.willCloseNotification, object: window)
             .sink { notification in
-                // dismissWindow(id: "search", value: stateRoot.browserState.id)
-                // dismissWindow(id: "history", value: stateRoot.browserState.id)
-                stateRoot.releaseResource()
+                // dismissWindow(id: "search", value: state.context.id)
+                // dismissWindow(id: "history", value: state.context.id)
+                state.releaseResource()
             }
             .store(in: &cancellables)
 
         NotificationCenter.default
             .publisher(for: NSWindow.didResignMainNotification, object: window)
             .sink { _ in
-                consoleLog("resign main window: \(stateRoot.browserState.rootName ?? "nil")")
-                _ = stateRoot.editorState.autoSaveFile()
+                consoleLog("resign main window: \(state.context.rootName ?? "nil")")
+                _ = state.editorState.autoSaveFile()
             }
             .store(in: &cancellables)
     }
 
     func saveWindowSize(_ window: NSWindow) {
-        appState.saveWindowRect(window.frame, for: "browser", uuid: stateRoot.browserState.id)
+        appState.saveWindowRect(window.frame, for: "browser", uuid: state.context.id)
     }
 }
 

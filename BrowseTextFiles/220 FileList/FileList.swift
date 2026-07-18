@@ -8,12 +8,12 @@
 import SwiftUI
 
 struct FileList: View {
-    @Environment(BrowserState.self) var browserState
+    @Environment(BrowserContext.self) var context
     @Environment(FileListState.self) var fileListState
 
     var body: some View {
-        @Bindable var browserState = browserState
-        List(fileListState.fileList ?? [], selection: $browserState.selectedFileURLs) { file in
+        @Bindable var context = context
+        List(fileListState.fileList ?? [], selection: $context.selectedFileURLs) { file in
             NavigationLink(file.name, value: file.url)
                 .id(file.id)
                 .listRowSeparator(.hidden)

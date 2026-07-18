@@ -8,18 +8,18 @@
 import SwiftUI
 
 struct FileListContainer: View {
-    @Environment(BrowserStateRoot.self) var stateRoot
-    @Environment(BrowserState.self) var browserState
+    @Environment(BrowserState.self) var state
+    @Environment(BrowserContext.self) var context
     @Environment(FileListState.self) var fileListState
 
     var body: some View {
         ScrollViewReader { proxy in
             FileList()
-                .onChange(of: browserState.selectedFileURL) { _, url in
+                .onChange(of: context.selectedFileURL) { _, url in
                     guard let url else { return }
                     proxy.scrollTo(url)
                 }
-                .onChange(of: browserState.selectedFolderURL, initial: true) {
+                .onChange(of: context.selectedFolderURL, initial: true) {
                     fileListState.loadFileList()
                 }
         }
@@ -34,10 +34,10 @@ struct FileListContainer: View {
     func handleKeyPress(_ press: KeyPress) -> KeyPress.Result {
         switch press.key {
         case .tab:
-            stateRoot.editorState.shouldFocusedCount += 1
+            state.editorState.shouldFocusedCount += 1
 
         case .return:
-            stateRoot.showRenameFile()
+            state.showRenameFile()
 
         default:
             return .ignored
@@ -53,16 +53,16 @@ List 수작업으로 전부 만들었을 때 코드
 
 fileprivate struct RowView: View {
     var appState: AppState
-    var stateRoot: RootState
+    var state: RootState
     var fileListState: FileListState
 
     let item: FileState
     let isActive: Bool
 
-    init(appState: AppState, stateRoot: RootState, item: FileState, isActive: Bool) {
+    init(appState: AppState, state: RootState, item: FileState, isActive: Bool) {
         self.appState = appState
-        self.stateRoot = stateRoot
-        self.fileListState = stateRoot.fileListState
+        self.state = state
+        self.fileListState = state.fileListState
         self.item = item
         self.isActive = isActive
     }
@@ -91,7 +91,7 @@ fileprivate struct RowView: View {
             //focusedViewBinding?.wrappedValue = .fileList
             guard fileListState.selectedFileID != item.id else { return }
             fileListState.selectFile(item.id)
-            //stateRoot.editorState.loadFile(at: fileListState.selectedFile?.url)
+            //state.editorState.loadFile(at: fileListState.selectedFile?.url)
         }
         //.focusEffectDisabled() // 포커스 테두리 표시 안 함
     }

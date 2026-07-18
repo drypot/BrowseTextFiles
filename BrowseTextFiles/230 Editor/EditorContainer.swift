@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct EditorContainer: View {
-    @Environment(BrowserState.self) var browserState
+    @Environment(BrowserContext.self) var context
     @Environment(EditorState.self) var editorState
     @Environment(HistoryState.self) var historyState
 
@@ -28,7 +28,7 @@ struct EditorContainer: View {
                     .modifier(EditorStyle())
             }
         }
-        .onChange(of: browserState.selectedFileURL, initial: true) { _, url in
+        .onChange(of: context.selectedFileURL, initial: true) { _, url in
             if let url {
                 editorState.loadFile(at: url)
                 historyState.addToHistory(url)

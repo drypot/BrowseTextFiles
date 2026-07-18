@@ -13,25 +13,25 @@ final class FolderListState {
     var expandedFolderURLs: Set<URL> = []
     var refreshCount = 0
 
-    @ObservationIgnored private var browserState: BrowserState
+    @ObservationIgnored private var context: BrowserContext
 
-    init(browserState: BrowserState) {
-        self.browserState = browserState
+    init(context: BrowserContext) {
+        self.context = context
     }
 
     // MARK: - Folder Tree
 
     func reloadFolderTree() {
-        guard let rootURL = browserState.rootURL else { return }
+        guard let rootURL = context.rootURL else { return }
         consoleLog("load folder tree: \(rootURL.path(percentEncoded: false))")
         do {
             rootFolder = try FolderState.buildTree(from: rootURL)
             expandFolder(at: rootURL)
             refreshCount += 1
-            browserState.status = .ready
+            context.status = .ready
         } catch {
             let message = error.localizedDescription
-            browserState.leaveAlert(message)
+            context.leaveAlert(message)
             consoleLog("load tree: \(message)")
         }
     }
@@ -43,8 +43,8 @@ final class FolderListState {
     }
 
     func expandFoldersUntilSelectedFolder() {
-        guard let rootURL = browserState.rootURL else { return }
-        guard let targetURL = browserState.selectedFolderURL else { return }
+        guard let rootURL = context.rootURL else { return }
+        guard let targetURL = context.selectedFolderURL else { return }
         let rootCount = rootURL.pathComponents.count
         let targetCount = targetURL.pathComponents.count
         var count = targetCount - rootCount + 1
@@ -67,9 +67,9 @@ final class FolderListState {
             try? fileManager.trashItem(at: url, resultingItemURL: nil)
         }
         reloadFolderTree()
-        if let selectedFolderURL = browserState.selectedFolderURL {
+        if let selectedFolderURL = context.selectedFolderURL {
             if selection.contains(selectedFolderURL) {
-                browserState.selectedFolderURL = nil
+                context.selectedFolderURL = nil
             }
         }
     }

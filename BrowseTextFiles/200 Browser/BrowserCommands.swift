@@ -13,10 +13,10 @@ struct BrowserCommands: Commands {
     @Environment(\.openWindow) private var openWindow
     @Environment(\.dismissWindow) private var dismissWindow
 
-    // @FocusedValue stateRoot가 struct BrowserWindow 바로 아래 들어있으면 BrowserView 가 두번 생성되었다.
+    // @FocusedValue state가 struct BrowserWindow 바로 아래 들어있으면 BrowserView 가 두번 생성되었다.
     // @FocusedValue 가 업데이트되면 하위 트리를 모두 새로 만드는 것 같다.
     // 트리 재구성 영역을 줄이기 위해 Commands 코드들을 BrowserCommands struct 로 분리하였다.
-    @FocusedValue(BrowserStateRoot.self) private var stateRoot: BrowserStateRoot?
+    @FocusedValue(BrowserState.self) private var state: BrowserState?
 
     var body: some Commands {
         CommandGroup(replacing: .newItem) {
@@ -26,17 +26,17 @@ struct BrowserCommands: Commands {
             .keyboardShortcut("n", modifiers: [.command, .control])
 
             Button("New File", systemImage: "text.document") {
-                stateRoot?.makeNewFile()
+                state?.makeNewFile()
             }
             .keyboardShortcut("n", modifiers: [.command])
 
             Button("New File...", systemImage: "text.document") {
-                stateRoot?.showNewFileWithTemplate()
+                state?.showNewFileWithTemplate()
             }
             .keyboardShortcut("n", modifiers: [.command, .option])
 
             Button("New Folder", systemImage: "folder.badge.plus") {
-                stateRoot?.makeNewFolder()
+                state?.makeNewFolder()
             }
             .keyboardShortcut("n", modifiers: [.command, .shift])
 
@@ -67,7 +67,7 @@ struct BrowserCommands: Commands {
             Divider()
 
             Button("Save File", systemImage: "square.and.arrow.down") {
-                stateRoot?.editorState.saveFile()
+                state?.editorState.saveFile()
             }
             .keyboardShortcut("s")
         }
@@ -75,32 +75,32 @@ struct BrowserCommands: Commands {
         CommandGroup(after: .sidebar) {
 
             Button("Sidebar Folder") {
-                stateRoot?.browserState.sidebarStatus = .folder
+                state?.context.sidebarStatus = .folder
             }
             .keyboardShortcut("1")
 
             Button("Sidebar History") {
-                stateRoot?.browserState.sidebarStatus = .history
+                state?.context.sidebarStatus = .history
             }
             .keyboardShortcut("2")
 
             Button("Sidebar Find") {
-                stateRoot?.browserState.sidebarStatus = .find
+                state?.context.sidebarStatus = .find
             }
             .keyboardShortcut("3")
 
             Divider()
 
             Button("Reload", systemImage: "arrow.clockwise") {
-                stateRoot?.reload()
+                state?.reload()
             }
             .keyboardShortcut("r")
 
             Divider()
 
             // Button("Toggle History", systemImage: "clock") {
-            //     guard let stateRoot else { return }
-            //     appState.toggleHistoryWindow(for: stateRoot, openWindow: openWindow, dismissWindow: dismissWindow)
+            //     guard let state else { return }
+            //     appState.toggleHistoryWindow(for: state, openWindow: openWindow, dismissWindow: dismissWindow)
             // }
             // .keyboardShortcut("y")
         }
@@ -108,7 +108,7 @@ struct BrowserCommands: Commands {
         CommandGroup(after: .textEditing) {
             Divider()
             Button("Find in Files", systemImage: "magnifyingglass") {
-                stateRoot?.browserState.sidebarStatus = .find
+                state?.context.sidebarStatus = .find
             }
             .keyboardShortcut("f", modifiers: [.command, .shift])
         }

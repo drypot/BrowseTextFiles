@@ -83,7 +83,7 @@ class AppState {
         }
     }
 
-    @ObservationIgnored weak var lastRootState: BrowserStateRoot?
+    @ObservationIgnored weak var lastRootState: BrowserState?
     @ObservationIgnored var lastBrowserWindowSize: CGSize?
 
     @ObservationIgnored private var windowRectStoreForStringUUID: [StringAndUUID: CGRect] = [:]
@@ -257,39 +257,39 @@ class AppState {
 
     // MARK: - Search Window
 
-    // func openSearchWindow(for stateRoot: RootState, openWindow: OpenWindowAction) {
-    //     guard stateRoot.browserState.status == .ready else { return }
-    //     lastRootState = stateRoot
-    //     openWindow(id: "search", value: stateRoot.browserState.id)
-    //     stateRoot.searchState.isSearchWindowPresented = true
+    // func openSearchWindow(for state: RootState, openWindow: OpenWindowAction) {
+    //     guard state.context.status == .ready else { return }
+    //     lastRootState = state
+    //     openWindow(id: "search", value: state.context.id)
+    //     state.searchState.isSearchWindowPresented = true
     // }
 
-    // func toggleSearchWindow(for stateRoot: RootState, openWindow: OpenWindowAction, dismissWindow: DismissWindowAction) {
-    //     guard stateRoot.browserState.status == .ready else { return }
-    //     if stateRoot.searchState.isSearchWindowPresented {
-    //         dismissWindow(id: "search", value: stateRoot.browserState.id)
-    //         stateRoot.searchState.isSearchWindowPresented = false
+    // func toggleSearchWindow(for state: RootState, openWindow: OpenWindowAction, dismissWindow: DismissWindowAction) {
+    //     guard state.context.status == .ready else { return }
+    //     if state.searchState.isSearchWindowPresented {
+    //         dismissWindow(id: "search", value: state.context.id)
+    //         state.searchState.isSearchWindowPresented = false
     //     } else {
-    //         openSearchWindow(for: stateRoot, openWindow: openWindow)
+    //         openSearchWindow(for: state, openWindow: openWindow)
     //     }
     // }
 
     // MARK: - History Window
 
-    // func openHistoryWindow(for stateRoot: RootState, openWindow: OpenWindowAction) {
-    //     guard stateRoot.browserState.status == .ready else { return }
-    //     lastRootState = stateRoot
-    //     openWindow(id: "history", value: stateRoot.browserState.id)
-    //     stateRoot.historyState.isHistoryWindowPresented = true
+    // func openHistoryWindow(for state: RootState, openWindow: OpenWindowAction) {
+    //     guard state.context.status == .ready else { return }
+    //     lastRootState = state
+    //     openWindow(id: "history", value: state.context.id)
+    //     state.historyState.isHistoryWindowPresented = true
     // }
 
-    // func toggleHistoryWindow(for stateRoot: RootState, openWindow: OpenWindowAction, dismissWindow: DismissWindowAction) {
-    //     guard stateRoot.browserState.status == .ready else { return }
-    //     if stateRoot.historyState.isHistoryWindowPresented {
-    //         dismissWindow(id: "history", value: stateRoot.browserState.id)
-    //         stateRoot.historyState.isHistoryWindowPresented = false
+    // func toggleHistoryWindow(for state: RootState, openWindow: OpenWindowAction, dismissWindow: DismissWindowAction) {
+    //     guard state.context.status == .ready else { return }
+    //     if state.historyState.isHistoryWindowPresented {
+    //         dismissWindow(id: "history", value: state.context.id)
+    //         state.historyState.isHistoryWindowPresented = false
     //     } else {
-    //         openHistoryWindow(for: stateRoot, openWindow: openWindow)
+    //         openHistoryWindow(for: state, openWindow: openWindow)
     //     }
     // }
 

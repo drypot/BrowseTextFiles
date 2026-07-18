@@ -9,8 +9,8 @@ import SwiftUI
 
 struct FileListContextMenu: View {
     @Environment(AppState.self) var appState
-    @Environment(BrowserStateRoot.self) var stateRoot
-    @Environment(BrowserState.self) var browserState
+    @Environment(BrowserState.self) var state
+    @Environment(BrowserContext.self) var context
     @Environment(FileListState.self) var fileListState
 
     @Environment(\.openWindow) private var openWindow
@@ -19,15 +19,15 @@ struct FileListContextMenu: View {
 
     var body: some View {
         Button("New File") {
-            stateRoot.makeNewFile()
+            state.makeNewFile()
         }
 
         Button("New File...") {
-            stateRoot.showNewFileWithTemplate()
+            state.showNewFileWithTemplate()
         }
 
         Button("Show in Finder") {
-            let url = selection.first ?? browserState.selectedFolderURL
+            let url = selection.first ?? context.selectedFolderURL
             appState.openFinder(with: url)
         }
 
@@ -38,7 +38,7 @@ struct FileListContextMenu: View {
             }
         } else {
             Button("Open in New Window") {
-                appState.openNewBrowserWindow(fromFolderURL: browserState.selectedFolderURL, fileURL: nil, openWindow: openWindow)
+                appState.openNewBrowserWindow(fromFolderURL: context.selectedFolderURL, fileURL: nil, openWindow: openWindow)
             }
         }
 
@@ -46,7 +46,7 @@ struct FileListContextMenu: View {
 
         if selection.count == 1 {
             Button("Rename") {
-                stateRoot.showRenameFile(for: selection)
+                state.showRenameFile(for: selection)
             }
         }
 

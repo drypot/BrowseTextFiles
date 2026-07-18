@@ -9,14 +9,14 @@ import SwiftUI
 
 struct FolderListContainer: View {
     @Environment(AppState.self) var appState
-    @Environment(BrowserStateRoot.self) var stateRoot
-    @Environment(BrowserState.self) var browserState
+    @Environment(BrowserState.self) var state
+    @Environment(BrowserContext.self) var context
     @Environment(FolderListState.self) var folderListState
 
     var body: some View {
         ScrollViewReader { proxy in
             FolderList()
-                .onChange(of: browserState.selectedFolderURL, initial: true) { _, url in
+                .onChange(of: context.selectedFolderURL, initial: true) { _, url in
                     if let url {
                         withAnimation {
                             proxy.scrollTo(url)
@@ -55,10 +55,10 @@ struct FolderListContainer: View {
 
         switch press.key {
         case .tab:
-            stateRoot.editorState.shouldFocusedCount += 1
+            state.editorState.shouldFocusedCount += 1
 
         case .return:
-            stateRoot.showRenameFolder()
+            state.showRenameFolder()
 
         default:
             return .ignored
@@ -70,13 +70,13 @@ struct FolderListContainer: View {
 }
 
 struct FolderTreeToolbar: ToolbarContent {
-    @Environment(BrowserStateRoot.self) var stateRoot
+    @Environment(BrowserState.self) var state
     //@Environment(FolderListState.self) var folderListState
 
     var body: some ToolbarContent {
         ToolbarItem {
             Button("New Folder", systemImage: "folder.badge.plus") {
-                stateRoot.makeNewFolder()
+                state.makeNewFolder()
             }
             .help("New Folder")
         }
@@ -86,7 +86,7 @@ struct FolderTreeToolbar: ToolbarContent {
 /*
 fileprivate struct RowView: View {
     var appState: AppState
-    var stateRoot: RootState
+    var state: RootState
 
     @Environment(\.openWindow) private var openWindow
 
@@ -95,8 +95,8 @@ fileprivate struct RowView: View {
     let isActive: Bool
 
     var body: some View {
-        let isExpanded = item.hasChildren && stateRoot.isExpanded(item)
-        let isSelected = item.id == stateRoot.selectedFolderID
+        let isExpanded = item.hasChildren && state.isExpanded(item)
+        let isSelected = item.id == state.selectedFolderID
         let styler = Styler.shared
         let foregroundStyle = styler.foregroundStyleWhen(selected: isSelected, active: isActive)
         let backgroundStyle = styler.backgroundStyleWhen(selected: isSelected, active: isActive)
@@ -106,7 +106,7 @@ fileprivate struct RowView: View {
                 .frame(width: 9 * CGFloat(level))
 
             Chevron(hasChildren: item.hasChildren, isExpaned: isExpanded) {
-                stateRoot.toggleExpanded(item)
+                state.toggleExpanded(item)
             }
 
             Text(item.name)
@@ -128,14 +128,14 @@ fileprivate struct RowView: View {
                 .onEnded {
                     // print("Single Tap")
                     //focusedViewBinding?.wrappedValue = .folderTree
-                    guard stateRoot.selectedFolderID != item.id else { return }
-                    stateRoot.selectFolder(with: item.id)
-                    stateRoot.fileListState.loadFileList(at: stateRoot.selectedFolder?.url)
+                    guard state.selectedFolderID != item.id else { return }
+                    state.selectFolder(with: item.id)
+                    state.fileListState.loadFileList(at: state.selectedFolder?.url)
                 }
                 .simultaneously(with: TapGesture(count: 2)
                     .onEnded {
                         //print("Double tap")
-                        stateRoot.toggleExpanded(item)
+                        state.toggleExpanded(item)
                     }
                 )
         )
@@ -145,19 +145,19 @@ fileprivate struct RowView: View {
         // 위에 처럼 TapGesture 를 두 개 만들고 simultaneously 로 묶는다.
         //.onTapGesture(count: 1) {
         //    focusedViewBinding?.wrappedValue = .folderTree
-        //    guard stateRoot.selectedFolderID != item.id else { return }
-        //    stateRoot.selectFolder(with: item.id)
-        //    stateRoot.loadFileList()
+        //    guard state.selectedFolderID != item.id else { return }
+        //    state.selectFolder(with: item.id)
+        //    state.loadFileList()
         //}
         //.onTapGesture(count: 2) {
-        //    stateRoot.toggleFolder(for: item.url)
+        //    state.toggleFolder(for: item.url)
         //}
 
         //.focusEffectDisabled() // 포커스 테두리 표시 안 함
 
         if let children = item.children, isExpanded {
             ForEach(children) { child in
-                RowView(appState: appState, stateRoot: stateRoot, item: child, level: level + 1, isActive: isActive)
+                RowView(appState: appState, state: state, item: child, level: level + 1, isActive: isActive)
                     .id(child.id)
             }
         }

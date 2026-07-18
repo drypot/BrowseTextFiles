@@ -45,10 +45,10 @@ final class EditorState {
 
     @ObservationIgnored private var autoSaveTask: Task<Void, Never>?
 
-    @ObservationIgnored private(set) var browserState: BrowserState
+    @ObservationIgnored private(set) var context: BrowserContext
 
-    init(browserState: BrowserState) {
-        self.browserState = browserState
+    init(context: BrowserContext) {
+        self.context = context
     }
 
     func reset() {
@@ -133,7 +133,7 @@ final class EditorState {
         guard !hasLoadingError else { return true }
         guard !hasSavingError else { return true }
         saveFile()
-        return !browserState.hasAlertMessage
+        return !context.hasAlertMessage
     }
 
     func saveFile() {
@@ -162,7 +162,7 @@ final class EditorState {
         } catch {
             let message = error.localizedDescription
             savingError = message
-            browserState.leaveAlert(message)
+            context.leaveAlert(message)
             consoleLog("save file: \(message)")
         }
     }

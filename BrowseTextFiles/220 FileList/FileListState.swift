@@ -12,10 +12,10 @@ final class FileListState {
     var fileList: [FileState]?
     var refreshCount = 0
 
-    @ObservationIgnored private var browserState: BrowserState
+    @ObservationIgnored private var context: BrowserContext
 
-    init(browserState: BrowserState) {
-        self.browserState = browserState
+    init(context: BrowserContext) {
+        self.context = context
     }
 
     func loadFileList(at folderURL: URL?) {
@@ -36,13 +36,13 @@ final class FileListState {
             consoleLog("----")
         } catch {
             let message = error.localizedDescription
-            browserState.leaveAlert(message)
+            context.leaveAlert(message)
             consoleLog("load file list: \(message)")
         }
     }
 
     func loadFileList() {
-        loadFileList(at: browserState.selectedFolderURL)
+        loadFileList(at: context.selectedFolderURL)
     }
 
     func trashFiles(selection: Set<FileState.ID>) {
@@ -53,14 +53,14 @@ final class FileListState {
                 try fileManager.trashItem(at: url, resultingItemURL: nil)
             }
             loadFileList()
-            if let selectedFileURL = browserState.selectedFileURL {
+            if let selectedFileURL = context.selectedFileURL {
                 if selection.contains(selectedFileURL) {
-                    browserState.selectedFileURL = nil
+                    context.selectedFileURL = nil
                 }
             }
         } catch {
             let message = error.localizedDescription
-            browserState.leaveAlert(message)
+            context.leaveAlert(message)
             consoleLog("delete file: \(message)")
         }
     }

@@ -8,13 +8,13 @@
 import SwiftUI
 
 struct FolderList: View {
-    @Environment(BrowserState.self) var browserState
+    @Environment(BrowserContext.self) var context
     @Environment(FolderListState.self) var folderListState
 
     var body: some View {
-        @Bindable var browserState = browserState
+        @Bindable var context = context
         @Bindable var folderListState = folderListState
-        List(selection: $browserState.selectedFolderURLs) {
+        List(selection: $context.selectedFolderURLs) {
             if let rootFolder = folderListState.rootFolder {
                 TreeRow(rootFolder, children: \.children, expanded: $folderListState.expandedFolderURLs) { folder in
                     Text(folder.name)

@@ -12,20 +12,20 @@ struct HistoryWindow: Scene {
 
     var body: some Scene {
         WindowGroup("History", id: "history", for: UUID.self) { $id in
-            if let stateRoot = appState.lastRootState {
+            if let state = appState.lastRootState {
                 HistoryContainer()
                     .frame(minWidth: 320, minHeight: 200)
-                    .environment(stateRoot)
-                    .environment(stateRoot.browserState)
-                    .environment(stateRoot.browserState)
-                    .environment(stateRoot.historyState)
+                    .environment(state)
+                    .environment(state.context)
+                    .environment(state.context)
+                    .environment(state.historyState)
             }
         }
         .restorationBehavior(.disabled)
         .defaultWindowPlacement { proxy, context in
             appState.makeWindowPlacement(
                 for: "history",
-                uuid: appState.lastRootState?.browserState.id,
+                uuid: appState.lastRootState?.context.id,
                 visibleRect: context.defaultDisplay.visibleRect,
                 defaultSize: CGSize(width: 400, height: 600)
             )

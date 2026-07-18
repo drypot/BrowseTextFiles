@@ -187,7 +187,7 @@ struct TextViewRepresentable: NSViewRepresentable {
         let editorState: EditorState
 
         init(_ view: TextViewRepresentable) {
-            //print("coordinator created: \(view.stateRoot.id), TextBufferEditor.Coordinator")
+            //print("coordinator created: \(view.state.id), TextBufferEditor.Coordinator")
             appState = view.appState
             editorState = view.editorState
         }

@@ -26,10 +26,10 @@ final class SearchState {
     var searchResults: [SearchResult]?
     var isSearchWindowPresented = false
 
-    @ObservationIgnored private(set) var browserState: BrowserState
+    @ObservationIgnored private(set) var context: BrowserContext
 
-    init(browserState: BrowserState) {
-        self.browserState = browserState
+    init(context: BrowserContext) {
+        self.context = context
     }
 
     func startSearch(rootURL: URL) {
@@ -58,7 +58,7 @@ final class SearchState {
                 consoleLog("search: found \(searchResults?.count ?? 0) files")
             } catch {
                 let message = error.localizedDescription
-                browserState.leaveAlert(message)
+                context.leaveAlert(message)
                 consoleLog("search: \(message)")
             }
         }

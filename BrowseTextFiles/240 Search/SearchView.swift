@@ -27,7 +27,7 @@ struct SearchView: View {
 }
 
 fileprivate struct SearchButtons: View {
-    @Environment(BrowserState.self) var browserState
+    @Environment(BrowserContext.self) var context
     @Environment(SearchState.self) var searchState
 
     @FocusState var isFocused: Bool
@@ -57,13 +57,13 @@ fileprivate struct SearchButtons: View {
     }
 
     func startSearch() {
-        guard let rootURL = browserState.rootURL else { return }
+        guard let rootURL = context.rootURL else { return }
         searchState.startSearch(rootURL: rootURL)
     }
 }
 
 fileprivate struct SearchResults: View {
-    @Environment(BrowserStateRoot.self) var stateRoot
+    @Environment(BrowserState.self) var state
 
     let results: [SearchResult]
 
@@ -73,7 +73,7 @@ fileprivate struct SearchResults: View {
                 ForEach(results) { result in
                     VStack(alignment: .leading) {
                         Button(result.title) {
-                            stateRoot.targetFile(result.url)
+                            state.targetFile(result.url)
                         }
                         .buttonStyle(.plain)
                         .foregroundStyle(.link)

@@ -9,7 +9,7 @@ import SwiftUI
 
 struct NewFileSheet: View {
     @Environment(AppState.self) var appState
-    @Environment(BrowserStateRoot.self) var stateRoot
+    @Environment(BrowserState.self) var state
 
     @Environment(\.dismiss) private var dismiss
 
@@ -56,6 +56,6 @@ struct NewFileSheet: View {
     }
 
     func submit() {
-        stateRoot.newFileSubmitted(with: newFileName)
+        state.newFileSubmitted(with: newFileName)
     }
 }

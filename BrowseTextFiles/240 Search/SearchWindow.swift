@@ -12,20 +12,20 @@ struct SearchWindow: Scene {
 
     var body: some Scene {
         WindowGroup("Search", id: "search", for: UUID.self) { $id in
-            if let stateRoot = appState.lastRootState {
+            if let state = appState.lastRootState {
                 SearchContainer()
                     .frame(minWidth: 320, minHeight: 200)
-                    .environment(stateRoot)
-                    .environment(stateRoot.browserState)
-                    .environment(stateRoot.browserState)
-                    .environment(stateRoot.searchState)
+                    .environment(state)
+                    .environment(state.context)
+                    .environment(state.context)
+                    .environment(state.searchState)
             }
         }
         .restorationBehavior(.disabled)
         .defaultWindowPlacement { proxy, context in
             appState.makeWindowPlacement(
                 for: "search",
-                uuid: appState.lastRootState?.browserState.id,
+                uuid: appState.lastRootState?.context.id,
                 visibleRect: context.defaultDisplay.visibleRect,
                 defaultSize: CGSize(width: 400, height: 600)
             )

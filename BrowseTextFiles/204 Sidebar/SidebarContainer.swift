@@ -9,15 +9,15 @@ import SwiftUI
 
 struct SidebarContainer: View {
     @Environment(AppState.self) var appState
-    @Environment(BrowserStateRoot.self) var stateRoot
-    @Environment(BrowserState.self) var browserState
+    @Environment(BrowserState.self) var state
+    @Environment(BrowserContext.self) var context
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            SidebarTabs(browserState: browserState)
+            SidebarTabs(context: context)
             Divider()
             
-            switch browserState.sidebarStatus {
+            switch context.sidebarStatus {
             case .folder:
                 FolderListContainer()
             case .history:
@@ -31,11 +31,11 @@ struct SidebarContainer: View {
 }
 
 fileprivate struct SidebarTabs: View {
-    @Bindable var browserState: BrowserState
+    @Bindable var context: BrowserContext
 
     var body: some View {
-        Picker("Navigators", selection: $browserState.sidebarStatus) {
-            ForEach(BrowserState.SidebarStatus.allCases) { status in
+        Picker("Navigators", selection: $context.sidebarStatus) {
+            ForEach(BrowserContext.SidebarStatus.allCases) { status in
                 //Image(systemName: status.imageName)
                 Text(status.rawValue)
                     .tag(status)

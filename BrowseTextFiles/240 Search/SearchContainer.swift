@@ -10,8 +10,8 @@ import Combine
 
 struct SearchContainer: View {
     @Environment(AppState.self) var appState
-    @Environment(BrowserStateRoot.self) var stateRoot
-    @Environment(BrowserState.self) var browserState
+    @Environment(BrowserState.self) var state
+    @Environment(BrowserContext.self) var context
     @Environment(SearchState.self) var searchState
 
     @State private var cancellables = Set<AnyCancellable>()
@@ -19,8 +19,8 @@ struct SearchContainer: View {
     var body: some View {
         SearchView()
             .background(WindowAccessor(onResolve: setupWindow))
-            .navigationTitle("Search: \(browserState.rootName ?? "")")
-            .focusedSceneValue(stateRoot)
+            .navigationTitle("Search: \(context.rootName ?? "")")
+            .focusedSceneValue(state)
     }
 
     func setupWindow(_ window: NSWindow?) {
@@ -61,6 +61,6 @@ struct SearchContainer: View {
     }
 
     func saveWindowSize(_ window: NSWindow) {
-        appState.saveWindowRect(window.frame, for: "search", uuid: stateRoot.browserState.id)
+        appState.saveWindowRect(window.frame, for: "search", uuid: state.context.id)
     }
 }
