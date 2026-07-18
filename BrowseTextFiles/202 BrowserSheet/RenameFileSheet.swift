@@ -1,31 +1,35 @@
 //
-//  NewFileSheet.swift
+//  RenameFileSheet.swift
 //  Browse Text Files
 //
-//  Created by Kyuhyun Park on 4/19/26.
+//  Created by Kyuhyun Park on 5/16/26.
 //
 
 import SwiftUI
 
-struct NewFileSheet: View {
-    @Environment(AppState.self) var appState
+struct RenameFileSheet: View {
     @Environment(RootState.self) var rootState
 
     @Environment(\.dismiss) private var dismiss
 
-    @State private var newFileName = ""
+    @State private var orgName = ""
+    @State private var newName = ""
     @State private var selection: TextSelection?
     @FocusState private var isFocused: Bool
 
     var body: some View {
         Form {
-            TextField("New File Name", text: $newFileName, selection: $selection)
+            LabeledContent("Rename File") {
+                Text(orgName)
+            }
+
+            TextField("to", text: $newName, selection: $selection)
                 .textFieldStyle(.roundedBorder)
                 .padding(.bottom)
                 .focused($isFocused)
                 .onChange(of: isFocused) { _, isFocused in
                     if isFocused {
-                        selection = TextKitUtil.makeFileNameSelection(from: newFileName)
+                        selection = TextKitUtil.makeFileNameSelection(from: newName)
                     }
                 }
 
@@ -52,10 +56,12 @@ struct NewFileSheet: View {
     }
 
     func initSheet() {
-        newFileName = appState.newFileName
+        guard let name = rootState.renameFileContext?.oldURL.lastPathComponent else { return }
+        orgName = name
+        newName = name
     }
 
     func submit() {
-        rootState.newFileSubmitted(with: newFileName)
+        rootState.renameFileSubmitted(with: newName)
     }
 }

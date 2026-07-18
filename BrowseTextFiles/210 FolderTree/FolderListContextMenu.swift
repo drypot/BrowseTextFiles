@@ -37,7 +37,7 @@ struct FolderListContextMenu: View {
             }
 
             Button("New File...") {
-                rootState.showNewFileSheet(on: url)
+                rootState.showNewFileWithTemplate(on: url)
             }
 
             Button("New Folder") {
@@ -55,7 +55,7 @@ struct FolderListContextMenu: View {
             Divider()
 
             Button("Rename") {
-                rootState.showRenameFolderSheet(for: url)
+                rootState.showRenameFolder(for: url)
             }
         }
 

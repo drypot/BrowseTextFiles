@@ -13,11 +13,14 @@ struct BrowserSheet: ViewModifier {
     func body(content: Content) -> some View {
         @Bindable var rootState = rootState
         content
-            .sheet(isPresented: $rootState.isNewFileSheetPresented) {
-                NewFileSheet()
+            .sheet(isPresented: $rootState.isNewFileWithTemplatePresented) {
+                NewFileWithTemplateSheet()
             }
-            .sheet(isPresented: $rootState.isRenameSheetPresented) {
-                RenameSheet()
+            .sheet(isPresented: $rootState.isRenameFilePresented) {
+                RenameFileSheet()
+            }
+            .sheet(isPresented: $rootState.isRenameFolderPresented) {
+                RenameFolderSheet()
             }
             .alert("", isPresented: $rootState.browserState.hasAlertMessage) {
                 Button("OK") { }

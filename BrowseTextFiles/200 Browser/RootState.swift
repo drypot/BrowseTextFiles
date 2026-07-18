@@ -13,25 +13,53 @@ final class RootState: Identifiable {
 
     // MARK: - New File Sheet
 
-    struct NewFileSheetParam {
+    struct NewFileContext {
+        let folderURL: URL
+    }
+
+    @ObservationIgnored var newFileContext: NewFileContext?
+
+    var isNewFilePresented = false
+
+    // MARK: - New File with Template Sheet
+
+    struct NewFileWithTemplateContext {
         let folderRelativePath: String
     }
 
-    @ObservationIgnored var newFileSheetParam: NewFileSheetParam?
+    @ObservationIgnored var newFileWithTemplateContext: NewFileWithTemplateContext?
 
-    var isNewFileSheetPresented = false
+    var isNewFileWithTemplatePresented = false
 
-    // MARK: - Rename Sheet
+    // MARK: - New Folder Sheet
 
-    struct RenameSheetParam {
-        let oldURL: URL
-        let isDirectory: Bool
-        let onComplete: (URL, URL) -> Void
+    struct NewFolderContext {
+        let folderURL: URL
     }
 
-    @ObservationIgnored var renameSheetParam: RenameSheetParam?
+    @ObservationIgnored var newFolderContext: NewFolderContext?
 
-    var isRenameSheetPresented = false
+    var isNewFolderPresented = false
+
+    // MARK: - Rename File Sheet
+
+    struct RenameFileContext {
+        let oldURL: URL
+    }
+
+    @ObservationIgnored var renameFileContext: RenameFileContext?
+
+    var isRenameFilePresented = false
+
+    // MARK: - Rename Folder Sheet
+
+    struct RenameFolderContext {
+        let oldURL: URL
+    }
+
+    @ObservationIgnored var renameFolderContext: RenameFolderContext?
+
+    var isRenameFolderPresented = false
 
     // MARK: - States
 
@@ -92,6 +120,13 @@ final class RootState: Identifiable {
 
     // MARK: - New File
 
+//    func showNewFileSheet(on folderURL: URL?) {
+//        guard let folderURL else { return }
+//    }
+
+    func newFileSubmitted(with newName: String) {
+    }
+
     func makeNewFile(in folderURL: URL?) {
         guard let folderURL else { return }
 
@@ -127,21 +162,21 @@ final class RootState: Identifiable {
         makeNewFile(in: browserState.selectedFolderURL)
     }
 
-    // MARK: - New File Sheet
+    // MARK: - New File with Template Sheet
 
-    func showNewFileSheet(on folderURL: URL?) {
+    func showNewFileWithTemplate(on folderURL: URL?) {
         guard let folderURL else { return }
         guard let rootURL = browserState.rootURL else { return }
         guard let relativePath = folderURL.relativePath(from: rootURL) else { return }
-        newFileSheetParam = NewFileSheetParam(folderRelativePath: relativePath)
-        isNewFileSheetPresented = true
+        newFileWithTemplateContext = NewFileWithTemplateContext(folderRelativePath: relativePath)
+        isNewFileWithTemplatePresented = true
     }
 
-    func showNewFileSheet() {
-        showNewFileSheet(on: browserState.selectedFolderURL)
+    func showNewFileWithTemplate() {
+        showNewFileWithTemplate(on: browserState.selectedFolderURL)
     }
 
-    func newFileSheetSubmitted(with newFilePath: String) {
+    func newFileWithTemplateSubmitted(with newFilePath: String) {
         guard let rootURL = browserState.rootURL else { return }
         let fileManager = FileManager.default
         let newFileURL = rootURL.appending(path: newFilePath).standardizedFileURL
@@ -199,51 +234,66 @@ final class RootState: Identifiable {
         makeNewFolder(in: folderURL)
     }
 
-    // MARK: - Rename Sheet
+    // MARK: - Rename File Sheet
 
-    func showRenameFileSheet(for selection: Set<FileState.ID>) {
+    func showRenameFile(for selection: Set<FileState.ID>) {
         guard selection.count == 1 else { return }
         guard let url = selection.first else { return }
-        renameSheetParam = RenameSheetParam(oldURL: url, isDirectory: false) { oldURL, newURL in
+        renameFileContext = RenameFileContext(oldURL: url)
+        isRenameFilePresented = true
+    }
+
+    func showRenameFile() {
+        showRenameFile(for: browserState.selectedFileURLs)
+    }
+
+    func renameFileSubmitted(with newName: String) {
+        guard let context = renameFileContext else { return }
+        let oldURL = context.oldURL
+        let newURL = oldURL.deletingLastPathComponent()
+            .appending(path: newName, directoryHint: .notDirectory)
+            .standardized
+        do {
+            consoleLog("rename file: \(oldURL.path(percentEncoded: false)) to \(newName)")
+            try FileManager.default.moveItem(at: oldURL, to: newURL)
             if self.browserState.selectedFileURL == oldURL {
                 self.fileListState.loadFileList()
                 self.browserState.selectedFileURL = newURL
             } else {
                 self.fileListState.loadFileList()
             }
+        } catch {
+            let message = error.localizedDescription
+            browserState.leaveAlert(message)
+            consoleLog("rename: \(message)")
         }
-        isRenameSheetPresented = true
     }
 
-    func showRenameFileSheet() {
-        showRenameFileSheet(for: browserState.selectedFileURLs)
-    }
+    // MARK: - Rename File Sheet
 
-    func showRenameFolderSheet(for url: URL?) {
+    func showRenameFolder(for url: URL?) {
         guard let url else { return }
-        renameSheetParam = RenameSheetParam(oldURL: url, isDirectory: true) { oldURL, newURL in
+        renameFolderContext = RenameFolderContext(oldURL: url)
+        isRenameFolderPresented = true
+    }
+
+    func showRenameFolder() {
+        showRenameFolder(for: browserState.selectedFolderURL)
+    }
+
+    func renameFolderSubmitted(with newName: String) {
+        guard let context = renameFolderContext else { return }
+        let oldURL = context.oldURL
+        let newURL = oldURL.deletingLastPathComponent()
+            .appending(path: newName, directoryHint: .isDirectory)
+            .standardized
+        do {
+            consoleLog("rename folder: \(oldURL.path(percentEncoded: false)) to \(newName)")
+            try FileManager.default.moveItem(at: oldURL, to: newURL)
             self.folderListState.reloadFolderTree()
             if self.browserState.selectedFolderURL == oldURL {
                 self.browserState.selectedFolderURL = newURL
             }
-        }
-        isRenameSheetPresented = true
-    }
-
-    func showRenameFolderSheet() {
-        showRenameFolderSheet(for: browserState.selectedFolderURL)
-    }
-
-    func renameSheetSubmitted(with newName: String) {
-        guard let param = renameSheetParam else { return }
-        let oldURL = param.oldURL
-        let newURL = oldURL.deletingLastPathComponent()
-            .appending(path: newName, directoryHint: param.isDirectory ? .isDirectory : .notDirectory)
-            .standardized
-        do {
-            consoleLog("rename: \(oldURL.path(percentEncoded: false)) to \(newName)")
-            try FileManager.default.moveItem(at: oldURL, to: newURL)
-            param.onComplete(oldURL, newURL)
         } catch {
             let message = error.localizedDescription
             browserState.leaveAlert(message)

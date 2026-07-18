@@ -58,7 +58,7 @@ struct FolderListContainer: View {
             rootState.editorState.shouldFocusedCount += 1
 
         case .return:
-            rootState.showRenameFolderSheet()
+            rootState.showRenameFolder()
 
         default:
             return .ignored

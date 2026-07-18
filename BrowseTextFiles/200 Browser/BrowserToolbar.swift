@@ -39,7 +39,7 @@ struct BrowserToolbar: ToolbarContent {
             .help("New File")
 
             Button("New File...", systemImage: "bubble.and.pencil") {
-                rootState.showNewFileSheet()
+                rootState.showNewFileWithTemplate()
             }
             .help("New File...")
 

@@ -1,5 +1,5 @@
 //
-//  RenameSheet.swift
+//  RenameFolderSheet.swift
 //  Browse Text Files
 //
 //  Created by Kyuhyun Park on 5/16/26.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct RenameSheet: View {
+struct RenameFolderSheet: View {
     @Environment(RootState.self) var rootState
 
     @Environment(\.dismiss) private var dismiss
@@ -19,7 +19,7 @@ struct RenameSheet: View {
 
     var body: some View {
         Form {
-            LabeledContent("Rename") {
+            LabeledContent("Rename Folder") {
                 Text(orgName)
             }
 
@@ -29,7 +29,7 @@ struct RenameSheet: View {
                 .focused($isFocused)
                 .onChange(of: isFocused) { _, isFocused in
                     if isFocused {
-                        selectNameWithoutExtension()
+                        selection = TextKitUtil.makeFileNameSelection(from: newName)
                     }
                 }
 
@@ -56,21 +56,12 @@ struct RenameSheet: View {
     }
 
     func initSheet() {
-        guard let name = rootState.renameSheetParam?.oldURL.lastPathComponent else { return }
+        guard let name = rootState.renameFolderContext?.oldURL.lastPathComponent else { return }
         orgName = name
         newName = name
     }
 
-    func selectNameWithoutExtension() {
-        if let dotIndex = newName.lastIndex(of: ".") {
-            let range = newName.startIndex..<dotIndex
-            selection = TextSelection(range: range)
-        } else {
-            selection = TextSelection(range: newName.startIndex..<newName.endIndex)
-        }
-    }
-
     func submit() {
-        rootState.renameSheetSubmitted(with: newName)
+        rootState.renameFolderSubmitted(with: newName)
     }
 }

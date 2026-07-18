@@ -31,7 +31,7 @@ struct BrowserCommands: Commands {
             .keyboardShortcut("n", modifiers: [.command])
 
             Button("New File...", systemImage: "text.document") {
-                rootState?.showNewFileSheet()
+                rootState?.showNewFileWithTemplate()
             }
             .keyboardShortcut("n", modifiers: [.command, .option])
 

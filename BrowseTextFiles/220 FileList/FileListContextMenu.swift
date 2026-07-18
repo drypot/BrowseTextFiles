@@ -23,7 +23,7 @@ struct FileListContextMenu: View {
         }
 
         Button("New File...") {
-            rootState.showNewFileSheet()
+            rootState.showNewFileWithTemplate()
         }
 
         Button("Show in Finder") {
@@ -46,7 +46,7 @@ struct FileListContextMenu: View {
 
         if selection.count == 1 {
             Button("Rename") {
-                rootState.showRenameFileSheet(for: selection)
+                rootState.showRenameFile(for: selection)
             }
         }
 

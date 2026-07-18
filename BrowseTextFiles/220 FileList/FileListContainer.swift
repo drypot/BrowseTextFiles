@@ -37,7 +37,7 @@ struct FileListContainer: View {
             rootState.editorState.shouldFocusedCount += 1
 
         case .return:
-            rootState.showRenameFileSheet()
+            rootState.showRenameFile()
 
         default:
             return .ignored
