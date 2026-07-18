@@ -9,18 +9,16 @@ import SwiftUI
 import Combine
 
 struct SearchContainer: View {
-    @Environment(AppState.self) var appState
-    @Environment(BrowserState.self) var state
-    @Environment(BrowserContext.self) var context
-    @Environment(SearchState.self) var searchState
+    @Environment(AppState.self) var app
+    @Environment(BrowserState.self) var browser
 
     @State private var cancellables = Set<AnyCancellable>()
 
     var body: some View {
         SearchView()
             .background(WindowAccessor(onResolve: setupWindow))
-            .navigationTitle("Search: \(context.rootName ?? "")")
-            .focusedSceneValue(state)
+            .navigationTitle("Search: \(browser.context.rootName ?? "")")
+            .focusedSceneValue(browser)
     }
 
     func setupWindow(_ window: NSWindow?) {
@@ -55,12 +53,12 @@ struct SearchContainer: View {
         NotificationCenter.default
             .publisher(for: NSWindow.willCloseNotification, object: window)
             .sink { notification in
-                searchState.isSearchWindowPresented = false
+                browser.search.isSearchWindowPresented = false
             }
             .store(in: &cancellables)
     }
 
     func saveWindowSize(_ window: NSWindow) {
-        appState.saveWindowRect(window.frame, for: "search", uuid: state.context.id)
+        app.saveWindowRect(window.frame, for: "search", uuid: browser.context.id)
     }
 }

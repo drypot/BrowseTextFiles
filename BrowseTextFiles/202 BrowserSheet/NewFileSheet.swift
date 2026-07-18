@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct NewFileSheet: View {
-    @Environment(AppState.self) var appState
-    @Environment(BrowserState.self) var state
+    @Environment(AppState.self) var app
+    @Environment(BrowserState.self) var browser
 
     @Environment(\.dismiss) private var dismiss
 
@@ -52,10 +52,10 @@ struct NewFileSheet: View {
     }
 
     func initSheet() {
-        newFileName = appState.newFileName
+        newFileName = app.newFileName
     }
 
     func submit() {
-        state.newFileSubmitted(with: newFileName)
+        browser.newFileSubmitted(with: newFileName)
     }
 }

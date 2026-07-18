@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct BrowserToolbar: ToolbarContent {
-    @Environment(AppState.self) var appState
-    @Environment(BrowserState.self) var state
+    @Environment(AppState.self) var app
+    @Environment(BrowserState.self) var browser
 
     @Environment(\.openWindow) private var openWindow
     @Environment(\.dismissWindow) private var dismissWindow
@@ -27,37 +27,37 @@ struct BrowserToolbar: ToolbarContent {
 
         ToolbarItemGroup(placement: .navigation) {
             Button("Reload", systemImage: "arrow.clockwise") {
-                state.reload()
+                browser.reload()
             }
             .help("Reload")
         }
 
         ToolbarItemGroup(placement: .secondaryAction) {
             Button("New File", systemImage: "square.and.pencil") {
-                state.makeNewFile()
+                browser.makeNewFile()
             }
             .help("New File")
 
             Button("New File...", systemImage: "bubble.and.pencil") {
-                state.showNewFileWithTemplate()
+                browser.showNewFileWithTemplate()
             }
             .help("New File...")
 
             Button("New Folder", systemImage: "folder.badge.plus") {
-                state.makeNewFolder()
+                browser.makeNewFolder()
             }
             .help("New Folder")
 
             //Button("Show History", systemImage: "clock") {
-            //    appState.toggleHistoryWindow(for: state, openWindow: openWindow, dismissWindow: dismissWindow)
+            //    app.toggleHistoryWindow(for: state, openWindow: openWindow, dismissWindow: dismissWindow)
             //}
             //.help("Show History")
         }
 
         ToolbarItem(placement: .primaryAction) {
             Button("Search", systemImage: "magnifyingglass") {
-                //appState.toggleSearchWindow(for: state, openWindow: openWindow, dismissWindow: dismissWindow)
-                state.context.sidebarStatus = .find
+                //app.toggleSearchWindow(for: state, openWindow: openWindow, dismissWindow: dismissWindow)
+                browser.context.sidebarStatus = .find
             }
             .help("Search")
         }

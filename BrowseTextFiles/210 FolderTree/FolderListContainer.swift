@@ -8,15 +8,13 @@
 import SwiftUI
 
 struct FolderListContainer: View {
-    @Environment(AppState.self) var appState
-    @Environment(BrowserState.self) var state
-    @Environment(BrowserContext.self) var context
-    @Environment(FolderListState.self) var folderListState
+    @Environment(AppState.self) var app
+    @Environment(BrowserState.self) var browser
 
     var body: some View {
         ScrollViewReader { proxy in
             FolderList()
-                .onChange(of: context.selectedFolderURL, initial: true) { _, url in
+                .onChange(of: browser.context.selectedFolderURL, initial: true) { _, url in
                     if let url {
                         withAnimation {
                             proxy.scrollTo(url)
@@ -55,10 +53,10 @@ struct FolderListContainer: View {
 
         switch press.key {
         case .tab:
-            state.editor.shouldFocusedCount += 1
+            browser.editor.shouldFocusedCount += 1
 
         case .return:
-            state.showRenameFolder()
+            browser.showRenameFolder()
 
         default:
             return .ignored
@@ -85,7 +83,7 @@ struct FolderTreeToolbar: ToolbarContent {
 
 /*
 fileprivate struct RowView: View {
-    var appState: AppState
+    var app: AppState
     var state: RootState
 
     @Environment(\.openWindow) private var openWindow
@@ -157,7 +155,7 @@ fileprivate struct RowView: View {
 
         if let children = item.children, isExpanded {
             ForEach(children) { child in
-                RowView(appState: appState, state: state, item: child, level: level + 1, isActive: isActive)
+                RowView(app: app, state: state, item: child, level: level + 1, isActive: isActive)
                     .id(child.id)
             }
         }

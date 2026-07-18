@@ -9,21 +9,21 @@ import SwiftUI
 import Combine
 
 struct BrowserContainer: View {
-    @Environment(AppState.self) var appState
+    @Environment(AppState.self) var app
 
     @Environment(\.openWindow) private var openWindow
     @Environment(\.dismissWindow) private var dismissWindow
 
-    @State private var state = BrowserState()
+    @State private var browser = BrowserState()
     @State private var cancellables = Set<AnyCancellable>()
 
     init() {
-        printLog("init browser container: \(state.id)")
+        printLog("init browser container: \(browser.id)")
     }
 
     var body: some View {
         Group {
-            switch state.context.status {
+            switch browser.context.status {
             case .showOpenPanel:
                 BrowserBlankView()
             case .loading:
@@ -34,29 +34,27 @@ struct BrowserContainer: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(WindowAccessor(onResolve: setupWindow))
-        .navigationTitle(state.context.rootName ?? "Browser")
+        .navigationTitle(browser.context.rootName ?? "Browser")
         .toolbarBackground(.hidden, for: .windowToolbar)
         .toolbar {
             BrowserToolbar()
         }
         .modifier(BrowserSheet())
         .modifier(BrowserTask())
-        .focusedSceneValue(state)
-        .environment(state)
-        .environment(state.context)
-        .environment(state.context)
-        .environment(state.context)
-        .environment(state.folderList)
-        .environment(state.fileList)
-        .environment(state.search)
-        .environment(state.history)
-        .environment(state.editor)
+        .focusedSceneValue(browser)
+        .environment(browser)
+        .environment(browser.context)
+        .environment(browser.folderList)
+        .environment(browser.fileList)
+        .environment(browser.search)
+        .environment(browser.history)
+        .environment(browser.editor)
     }
 
     func setupWindow(_ window: NSWindow?) {
         printLog("setup browser window:")
 
-        self.state.context.window = window
+        self.browser.context.window = window
 
         guard let window else { return }
 
@@ -79,23 +77,23 @@ struct BrowserContainer: View {
         NotificationCenter.default
             .publisher(for: NSWindow.willCloseNotification, object: window)
             .sink { notification in
-                // dismissWindow(id: "search", value: state.context.id)
-                // dismissWindow(id: "history", value: state.context.id)
-                state.releaseResource()
+                // dismissWindow(id: "search", value: browser.context.id)
+                // dismissWindow(id: "history", value: browser.context.id)
+                browser.releaseResource()
             }
             .store(in: &cancellables)
 
         NotificationCenter.default
             .publisher(for: NSWindow.didResignMainNotification, object: window)
             .sink { _ in
-                consoleLog("resign main window: \(state.context.rootName ?? "nil")")
-                _ = state.editor.autoSaveFile()
+                consoleLog("resign main window: \(browser.context.rootName ?? "nil")")
+                _ = browser.editor.autoSaveFile()
             }
             .store(in: &cancellables)
     }
 
     func saveWindowSize(_ window: NSWindow) {
-        appState.saveWindowRect(window.frame, for: "browser", uuid: state.context.id)
+        app.saveWindowRect(window.frame, for: "browser", uuid: browser.context.id)
     }
 }
 

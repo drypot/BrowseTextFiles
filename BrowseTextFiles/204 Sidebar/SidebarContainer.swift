@@ -8,16 +8,15 @@
 import SwiftUI
 
 struct SidebarContainer: View {
-    @Environment(AppState.self) var appState
-    @Environment(BrowserState.self) var state
-    @Environment(BrowserContext.self) var context
+    @Environment(AppState.self) var app
+    @Environment(BrowserState.self) var browser
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            SidebarTabs(context: context)
+            SidebarTabs(context: browser.context)
             Divider()
             
-            switch context.sidebarStatus {
+            switch browser.context.sidebarStatus {
             case .folder:
                 FolderListContainer()
             case .history:

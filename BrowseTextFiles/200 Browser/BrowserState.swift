@@ -84,13 +84,13 @@ final class BrowserState: Identifiable {
 
     // MARK: - Configure
 
-    func configure(with rootURL: URL, appState: AppState) {
-        consoleLog("configure root state: \(rootURL.path(percentEncoded: false))")
-        self.app = appState
+    func configure(with rootURL: URL, app: AppState) {
+        consoleLog("configure browser state: \(rootURL.path(percentEncoded: false))")
+        self.app = app
         context.configure(with: rootURL)
         folderList.reloadFolderTree()
         context.selectedFolderURL = rootURL
-        appState.addRecentDocumentURL(rootURL)
+        app.addRecentDocumentURL(rootURL)
     }
 
     func releaseResource() {

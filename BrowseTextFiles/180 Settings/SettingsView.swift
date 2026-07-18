@@ -8,54 +8,54 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @Environment(AppState.self) var appState
+    @Environment(AppState.self) var app
 
     var body: some View {
-        @Bindable var appState = appState
+        @Bindable var app = app
         Form {
             Section("New File") {
-                TextField("New file name", text: $appState.newFileName)
+                TextField("New file name", text: $app.newFileName)
                     .textFieldStyle(.roundedBorder)
             }
 
             Section("Font") {
-                LabeledContent("Font: \(appState.fontName)") {
+                LabeledContent("Font: \(app.fontName)") {
                     Button("Change Font") {
-                        appState.showFontPanel()
+                        app.showFontPanel()
                     }
                 }
 
-                Slider(value: $appState.fontSize, in: 8...36, step: 1) {
-                    Text("Font size: \(appState.fontSize.formatted()) pt")
+                Slider(value: $app.fontSize, in: 8...36, step: 1) {
+                    Text("Font size: \(app.fontSize.formatted()) pt")
                 }
                 .controlSize(.mini)
 
-                Slider(value: $appState.lineHeightMultiple, in: 1.0...3.0, step: 0.1) {
-                    Text("Line height: \(appState.lineHeightMultiple.formatted())x")
+                Slider(value: $app.lineHeightMultiple, in: 1.0...3.0, step: 0.1) {
+                    Text("Line height: \(app.lineHeightMultiple.formatted())x")
                 }
                 .controlSize(.mini)
             }
 
             Section("Auto Save") {
-                Toggle("Auto save enabled", isOn: $appState.isAutoSaveEnabled)
+                Toggle("Auto save enabled", isOn: $app.isAutoSaveEnabled)
                     .controlSize(.mini)
                     .toggleStyle(.switch)
 
                 let autoSaveAfterbinding = Binding<Double>(
-                    get: { Double(appState.autoSaveDelay) },
-                    set: { appState.autoSaveDelay = Int($0) }
+                    get: { Double(app.autoSaveDelay) },
+                    set: { app.autoSaveDelay = Int($0) }
                 )
                 Slider(value: autoSaveAfterbinding, in: 2.0...60.0, step: 2) {
-                    Text("Auto save after \(appState.autoSaveDelay.formatted()) seconds")
+                    Text("Auto save after \(app.autoSaveDelay.formatted()) seconds")
                 }
-                .disabled(!appState.isAutoSaveEnabled)
+                .disabled(!app.isAutoSaveEnabled)
                 .controlSize(.mini)
             }
 
             Section(header: Text("Tab Key")) {
                 let tabKeyActionBinding = Binding<Int>(
-                    get: { appState.tabKeyAction.rawValue },
-                    set: { appState.tabKeyAction = AppState.TabKeyAction(rawValue: $0) ?? .default }
+                    get: { app.tabKeyAction.rawValue },
+                    set: { app.tabKeyAction = AppState.TabKeyAction(rawValue: $0) ?? .default }
                 )
                 Picker("Tab key action", selection: tabKeyActionBinding) {
                     Text("Insert Tab").tag(AppState.TabKeyAction.default.rawValue)
@@ -63,13 +63,13 @@ struct SettingsView: View {
                 }
 
                 let indentSizeBinding = Binding<Double>(
-                    get: { Double(appState.indentSize) },
-                    set: { appState.indentSize = Int($0) }
+                    get: { Double(app.indentSize) },
+                    set: { app.indentSize = Int($0) }
                 )
                 Slider(value: indentSizeBinding, in: 2.0...16.0, step: 1) {
-                    Text("Indent with \(appState.indentSize.formatted()) spaces")
+                    Text("Indent with \(app.indentSize.formatted()) spaces")
                 }
-                .disabled(appState.tabKeyAction != .indentWithSpace)
+                .disabled(app.tabKeyAction != .indentWithSpace)
                 .controlSize(.mini)
             }
         }
@@ -81,5 +81,5 @@ struct SettingsView: View {
 }
 
 //#Preview {
-//    SettingsView(appState: AppState())
+//    SettingsView(app: AppState())
 //}

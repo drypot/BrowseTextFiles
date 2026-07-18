@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct RenameFileSheet: View {
-    @Environment(BrowserState.self) var state
+    @Environment(BrowserState.self) var browser
 
     @Environment(\.dismiss) private var dismiss
 
@@ -56,12 +56,12 @@ struct RenameFileSheet: View {
     }
 
     func initSheet() {
-        guard let name = state.renameFileContext?.oldURL.lastPathComponent else { return }
+        guard let name = browser.renameFileContext?.oldURL.lastPathComponent else { return }
         orgName = name
         newName = name
     }
 
     func submit() {
-        state.renameFileSubmitted(with: newName)
+        browser.renameFileSubmitted(with: newName)
     }
 }

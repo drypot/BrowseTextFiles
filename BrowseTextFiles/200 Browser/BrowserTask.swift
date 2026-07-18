@@ -8,10 +8,8 @@
 import SwiftUI
 
 struct BrowserTask: ViewModifier {
-    @Environment(AppState.self) var appState
-    @Environment(BrowserState.self) var state
-    @Environment(BrowserContext.self) var context
-    @Environment(FolderListState.self) var folderListState
+    @Environment(AppState.self) var app
+    @Environment(BrowserState.self) var browser
 
     @SceneStorage("rootURLData") private var sceneRootURLData: Data?
     @SceneStorage("fileURLData") private var sceneFileURLData: Data?
@@ -23,10 +21,10 @@ struct BrowserTask: ViewModifier {
                 await Task.yield()
                 initialize()
             }
-            .onChange(of: state.context.rootURL) {
+            .onChange(of: browser.context.rootURL) {
                 rootURLChanged()
             }
-            .onChange(of: state.context.selectedFileURL) {
+            .onChange(of: browser.context.selectedFileURL) {
                 fileURLChanged()
             }
     }
@@ -53,35 +51,35 @@ struct BrowserTask: ViewModifier {
         consoleLog("restore file url: \(sceneFileURL?.path(percentEncoded: false) ?? "nil")")
 
         if let rootURL = sceneRootURL {
-            state.configure(with: rootURL, appState: appState)
+            browser.configure(with: rootURL, app: app)
             if let fileURL = sceneFileURL {
-                state.targetFile(fileURL)
+                browser.targetFile(fileURL)
             }
             return
         }
 
-        if let rootURL = appState.newWindowRootURL {
-            state.configure(with: rootURL, appState: appState)
-            if let fileURL = appState.newWindowFileURL {
-                state.targetFile(fileURL)
+        if let rootURL = app.newWindowRootURL {
+            browser.configure(with: rootURL, app: app)
+            if let fileURL = app.newWindowFileURL {
+                browser.targetFile(fileURL)
             }
-            appState.newWindowRootURL = nil
-            appState.newWindowFileURL = nil
+            app.newWindowRootURL = nil
+            app.newWindowFileURL = nil
             return
         }
 
-        context.status = .showOpenPanel
+        browser.context.status = .showOpenPanel
     }
 
     func rootURLChanged() {
-        guard let rootURL = state.context.rootURL else { return }
+        guard let rootURL = browser.context.rootURL else { return }
         consoleLog("save root url: \(rootURL.path(percentEncoded: false))")
         sceneRootURLData = try? rootURL.bookmarkData(options: .withSecurityScope)
-        appState.addRecentDocumentURL(rootURL)
+        app.addRecentDocumentURL(rootURL)
     }
 
     func fileURLChanged() {
-        guard let fileURL = state.context.selectedFileURL else { return }
+        guard let fileURL = browser.context.selectedFileURL else { return }
         //consoleLog("save file url: \(fileURL.path(percentEncoded: false))")
         sceneFileURLData = try? fileURL.bookmarkData(options: .withSecurityScope)
     }

@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct BrowserCommands: Commands {
-    @Environment(AppState.self) var appState
+    @Environment(AppState.self) var app
 
     @Environment(\.openWindow) private var openWindow
     @Environment(\.dismissWindow) private var dismissWindow
@@ -16,50 +16,50 @@ struct BrowserCommands: Commands {
     // @FocusedValue state가 struct BrowserWindow 바로 아래 들어있으면 BrowserView 가 두번 생성되었다.
     // @FocusedValue 가 업데이트되면 하위 트리를 모두 새로 만드는 것 같다.
     // 트리 재구성 영역을 줄이기 위해 Commands 코드들을 BrowserCommands struct 로 분리하였다.
-    @FocusedValue(BrowserState.self) private var state: BrowserState?
+    @FocusedValue(BrowserState.self) private var browser: BrowserState?
 
     var body: some Commands {
         CommandGroup(replacing: .newItem) {
             Button("New Window", systemImage: "macwindow") {
-                appState.openNewBrowserWindow(openWindow: openWindow)
+                app.openNewBrowserWindow(openWindow: openWindow)
             }
             .keyboardShortcut("n", modifiers: [.command, .control])
 
             Button("New File", systemImage: "text.document") {
-                state?.makeNewFile()
+                browser?.makeNewFile()
             }
             .keyboardShortcut("n", modifiers: [.command])
 
             Button("New File...", systemImage: "text.document") {
-                state?.showNewFileWithTemplate()
+                browser?.showNewFileWithTemplate()
             }
             .keyboardShortcut("n", modifiers: [.command, .option])
 
             Button("New Folder", systemImage: "folder.badge.plus") {
-                state?.makeNewFolder()
+                browser?.makeNewFolder()
             }
             .keyboardShortcut("n", modifiers: [.command, .shift])
 
             Divider()
 
             Button("Open Folder...", systemImage: "folder") {
-                appState.openNewBrowserWindowFromDialog(openWindow: openWindow)
+                app.openNewBrowserWindowFromDialog(openWindow: openWindow)
             }
             .keyboardShortcut("o")
 
             Menu("Open Recent", systemImage: "text.below.folder") {
-                let urls = appState.recentDocumentURLs
+                let urls = app.recentDocumentURLs
                 if urls.isEmpty {
                     Text("No Recent Documents")
                 } else {
                     ForEach(urls, id: \.self) { url in
                         Button(url.lastPathComponent) {
-                            appState.openNewBrowserWindow(fromFolderURL: url, fileURL: nil, openWindow: openWindow)
+                            app.openNewBrowserWindow(fromFolderURL: url, fileURL: nil, openWindow: openWindow)
                         }
                     }
                     Divider()
                     Button("Clear Menu") {
-                        appState.clearRecentDocuments()
+                        app.clearRecentDocuments()
                     }
                 }
             }
@@ -67,7 +67,7 @@ struct BrowserCommands: Commands {
             Divider()
 
             Button("Save File", systemImage: "square.and.arrow.down") {
-                state?.editor.saveFile()
+                browser?.editor.saveFile()
             }
             .keyboardShortcut("s")
         }
@@ -75,24 +75,24 @@ struct BrowserCommands: Commands {
         CommandGroup(after: .sidebar) {
 
             Button("Sidebar Folder") {
-                state?.context.sidebarStatus = .folder
+                browser?.context.sidebarStatus = .folder
             }
             .keyboardShortcut("1")
 
             Button("Sidebar History") {
-                state?.context.sidebarStatus = .history
+                browser?.context.sidebarStatus = .history
             }
             .keyboardShortcut("2")
 
             Button("Sidebar Find") {
-                state?.context.sidebarStatus = .find
+                browser?.context.sidebarStatus = .find
             }
             .keyboardShortcut("3")
 
             Divider()
 
             Button("Reload", systemImage: "arrow.clockwise") {
-                state?.reload()
+                browser?.reload()
             }
             .keyboardShortcut("r")
 
@@ -100,7 +100,7 @@ struct BrowserCommands: Commands {
 
             // Button("Toggle History", systemImage: "clock") {
             //     guard let state else { return }
-            //     appState.toggleHistoryWindow(for: state, openWindow: openWindow, dismissWindow: dismissWindow)
+            //     app.toggleHistoryWindow(for: state, openWindow: openWindow, dismissWindow: dismissWindow)
             // }
             // .keyboardShortcut("y")
         }
@@ -108,7 +108,7 @@ struct BrowserCommands: Commands {
         CommandGroup(after: .textEditing) {
             Divider()
             Button("Find in Files", systemImage: "magnifyingglass") {
-                state?.context.sidebarStatus = .find
+                browser?.context.sidebarStatus = .find
             }
             .keyboardShortcut("f", modifiers: [.command, .shift])
         }

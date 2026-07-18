@@ -9,18 +9,16 @@ import SwiftUI
 import Combine
 
 struct HistoryContainer: View {
-    @Environment(AppState.self) var appState
-    @Environment(BrowserState.self) var state
-    @Environment(BrowserContext.self) var context
-    @Environment(HistoryState.self) var historyState
+    @Environment(AppState.self) var app
+    @Environment(BrowserState.self) var browser
 
     @State private var cancellables = Set<AnyCancellable>()
 
     var body: some View {
         HistoryView()
             .background(WindowAccessor(onResolve: setupWindow))
-            .navigationTitle("History: \(context.rootName ?? "")")
-            .focusedSceneValue(state)
+            .navigationTitle("History: \(browser.context.rootName ?? "")")
+            .focusedSceneValue(browser)
     }
     
     func setupWindow(_ window: NSWindow?) {
@@ -55,12 +53,12 @@ struct HistoryContainer: View {
         NotificationCenter.default
             .publisher(for: NSWindow.willCloseNotification, object: window)
             .sink { notification in
-                historyState.isHistoryWindowPresented = false
+                browser.history.isHistoryWindowPresented = false
             }
             .store(in: &cancellables)
     }
 
     func saveWindowSize(_ window: NSWindow) {
-        appState.saveWindowRect(window.frame, for: "history", uuid: state.context.id)
+        app.saveWindowRect(window.frame, for: "history", uuid: browser.context.id)
     }
 }

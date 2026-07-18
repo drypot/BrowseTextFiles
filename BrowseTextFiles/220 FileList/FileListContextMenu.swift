@@ -8,10 +8,8 @@
 import SwiftUI
 
 struct FileListContextMenu: View {
-    @Environment(AppState.self) var appState
-    @Environment(BrowserState.self) var state
-    @Environment(BrowserContext.self) var context
-    @Environment(FileListState.self) var fileListState
+    @Environment(AppState.self) var app
+    @Environment(BrowserState.self) var browser
 
     @Environment(\.openWindow) private var openWindow
 
@@ -19,26 +17,26 @@ struct FileListContextMenu: View {
 
     var body: some View {
         Button("New File") {
-            state.makeNewFile()
+            browser.makeNewFile()
         }
 
         Button("New File...") {
-            state.showNewFileWithTemplate()
+            browser.showNewFileWithTemplate()
         }
 
         Button("Show in Finder") {
-            let url = selection.first ?? context.selectedFolderURL
-            appState.openFinder(with: url)
+            let url = selection.first ?? browser.context.selectedFolderURL
+            app.openFinder(with: url)
         }
 
         if selection.count == 1 {
             Button("Open in New Window") {
                 let url = selection.first
-                appState.openNewBrowserWindow(fromFileURL: url, openWindow: openWindow)
+                app.openNewBrowserWindow(fromFileURL: url, openWindow: openWindow)
             }
         } else {
             Button("Open in New Window") {
-                appState.openNewBrowserWindow(fromFolderURL: context.selectedFolderURL, fileURL: nil, openWindow: openWindow)
+                app.openNewBrowserWindow(fromFolderURL: browser.context.selectedFolderURL, fileURL: nil, openWindow: openWindow)
             }
         }
 
@@ -46,12 +44,12 @@ struct FileListContextMenu: View {
 
         if selection.count == 1 {
             Button("Rename") {
-                state.showRenameFile(for: selection)
+                browser.showRenameFile(for: selection)
             }
         }
 
         Button("Delete") {
-            fileListState.trashFiles(selection: selection)
+            browser.fileList.trashFiles(selection: selection)
         }
     }
 }

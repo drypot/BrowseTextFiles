@@ -8,19 +8,17 @@
 import SwiftUI
 
 struct FileListContainer: View {
-    @Environment(BrowserState.self) var state
-    @Environment(BrowserContext.self) var context
-    @Environment(FileListState.self) var fileListState
+    @Environment(BrowserState.self) var browser
 
     var body: some View {
         ScrollViewReader { proxy in
             FileList()
-                .onChange(of: context.selectedFileURL) { _, url in
+                .onChange(of: browser.context.selectedFileURL) { _, url in
                     guard let url else { return }
                     proxy.scrollTo(url)
                 }
-                .onChange(of: context.selectedFolderURL, initial: true) {
-                    fileListState.loadFileList()
+                .onChange(of: browser.context.selectedFolderURL, initial: true) {
+                    browser.fileList.loadFileList()
                 }
         }
         .onKeyPress(phases: .down) {
@@ -34,10 +32,10 @@ struct FileListContainer: View {
     func handleKeyPress(_ press: KeyPress) -> KeyPress.Result {
         switch press.key {
         case .tab:
-            state.editor.shouldFocusedCount += 1
+            browser.editor.shouldFocusedCount += 1
 
         case .return:
-            state.showRenameFile()
+            browser.showRenameFile()
 
         default:
             return .ignored
@@ -52,15 +50,15 @@ struct FileListContainer: View {
 List 수작업으로 전부 만들었을 때 코드
 
 fileprivate struct RowView: View {
-    var appState: AppState
+    var app: AppState
     var state: RootState
     var fileListState: FileListState
 
     let item: FileState
     let isActive: Bool
 
-    init(appState: AppState, state: RootState, item: FileState, isActive: Bool) {
-        self.appState = appState
+    init(app: AppState, state: RootState, item: FileState, isActive: Bool) {
+        self.app = app
         self.state = state
         self.fileListState = state.fileListState
         self.item = item

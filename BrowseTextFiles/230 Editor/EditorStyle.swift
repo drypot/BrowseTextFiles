@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct EditorStyle: ViewModifier {
-    @Environment(AppState.self) var appState
+    @Environment(AppState.self) var app
     @Environment(EditorState.self) var editorState
 
     // TextViewRepresentable.updateNSView 에서 스타일까지 업데이트하면 비효율이 심해진다.
@@ -21,13 +21,13 @@ struct EditorStyle: ViewModifier {
                 // 로드된 후 스타일을 강제로 한번 입히는 것으로;
                 updateTextViewStyle()
             }
-            .onChange(of: appState.fontName) {
+            .onChange(of: app.fontName) {
                 updateTextViewStyle()
             }
-            .onChange(of: appState.fontSize) {
+            .onChange(of: app.fontSize) {
                 updateTextViewStyle()
             }
-            .onChange(of: appState.lineSpacing) {
+            .onChange(of: app.lineSpacing) {
                 updateTextViewStyle()
             }
     }
@@ -37,11 +37,11 @@ struct EditorStyle: ViewModifier {
 
         let paragraphStyle = NSMutableParagraphStyle()
         // lineSpacing 쓰면 엔터 입력시 커서가 사라진다; macOS 26
-        // paragraphStyle.lineSpacing = appState.lineSpacing
-        paragraphStyle.lineHeightMultiple = appState.lineHeightMultiple
+        // paragraphStyle.lineSpacing = app.lineSpacing
+        paragraphStyle.lineHeightMultiple = app.lineHeightMultiple
 
         let attributes: [NSAttributedString.Key: Any] = [
-            .font: appState.makeNSFont(),
+            .font: app.makeNSFont(),
             .paragraphStyle: paragraphStyle,
             .foregroundColor: NSColor.textColor, // dark mode 대응
             //.backgroundColor: NSColor.textBackgroundColor // dark mode 대응

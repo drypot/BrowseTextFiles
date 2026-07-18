@@ -10,7 +10,7 @@ import SwiftUI
 // https://developer.apple.com/library/archive/documentation/TextFonts/Conceptual/CocoaTextArchitecture/TextEditing/TextEditing.html#//apple_ref/doc/uid/TP40009459-CH3-SW16
 
 struct TextViewRepresentable: NSViewRepresentable {
-    @Environment(AppState.self) var appState
+    @Environment(AppState.self) var app
     @Environment(EditorState.self) var editorState
 
     func makeCoordinator() -> Coordinator {
@@ -183,12 +183,12 @@ struct TextViewRepresentable: NSViewRepresentable {
     }
 
     final class Coordinator: NSObject, NSTextViewDelegate {
-        let appState: AppState
+        let app: AppState
         let editorState: EditorState
 
         init(_ view: TextViewRepresentable) {
             //print("coordinator created: \(view.state.id), TextBufferEditor.Coordinator")
-            appState = view.appState
+            app = view.app
             editorState = view.editorState
         }
 
@@ -197,13 +197,13 @@ struct TextViewRepresentable: NSViewRepresentable {
             //guard let textView = notification.object as? NSTextView else { return }
 
             editorState.isTextViewEdited = true
-            if appState.isAutoSaveEnabled {
-                editorState.scheduleAutoSave(after: appState.autoSaveDelay)
+            if app.isAutoSaveEnabled {
+                editorState.scheduleAutoSave(after: app.autoSaveDelay)
             }
         }
 
         func textView(_ textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
-            if appState.tabKeyAction == .indentWithSpace {
+            if app.tabKeyAction == .indentWithSpace {
                 if commandSelector == #selector(NSResponder.insertTab(_:)) {
                     indentWithSpace(textView)
                     return true
@@ -251,7 +251,7 @@ struct TextViewRepresentable: NSViewRepresentable {
             var newSelectedRange = selectedRange
             let nsString = textStorage.string as NSString
             let totalLineRange = nsString.lineRange(for: selectedRange)
-            let indentSize = appState.indentSize
+            let indentSize = app.indentSize
             let spaces = String(repeating: " ", count: indentSize)
 
             var resultLines: [String] = []
@@ -294,7 +294,7 @@ struct TextViewRepresentable: NSViewRepresentable {
             var newSelectedRange = selectedRange
             let nsString = textStorage.string as NSString
             let totalLineRange = nsString.lineRange(for: selectedRange)
-            let indentSize = appState.indentSize
+            let indentSize = app.indentSize
 
             var resultLines: [String] = []
             var isFirstLine = true

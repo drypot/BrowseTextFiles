@@ -33,18 +33,16 @@ struct HistoryView: View {
 }
 
 fileprivate struct HistoryListView: View {
-    @Environment(BrowserState.self) var state
-    @Environment(BrowserContext.self) var context
-    @Environment(HistoryState.self) var historyState
+    @Environment(BrowserState.self) var browser
 
     var body: some View {
-        let rootComponents = context.rootURL?.pathComponents ?? []
+        let rootComponents = browser.context.rootURL?.pathComponents ?? []
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 8) {
-                ForEach(historyState.history) { historyItem in
+                ForEach(browser.history.history) { historyItem in
                     let path = historyItem.relativePath(from: rootComponents)
                     Button(path) {
-                        state.targetFile(historyItem.url)
+                        browser.targetFile(historyItem.url)
                     }
                 }
                 .buttonStyle(.plain)

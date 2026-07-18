@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct BrowserWindow: Scene {
-    @Environment(AppState.self) var appState
+    @Environment(AppState.self) var app
 
     init() {
         printLog("init browser window")
@@ -25,10 +25,10 @@ struct BrowserWindow: Scene {
         // 이것도 좀 문제인 것 같다.
 
         // 위 현상들을 피하기 위해 for: 인자를 쓰지 말고,
-        // 오픈할 디렉토리는 appState 로 전달하는 방식으로 우회하는 것이 안정적일 것 같다;
+        // 오픈할 디렉토리는 app 로 전달하는 방식으로 우회하는 것이 안정적일 것 같다;
 
         // WindowGroup("Browser", id: "browser" , for: BrowserInitParam.self ) { $initParam in
-        //     BrowserView(appState: appState, initParam: initParam)
+        //     BrowserView(app: app, initParam: initParam)
         // }
         // defaultValue: {
         //     BrowserInitParam()
@@ -38,7 +38,7 @@ struct BrowserWindow: Scene {
             BrowserContainer()
         }
         .defaultWindowPlacement { proxy, context in
-            appState.makeWindowPlacement(
+            app.makeWindowPlacement(
                 for: "browser",
                 uuid: nil,
                 visibleRect: context.defaultDisplay.visibleRect,

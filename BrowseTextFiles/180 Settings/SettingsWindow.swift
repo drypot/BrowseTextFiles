@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct SettingsWindow: Scene {
-    @Environment(AppState.self) var appState
+    @Environment(AppState.self) var app
 
     var body: some Scene {
         Settings {

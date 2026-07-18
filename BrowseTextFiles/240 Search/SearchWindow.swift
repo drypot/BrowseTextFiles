@@ -8,24 +8,23 @@
 import SwiftUI
 
 struct SearchWindow: Scene {
-    @Environment(AppState.self) var appState
+    @Environment(AppState.self) var app
 
     var body: some Scene {
         WindowGroup("Search", id: "search", for: UUID.self) { $id in
-            if let state = appState.lastRootState {
+            if let browser = app.lastBrowser {
                 SearchContainer()
                     .frame(minWidth: 320, minHeight: 200)
-                    .environment(state)
-                    .environment(state.context)
-                    .environment(state.context)
-                    .environment(state.search)
+                    .environment(browser)
+                    .environment(browser.context)
+                    .environment(browser.search)
             }
         }
         .restorationBehavior(.disabled)
         .defaultWindowPlacement { proxy, context in
-            appState.makeWindowPlacement(
+            app.makeWindowPlacement(
                 for: "search",
-                uuid: appState.lastRootState?.context.id,
+                uuid: app.lastBrowser?.context.id,
                 visibleRect: context.defaultDisplay.visibleRect,
                 defaultSize: CGSize(width: 400, height: 600)
             )

@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct NewFileWithTemplateSheet: View {
-    @Environment(AppState.self) var appState
-    @Environment(BrowserState.self) var state
+    @Environment(AppState.self) var app
+    @Environment(BrowserState.self) var browser
 
     @Environment(\.dismiss) private var dismiss
 
@@ -29,7 +29,7 @@ struct NewFileWithTemplateSheet: View {
 
     var form: some View {
         Form {
-            @Bindable var appState = appState
+            @Bindable var app = app
 
             Section("New File") {
                 TextField("New File", text: $newFilePath)
@@ -38,10 +38,10 @@ struct NewFileWithTemplateSheet: View {
             }
 
             Section("Filename Templates") {
-                Picker("Filename Templates", selection: $appState.newFileTemplateIndex) {
-                    let range = 0 ..< appState.newFileTemplates.count
+                Picker("Filename Templates", selection: $app.newFileTemplateIndex) {
+                    let range = 0 ..< app.newFileTemplates.count
                     ForEach(range, id: \.self) { index in
-                        TextField("", text: $appState.newFileTemplates[index])
+                        TextField("", text: $app.newFileTemplates[index])
                             .frame(maxWidth: .infinity)
                             .labelsHidden()
                             .textFieldStyle(.roundedBorder)
@@ -50,7 +50,7 @@ struct NewFileWithTemplateSheet: View {
                 }
                 .pickerStyle(.radioGroup)
                 .labelsHidden()
-                .onChange(of: appState.newFileTemplateIndex, initial: true) {
+                .onChange(of: app.newFileTemplateIndex, initial: true) {
                     updateNewFilePath()
                 }
             }
@@ -66,7 +66,7 @@ struct NewFileWithTemplateSheet: View {
     var buttons: some View {
         HStack {
             Button("Reset templates to defaults") {
-                appState.resetNewFileTemplatesToDefaults()
+                app.resetNewFileTemplatesToDefaults()
             }
             Spacer()
 
@@ -89,11 +89,11 @@ struct NewFileWithTemplateSheet: View {
     }
 
     func submit() {
-        state.newFileWithTemplateSubmitted(with: newFilePath)
+        browser.newFileWithTemplateSubmitted(with: newFilePath)
     }
 
     func updateNewFilePath() {
-        let template = appState.newFileTemplates[appState.newFileTemplateIndex]
+        let template = app.newFileTemplates[app.newFileTemplateIndex]
         newFilePath = expand(template: template)
     }
 
@@ -107,7 +107,7 @@ struct NewFileWithTemplateSheet: View {
     }
 
     func expand(template: String) -> String {
-        guard let param = state.newFileWithTemplateContext else { return "" }
+        guard let param = browser.newFileWithTemplateContext else { return "" }
         let calendar = Calendar.current
         let date = Date()
         let components = calendar.dateComponents(in: calendar.timeZone, from: date)

@@ -9,20 +9,20 @@ import SwiftUI
 
 @main
 struct BrowseTextFilesApp: App {
-    @State private var appState = AppState()
+    @State private var app = AppState()
 
     var body: some Scene {
         BrowserWindow()
-            .environment(appState)
+            .environment(app)
 
         // SearchWindow()
-        //     .environment(appState)
+        //     .environment(app)
 
         // HistoryWindow()
-        //     .environment(appState)
+        //     .environment(app)
 
         SettingsWindow()
-            .environment(appState)
+            .environment(app)
 
         // ConsoleWindow()
 

@@ -83,7 +83,7 @@ class AppState {
         }
     }
 
-    @ObservationIgnored weak var lastRootState: BrowserState?
+    @ObservationIgnored weak var lastBrowser: BrowserState?
     @ObservationIgnored var lastBrowserWindowSize: CGSize?
 
     @ObservationIgnored private var windowRectStoreForStringUUID: [StringAndUUID: CGRect] = [:]
