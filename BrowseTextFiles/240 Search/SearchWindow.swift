@@ -18,7 +18,7 @@ struct SearchWindow: Scene {
                     .environment(state)
                     .environment(state.context)
                     .environment(state.context)
-                    .environment(state.searchState)
+                    .environment(state.search)
             }
         }
         .restorationBehavior(.disabled)

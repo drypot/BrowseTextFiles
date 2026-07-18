@@ -55,7 +55,7 @@ struct FolderListContainer: View {
 
         switch press.key {
         case .tab:
-            state.editorState.shouldFocusedCount += 1
+            state.editor.shouldFocusedCount += 1
 
         case .return:
             state.showRenameFolder()

@@ -48,7 +48,7 @@ fileprivate struct SearchButtons: View {
             //    startSearch()
             //}
             //Button("Reset") {
-            //    searchState.clearSearchResult()
+            //    search.clearSearchResult()
             //}
         }
         .padding(.horizontal)

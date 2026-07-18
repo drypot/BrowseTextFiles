@@ -34,7 +34,7 @@ struct FileListContainer: View {
     func handleKeyPress(_ press: KeyPress) -> KeyPress.Result {
         switch press.key {
         case .tab:
-            state.editorState.shouldFocusedCount += 1
+            state.editor.shouldFocusedCount += 1
 
         case .return:
             state.showRenameFile()
@@ -91,7 +91,7 @@ fileprivate struct RowView: View {
             //focusedViewBinding?.wrappedValue = .fileList
             guard fileListState.selectedFileID != item.id else { return }
             fileListState.selectFile(item.id)
-            //state.editorState.loadFile(at: fileListState.selectedFile?.url)
+            //state.editor.loadFile(at: fileListState.selectedFile?.url)
         }
         //.focusEffectDisabled() // 포커스 테두리 표시 안 함
     }

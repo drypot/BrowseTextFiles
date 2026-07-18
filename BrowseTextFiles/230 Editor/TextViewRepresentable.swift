@@ -193,7 +193,7 @@ struct TextViewRepresentable: NSViewRepresentable {
         }
 
         func textDidChange(_ notification: Notification) {
-            //print("text changed: \(editorState.editingFilename)")
+            //print("text changed: \(editor.editingFilename)")
             //guard let textView = notification.object as? NSTextView else { return }
 
             editorState.isTextViewEdited = true

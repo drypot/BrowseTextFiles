@@ -261,14 +261,14 @@ class AppState {
     //     guard state.context.status == .ready else { return }
     //     lastRootState = state
     //     openWindow(id: "search", value: state.context.id)
-    //     state.searchState.isSearchWindowPresented = true
+    //     state.search.isSearchWindowPresented = true
     // }
 
     // func toggleSearchWindow(for state: RootState, openWindow: OpenWindowAction, dismissWindow: DismissWindowAction) {
     //     guard state.context.status == .ready else { return }
-    //     if state.searchState.isSearchWindowPresented {
+    //     if state.search.isSearchWindowPresented {
     //         dismissWindow(id: "search", value: state.context.id)
-    //         state.searchState.isSearchWindowPresented = false
+    //         state.search.isSearchWindowPresented = false
     //     } else {
     //         openSearchWindow(for: state, openWindow: openWindow)
     //     }
@@ -280,14 +280,14 @@ class AppState {
     //     guard state.context.status == .ready else { return }
     //     lastRootState = state
     //     openWindow(id: "history", value: state.context.id)
-    //     state.historyState.isHistoryWindowPresented = true
+    //     state.history.isHistoryWindowPresented = true
     // }
 
     // func toggleHistoryWindow(for state: RootState, openWindow: OpenWindowAction, dismissWindow: DismissWindowAction) {
     //     guard state.context.status == .ready else { return }
-    //     if state.historyState.isHistoryWindowPresented {
+    //     if state.history.isHistoryWindowPresented {
     //         dismissWindow(id: "history", value: state.context.id)
-    //         state.historyState.isHistoryWindowPresented = false
+    //         state.history.isHistoryWindowPresented = false
     //     } else {
     //         openHistoryWindow(for: state, openWindow: openWindow)
     //     }

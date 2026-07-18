@@ -63,21 +63,21 @@ final class BrowserState: Identifiable {
 
     // MARK: - States
 
-    @ObservationIgnored var appState: AppState?
+    @ObservationIgnored var app: AppState?
     @ObservationIgnored var context: BrowserContext
-    @ObservationIgnored var folderListState: FolderListState
-    @ObservationIgnored var fileListState: FileListState
-    @ObservationIgnored var searchState: SearchState
-    @ObservationIgnored var historyState: HistoryState
-    @ObservationIgnored var editorState: EditorState
+    @ObservationIgnored var folderList: FolderListState
+    @ObservationIgnored var fileList: FileListState
+    @ObservationIgnored var search: SearchState
+    @ObservationIgnored var history: HistoryState
+    @ObservationIgnored var editor: EditorState
 
     init() {
         context = BrowserContext()
-        folderListState = FolderListState(context: context)
-        fileListState = FileListState(context: context)
-        searchState = SearchState(context: context)
-        historyState = HistoryState()
-        editorState = EditorState(context: context)
+        folderList = FolderListState(context: context)
+        fileList = FileListState(context: context)
+        search = SearchState(context: context)
+        history = HistoryState()
+        editor = EditorState(context: context)
 
         printLog("init browser state: \(id)")
     }
@@ -86,9 +86,9 @@ final class BrowserState: Identifiable {
 
     func configure(with rootURL: URL, appState: AppState) {
         consoleLog("configure root state: \(rootURL.path(percentEncoded: false))")
-        self.appState = appState
+        self.app = appState
         context.configure(with: rootURL)
-        folderListState.reloadFolderTree()
+        folderList.reloadFolderTree()
         context.selectedFolderURL = rootURL
         appState.addRecentDocumentURL(rootURL)
     }
@@ -102,8 +102,8 @@ final class BrowserState: Identifiable {
 
     func reload() {
         consoleLog("reload:")
-        folderListState.reloadFolderTree()
-        fileListState.loadFileList()
+        folderList.reloadFolderTree()
+        fileList.loadFileList()
     }
 
     // MARK: - Target
@@ -112,12 +112,12 @@ final class BrowserState: Identifiable {
         let folderURL = fileURL.deletingLastPathComponent()
         context.selectedFolderURL = folderURL
         context.selectedFileURL = fileURL
-        folderListState.expandFoldersUntilSelectedFolder()
+        folderList.expandFoldersUntilSelectedFolder()
     }
 
     func targetFolder(_ folderURL: URL) {
         context.selectedFolderURL = folderURL
-        folderListState.expandFoldersUntilSelectedFolder()
+        folderList.expandFoldersUntilSelectedFolder()
     }
 
     // MARK: - New File
@@ -132,7 +132,7 @@ final class BrowserState: Identifiable {
     func makeNewFile(in folderURL: URL?) {
         guard let folderURL else { return }
 
-        guard let defaultFileName = appState?.newFileName else { return }
+        guard let defaultFileName = app?.newFileName else { return }
         let defaultFileURL = URL(fileURLWithPath: defaultFileName)
         let namePart = defaultFileURL.deletingPathExtension().lastPathComponent
         let extensionPart = defaultFileURL.pathExtension
@@ -152,7 +152,7 @@ final class BrowserState: Identifiable {
             consoleLog("new file: \(newFileURL.path(percentEncoded: false))")
             try "".write(to: newFileURL, atomically: true, encoding: .utf8)
             targetFile(newFileURL)
-            fileListState.loadFileList()
+            fileList.loadFileList()
         } catch {
             let message = error.localizedDescription
             context.leaveAlert(message)
@@ -194,10 +194,10 @@ final class BrowserState: Identifiable {
                 try "".write(to: newFileURL, atomically: true, encoding: .utf8)
             }
             if newFolderURL != nil {
-                folderListState.reloadFolderTree()
+                folderList.reloadFolderTree()
             }
             targetFile(newFileURL)
-            fileListState.loadFileList()
+            fileList.loadFileList()
         } catch {
             let message = error.localizedDescription
             context.leaveAlert(message)
@@ -222,7 +222,7 @@ final class BrowserState: Identifiable {
         do {
             consoleLog("new folder: \(newFolderURL.path(percentEncoded: false))")
             try fileManager.createDirectory(at: newFolderURL, withIntermediateDirectories: true, attributes: nil)
-            folderListState.reloadFolderTree()
+            folderList.reloadFolderTree()
             targetFolder(newFolderURL)
         } catch {
             let message = error.localizedDescription
@@ -259,10 +259,10 @@ final class BrowserState: Identifiable {
             consoleLog("rename file: \(oldURL.path(percentEncoded: false)) to \(newName)")
             try FileManager.default.moveItem(at: oldURL, to: newURL)
             if self.context.selectedFileURL == oldURL {
-                self.fileListState.loadFileList()
+                self.fileList.loadFileList()
                 self.context.selectedFileURL = newURL
             } else {
-                self.fileListState.loadFileList()
+                self.fileList.loadFileList()
             }
         } catch {
             let message = error.localizedDescription
@@ -292,7 +292,7 @@ final class BrowserState: Identifiable {
         do {
             consoleLog("rename folder: \(oldURL.path(percentEncoded: false)) to \(newName)")
             try FileManager.default.moveItem(at: oldURL, to: newURL)
-            self.folderListState.reloadFolderTree()
+            self.folderList.reloadFolderTree()
             if self.context.selectedFolderURL == oldURL {
                 self.context.selectedFolderURL = newURL
             }

@@ -18,7 +18,7 @@ struct HistoryWindow: Scene {
                     .environment(state)
                     .environment(state.context)
                     .environment(state.context)
-                    .environment(state.historyState)
+                    .environment(state.history)
             }
         }
         .restorationBehavior(.disabled)
