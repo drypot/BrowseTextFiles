@@ -17,7 +17,7 @@ struct FileListContextMenu: View {
 
     var body: some View {
         Button("New File") {
-            browser.makeNewFile()
+            browser.showNewFile()
         }
 
         Button("New File...") {

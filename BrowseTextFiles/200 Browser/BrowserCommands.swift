@@ -26,7 +26,7 @@ struct BrowserCommands: Commands {
             .keyboardShortcut("n", modifiers: [.command, .control])
 
             Button("New File", systemImage: "text.document") {
-                browser?.makeNewFile()
+                browser?.showNewFile()
             }
             .keyboardShortcut("n", modifiers: [.command])
 

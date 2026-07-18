@@ -19,7 +19,7 @@ struct NewFileSheet: View {
 
     var body: some View {
         Form {
-            TextField("New File Name", text: $newFileName, selection: $selection)
+            TextField("New File", text: $newFileName, selection: $selection)
                 .textFieldStyle(.roundedBorder)
                 .padding(.bottom)
                 .focused($isFocused)

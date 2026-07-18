@@ -19,7 +19,7 @@ struct RenameFolderSheet: View {
 
     var body: some View {
         Form {
-            LabeledContent("Rename Folder") {
+            LabeledContent("Rename") {
                 Text(orgName)
             }
 

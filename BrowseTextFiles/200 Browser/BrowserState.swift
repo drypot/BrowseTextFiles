@@ -122,32 +122,37 @@ final class BrowserState: Identifiable {
 
     // MARK: - New File
 
-//    func showNewFileSheet(on folderURL: URL?) {
-//        guard let folderURL else { return }
-//    }
-
-    func newFileSubmitted(with newName: String) {
+    func showNewFile(on folderURL: URL?) {
+        guard let folderURL else { return }
+        newFileContext = NewFileContext(folderURL: folderURL)
+        isNewFilePresented = true
     }
 
-    func makeNewFile(in folderURL: URL?) {
-        guard let folderURL else { return }
+    func showNewFile() {
+        showNewFile(on: context.selectedFolderURL)
+    }
 
-        guard let defaultFileName = app?.newFileName else { return }
-        let defaultFileURL = URL(fileURLWithPath: defaultFileName)
-        let namePart = defaultFileURL.deletingPathExtension().lastPathComponent
-        let extensionPart = defaultFileURL.pathExtension
+    func newFileSubmitted(with newFileName: String) {
+        guard let newFileContext else { return }
+        let folderURL = newFileContext.folderURL
 
-        var newFileURL = folderURL.appending(path: defaultFileName, directoryHint: .notDirectory)
-        var counter = 1
+        // guard let defaultFileName = app?.newFileName else { return }
+        // let defaultFileURL = URL(fileURLWithPath: defaultFileName)
+        // let namePart = defaultFileURL.deletingPathExtension().lastPathComponent
+        // let extensionPart = defaultFileURL.pathExtension
 
-        let fileManager = FileManager.default
+        // var newFileURL = folderURL.appending(path: defaultFileName, directoryHint: .notDirectory)
+        // var counter = 1
 
-        while fileManager.fileExists(atPath: newFileURL.path(percentEncoded: false)), counter < 100 {
-            let newName = "\(namePart) \(counter).\(extensionPart)"
-            newFileURL = folderURL.appending(path: newName, directoryHint: .notDirectory)
-            counter += 1
-        }
+        // let fileManager = FileManager.default
 
+        // while fileManager.fileExists(atPath: newFileURL.path(percentEncoded: false)), counter < 100 {
+        //     let newName = "\(namePart) \(counter).\(extensionPart)"
+        //     newFileURL = folderURL.appending(path: newName, directoryHint: .notDirectory)
+        //     counter += 1
+        // }
+
+        let newFileURL = folderURL.appending(path: newFileName, directoryHint: .notDirectory).standardized
         do {
             consoleLog("new file: \(newFileURL.path(percentEncoded: false))")
             try "".write(to: newFileURL, atomically: true, encoding: .utf8)
@@ -158,10 +163,6 @@ final class BrowserState: Identifiable {
             context.leaveAlert(message)
             consoleLog("new file: \(message)")
         }
-    }
-
-    func makeNewFile() {
-        makeNewFile(in: context.selectedFolderURL)
     }
 
     // MARK: - New File with Template Sheet

@@ -13,6 +13,9 @@ struct BrowserSheet: ViewModifier {
     func body(content: Content) -> some View {
         @Bindable var browser = browser
         content
+            .sheet(isPresented: $browser.isNewFilePresented) {
+                NewFileSheet()
+            }
             .sheet(isPresented: $browser.isNewFileWithTemplatePresented) {
                 NewFileWithTemplateSheet()
             }

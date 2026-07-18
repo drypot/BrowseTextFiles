@@ -31,7 +31,7 @@ struct FolderListContextMenu: View {
             let url = selection.first
 
             Button("New File") {
-                browser.makeNewFile(in: url)
+                browser.showNewFile(on: url)
             }
 
             Button("New File...") {

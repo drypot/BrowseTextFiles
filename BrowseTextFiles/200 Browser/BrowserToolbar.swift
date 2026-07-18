@@ -34,7 +34,7 @@ struct BrowserToolbar: ToolbarContent {
 
         ToolbarItemGroup(placement: .secondaryAction) {
             Button("New File", systemImage: "square.and.pencil") {
-                browser.makeNewFile()
+                browser.showNewFile()
             }
             .help("New File")
 
