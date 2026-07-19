@@ -18,12 +18,14 @@ struct NewFolderSheet: View {
 
     var body: some View {
         Form {
-            TextField("New Folder", text: $newFolderName)
+            TextField("New Folder:", text: $newFolderName)
                 .textFieldStyle(.roundedBorder)
                 .padding(.bottom)
                 .focused($isFocused)
 
             HStack {
+                Spacer()
+
                 Button("Cancel") {
                     dismiss()
                 }
@@ -39,7 +41,7 @@ struct NewFolderSheet: View {
         }
         .formStyle(.columns)
         .padding()
-        .frame(width: 500)
+        .frame(width: 320)
         .task {
             initSheet()
         }

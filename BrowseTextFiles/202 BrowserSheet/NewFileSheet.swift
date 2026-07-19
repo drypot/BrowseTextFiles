@@ -19,7 +19,7 @@ struct NewFileSheet: View {
 
     var body: some View {
         Form {
-            TextField("New File", text: $newFileName, selection: $selection)
+            TextField("New File:", text: $newFileName, selection: $selection)
                 .textFieldStyle(.roundedBorder)
                 .padding(.bottom)
                 .focused($isFocused)
@@ -30,6 +30,8 @@ struct NewFileSheet: View {
                 }
 
             HStack {
+                Spacer()
+
                 Button("Cancel") {
                     dismiss()
                 }
@@ -45,7 +47,7 @@ struct NewFileSheet: View {
         }
         .formStyle(.columns)
         .padding()
-        .frame(width: 500)
+        .frame(width: 320)
         .task {
             initSheet()
         }

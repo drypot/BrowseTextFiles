@@ -19,11 +19,11 @@ struct RenameFolderSheet: View {
 
     var body: some View {
         Form {
-            LabeledContent("Rename") {
+            LabeledContent("Rename:") {
                 Text(orgName)
             }
 
-            TextField("to", text: $newName, selection: $selection)
+            TextField("to:", text: $newName, selection: $selection)
                 .textFieldStyle(.roundedBorder)
                 .padding(.bottom)
                 .focused($isFocused)
@@ -34,6 +34,8 @@ struct RenameFolderSheet: View {
                 }
 
             HStack {
+                Spacer()
+
                 Button("Cancel") {
                     dismiss()
                 }
@@ -49,7 +51,7 @@ struct RenameFolderSheet: View {
         }
         .formStyle(.columns)
         .padding()
-        .frame(width: 500)
+        .frame(width: 320)
         .task {
             initSheet()
         }
