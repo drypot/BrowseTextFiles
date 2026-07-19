@@ -30,7 +30,6 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				"120 Common/URL.swift",
-				"120 Common/UserDefaults.swift",
 			);
 			target = 00265A702FB71E64009AA3E0 /* Browse Text Files Tests */;
 		};
