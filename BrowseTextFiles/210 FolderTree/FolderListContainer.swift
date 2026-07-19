@@ -68,13 +68,12 @@ struct FolderListContainer: View {
 }
 
 struct FolderTreeToolbar: ToolbarContent {
-    @Environment(BrowserState.self) var state
-    //@Environment(FolderListState.self) var folderListState
+    @Environment(BrowserState.self) var browser
 
     var body: some ToolbarContent {
         ToolbarItem {
             Button("New Folder", systemImage: "folder.badge.plus") {
-                state.showNewFolder()
+                browser.showNewFolder()
             }
             .help("New Folder")
         }

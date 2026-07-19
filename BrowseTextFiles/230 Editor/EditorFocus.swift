@@ -8,14 +8,14 @@
 import SwiftUI
 
 struct EditorFocus: ViewModifier {
-    @Environment(EditorState.self) var editorState
-    
+    @Environment(BrowserState.self) var browser
+
     @FocusState private var isFocused: Bool
 
     func body(content: Content) -> some View {
         content
             .focused($isFocused)
-            .onChange(of: editorState.shouldFocusedCount) {
+            .onChange(of: browser.editor.shouldFocusedCount) {
                 isFocused = true
             }
     }

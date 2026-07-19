@@ -11,7 +11,7 @@ import SwiftUI
 
 struct TextViewRepresentable: NSViewRepresentable {
     @Environment(AppState.self) var app
-    @Environment(EditorState.self) var editorState
+    @Environment(EditorState.self) var editor
 
     func makeCoordinator() -> Coordinator {
         return Coordinator(self)
@@ -24,7 +24,7 @@ struct TextViewRepresentable: NSViewRepresentable {
         let scrollView = makeScrollView(for: textView)
         // configureForNoWrap(textView, scrollView)
         textView.delegate = context.coordinator
-        editorState.textView = textView
+        editor.textView = textView
 
         return scrollView
     }
@@ -33,11 +33,11 @@ struct TextViewRepresentable: NSViewRepresentable {
         //print("nsview updated: \(fileBuffer.name), TextBufferEditor, updateNSView")
         // LogStore @Observable 이라; 여기서 쓰면 View 삭제될 때 무한 루프 생긴다;
 
-        if editorState.shouldCopyOriginalText {
+        if editor.shouldCopyOriginalText {
             guard let textView = nsView.documentView as? NSTextView else { return }
-            textView.string = editorState.originalText
-            editorState.shouldCopyOriginalText = false
-            editorState.updateTextViewStyleCount += 1
+            textView.string = editor.originalText
+            editor.shouldCopyOriginalText = false
+            editor.updateTextViewStyleCount += 1
         }
     }
 
@@ -189,7 +189,7 @@ struct TextViewRepresentable: NSViewRepresentable {
         init(_ view: TextViewRepresentable) {
             //print("coordinator created: \(view.state.id), TextBufferEditor.Coordinator")
             app = view.app
-            editorState = view.editorState
+            editorState = view.editor
         }
 
         func textDidChange(_ notification: Notification) {

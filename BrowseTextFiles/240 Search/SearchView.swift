@@ -8,14 +8,14 @@
 import SwiftUI
 
 struct SearchView: View {
-    @Environment(SearchState.self) var searchState
+    @Environment(BrowserState.self) var browser
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             SearchButtons()
             Divider()
 
-            if let results = searchState.searchResults, !results.isEmpty {
+            if let results = browser.search.searchResults, !results.isEmpty {
                 SearchResults(results: results)
             } else {
                 Text("No results")
@@ -27,15 +27,14 @@ struct SearchView: View {
 }
 
 fileprivate struct SearchButtons: View {
-    @Environment(BrowserContext.self) var context
-    @Environment(SearchState.self) var searchState
+    @Environment(BrowserState.self) var browser
 
     @FocusState var isFocused: Bool
 
     var body: some View {
-        @Bindable var searchState = searchState
+        @Bindable var search = browser.search
         HStack {
-            TextField("Search", text: $searchState.searchText)
+            TextField("Search", text: $search.searchText)
                 .frame(maxWidth: .infinity)
                 .focused($isFocused)
                 .onAppear {
@@ -57,8 +56,8 @@ fileprivate struct SearchButtons: View {
     }
 
     func startSearch() {
-        guard let rootURL = context.rootURL else { return }
-        searchState.startSearch(rootURL: rootURL)
+        guard let rootURL = browser.context.rootURL else { return }
+        browser.search.startSearch(rootURL: rootURL)
     }
 }
 

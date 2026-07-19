@@ -8,11 +8,11 @@
 import SwiftUI
 
 struct HistoryView: View {
-    @Environment(HistoryState.self) var historyState
+    @Environment(BrowserState.self) var browser
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            if !historyState.history.isEmpty {
+            if !browser.history.history.isEmpty {
                 HistoryListView()
             } else {
                 Spacer()
@@ -22,7 +22,7 @@ struct HistoryView: View {
 
             HStack {
                 Button("Clear") {
-                    historyState.clearHistory()
+                    browser.history.clearHistory()
                 }
                 Spacer()
             }

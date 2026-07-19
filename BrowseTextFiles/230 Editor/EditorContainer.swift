@@ -8,18 +8,16 @@
 import SwiftUI
 
 struct EditorContainer: View {
-    @Environment(BrowserContext.self) var context
-    @Environment(EditorState.self) var editorState
-    @Environment(HistoryState.self) var historyState
+    @Environment(BrowserState.self) var browser
 
     @Environment(\.openWindow) private var openWindow
     @Environment(\.dismissWindow) private var dismissWindow
 
     var body: some View {
         VStack {
-            if editorState.hasLoadingError {
+            if browser.editor.hasLoadingError {
                 EditorError()
-            } else if editorState.fileAssigned {
+            } else if browser.editor.fileAssigned {
                 // SwiftUI TextEditor source of truth 동기화 비효율이 심해서
                 // TextViewRepresentable 를 만들었다. NSTextView.string 을 source 로 쓴다.
                 TextViewRepresentable()
@@ -28,12 +26,12 @@ struct EditorContainer: View {
                     .modifier(EditorStyle())
             }
         }
-        .onChange(of: context.selectedFileURL, initial: true) { _, url in
+        .onChange(of: browser.context.selectedFileURL, initial: true) { _, url in
             if let url {
-                editorState.loadFile(at: url)
-                historyState.addToHistory(url)
+                browser.editor.loadFile(at: url)
+                browser.history.addToHistory(url)
             } else {
-                editorState.reset()
+                browser.editor.reset()
             }
         }
     }

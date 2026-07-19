@@ -9,14 +9,14 @@ import SwiftUI
 
 struct EditorStyle: ViewModifier {
     @Environment(AppState.self) var app
-    @Environment(EditorState.self) var editorState
+    @Environment(BrowserState.self) var browser
 
     // TextViewRepresentable.updateNSView 에서 스타일까지 업데이트하면 비효율이 심해진다.
     // 여기로 따로 빼놨다.
 
     func body(content: Content) -> some View {
         content
-            .onChange(of: editorState.updateTextViewStyleCount, initial: true) {
+            .onChange(of: browser.editor.updateTextViewStyleCount, initial: true) {
                 // 새 파일 로드하면 가끔 스타일이 입혀지지 않아서;
                 // 로드된 후 스타일을 강제로 한번 입히는 것으로;
                 updateTextViewStyle()
@@ -33,7 +33,7 @@ struct EditorStyle: ViewModifier {
     }
 
     func updateTextViewStyle() {
-        guard let textView = editorState.textView else { return }
+        guard let textView = browser.editor.textView else { return }
 
         let paragraphStyle = NSMutableParagraphStyle()
         // lineSpacing 쓰면 엔터 입력시 커서가 사라진다; macOS 26
