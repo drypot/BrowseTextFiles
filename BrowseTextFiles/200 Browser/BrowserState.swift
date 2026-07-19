@@ -158,6 +158,9 @@ final class BrowserState: Identifiable {
             try "".write(to: newFileURL, atomically: true, encoding: .utf8)
             targetFile(newFileURL)
             fileList.loadFileList()
+            Task {
+                editor.shouldFocusedCount += 1
+            }
         } catch {
             let message = error.localizedDescription
             context.leaveAlert(message)
@@ -199,6 +202,9 @@ final class BrowserState: Identifiable {
             }
             targetFile(newFileURL)
             fileList.loadFileList()
+            Task {
+                editor.shouldFocusedCount += 1
+            }
         } catch {
             let message = error.localizedDescription
             context.leaveAlert(message)
@@ -208,18 +214,32 @@ final class BrowserState: Identifiable {
 
     // MARK: - New Folder
 
-    func makeNewFolder(in folderURL: URL?) {
+    func showNewFolder(on folderURL: URL?) {
         guard let folderURL else { return }
+        newFolderContext = NewFolderContext(folderURL: folderURL)
+        isNewFolderPresented = true
+    }
+
+    func showNewFolder() {
+        showNewFolder(on: context.selectedFolderURL)
+    }
+
+    func newFolderSubmitted(with newFolderName: String) {
+        guard let newFolderContext else { return }
+        let folderURL = newFolderContext.folderURL
+
         let fileManager = FileManager.default
-        var newFolderURL = folderURL.appending(path: "NewFolder", directoryHint: .isDirectory)
-        var counter = 1
 
-        while fileManager.fileExists(atPath: newFolderURL.path(percentEncoded: false)), counter < 100 {
-            let newName = "NewFolder \(counter)"
-            newFolderURL = folderURL.appending(path: newName, directoryHint: .isDirectory)
-            counter += 1
-        }
+        // var newFolderURL = folderURL.appending(path: "NewFolder", directoryHint: .isDirectory)
+        // var counter = 1
 
+        // while fileManager.fileExists(atPath: newFolderURL.path(percentEncoded: false)), counter < 100 {
+        //     let newName = "NewFolder \(counter)"
+        //     newFolderURL = folderURL.appending(path: newName, directoryHint: .isDirectory)
+        //     counter += 1
+        // }
+
+        let newFolderURL = folderURL.appending(path: newFolderName, directoryHint: .isDirectory).standardized
         do {
             consoleLog("new folder: \(newFolderURL.path(percentEncoded: false))")
             try fileManager.createDirectory(at: newFolderURL, withIntermediateDirectories: true, attributes: nil)
@@ -230,11 +250,6 @@ final class BrowserState: Identifiable {
             context.leaveAlert(message)
             consoleLog("new file: \(message)")
         }
-    }
-
-    func makeNewFolder() {
-        let folderURL = context.selectedFolderURL
-        makeNewFolder(in: folderURL)
     }
 
     // MARK: - Rename File Sheet

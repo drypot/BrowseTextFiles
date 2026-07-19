@@ -44,7 +44,7 @@ struct BrowserToolbar: ToolbarContent {
             .help("New File...")
 
             Button("New Folder", systemImage: "folder.badge.plus") {
-                browser.makeNewFolder()
+                browser.showNewFolder()
             }
             .help("New Folder")
 

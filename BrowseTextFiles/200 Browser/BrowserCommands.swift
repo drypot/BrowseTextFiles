@@ -36,7 +36,7 @@ struct BrowserCommands: Commands {
             .keyboardShortcut("n", modifiers: [.command, .option])
 
             Button("New Folder", systemImage: "folder.badge.plus") {
-                browser?.makeNewFolder()
+                browser?.showNewFolder()
             }
             .keyboardShortcut("n", modifiers: [.command, .shift])
 

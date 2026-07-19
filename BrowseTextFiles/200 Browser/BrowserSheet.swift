@@ -19,6 +19,9 @@ struct BrowserSheet: ViewModifier {
             .sheet(isPresented: $browser.isNewFileWithTemplatePresented) {
                 NewFileWithTemplateSheet()
             }
+            .sheet(isPresented: $browser.isNewFolderPresented) {
+                NewFolderSheet()
+            }
             .sheet(isPresented: $browser.isRenameFilePresented) {
                 RenameFileSheet()
             }

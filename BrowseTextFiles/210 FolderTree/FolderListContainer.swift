@@ -74,7 +74,7 @@ struct FolderTreeToolbar: ToolbarContent {
     var body: some ToolbarContent {
         ToolbarItem {
             Button("New Folder", systemImage: "folder.badge.plus") {
-                state.makeNewFolder()
+                state.showNewFolder()
             }
             .help("New Folder")
         }

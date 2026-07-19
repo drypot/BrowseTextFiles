@@ -39,7 +39,7 @@ struct FolderListContextMenu: View {
             }
 
             Button("New Folder") {
-                browser.makeNewFolder(in: url)
+                browser.showNewFolder(on: url)
             }
 
             Button("Show in Finder") {
