@@ -395,7 +395,7 @@
 				CODE_SIGN_ENTITLEMENTS = BrowseTextFiles/BrowseTextFiles.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 7;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = XFTC3W2MNQ;
 				ENABLE_APP_SANDBOX = YES;
@@ -422,7 +422,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 1.1.0;
+				MARKETING_VERSION = 1.1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.drypot.BrowseTextFiles;
 				PRODUCT_NAME = "Browse Text Files";
 				REGISTER_APP_GROUPS = YES;
@@ -441,7 +441,7 @@
 				CODE_SIGN_ENTITLEMENTS = BrowseTextFiles/BrowseTextFiles.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 7;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = XFTC3W2MNQ;
 				ENABLE_APP_SANDBOX = YES;
@@ -468,7 +468,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 1.1.0;
+				MARKETING_VERSION = 1.1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.drypot.BrowseTextFiles;
 				PRODUCT_NAME = "Browse Text Files";
 				REGISTER_APP_GROUPS = YES;
