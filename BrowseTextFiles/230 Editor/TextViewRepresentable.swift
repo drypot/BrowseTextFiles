@@ -76,6 +76,7 @@ struct TextViewRepresentable: NSViewRepresentable {
         if editor.shouldCopyOriginalText {
             guard let textView = scrollView.documentView as? NSTextView else { return }
             textView.string = editor.originalText
+            textView.undoManager?.removeAllActions()
             editor.shouldCopyOriginalText = false
             editor.updateTextViewStyleCount += 1
         }
