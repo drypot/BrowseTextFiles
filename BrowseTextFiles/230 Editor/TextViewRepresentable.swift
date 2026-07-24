@@ -20,28 +20,71 @@ struct TextViewRepresentable: NSViewRepresentable {
     func makeNSView(context: Context) -> NSScrollView {
         consoleLog("make nstextview:")
 
-        let textView = makeTextView()
-        let scrollView = makeScrollView(for: textView)
-        // configureForNoWrap(textView, scrollView)
-        textView.delegate = context.coordinator
+        let scrollView = NSTextView.scrollableTextView()
+        guard let textView = scrollView.documentView as? NSTextView else {
+            fatalError("documentView is not NSTextView")
+        }
+        // let textView = makeTextView()
+        // let scrollView = makeScrollView(for: textView)
+
         editor.textView = textView
+
+        textView.delegate = context.coordinator
+
+        // 패딩
+        textView.textContainerInset = NSSize(width: 16, height: 8)
+
+        // textView.isEditable = true  // 기본값: true
+        // textView.isSelectable = true // 기본값: true
+
+        textView.allowsUndo = true // 기본값: false
+
+        textView.usesFindBar = true // 기본값: false
+        //textView.usesFindPanel = true
+
+        // 이 기능은 고장나있다.
+        // 기능하게 하려면 꽤 코딩이 필요할 듯. 일단 쓰지 않는 것으로.
+        // textView.isIncrementalSearchingEnabled = false // 기본값: false
+
+        // textView.isRichText = false // 기본값: false
+        // textView.importsGraphics = false // 기본값: false
+
+        // textView.appearance = NSApp.effectiveAppearance
+        // textView.wantsLayer = true
+        // textView.textColor = .textColor
+        // textView.backgroundColor = .textBackgroundColor
+
+        textView.drawsBackground = false // dark mode 대응
+
+        // 사용자 입력에 따라 컨트롤이 계속 커지게 만들려면 true.
+        // textView.isVerticallyResizable = true // 기본값: true
+        // textView.isHorizontallyResizable = false // 기본값: false
+
+        // configureForNoWrap(textView, scrollView)
+
+        // scrollView.translatesAutoresizingMaskIntoConstraints = false // 기본값: true
+        // scrollView.hasVerticalScroller = true // 기본값: true
+        // scrollView.hasHorizontalScroller = false // 기본값: false
 
         return scrollView
     }
 
-    func updateNSView(_ nsView: NSScrollView, context: Context) {
+    func updateNSView(_ scrollView: NSScrollView, context: Context) {
         //print("nsview updated: \(fileBuffer.name), TextBufferEditor, updateNSView")
         // LogStore @Observable 이라; 여기서 쓰면 View 삭제될 때 무한 루프 생긴다;
 
         if editor.shouldCopyOriginalText {
-            guard let textView = nsView.documentView as? NSTextView else { return }
+            guard let textView = scrollView.documentView as? NSTextView else { return }
             textView.string = editor.originalText
             editor.shouldCopyOriginalText = false
             editor.updateTextViewStyleCount += 1
         }
     }
 
-    func makeTextView() -> NSTextView {
+    /*
+    NSTextView.scrollableTextView() 쓰기 전 코드
+
+    func makeTextViewV2() -> NSTextView {
         let textView = NSTextView()
 
         textView.autoresizingMask = [.width, .height] // 필수다.
@@ -89,10 +132,14 @@ struct TextViewRepresentable: NSViewRepresentable {
 
         return textView
     }
+    */
+
+    /*
 
     // 전에 쓰던 코드인데 NSTextView 생성을 괜히 일만들어 하는 것 같아서;
-    // 새로운 makeTextView() 로 단순화 했다;
+    // 새로운 makeTextViewV2() 로 단순화 했다;
     // 혹시 다시 필요할까 싶어 그냥 둔다;
+
     func makeTextViewV1() -> NSTextView {
         let contentStorage = NSTextContentStorage()
 
@@ -145,8 +192,9 @@ struct TextViewRepresentable: NSViewRepresentable {
 
         return textView
     }
+    */
 
-
+    /*
     func makeScrollView(for textView: NSView) -> NSScrollView {
         let scrollView = NSScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
@@ -160,6 +208,7 @@ struct TextViewRepresentable: NSViewRepresentable {
 
         return scrollView
     }
+    */
 
     func configureForNoWrap(_ textView: NSTextView, _ scrollView: NSScrollView) {
         let textContainer = textView.textContainer!
