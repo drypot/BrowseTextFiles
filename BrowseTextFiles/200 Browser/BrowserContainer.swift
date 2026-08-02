@@ -34,11 +34,12 @@ struct BrowserContainer: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(WindowAccessor(onResolve: setupWindow))
-        .navigationTitle(browser.context.rootName ?? "Browser")
-        .toolbarBackground(.hidden, for: .windowToolbar)
+        //.navigationTitle(browser.context.rootName ?? "Browser")
+        .toolbar(removing: .title)
         .toolbar {
             BrowserToolbar()
         }
+        .toolbarBackground(.hidden, for: .windowToolbar)
         .modifier(BrowserSheet())
         .modifier(BrowserTask())
         .focusedSceneValue(browser)
