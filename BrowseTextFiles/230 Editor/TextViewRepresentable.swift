@@ -24,6 +24,14 @@ struct TextViewRepresentable: NSViewRepresentable {
         guard let textView = scrollView.documentView as? NSTextView else {
             fatalError("documentView is not NSTextView")
         }
+
+        // string 을 변경하거나 포커스가 변경되면 TextView 내용 일부분이 공백으로 보이는 현상이 계속됨.
+        // AI 들의 권하는 몇 가지 솔루션 중 TextKit1 모드로 돌아가는 것을 적용해 봤는데
+        // 문제가 사라지는 것 같다.
+
+        // 접근하는 즉시 TextKit1 호환 모드로 전환됨
+        _ = textView.layoutManager
+
         // let textView = makeTextView()
         // let scrollView = makeScrollView(for: textView)
 
@@ -54,7 +62,11 @@ struct TextViewRepresentable: NSViewRepresentable {
         // textView.textColor = .textColor
         // textView.backgroundColor = .textBackgroundColor
 
-        textView.drawsBackground = false // dark mode 대응
+        // dark mode 대응 방법들.
+        // NSTextView.scrollableTextView 쓰고나서 부터 다 필요없어진 듯;
+        // textView.drawsBackground = false
+        // textView.backgroundColor = .textBackgroundColor
+        // textView.textColor = .textColor
 
         // 사용자 입력에 따라 컨트롤이 계속 커지게 만들려면 true.
         // textView.isVerticallyResizable = true // 기본값: true
