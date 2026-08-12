@@ -82,7 +82,7 @@ struct TextViewRepresentable: NSViewRepresentable {
     }
 
     func updateNSView(_ scrollView: NSScrollView, context: Context) {
-        //print("nsview updated: \(fileBuffer.name), TextBufferEditor, updateNSView")
+        // print("nsview updated: \(editor.editingFilename ?? "")")
         // LogStore @Observable 이라; 여기서 쓰면 View 삭제될 때 무한 루프 생긴다;
 
         if editor.shouldCopyOriginalText {

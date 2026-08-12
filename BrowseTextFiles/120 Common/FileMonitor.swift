@@ -9,7 +9,7 @@ import Foundation
 
 nonisolated final class FileMonitor {
     private var source: DispatchSourceFileSystemObject?
-    var ignoreEvent = false
+    var ignoreNextEvent = false
 
     init() {}
 
@@ -33,7 +33,9 @@ nonisolated final class FileMonitor {
             guard let self else { return }
             guard let data = self.source?.data else { return } // DispatchSource.FileSystemEvent
             //print("FileMonitor: eventHandler, ignoreEvent == \(ignoreEvent)")
-            if !ignoreEvent {
+            if ignoreNextEvent {
+                ignoreNextEvent = false
+            } else {
                 onChange(data)
             }
         }

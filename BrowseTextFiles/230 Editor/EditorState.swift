@@ -148,10 +148,7 @@ final class EditorState {
             // 이렇게 하면 먼저 붙였던 fileMonitor 가 떨어져 나간다. 하지 말 것.
             // try text.write(to: url, atomically: true, encoding: .utf8)
 
-            fileMonitor?.ignoreEvent = true
-            defer {
-                fileMonitor?.ignoreEvent = false
-            }
+            fileMonitor?.ignoreNextEvent = true
 
             let fileHandle = try FileHandle(forWritingTo: editingFileURL)
             try fileHandle.truncate(atOffset: 0)
