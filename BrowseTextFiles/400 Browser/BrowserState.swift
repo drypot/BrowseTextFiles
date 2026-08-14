@@ -9,7 +9,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 @Observable
-final class BrowserState: Identifiable {
+final class BrowserState {
 
     // MARK: - New File Sheet
 
@@ -79,7 +79,7 @@ final class BrowserState: Identifiable {
         history = HistoryState()
         editor = EditorState(context: context)
 
-        printLog("init browser state: \(id)")
+        printLog("init browser state:")
     }
 
     // MARK: - Configure

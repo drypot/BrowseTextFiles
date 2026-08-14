@@ -18,7 +18,7 @@ struct BrowserContainer: View {
     @State private var cancellables = Set<AnyCancellable>()
 
     init() {
-        printLog("init browser container: \(browser.id)")
+        printLog("init browser container:")
     }
 
     var body: some View {
