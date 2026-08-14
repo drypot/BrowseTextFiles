@@ -40,6 +40,7 @@ struct BrowserContainer: View {
             BrowserToolbar()
         }
         .toolbarBackground(.hidden, for: .windowToolbar)
+        .windowToolbarFullScreenVisibility(.onHover)
         .modifier(BrowserSheet())
         .modifier(BrowserTask())
         .focusedSceneValue(browser)
