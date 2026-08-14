@@ -1,5 +1,5 @@
 //
-//  BrowserBlankView.swift
+//  BrowserBlank.swift
 //  Browse Text Files
 //
 //  Created by Kyuhyun Park on 7/12/26.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct BrowserBlankView: View {
+struct BrowserBlank: View {
     @Environment(AppState.self) var app
     @Environment(BrowserState.self) var browser
 
@@ -27,5 +27,5 @@ struct BrowserBlankView: View {
 }
 
 #Preview {
-    BrowserBlankView()
+    BrowserBlank()
 }

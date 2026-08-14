@@ -1,5 +1,5 @@
 //
-//  BrowserSplitView.swift
+//  BrowserNavigation.swift
 //  Browse Text Files
 //
 //  Created by Kyuhyun Park on 7/11/26.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct BrowserSplitView: View {
+struct BrowserNavigation: View {
     var body: some View {
         NavigationSplitView {
             //FolderListContainer()
@@ -24,5 +24,5 @@ struct BrowserSplitView: View {
 }
 
 #Preview {
-    BrowserSplitView()
+    BrowserNavigation()
 }

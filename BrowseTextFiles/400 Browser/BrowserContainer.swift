@@ -25,11 +25,11 @@ struct BrowserContainer: View {
         Group {
             switch browser.context.status {
             case .showOpenPanel:
-                BrowserBlankView()
+                BrowserBlank()
             case .loading:
                 Text("Loading...")
             case .ready:
-                BrowserSplitView()
+                BrowserNavigation()
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
