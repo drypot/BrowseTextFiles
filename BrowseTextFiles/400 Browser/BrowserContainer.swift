@@ -29,7 +29,7 @@ struct BrowserContainer: View {
             case .loading:
                 Text("Loading...")
             case .ready:
-                BrowserNavigation()
+                BrowserNavigator()
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
