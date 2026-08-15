@@ -201,7 +201,7 @@ class AppState {
         }
     }
 
-    func showFolderOpenPanelFor(_ window: NSWindow, completion: @escaping (URL) -> Void) {
+    func showFolderOpenPanel(for window: NSWindow, completion: @escaping (URL) -> Void) {
         let panel = NSOpenPanel()
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = true
