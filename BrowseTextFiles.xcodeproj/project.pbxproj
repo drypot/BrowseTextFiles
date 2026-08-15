@@ -25,22 +25,9 @@
 		00A47E702F6EB198000A7673 /* PRIVACY.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = PRIVACY.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		0062C5142FC014BA00E37649 /* Exceptions for "BrowseTextFiles" folder in "Browse Text Files Tests" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				"200 Common/URL.swift",
-			);
-			target = 00265A702FB71E64009AA3E0 /* Browse Text Files Tests */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		00517B502E1A1AAB00AED7F2 /* BrowseTextFiles */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				0062C5142FC014BA00E37649 /* Exceptions for "BrowseTextFiles" folder in "Browse Text Files Tests" target */,
-			);
 			path = BrowseTextFiles;
 			sourceTree = "<group>";
 		};
