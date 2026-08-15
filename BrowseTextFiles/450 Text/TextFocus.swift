@@ -1,5 +1,5 @@
 //
-//  EditorFocus.swift
+//  TextFocus.swift
 //  Browse Text Files
 //
 //  Created by Kyuhyun Park on 7/13/26.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct EditorFocus: ViewModifier {
+struct TextFocus: ViewModifier {
     @Environment(BrowserState.self) var browser
 
     @FocusState private var isFocused: Bool
@@ -15,7 +15,7 @@ struct EditorFocus: ViewModifier {
     func body(content: Content) -> some View {
         content
             .focused($isFocused)
-            .onChange(of: browser.editor.shouldFocusedCount) {
+            .onChange(of: browser.text.shouldFocusedCount) {
                 isFocused = true
             }
     }

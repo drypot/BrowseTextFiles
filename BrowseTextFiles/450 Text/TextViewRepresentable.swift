@@ -11,7 +11,7 @@ import SwiftUI
 
 struct TextViewRepresentable: NSViewRepresentable {
     @Environment(AppState.self) var app
-    @Environment(EditorState.self) var editor
+    @Environment(TextState.self) var editor
 
     func makeCoordinator() -> Coordinator {
         return Coordinator(self)
@@ -82,7 +82,7 @@ struct TextViewRepresentable: NSViewRepresentable {
     }
 
     func updateNSView(_ scrollView: NSScrollView, context: Context) {
-        // print("nsview updated: \(editor.editingFilename ?? "")")
+        // print("nsview updated: \(text.editingFilename ?? "")")
         // LogStore @Observable 이라; 여기서 쓰면 View 삭제될 때 무한 루프 생긴다;
 
         if editor.shouldCopyOriginalText {
@@ -246,7 +246,7 @@ struct TextViewRepresentable: NSViewRepresentable {
 
     final class Coordinator: NSObject, NSTextViewDelegate {
         let app: AppState
-        let editorState: EditorState
+        let editorState: TextState
 
         init(_ view: TextViewRepresentable) {
             //print("coordinator created: \(view.state.id), TextBufferEditor.Coordinator")
@@ -255,7 +255,7 @@ struct TextViewRepresentable: NSViewRepresentable {
         }
 
         func textDidChange(_ notification: Notification) {
-            //print("text changed: \(editor.editingFilename)")
+            //print("text changed: \(text.editingFilename)")
             //guard let textView = notification.object as? NSTextView else { return }
 
             editorState.isTextViewEdited = true

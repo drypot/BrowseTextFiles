@@ -17,7 +17,7 @@ struct BrowserNavigator: View {
             FileListContainer()
                 .frame(minWidth: 180, maxHeight: .infinity)
         } detail: {
-            EditorContainer()
+            TextContainer()
                 .frame(minWidth: 300, maxHeight: .infinity)
         }
     }

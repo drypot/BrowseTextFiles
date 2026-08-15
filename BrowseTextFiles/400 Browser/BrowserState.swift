@@ -69,7 +69,7 @@ final class BrowserState {
     @ObservationIgnored var fileList: FileListState
     @ObservationIgnored var search: SearchState
     @ObservationIgnored var history: HistoryState
-    @ObservationIgnored var editor: EditorState
+    @ObservationIgnored var text: TextState
 
     init() {
         context = BrowserContext()
@@ -77,7 +77,7 @@ final class BrowserState {
         fileList = FileListState(context: context)
         search = SearchState(context: context)
         history = HistoryState()
-        editor = EditorState(context: context)
+        text = TextState(context: context)
 
         printLog("init browser state:")
     }
@@ -159,7 +159,7 @@ final class BrowserState {
             targetFile(newFileURL)
             fileList.loadFileList()
             Task {
-                editor.shouldFocusedCount += 1
+                text.shouldFocusedCount += 1
             }
         } catch {
             let message = error.localizedDescription
@@ -203,7 +203,7 @@ final class BrowserState {
             targetFile(newFileURL)
             fileList.loadFileList()
             Task {
-                editor.shouldFocusedCount += 1
+                text.shouldFocusedCount += 1
             }
         } catch {
             let message = error.localizedDescription

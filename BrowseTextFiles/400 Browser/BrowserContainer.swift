@@ -50,7 +50,7 @@ struct BrowserContainer: View {
         .environment(browser.fileList)
         .environment(browser.search)
         .environment(browser.history)
-        .environment(browser.editor)
+        .environment(browser.text)
     }
 
     func setupWindow(_ window: NSWindow?) {
@@ -89,7 +89,7 @@ struct BrowserContainer: View {
             .publisher(for: NSWindow.didResignMainNotification, object: window)
             .sink { _ in
                 consoleLog("resign main window: \(browser.context.rootName ?? "nil")")
-                _ = browser.editor.autoSaveFile()
+                _ = browser.text.autoSaveFile()
             }
             .store(in: &cancellables)
     }

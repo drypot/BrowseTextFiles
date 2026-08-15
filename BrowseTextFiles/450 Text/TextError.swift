@@ -1,5 +1,5 @@
 //
-//  EditorError.swift
+//  TextError.swift
 //  Browse Text Files
 //
 //  Created by Kyuhyun Park on 7/13/26.
@@ -7,12 +7,12 @@
 
 import SwiftUI
 
-struct EditorError: View {
+struct TextError: View {
     @Environment(BrowserState.self) var browser
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text(browser.editor.loadingError ?? "...")
+            Text(browser.text.loadingError ?? "...")
                 .textSelection(.enabled)
             // Button("Reload folder tree") {
             //     state.reload()

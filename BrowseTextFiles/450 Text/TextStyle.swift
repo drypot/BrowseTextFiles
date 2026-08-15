@@ -1,5 +1,5 @@
 //
-//  EditorStyle.swift
+//  TextStyle.swift
 //  Browse Text Files
 //
 //  Created by Kyuhyun Park on 7/13/26.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct EditorStyle: ViewModifier {
+struct TextStyle: ViewModifier {
     @Environment(AppState.self) var app
     @Environment(BrowserState.self) var browser
 
@@ -16,7 +16,7 @@ struct EditorStyle: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .onChange(of: browser.editor.updateTextViewStyleCount, initial: true) {
+            .onChange(of: browser.text.updateTextViewStyleCount, initial: true) {
                 // 새 파일 로드하면 가끔 스타일이 입혀지지 않아서;
                 // 로드된 후 스타일을 강제로 한번 입히는 것으로;
                 updateTextViewStyle()
@@ -33,7 +33,7 @@ struct EditorStyle: ViewModifier {
     }
 
     func updateTextViewStyle() {
-        guard let textView = browser.editor.textView else { return }
+        guard let textView = browser.text.textView else { return }
 
         let paragraphStyle = NSMutableParagraphStyle()
         // lineSpacing 쓰면 엔터 입력시 커서가 사라진다; macOS 26

@@ -53,7 +53,7 @@ struct FolderListContainer: View {
 
         switch press.key {
         case .tab:
-            browser.editor.shouldFocusedCount += 1
+            browser.text.shouldFocusedCount += 1
 
         case .return:
             browser.showRenameFolder()
