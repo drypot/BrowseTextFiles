@@ -18,7 +18,7 @@ struct TextViewRepresentable: NSViewRepresentable {
     }
 
     func makeNSView(context: Context) -> NSScrollView {
-        consoleLog("make nstextview:")
+        logger.info("make nstextview:")
 
         let scrollView = NSTextView.scrollableTextView()
         guard let textView = scrollView.documentView as? NSTextView else {

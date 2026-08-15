@@ -23,7 +23,7 @@ final class FileListState {
 
         guard let folderURL else { return }
 
-        consoleLog("load file list: \(folderURL.path(percentEncoded: false))")
+        logger.info("load file list: \(folderURL.path(percentEncoded: false))")
         do {
             fileList = try FileState.collectShallowly(from: folderURL) { contentType in
                 // contentType.conforms(to: .text)
@@ -33,11 +33,11 @@ final class FileListState {
                 $0.name.localizedStandardCompare($1.name) == .orderedAscending
             }
             refreshCount += 1
-            consoleLog("----")
+            logger.info("----")
         } catch {
             let message = error.localizedDescription
             context.leaveAlert(message)
-            consoleLog("load file list: \(message)")
+            logger.info("load file list: \(message)")
         }
     }
 
@@ -49,7 +49,7 @@ final class FileListState {
         do {
             let fileManager = FileManager.default
             for url in selection {
-                consoleLog("delete file: \(url.path(percentEncoded: false))")
+                logger.info("delete file: \(url.path(percentEncoded: false))")
                 try fileManager.trashItem(at: url, resultingItemURL: nil)
             }
             loadFileList()
@@ -61,7 +61,7 @@ final class FileListState {
         } catch {
             let message = error.localizedDescription
             context.leaveAlert(message)
-            consoleLog("delete file: \(message)")
+            logger.info("delete file: \(message)")
         }
     }
 

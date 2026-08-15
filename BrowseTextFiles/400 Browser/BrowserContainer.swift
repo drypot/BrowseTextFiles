@@ -18,7 +18,7 @@ struct BrowserContainer: View {
     @State private var cancellables = Set<AnyCancellable>()
 
     init() {
-        printLog("init browser container:")
+        logger.info("init browser container:")
     }
 
     var body: some View {
@@ -54,7 +54,7 @@ struct BrowserContainer: View {
     }
 
     func setupWindow(_ window: NSWindow?) {
-        printLog("setup browser window:")
+        logger.info("setup browser window:")
 
         self.browser.context.window = window
 
@@ -88,7 +88,7 @@ struct BrowserContainer: View {
         NotificationCenter.default
             .publisher(for: NSWindow.didResignMainNotification, object: window)
             .sink { _ in
-                consoleLog("resign main window: \(browser.context.rootName ?? "nil")")
+                logger.info("resign main window: \(browser.context.rootName ?? "nil")")
                 _ = browser.text.autoSaveFile()
             }
             .store(in: &cancellables)

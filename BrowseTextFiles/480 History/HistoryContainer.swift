@@ -22,7 +22,7 @@ struct HistoryContainer: View {
     }
     
     func setupWindow(_ window: NSWindow?) {
-        printLog("setup history window:")
+        logger.info("setup history window:")
 
         guard let window else { return }
 

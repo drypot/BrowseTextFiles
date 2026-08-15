@@ -79,13 +79,13 @@ final class BrowserState {
         history = HistoryState()
         text = TextState(context: context)
 
-        printLog("init browser state:")
+        logger.info("init browser state:")
     }
 
     // MARK: - Configure
 
     func configure(with rootURL: URL, app: AppState) {
-        consoleLog("configure browser state: \(rootURL.path(percentEncoded: false))")
+        logger.info("configure browser state: \(rootURL.path(percentEncoded: false))")
         self.app = app
         context.configure(with: rootURL)
         folderList.reloadFolderTree()
@@ -94,14 +94,14 @@ final class BrowserState {
     }
 
     func releaseResource() {
-        consoleLog("release browser resource:")
+        logger.info("release browser resource:")
         context.releaseResource()
     }
 
     // MARK: - Reload
 
     func reload() {
-        consoleLog("reload:")
+        logger.info("reload:")
         folderList.reloadFolderTree()
         fileList.loadFileList()
     }
@@ -154,7 +154,7 @@ final class BrowserState {
 
         let newFileURL = folderURL.appending(path: newFileName, directoryHint: .notDirectory).standardized
         do {
-            consoleLog("new file: \(newFileURL.path(percentEncoded: false))")
+            logger.info("new file: \(newFileURL.path(percentEncoded: false))")
             try "".write(to: newFileURL, atomically: true, encoding: .utf8)
             targetFile(newFileURL)
             fileList.loadFileList()
@@ -164,7 +164,7 @@ final class BrowserState {
         } catch {
             let message = error.localizedDescription
             context.leaveAlert(message)
-            consoleLog("new file: \(message)")
+            logger.info("new file: \(message)")
         }
     }
 
@@ -194,7 +194,7 @@ final class BrowserState {
                     try fileManager.createDirectory(at: folderURL, withIntermediateDirectories: true, attributes: nil)
                     newFolderURL = folderURL
                 }
-                consoleLog("new file: \(newFileURL.path(percentEncoded: false))")
+                logger.info("new file: \(newFileURL.path(percentEncoded: false))")
                 try "".write(to: newFileURL, atomically: true, encoding: .utf8)
             }
             if newFolderURL != nil {
@@ -208,7 +208,7 @@ final class BrowserState {
         } catch {
             let message = error.localizedDescription
             context.leaveAlert(message)
-            consoleLog("new file: \(message)")
+            logger.info("new file: \(message)")
         }
     }
 
@@ -241,14 +241,14 @@ final class BrowserState {
 
         let newFolderURL = folderURL.appending(path: newFolderName, directoryHint: .isDirectory).standardized
         do {
-            consoleLog("new folder: \(newFolderURL.path(percentEncoded: false))")
+            logger.info("new folder: \(newFolderURL.path(percentEncoded: false))")
             try fileManager.createDirectory(at: newFolderURL, withIntermediateDirectories: true, attributes: nil)
             folderList.reloadFolderTree()
             targetFolder(newFolderURL)
         } catch {
             let message = error.localizedDescription
             context.leaveAlert(message)
-            consoleLog("new file: \(message)")
+            logger.info("new file: \(message)")
         }
     }
 
@@ -272,7 +272,7 @@ final class BrowserState {
             .appending(path: newName, directoryHint: .notDirectory)
             .standardized
         do {
-            consoleLog("rename file: \(oldURL.path(percentEncoded: false)) to \(newName)")
+            logger.info("rename file: \(oldURL.path(percentEncoded: false)) to \(newName)")
             try FileManager.default.moveItem(at: oldURL, to: newURL)
             if self.context.selectedFileURL == oldURL {
                 self.fileList.loadFileList()
@@ -283,7 +283,7 @@ final class BrowserState {
         } catch {
             let message = error.localizedDescription
             context.leaveAlert(message)
-            consoleLog("rename: \(message)")
+            logger.info("rename: \(message)")
         }
     }
 
@@ -306,7 +306,7 @@ final class BrowserState {
             .appending(path: newName, directoryHint: .isDirectory)
             .standardized
         do {
-            consoleLog("rename folder: \(oldURL.path(percentEncoded: false)) to \(newName)")
+            logger.info("rename folder: \(oldURL.path(percentEncoded: false)) to \(newName)")
             try FileManager.default.moveItem(at: oldURL, to: newURL)
             self.folderList.reloadFolderTree()
             if self.context.selectedFolderURL == oldURL {
@@ -315,7 +315,7 @@ final class BrowserState {
         } catch {
             let message = error.localizedDescription
             context.leaveAlert(message)
-            consoleLog("rename: \(message)")
+            logger.info("rename: \(message)")
         }
     }
 }

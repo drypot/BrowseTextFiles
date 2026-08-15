@@ -33,7 +33,7 @@ final class SearchState {
     }
 
     func startSearch(rootURL: URL) {
-        consoleLog("search: \"\(searchText)\"")
+        logger.info("search: \"\(self.searchText)\"")
 
         if isSearching { return }
         if searchText.isEmpty { return }
@@ -55,11 +55,11 @@ final class SearchState {
         Task {
             do {
                 searchResults = try await searchParallel(searchText, at: rootURL)
-                consoleLog("search: found \(searchResults?.count ?? 0) files")
+                logger.info("search: found \(self.searchResults?.count ?? 0) files")
             } catch {
                 let message = error.localizedDescription
                 context.leaveAlert(message)
-                consoleLog("search: \(message)")
+                logger.info("search: \(message)")
             }
         }
 

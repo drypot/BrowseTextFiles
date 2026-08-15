@@ -54,7 +54,7 @@ final class TextState {
     func reset() {
         guard fileAssigned else { return }
 
-        //consoleLog("reset buffer:")
+        //logger.info("reset buffer:")
         editingFileURL = nil
         editingFilename = nil
         editingFilePath = nil
@@ -81,17 +81,17 @@ final class TextState {
     func loadFile() {
         guard let editingFileURL else { return }
 
-        consoleLog("load file: \(editingFilePath ?? "nil")")
+        logger.info("load file: \(self.editingFilePath ?? "nil")")
 
         do {
             originalText = try String(contentsOf: editingFileURL, encoding: .utf8)
             shouldCopyOriginalText = true
             startFileMonitoring()
-            consoleLog("----")
+            logger.info("----")
         } catch {
             let message = error.localizedDescription
             loadingError = message
-            consoleLog("load file: \(message)")
+            logger.info("load file: \(message)")
         }
     }
 
@@ -111,7 +111,7 @@ final class TextState {
     func closeFile() -> Bool {
         guard fileAssigned else { return true }
         guard autoSaveFile() else { return false }
-        consoleLog("close file: \(editingFilePath ?? "nil")")
+        logger.info("close file: \(self.editingFilePath ?? "nil")")
         reset()
         return true
     }
@@ -143,7 +143,7 @@ final class TextState {
         guard let text = textView?.string else { return }
         guard let data = text.data(using: .utf8) else { return }
 
-        consoleLog("save file: \(editingFilePath ?? "nil")")
+        logger.info("save file: \(self.editingFilePath ?? "nil")")
         do {
             // 이렇게 하면 먼저 붙였던 fileMonitor 가 떨어져 나간다. 하지 말 것.
             // try text.write(to: url, atomically: true, encoding: .utf8)
@@ -160,7 +160,7 @@ final class TextState {
             let message = error.localizedDescription
             savingError = message
             context.leaveAlert(message)
-            consoleLog("save file: \(message)")
+            logger.info("save file: \(message)")
         }
     }
 }

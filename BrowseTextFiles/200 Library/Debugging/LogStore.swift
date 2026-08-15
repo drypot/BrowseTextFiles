@@ -62,10 +62,10 @@ final class LogStore {
     }
 }
 
-func consoleLog(_ message: String) {
-    LogStore.shared.log(message)
-}
-
-func printLog(_ message: String) {
-    print("----: \(message)")
-}
+//func consoleLog(_ message: String) {
+//    LogStore.shared.log(message)
+//}
+//
+//func printLog(_ message: String) {
+//    print("----: \(message)")
+//}

@@ -11,7 +11,7 @@ struct BrowserWindow: Scene {
     @Environment(AppState.self) var app
 
     init() {
-        printLog("init browser window")
+        logger.info("init browser window")
     }
 
     var body: some Scene {

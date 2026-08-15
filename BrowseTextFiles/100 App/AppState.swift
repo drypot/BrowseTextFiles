@@ -7,6 +7,9 @@
 
 import SwiftUI
 import Observation
+import OSLog
+
+let logger = Logger()
 
 @Observable
 class AppState {

@@ -23,7 +23,7 @@ final class FolderListState {
 
     func reloadFolderTree() {
         guard let rootURL = context.rootURL else { return }
-        consoleLog("load folder tree: \(rootURL.path(percentEncoded: false))")
+        logger.info("load folder tree: \(rootURL.path(percentEncoded: false))")
         do {
             rootFolder = try FolderState.buildTree(from: rootURL)
             expandFolder(at: rootURL)
@@ -32,7 +32,7 @@ final class FolderListState {
         } catch {
             let message = error.localizedDescription
             context.leaveAlert(message)
-            consoleLog("load tree: \(message)")
+            logger.info("load tree: \(message)")
         }
     }
 
@@ -62,7 +62,7 @@ final class FolderListState {
     func trashFolders(selection: Set<FileState.ID>) {
         let fileManager = FileManager.default
         for url in selection {
-            consoleLog("delete folder: \(url.path(percentEncoded: false))")
+            logger.info("delete folder: \(url.path(percentEncoded: false))")
             // 여러 폴더 삭제하다 보면 부모가 먼저 없어지는 경우도 있어서; 오류들을 무시하기로 한다;
             try? fileManager.trashItem(at: url, resultingItemURL: nil)
         }

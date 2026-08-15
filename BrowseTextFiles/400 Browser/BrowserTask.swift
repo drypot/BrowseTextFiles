@@ -40,7 +40,7 @@ struct BrowserTask: ViewModifier {
                                     relativeTo: nil,
                                     bookmarkDataIsStale: &isStale)
         }
-        consoleLog("restore root url: \(sceneRootURL?.path(percentEncoded: false) ?? "nil")")
+        logger.info("restore root url: \(sceneRootURL?.path(percentEncoded: false) ?? "nil")")
 
         if let data = sceneFileURLData {
             sceneFileURL = try? URL(resolvingBookmarkData: data,
@@ -48,7 +48,7 @@ struct BrowserTask: ViewModifier {
                                     relativeTo: nil,
                                     bookmarkDataIsStale: &isStale)
         }
-        consoleLog("restore file url: \(sceneFileURL?.path(percentEncoded: false) ?? "nil")")
+        logger.info("restore file url: \(sceneFileURL?.path(percentEncoded: false) ?? "nil")")
 
         if let rootURL = sceneRootURL {
             browser.configure(with: rootURL, app: app)
@@ -73,14 +73,14 @@ struct BrowserTask: ViewModifier {
 
     func rootURLChanged() {
         guard let rootURL = browser.context.rootURL else { return }
-        consoleLog("save root url: \(rootURL.path(percentEncoded: false))")
+        logger.info("save root url: \(rootURL.path(percentEncoded: false))")
         sceneRootURLData = try? rootURL.bookmarkData(options: .withSecurityScope)
         app.addRecentDocumentURL(rootURL)
     }
 
     func fileURLChanged() {
         guard let fileURL = browser.context.selectedFileURL else { return }
-        //consoleLog("save file url: \(fileURL.path(percentEncoded: false))")
+        //logger.info("save file url: \(fileURL.path(percentEncoded: false))")
         sceneFileURLData = try? fileURL.bookmarkData(options: .withSecurityScope)
     }
 

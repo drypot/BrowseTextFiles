@@ -22,7 +22,7 @@ struct SearchContainer: View {
     }
 
     func setupWindow(_ window: NSWindow?) {
-        printLog("setup search window:")
+        logger.info("setup search window:")
 
         guard let window else { return }
 
