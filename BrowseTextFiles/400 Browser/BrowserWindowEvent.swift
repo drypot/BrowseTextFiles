@@ -1,5 +1,5 @@
 //
-//  BrowserNotification.swift
+//  BrowserWindowEvent.swift
 //  Browse Text Files
 //
 //  Created by Kyuhyun Park on 8/16/26.
@@ -8,7 +8,7 @@
 import SwiftUI
 import Combine
 
-struct BrowserNotification: ViewModifier {
+struct BrowserWindowEvent: ViewModifier {
     @Environment(AppState.self) var app
     @Environment(BrowserState.self) var browser
 

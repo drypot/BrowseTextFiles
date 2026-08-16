@@ -28,17 +28,10 @@ struct BrowserContainer: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .windowToolbarFullScreenVisibility(.onHover)
-        .toolbarBackground(.hidden, for: .windowToolbar)
-        //.navigationTitle(browser.context.rootName ?? "Browser")
-        .toolbar(removing: .title)
-        .toolbar {
-            BrowserToolbar()
-        }
+        .modifier(BrowserToolbar())
         .modifier(BrowserSheet())
-        .modifier(BrowserNotification())
+        .modifier(BrowserWindowEvent())
         .modifier(BrowserInit())
-        .focusedSceneValue(browser)
         .environment(browser)
         .environment(browser.context)
         .environment(browser.folderList)
@@ -46,6 +39,7 @@ struct BrowserContainer: View {
         .environment(browser.search)
         .environment(browser.history)
         .environment(browser.text)
+        .focusedSceneValue(browser)
     }
 }
 
