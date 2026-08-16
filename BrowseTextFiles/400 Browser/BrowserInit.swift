@@ -1,5 +1,5 @@
 //
-//  BrowserTask.swift
+//  BrowserInit.swift
 //  Browse Text Files
 //
 //  Created by Kyuhyun Park on 7/12/26.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct BrowserTask: ViewModifier {
+struct BrowserInit: ViewModifier {
     @Environment(AppState.self) var app
     @Environment(BrowserState.self) var browser
 

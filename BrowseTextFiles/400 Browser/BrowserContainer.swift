@@ -42,7 +42,7 @@ struct BrowserContainer: View {
             BrowserToolbar()
         }
         .modifier(BrowserSheet())
-        .modifier(BrowserTask())
+        .modifier(BrowserInit())
         .focusedSceneValue(browser)
         .environment(browser)
         .environment(browser.context)
