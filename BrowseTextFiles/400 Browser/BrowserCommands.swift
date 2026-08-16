@@ -21,7 +21,7 @@ struct BrowserCommands: Commands {
     var body: some Commands {
         CommandGroup(replacing: .newItem) {
             Button("New Window", systemImage: "macwindow") {
-                app.openNewBrowserWindow(openWindow: openWindow)
+                app.newBrowserWindow(openWindow: openWindow)
             }
             .keyboardShortcut("n", modifiers: [.command, .control])
 
@@ -43,7 +43,7 @@ struct BrowserCommands: Commands {
             Divider()
 
             Button("Open Folder...", systemImage: "folder") {
-                app.openNewBrowserWindowFromDialog(openWindow: openWindow)
+                app.newBrowserWindowFromDialog(openWindow: openWindow)
             }
             .keyboardShortcut("o")
 
@@ -54,7 +54,7 @@ struct BrowserCommands: Commands {
                 } else {
                     ForEach(urls, id: \.self) { url in
                         Button(url.lastPathComponent) {
-                            app.openNewBrowserWindow(fromFolderURL: url, fileURL: nil, openWindow: openWindow)
+                            app.newBrowserWindow(with: url, fileURL: nil, openWindow: openWindow)
                         }
                     }
                     Divider()

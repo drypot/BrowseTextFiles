@@ -24,7 +24,7 @@ struct FolderListContextMenu: View {
             }
 
             Button("Open in New Window") {
-                app.openNewBrowserWindow(fromFolderURL: url, fileURL: nil, openWindow: openWindow)
+                app.newBrowserWindow(with: url, fileURL: nil, openWindow: openWindow)
             }
         }
         if selection.count == 1 {
@@ -47,7 +47,7 @@ struct FolderListContextMenu: View {
             }
 
             Button("Open in New Window") {
-                app.openNewBrowserWindow(fromFolderURL: url, fileURL: nil, openWindow: openWindow)
+                app.newBrowserWindow(with: url, fileURL: nil, openWindow: openWindow)
             }
 
             Divider()

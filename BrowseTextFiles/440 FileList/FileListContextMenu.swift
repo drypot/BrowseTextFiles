@@ -32,11 +32,11 @@ struct FileListContextMenu: View {
         if selection.count == 1 {
             Button("Open in New Window") {
                 let url = selection.first
-                app.openNewBrowserWindow(fromFileURL: url, openWindow: openWindow)
+                app.newBrowserWindow(fromFileURL: url, openWindow: openWindow)
             }
         } else {
             Button("Open in New Window") {
-                app.openNewBrowserWindow(fromFolderURL: browser.context.selectedFolderURL, fileURL: nil, openWindow: openWindow)
+                app.newBrowserWindow(with: browser.context.selectedFolderURL, fileURL: nil, openWindow: openWindow)
             }
         }
 

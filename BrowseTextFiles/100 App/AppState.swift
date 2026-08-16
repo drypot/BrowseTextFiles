@@ -170,49 +170,48 @@ class AppState {
         //print("save browser window size: \(size)")
     }
 
-    func openNewBrowserWindow(fromFolderURL folderURL: URL?, fileURL: URL?, openWindow: OpenWindowAction) {
+    func newBrowserWindow(with folderURL: URL? = nil, fileURL: URL? = nil, openWindow: OpenWindowAction) {
         newWindowRootURL = folderURL
         newWindowFileURL = fileURL
         openWindow(id: "browser")
     }
 
-    func openNewBrowserWindow(fromFileURL fileURL: URL?, openWindow: OpenWindowAction) {
+    func newBrowserWindow(fromFileURL fileURL: URL?, openWindow: OpenWindowAction) {
         let rootURL = fileURL?.deletingLastPathComponent()
-        openNewBrowserWindow(fromFolderURL: rootURL, fileURL: fileURL, openWindow: openWindow)
+        newBrowserWindow(with: rootURL, fileURL: fileURL, openWindow: openWindow)
     }
 
-    func openNewBrowserWindow(openWindow: OpenWindowAction) {
-        openNewBrowserWindow(fromFolderURL: nil, fileURL: nil, openWindow: openWindow)
-    }
-
-    func openNewBrowserWindowFromDialog(openWindow: OpenWindowAction) {
+    func newBrowserWindowFromDialog(openWindow: OpenWindowAction) {
         showFolderOpenPanel { url in
-            self.openNewBrowserWindow(fromFolderURL: url, fileURL: nil, openWindow: openWindow)
+            self.newBrowserWindow(with: url, fileURL: nil, openWindow: openWindow)
         }
     }
 
-    func showFolderOpenPanel(onComplete: @escaping (URL) -> Void) {
+    func configureBrowserFromDialog(browser: BrowserState) {
+        guard let window = browser.context.window else { return }
+        showFolderOpenPanel(for: window) { url in
+            self.addRecentDocumentURL(url)
+            browser.configure(with: url, app: self)
+        }
+    }
+
+    private func showFolderOpenPanel(for window: NSWindow? = nil, onComplete: @escaping (URL) -> Void) {
         let panel = NSOpenPanel()
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = true
         panel.canCreateDirectories = true
         panel.canChooseFiles = false
-        panel.begin { response in
-            if response == .OK, let url = panel.url {
-                onComplete(url)
+        if let window {
+            panel.beginSheetModal(for: window) { response in
+                if response == .OK, let url = panel.url {
+                    onComplete(url)
+                }
             }
-        }
-    }
-
-    func showFolderOpenPanel(for window: NSWindow, completion: @escaping (URL) -> Void) {
-        let panel = NSOpenPanel()
-        panel.allowsMultipleSelection = false
-        panel.canChooseDirectories = true
-        panel.canCreateDirectories = true
-        panel.canChooseFiles = false
-        panel.beginSheetModal(for: window) { response in
-            if response == .OK, let url = panel.url {
-                completion(url)
+        } else {
+            panel.begin { response in
+                if response == .OK, let url = panel.url {
+                    onComplete(url)
+                }
             }
         }
     }

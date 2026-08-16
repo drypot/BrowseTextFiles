@@ -13,15 +13,7 @@ struct BrowserBlank: View {
 
     var body: some View {
         Button("Open Folder") {
-            showOpenPanel()
-        }
-    }
-
-    private func showOpenPanel() {
-        guard let window = browser.context.window else { return }
-        app.showFolderOpenPanel(for: window) { url in
-            browser.configure(with: url, app: app)
-            app.addRecentDocumentURL(url)
+            app.configureBrowserFromDialog(browser: browser)
         }
     }
 }
