@@ -233,7 +233,7 @@ class AppState {
     func saveWindowRect(_ rect: CGRect, for string: String, uuid: UUID) {
         windowRectStoreForStringUUID[StringAndUUID(string: string, uuid: uuid)] = rect
         windowRectStoreForString[string] = rect
-        //print("save window rect: \(rect)")
+        //logger.info("save window rect: \(rect.debugDescription)")
     }
 
     func makeWindowPlacement(for string: String, uuid: UUID?, visibleRect: CGRect, defaultSize: CGSize? = nil) -> WindowPlacement {
