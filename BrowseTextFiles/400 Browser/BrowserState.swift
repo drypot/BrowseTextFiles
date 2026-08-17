@@ -69,7 +69,7 @@ final class BrowserState {
     @ObservationIgnored var fileList: FileListState
     @ObservationIgnored var search: SearchState
     @ObservationIgnored var history: HistoryState
-    @ObservationIgnored var text: TextState
+    @ObservationIgnored var text: TextBuffer
 
     init() {
         context = BrowserContext()
@@ -77,7 +77,7 @@ final class BrowserState {
         fileList = FileListState(context: context)
         search = SearchState(context: context)
         history = HistoryState()
-        text = TextState(context: context)
+        text = TextBuffer(context: context)
 
         logger.info("init browser state:")
     }

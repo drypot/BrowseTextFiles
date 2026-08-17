@@ -1,5 +1,5 @@
 //
-//  TextState.swift
+//  TextBuffer.swift
 //  BrowseTextFiles
 //
 //  Created by Kyuhyun Park on 3/1/26.
@@ -9,7 +9,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 @Observable
-final class TextState {
+final class TextBuffer {
     private(set) var editingFileURL: URL?
     private(set) var editingFilename: String?
     private(set) var editingFilePath: String?

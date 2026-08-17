@@ -11,7 +11,7 @@ import SwiftUI
 
 struct TextViewRepresentable: NSViewRepresentable {
     @Environment(AppState.self) var app
-    @Environment(TextState.self) var editor
+    @Environment(TextBuffer.self) var buffer
 
     func makeCoordinator() -> Coordinator {
         return Coordinator(self)
@@ -35,7 +35,7 @@ struct TextViewRepresentable: NSViewRepresentable {
         // let textView = makeTextView()
         // let scrollView = makeScrollView(for: textView)
 
-        editor.textView = textView
+        buffer.textView = textView
 
         textView.delegate = context.coordinator
 
@@ -85,12 +85,12 @@ struct TextViewRepresentable: NSViewRepresentable {
         // print("nsview updated: \(text.editingFilename ?? "")")
         // LogStore @Observable 이라; 여기서 쓰면 View 삭제될 때 무한 루프 생긴다;
 
-        if editor.shouldCopyOriginalText {
+        if buffer.shouldCopyOriginalText {
             guard let textView = scrollView.documentView as? NSTextView else { return }
-            textView.string = editor.originalText
+            textView.string = buffer.originalText
             textView.undoManager?.removeAllActions()
-            editor.shouldCopyOriginalText = false
-            editor.updateTextViewStyleCount += 1
+            buffer.shouldCopyOriginalText = false
+            buffer.updateTextViewStyleCount += 1
         }
     }
 
@@ -246,21 +246,21 @@ struct TextViewRepresentable: NSViewRepresentable {
 
     final class Coordinator: NSObject, NSTextViewDelegate {
         let app: AppState
-        let editorState: TextState
+        let buffer: TextBuffer
 
         init(_ view: TextViewRepresentable) {
-            //print("coordinator created: \(view.state.id), TextBufferEditor.Coordinator")
+            //print("coordinator created: \(view.state.id), TextView.Coordinator")
             app = view.app
-            editorState = view.editor
+            buffer = view.buffer
         }
 
         func textDidChange(_ notification: Notification) {
             //print("text changed: \(text.editingFilename)")
             //guard let textView = notification.object as? NSTextView else { return }
 
-            editorState.isTextViewEdited = true
+            buffer.isTextViewEdited = true
             if app.isAutoSaveEnabled {
-                editorState.scheduleAutoSave(after: app.autoSaveDelay)
+                buffer.scheduleAutoSave(after: app.autoSaveDelay)
             }
         }
 
