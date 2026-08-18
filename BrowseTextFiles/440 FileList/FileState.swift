@@ -27,7 +27,7 @@ nonisolated struct FileState: Identifiable, Hashable {
         hasher.combine(id)
     }
 
-    static func collectShallowly(from folderURL: URL, filter: (UTType) -> Bool) throws -> [FileState] {
+    static func collectShallowly(at folderURL: URL, filter: (UTType) -> Bool) throws -> [FileState] {
         let fileManager = FileManager.default
         let keys: [URLResourceKey] = [.isRegularFileKey, .contentTypeKey]
         let keySet = Set(keys)

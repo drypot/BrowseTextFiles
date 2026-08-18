@@ -25,7 +25,7 @@ final class FileListState {
 
         logger.info("load file list: \(folderURL.path(percentEncoded: false))")
         do {
-            fileList = try FileState.collectShallowly(from: folderURL) { contentType in
+            fileList = try FileState.collectShallowly(at: folderURL) { contentType in
                 // contentType.conforms(to: .text)
                 return true
             }
