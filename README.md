@@ -1,6 +1,6 @@
 # Browse Text Files
 
-Swift, SwiftUI 공부하면서 연습용으로 만들어 보는 Text File 툴.
+A Text File App for Learning the Swift and SwiftUI.
 
 2025-07 시작\
 2025-07-14 App 이름을 정했다. Browse Text Files.\
