@@ -223,6 +223,7 @@ struct TextViewRepresentable: NSViewRepresentable {
     }
     */
 
+    /*
     func configureForNoWrap(_ textView: NSTextView, _ scrollView: NSScrollView) {
         let textContainer = textView.textContainer!
 
@@ -243,6 +244,7 @@ struct TextViewRepresentable: NSViewRepresentable {
 
         textContainer.widthTracksTextView = false // **
     }
+    */
 
     final class Coordinator: NSObject, NSTextViewDelegate {
         let app: AppState
