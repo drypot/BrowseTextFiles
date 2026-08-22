@@ -13,7 +13,6 @@ final class BrowserContext {
     // MARK: - ID
 
     let id = UUID()
-    weak var window: NSWindow?
 
     // MARK: - Root
 
@@ -114,6 +113,11 @@ final class BrowserContext {
 
     var alertMessage: String = ""
     var hasAlertMessage = false
+
+    // AppKit Components
+
+    weak var window: NSWindow?
+    weak var textView: NSTextView?
 
     // MARK: - Configure
 

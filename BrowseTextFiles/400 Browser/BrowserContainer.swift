@@ -38,7 +38,7 @@ struct BrowserContainer: View {
         .environment(browser.fileList)
         .environment(browser.search)
         .environment(browser.history)
-        .environment(browser.text)
+        .environment(browser.textBuffer)
         .focusedSceneValue(browser)
     }
 }

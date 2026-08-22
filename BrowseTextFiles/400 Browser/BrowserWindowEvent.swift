@@ -58,7 +58,7 @@ struct BrowserWindowEvent: ViewModifier {
             .publisher(for: NSWindow.didResignMainNotification, object: window)
             .sink { _ in
                 logger.info("resign main window: \(browser.context.rootName ?? "nil")")
-                _ = browser.text.autoSaveFile()
+                _ = browser.textBuffer.autoSaveFile()
             }
             .store(in: &cancellables)
     }

@@ -11,6 +11,7 @@ import SwiftUI
 
 struct TextViewRepresentable: NSViewRepresentable {
     @Environment(AppState.self) var app
+    @Environment(BrowserContext.self) var browserContext
     @Environment(TextBuffer.self) var buffer
 
     func makeCoordinator() -> Coordinator {
@@ -35,7 +36,7 @@ struct TextViewRepresentable: NSViewRepresentable {
         // let textView = makeTextView()
         // let scrollView = makeScrollView(for: textView)
 
-        buffer.textView = textView
+        browserContext.textView = textView
 
         textView.delegate = context.coordinator
 
@@ -82,15 +83,15 @@ struct TextViewRepresentable: NSViewRepresentable {
     }
 
     func updateNSView(_ scrollView: NSScrollView, context: Context) {
-        // print("nsview updated: \(text.editingFilename ?? "")")
-        // LogStore @Observable 이라; 여기서 쓰면 View 삭제될 때 무한 루프 생긴다;
+        guard let editable = buffer.editable else { return }
+        // logger.info("nsview updated: \(text.filename ?? "")")
 
-        if buffer.shouldCopyOriginalText {
+        if editable.shouldCopyOriginalText {
             guard let textView = scrollView.documentView as? NSTextView else { return }
-            textView.string = buffer.originalText
+            textView.string = editable.originalText
             textView.undoManager?.removeAllActions()
-            buffer.shouldCopyOriginalText = false
-            buffer.updateTextViewStyleCount += 1
+            editable.shouldCopyOriginalText = false
+            editable.updateTextViewStyleCount += 1
         }
     }
 
@@ -257,10 +258,11 @@ struct TextViewRepresentable: NSViewRepresentable {
         }
 
         func textDidChange(_ notification: Notification) {
-            //print("text changed: \(text.editingFilename)")
+            guard let editable = buffer.editable else { return }
+            //print("text changed: \(text.filename)")
             //guard let textView = notification.object as? NSTextView else { return }
 
-            buffer.isTextViewEdited = true
+            editable.isTextViewEdited = true
             if app.isAutoSaveEnabled {
                 buffer.scheduleAutoSave(after: app.autoSaveDelay)
             }

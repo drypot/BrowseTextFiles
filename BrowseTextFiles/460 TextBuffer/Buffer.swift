@@ -1,5 +1,5 @@
 //
-//  TextBuffer.swift
+//  Buffer.swift
 //  BrowseTextFiles
 //
 //  Created by Kyuhyun Park on 3/1/26.
@@ -8,21 +8,21 @@
 import SwiftUI
 import UniformTypeIdentifiers
 
+protocol Editable {
+    func load(contentOf url: URL) throws
+    var shouldBeSaved: Bool { get }
+    func save(to url: URL) throws
+}
+
 @Observable
-final class TextBuffer {
-    private(set) var editingFileURL: URL?
-    private(set) var editingFilename: String?
-    private(set) var editingFilePath: String?
+final class Buffer<Content> where Content: Editable {
+    private(set) var fileURL: URL?
+    private(set) var filename: String?
+    private(set) var filePath: String?
 
     var fileAssigned: Bool {
-        editingFileURL != nil
+        fileURL != nil
     }
-
-    private(set) var originalText: String = ""
-    var shouldCopyOriginalText = false
-    var updateTextViewStyleCount = 0
-
-    var shouldBeFocusedCount = 0
 
     private(set) var loadingError: String?
     private(set) var savingError: String?
@@ -35,15 +35,10 @@ final class TextBuffer {
         savingError != nil
     }
 
-    // Data 에서 NSTextView 링크를 갖는 것이 이상하지만;
-    // 효율을 위해 NSTextView.string 을 Source of truth 로 쓴다;
-    @ObservationIgnored weak var textView: NSTextView?
-
-    @ObservationIgnored var isTextViewEdited = false
-
     @ObservationIgnored private var fileMonitor: FileMonitor?
-
     @ObservationIgnored private var autoSaveTask: Task<Void, Never>?
+
+    private(set) var editable: Content?
 
     @ObservationIgnored private(set) var context: BrowserContext
 
@@ -55,37 +50,38 @@ final class TextBuffer {
         guard fileAssigned else { return }
 
         //logger.info("reset buffer:")
-        editingFileURL = nil
-        editingFilename = nil
-        editingFilePath = nil
-        originalText = ""
-        shouldCopyOriginalText = false
+        fileURL = nil
+        filename = nil
+        filePath = nil
         loadingError = nil
         savingError = nil
-        isTextViewEdited = false
         fileMonitor = nil
         autoSaveTask?.cancel()
+
+        editable = nil
     }
 
-    func loadFile(at url: URL?) {
+    func loadFile(at url: URL?, to editable: Content?) {
         guard closeFile() else { return }
+        guard let editable else { return }
         reset()
+        self.editable = editable
         if let url {
-            editingFileURL = url
-            editingFilename = url.lastPathComponent
-            editingFilePath = url.path(percentEncoded: false)
+            fileURL = url
+            filename = url.lastPathComponent
+            filePath = url.path(percentEncoded: false)
             loadFile()
         }
     }
 
-    func loadFile() {
-        guard let editingFileURL else { return }
+    private func loadFile() {
+        guard let fileURL else { return }
+        guard let editable else { return }
 
-        logger.info("load file: \(self.editingFilePath ?? "nil")")
+        logger.info("load file: \(self.filePath ?? "nil")")
 
         do {
-            originalText = try String(contentsOf: editingFileURL, encoding: .utf8)
-            shouldCopyOriginalText = true
+            try editable.load(contentOf: fileURL)
             startFileMonitoring()
             logger.info("----")
         } catch {
@@ -96,9 +92,9 @@ final class TextBuffer {
     }
 
     private func startFileMonitoring() {
-        guard let editingFileURL else { return }
+        guard let fileURL else { return }
         fileMonitor = FileMonitor()
-        fileMonitor!.startMonitoring(editingFileURL) { [weak self] event in
+        fileMonitor!.startMonitoring(fileURL) { [weak self] event in
             guard let self else { return }
             self.autoSaveTask?.cancel()
             self.loadFile()
@@ -111,7 +107,7 @@ final class TextBuffer {
     func closeFile() -> Bool {
         guard fileAssigned else { return true }
         guard autoSaveFile() else { return false }
-        logger.info("close file: \(self.editingFilePath ?? "nil")")
+        logger.info("close file: \(self.filePath ?? "nil")")
         reset()
         return true
     }
@@ -129,33 +125,23 @@ final class TextBuffer {
 
     func autoSaveFile() -> Bool {
         guard fileAssigned else { return true }
-        guard isTextViewEdited else { return true }
         guard !hasLoadingError else { return true }
         guard !hasSavingError else { return true }
+        guard editable?.shouldBeSaved == true else { return true }
         saveFile()
         return !context.hasAlertMessage
     }
 
     func saveFile() {
         guard fileAssigned else { return }
-        guard let editingFileURL else { return }
+        guard let fileURL else { return }
         guard !hasLoadingError else { return }
-        guard let text = textView?.string else { return }
-        guard let data = text.data(using: .utf8) else { return }
 
-        logger.info("save file: \(self.editingFilePath ?? "nil")")
+        logger.info("save file: \(self.filePath ?? "nil")")
         do {
-            // 이렇게 하면 먼저 붙였던 fileMonitor 가 떨어져 나간다. 하지 말 것.
-            // try text.write(to: url, atomically: true, encoding: .utf8)
-
             fileMonitor?.ignoreNextEvent = true
-
-            let fileHandle = try FileHandle(forWritingTo: editingFileURL)
-            try fileHandle.truncate(atOffset: 0)
-            try fileHandle.write(contentsOf: data)
-            try fileHandle.close()
+            try editable?.save(to: fileURL)
             savingError = nil
-            isTextViewEdited = false
         } catch {
             let message = error.localizedDescription
             savingError = message

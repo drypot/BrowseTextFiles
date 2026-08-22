@@ -45,11 +45,11 @@ nonisolated final class FileMonitor {
             // source.cancel() 한다음 close(fd) 하면 cancel 처리 전에 fd 가 closed 될 수 있다.
             // fd close 는 cancelHandler 에서 하도록 한다.
             close(fd)
-            // print("FileMonitor: closed, \(editingFileURL.lastPathComponent)")
+            // print("FileMonitor: closed, \(fileURL.lastPathComponent)")
         }
 
         source.resume()
-        // print("FileMonitor: started, \(editingFileURL.lastPathComponent)")
+        // print("FileMonitor: started, \(fileURL.lastPathComponent)")
     }
 
 //    suspend 를 하면 event handler 콜을 잠시 미룰 뿐 event 는 큐에 계속 쌓인다.

@@ -12,7 +12,7 @@ struct TextError: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text(browser.text.loadingError ?? "...")
+            Text(browser.textBuffer.loadingError ?? "...")
                 .textSelection(.enabled)
             // Button("Reload folder tree") {
             //     state.reload()

@@ -67,7 +67,7 @@ struct BrowserCommands: Commands {
             Divider()
 
             Button("Save File", systemImage: "square.and.arrow.down") {
-                browser?.text.saveFile()
+                browser?.textBuffer.saveFile()
             }
             .keyboardShortcut("s")
         }
