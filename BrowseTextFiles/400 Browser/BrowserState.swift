@@ -159,7 +159,7 @@ final class BrowserState {
             targetFile(newFileURL)
             fileList.loadFileList()
             Task {
-                text.shouldFocusedCount += 1
+                text.shouldBeFocusedCount += 1
             }
         } catch {
             let message = error.localizedDescription
@@ -203,7 +203,7 @@ final class BrowserState {
             targetFile(newFileURL)
             fileList.loadFileList()
             Task {
-                text.shouldFocusedCount += 1
+                text.shouldBeFocusedCount += 1
             }
         } catch {
             let message = error.localizedDescription

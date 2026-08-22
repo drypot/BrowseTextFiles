@@ -32,7 +32,7 @@ struct FileListContainer: View {
     func handleKeyPress(_ press: KeyPress) -> KeyPress.Result {
         switch press.key {
         case .tab:
-            browser.text.shouldFocusedCount += 1
+            browser.text.shouldBeFocusedCount += 1
 
         case .return:
             browser.showRenameFile()

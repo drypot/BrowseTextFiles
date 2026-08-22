@@ -15,7 +15,7 @@ struct TextFocus: ViewModifier {
     func body(content: Content) -> some View {
         content
             .focused($isFocused)
-            .onChange(of: browser.text.shouldFocusedCount) {
+            .onChange(of: browser.text.shouldBeFocusedCount) {
                 isFocused = true
             }
     }

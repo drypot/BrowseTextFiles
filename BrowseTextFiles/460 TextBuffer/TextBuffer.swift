@@ -22,7 +22,7 @@ final class TextBuffer {
     var shouldCopyOriginalText = false
     var updateTextViewStyleCount = 0
 
-    var shouldFocusedCount = 0
+    var shouldBeFocusedCount = 0
 
     private(set) var loadingError: String?
     private(set) var savingError: String?
